@@ -19,8 +19,8 @@ $Error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $Username = trim($_POST['Username']);
-    $Password = trim($_POST['Password']);
+    $Username = trim((string)($_POST['Username'] ?? ''));
+    $Password = trim((string)($_POST['Password'] ?? ''));
 
     if (!empty($Username) && !empty($Password)) {
 
@@ -45,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'expires' => time() + 86400,
                 'path' => '/',
                 'httponly' => true,
-                'samesite' => 'Strict'
+                'samesite' => 'Strict',
+                'secure' => EsHttps()
             ]);
 
             if ($User['Rol'] == 'admin') {
@@ -72,7 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>EST 101 | Sistema Escolar</title>
 
@@ -480,6 +486,690 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
+
+        /* Usuario y contraseña conservan exactamente las mayúsculas/minúsculas que escribo. */
+        .TextoLibre{
+            text-transform:none !important;
+        }
+
+        .TextoLibre::placeholder{
+            text-transform:uppercase !important;
+        }
+
+        .BtnVerPassword{
+            border:0;
+            background:#F8FAFC;
+            color:#7A0818;
+            padding:0 16px;
+            border-left:1px solid #E5E7EB;
+            font-size:1rem;
+        }
+
+        .BtnVerPassword:hover{
+            background:#F1F5F9;
+            color:#5E0612;
+        }
+    
+
+        /* =====================================================
+           EFECTOS VISUALES Y RESPONSIVIDAD GLOBAL
+           Estos estilos ayudan a que las pantallas se vean más modernas,
+           fluidas y adaptables en computadora, tablet y celular.
+        ===================================================== */
+        :root{
+            --AnimacionSuave:cubic-bezier(.22,.61,.36,1);
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        body{
+            overflow-x:hidden;
+        }
+
+        body::before{
+            content:"";
+            position:fixed;
+            inset:-40%;
+            pointer-events:none;
+            z-index:-1;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(161,13,38,.10), transparent 28%),
+                radial-gradient(circle at 85% 25%, rgba(37,99,235,.08), transparent 30%),
+                radial-gradient(circle at 50% 90%, rgba(245,158,11,.08), transparent 28%);
+            animation:FondoSuave 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes FondoSuave{
+            from{ transform:translate3d(-1%, -1%, 0) scale(1); }
+            to{ transform:translate3d(1%, 1%, 0) scale(1.04); }
+        }
+
+        @keyframes EntradaSuave{
+            from{ opacity:0; transform:translateY(14px) scale(.985); }
+            to{ opacity:1; transform:translateY(0) scale(1); }
+        }
+
+        @keyframes BrilloSutil{
+            from{ transform:translateX(-140%) skewX(-18deg); }
+            to{ transform:translateX(180%) skewX(-18deg); }
+        }
+
+        .card,
+        .card-custom,
+        .MainCard,
+        .StatsCard,
+        .CardClase,
+        .TopBar,
+        .TopHeader,
+        .GridLogin,
+        .alert,
+        .modal-content{
+            animation:EntradaSuave .45s var(--AnimacionSuave) both;
+        }
+
+        .card,
+        .card-custom,
+        .MainCard,
+        .StatsCard,
+        .CardClase{
+            will-change:transform, box-shadow;
+        }
+
+        .card:hover,
+        .card-custom:hover,
+        .MainCard:hover,
+        .StatsCard:hover,
+        .CardClase:hover{
+            transform:translateY(-4px);
+            box-shadow:0 18px 45px rgba(15,23,42,.10) !important;
+        }
+
+        .navbar,
+        .navbar-custom,
+        .NavbarMaestro{
+            position:sticky;
+            top:0;
+            z-index:1030;
+            backdrop-filter:blur(14px);
+        }
+
+        .btn,
+        .nav-link,
+        .ExportIcon,
+        .ActionBtn,
+        .BotonAccion,
+        .BtnExport,
+        .InputEstadoLabel,
+        .CardCaracteristica{
+            position:relative;
+            overflow:hidden;
+            transition:transform .20s var(--AnimacionSuave), box-shadow .20s var(--AnimacionSuave), border-color .20s ease, background .20s ease, color .20s ease;
+        }
+
+        .btn::after,
+        .ActionBtn::after,
+        .BotonAccion::after,
+        .BtnExport::after{
+            content:"";
+            position:absolute;
+            top:-40%;
+            left:0;
+            width:42%;
+            height:180%;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+            transform:translateX(-140%) skewX(-18deg);
+            pointer-events:none;
+        }
+
+        .btn:hover::after,
+        .ActionBtn:hover::after,
+        .BotonAccion:hover::after,
+        .BtnExport:hover::after{
+            animation:BrilloSutil .75s ease;
+        }
+
+        .btn:hover,
+        .ActionBtn:hover,
+        .ExportIcon:hover,
+        .BotonAccion:hover,
+        .BtnExport:hover{
+            transform:translateY(-2px);
+        }
+
+        .btn:active,
+        .ActionBtn:active,
+        .ExportIcon:active,
+        .BotonAccion:active,
+        .BtnExport:active{
+            transform:translateY(0) scale(.98);
+        }
+
+        .form-control,
+        .form-select,
+        textarea,
+        input[type="file"]{
+            transition:border-color .20s ease, box-shadow .20s ease, transform .20s ease, background .20s ease;
+        }
+
+        .form-control:hover,
+        .form-select:hover,
+        textarea:hover,
+        input[type="file"]:hover{
+            transform:translateY(-1px);
+            border-color:rgba(122,8,24,.35) !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        textarea:focus{
+            transform:translateY(-1px);
+        }
+
+        .table tbody tr{
+            transition:transform .20s var(--AnimacionSuave), box-shadow .20s var(--AnimacionSuave), background .20s ease;
+        }
+
+        .table tbody tr:hover{
+            transform:translateY(-2px) scale(1.002);
+        }
+
+        .badge{
+            transition:transform .20s ease, box-shadow .20s ease;
+        }
+
+        .badge:hover{
+            transform:translateY(-1px);
+            box-shadow:0 8px 18px rgba(15,23,42,.10);
+        }
+
+        .AutoHideAlert{
+            animation:EntradaSuave .35s var(--AnimacionSuave) both;
+        }
+
+        .PageFadeIn{
+            animation:EntradaSuave .40s var(--AnimacionSuave) both;
+        }
+
+        /* ================= RESPONSIVE GENERAL ================= */
+        img,
+        svg,
+        video{
+            max-width:100%;
+            height:auto;
+        }
+
+        .table-responsive{
+            -webkit-overflow-scrolling:touch;
+        }
+
+        @media (max-width:1200px){
+            .container,
+            .container-fluid{
+                max-width:100%;
+            }
+        }
+
+        @media (max-width:992px){
+            .navbar-brand{
+                font-size:1.05rem !important;
+                white-space:normal;
+            }
+
+            .nav-tabs{
+                display:flex;
+                flex-wrap:wrap;
+                gap:10px;
+            }
+
+            .nav-tabs .nav-item,
+            .nav-tabs .nav-link{
+                flex:1 1 180px;
+                text-align:center;
+            }
+
+            .d-flex.justify-content-between.align-items-center,
+            .d-flex.justify-content-between.align-items-end,
+            .d-flex.align-items-center.justify-content-between{
+                gap:14px;
+                flex-wrap:wrap;
+            }
+
+            .search-container,
+            .input-group.search-container,
+            .w-25,
+            .w-50{
+                width:100% !important;
+                max-width:100% !important;
+            }
+
+            .TopBar,
+            .TopHeader{
+                padding:22px !important;
+            }
+
+            .TopBar h2,
+            .TopHeader h2,
+            .TituloSistema{
+                font-size:clamp(1.45rem, 6vw, 2.3rem) !important;
+            }
+        }
+
+        @media (max-width:768px){
+            body{
+                font-size:.95rem;
+            }
+
+            .container,
+            .container-fluid{
+                padding-left:14px !important;
+                padding-right:14px !important;
+            }
+
+            .navbar .container-fluid{
+                gap:12px;
+            }
+
+            .navbar .btn,
+            .navbar a.btn{
+                width:100%;
+                justify-content:center;
+            }
+
+            .card-body,
+            .modal-body{
+                padding:18px !important;
+            }
+
+            .card-header,
+            .card-header-custom{
+                padding:16px 18px !important;
+            }
+
+            .row{
+                --bs-gutter-x:1rem;
+                --bs-gutter-y:1rem;
+            }
+
+            form.row > [class*="col-"],
+            .row > [class*="col-md-"],
+            .row > [class*="col-lg-"],
+            .row > [class*="col-xl-"]{
+                flex:0 0 100%;
+                max-width:100%;
+            }
+
+            .form-control,
+            .form-select,
+            .btn{
+                min-height:46px;
+            }
+
+            .table{
+                min-width:760px;
+            }
+
+            .table thead th,
+            .table tbody td{
+                white-space:nowrap;
+                padding:12px 10px !important;
+            }
+
+            .ActionBtn{
+                min-width:98px;
+            }
+
+            .ExportIcons,
+            .AdminActions{
+                gap:6px;
+            }
+
+            .modal-dialog{
+                margin:12px;
+            }
+        }
+
+        @media (max-width:576px){
+            .nav-tabs .nav-item,
+            .nav-tabs .nav-link{
+                flex:1 1 100%;
+            }
+
+            .btn,
+            .ActionBtn,
+            .BotonAccion,
+            .BtnExport{
+                width:100%;
+                justify-content:center;
+            }
+
+            .ExportIcon{
+                width:44px;
+                height:40px;
+            }
+
+            .TopBar,
+            .TopHeader,
+            .card,
+            .card-custom,
+            .MainCard,
+            .GridLogin{
+                border-radius:18px !important;
+            }
+
+            .HeaderIcon,
+            .IconBox,
+            .LoginIcon,
+            .MateriaIcon{
+                width:58px !important;
+                height:58px !important;
+                border-radius:16px !important;
+                font-size:1.45rem !important;
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce){
+            *,
+            *::before,
+            *::after{
+                animation:none !important;
+                transition:none !important;
+                scroll-behavior:auto !important;
+            }
+        }
+
+
+        /* ================= RESPONSIVE ESPECIAL PARA LOGIN ================= */
+        @media (max-width:992px){
+            .GridLogin{
+                grid-template-columns:1fr !important;
+                max-width:680px !important;
+            }
+
+            .PanelIzquierdo{
+                padding:42px 34px !important;
+                text-align:center;
+                align-items:center;
+            }
+
+            .DescripcionSistema{
+                max-width:100% !important;
+            }
+
+            .Caracteristicas{
+                grid-template-columns:1fr 1fr !important;
+                width:100%;
+            }
+
+            .PanelDerecho{
+                padding:42px 34px !important;
+            }
+        }
+
+        @media (max-width:576px){
+            .ContainerPrincipal{
+                padding:14px !important;
+                align-items:flex-start !important;
+            }
+
+            .GridLogin{
+                border-radius:22px !important;
+                margin-top:10px;
+            }
+
+            .PanelIzquierdo,
+            .PanelDerecho{
+                padding:28px 20px !important;
+            }
+
+            .TituloSistema{
+                font-size:2.3rem !important;
+            }
+
+            .Caracteristicas{
+                grid-template-columns:1fr !important;
+            }
+        }
+
+    
+
+        /* ==========================================================
+           BOTONES CON EFECTO DE RELLENO EN HOVER
+           En todas las páginas los botones con borde conservan su color
+           y al pasar el mouse se rellenan con ese mismo color.
+           ========================================================== */
+        .btn-outline-primary,
+        .btn-outline-success,
+        .btn-outline-danger,
+        .btn-outline-secondary{
+            background:#FFFFFF !important;
+            border-width:2px !important;
+            box-shadow:0 0 0 3px rgba(15,23,42,.04), 0 7px 18px rgba(15,23,42,.06) !important;
+            transition:all .18s ease !important;
+        }
+
+        .btn-outline-primary:hover{
+            background:#2563EB !important;
+            border-color:#2563EB !important;
+            color:#FFFFFF !important;
+        }
+
+        .btn-outline-success:hover{
+            background:#16A34A !important;
+            border-color:#16A34A !important;
+            color:#FFFFFF !important;
+        }
+
+        .btn-outline-danger:hover{
+            background:#DC2626 !important;
+            border-color:#DC2626 !important;
+            color:#FFFFFF !important;
+        }
+
+        .btn-outline-secondary:hover{
+            background:#6B7280 !important;
+            border-color:#6B7280 !important;
+            color:#FFFFFF !important;
+        }
+
+    
+
+        /* ==========================================================
+           EFECTO HOMOLOGADO: BORDE + RELLENO AL PASAR EL MOUSE
+           ----------------------------------------------------------
+           Este bloque lo agregué para que todos los botones de acción
+           y exportación tengan el mismo comportamiento visual:
+           primero se ven blancos con borde de color y, al pasar el mouse,
+           se rellenan con el color de su borde.
+           ========================================================== */
+        .ExportIcon,
+        .BtnExport,
+        .ActionBtn{
+            background:#FFFFFF !important;
+            border:2px solid currentColor !important;
+            transition:all .22s ease !important;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .ExportIcon i,
+        .ExportIcon span,
+        .BtnExport i,
+        .BtnExport span,
+        .ActionBtn i,
+        .ActionBtn span{
+            position:relative;
+            z-index:2;
+        }
+
+        .ExportIcon:hover,
+        .BtnExport:hover,
+        .ActionBtn:hover{
+            transform:translateY(-2px) !important;
+            box-shadow:0 12px 26px rgba(15,23,42,.16) !important;
+        }
+
+        /* Colores para exportaciones en tablas de administración */
+        .ExportIcon.ExportExcel:not(.ExportHoy):not(.ExportTodas){
+            color:#16A34A !important;
+            border-color:#16A34A !important;
+            box-shadow:0 0 0 3px rgba(22,163,74,.08), 0 6px 16px rgba(22,163,74,.08) !important;
+        }
+
+        .ExportIcon.ExportExcel:not(.ExportHoy):not(.ExportTodas):hover{
+            background:#16A34A !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportPdf:not(.ExportHoy):not(.ExportTodas){
+            color:#DC2626 !important;
+            border-color:#DC2626 !important;
+            box-shadow:0 0 0 3px rgba(220,38,38,.08), 0 6px 16px rgba(220,38,38,.08) !important;
+        }
+
+        .ExportIcon.ExportPdf:not(.ExportHoy):not(.ExportTodas):hover{
+            background:#DC2626 !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportExcel.ExportHoy{
+            color:#F59E0B !important;
+            border-color:#F59E0B !important;
+            box-shadow:0 0 0 3px rgba(245,158,11,.11), 0 6px 16px rgba(245,158,11,.10) !important;
+        }
+
+        .ExportIcon.ExportExcel.ExportHoy:hover{
+            background:#F59E0B !important;
+            color:#111827 !important;
+        }
+
+        .ExportIcon.ExportPdf.ExportHoy{
+            color:#D97706 !important;
+            border-color:#D97706 !important;
+            box-shadow:0 0 0 3px rgba(217,119,6,.11), 0 6px 16px rgba(217,119,6,.10) !important;
+        }
+
+        .ExportIcon.ExportPdf.ExportHoy:hover{
+            background:#D97706 !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportExcel.ExportTodas{
+            color:#2563EB !important;
+            border-color:#2563EB !important;
+            box-shadow:0 0 0 3px rgba(37,99,235,.10), 0 6px 16px rgba(37,99,235,.10) !important;
+        }
+
+        .ExportIcon.ExportExcel.ExportTodas:hover{
+            background:#2563EB !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportPdf.ExportTodas{
+            color:#7C3AED !important;
+            border-color:#7C3AED !important;
+            box-shadow:0 0 0 3px rgba(124,58,237,.10), 0 6px 16px rgba(124,58,237,.10) !important;
+        }
+
+        .ExportIcon.ExportPdf.ExportTodas:hover{
+            background:#7C3AED !important;
+            color:#FFFFFF !important;
+        }
+
+        /* Colores para botones de editar y eliminar dentro de tablas */
+        .ActionBtn.ActionEdit{
+            color:#2563EB !important;
+            border-color:#2563EB !important;
+            box-shadow:0 0 0 3px rgba(37,99,235,.08), 0 6px 16px rgba(37,99,235,.08) !important;
+        }
+
+        .ActionBtn.ActionEdit:hover{
+            background:#2563EB !important;
+            color:#FFFFFF !important;
+        }
+
+        .ActionBtn.ActionDelete{
+            color:#DC2626 !important;
+            border-color:#DC2626 !important;
+            box-shadow:0 0 0 3px rgba(220,38,38,.08), 0 6px 16px rgba(220,38,38,.08) !important;
+        }
+
+        .ActionBtn.ActionDelete:hover{
+            background:#DC2626 !important;
+            color:#FFFFFF !important;
+        }
+
+        /* Colores para exportaciones del portal docente */
+        .BtnExport.ExportCalifExcel{
+            color:#16A34A !important;
+            border-color:#16A34A !important;
+            box-shadow:0 0 0 3px rgba(22,163,74,.08), 0 6px 16px rgba(22,163,74,.08) !important;
+        }
+
+        .BtnExport.ExportCalifExcel:hover{
+            background:#16A34A !important;
+            color:#FFFFFF !important;
+        }
+
+        .BtnExport.ExportCalifPdf{
+            color:#DC2626 !important;
+            border-color:#DC2626 !important;
+            box-shadow:0 0 0 3px rgba(220,38,38,.08), 0 6px 16px rgba(220,38,38,.08) !important;
+        }
+
+        .BtnExport.ExportCalifPdf:hover{
+            background:#DC2626 !important;
+            color:#FFFFFF !important;
+        }
+
+        .BtnExport.ExportAsisExcel{
+            color:#F59E0B !important;
+            border-color:#F59E0B !important;
+            box-shadow:0 0 0 3px rgba(245,158,11,.10), 0 6px 16px rgba(245,158,11,.10) !important;
+        }
+
+        .BtnExport.ExportAsisExcel:hover{
+            background:#F59E0B !important;
+            color:#111827 !important;
+        }
+
+        .BtnExport.ExportAsisPdf{
+            color:#2563EB !important;
+            border-color:#2563EB !important;
+            box-shadow:0 0 0 3px rgba(37,99,235,.10), 0 6px 16px rgba(37,99,235,.10) !important;
+        }
+
+        .BtnExport.ExportAsisPdf:hover{
+            background:#2563EB !important;
+            color:#FFFFFF !important;
+        }
+
+
+        .BtnConsultaPadre{
+            margin-top:14px;
+            width:100%;
+            min-height:48px;
+            border-radius:999px;
+            border:2px solid #2563EB;
+            background:white;
+            color:#2563EB;
+            font-weight:900;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:9px;
+            text-decoration:none;
+            transition:.2s ease;
+        }
+
+        .BtnConsultaPadre:hover{
+            background:#2563EB;
+            color:white;
+            transform:translateY(-2px);
+            box-shadow:0 12px 26px rgba(37,99,235,.22);
+        }
+
     </style>
 
 </head>
@@ -635,8 +1325,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input
                             type="text"
                             name="Username"
-                            class="form-control InputCustom"
-                            placeholder="Ingresa tu usuario"
+                            class="form-control InputCustom TextoLibre"
+                            placeholder="INGRESA TU USUARIO"
                             required
                         >
 
@@ -659,10 +1349,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input
                             type="password"
                             name="Password"
-                            class="form-control InputCustom"
-                            placeholder="••••••••"
+                            id="PasswordLogin"
+                            class="form-control InputCustom TextoLibre"
+                            placeholder="CONTRASEÑA"
                             required
                         >
+
+                        <button
+                            type="button"
+                            class="BtnVerPassword"
+                            id="TogglePasswordLogin"
+                            title="MOSTRAR U OCULTAR CONTRASEÑA"
+                            aria-label="MOSTRAR U OCULTAR CONTRASEÑA"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
 
                     </div>
 
@@ -678,6 +1379,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             </form>
 
+            <a href="ConsultaPadre.php" class="BtnConsultaPadre">
+                <i class="fa-solid fa-user-shield"></i>
+                CONSULTA DE ASISTENCIA PARA PADRES
+            </a>
+
             <div class="FooterLogin">
 
                 <i class="fa-solid fa-code"></i>
@@ -691,6 +1397,167 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const PasswordInput = document.getElementById('PasswordLogin');
+    const ToggleButton = document.getElementById('TogglePasswordLogin');
+
+    if (PasswordInput && ToggleButton) {
+        ToggleButton.addEventListener('click', function(){
+            const Icon = ToggleButton.querySelector('i');
+            const IsHidden = PasswordInput.type === 'password';
+
+            PasswordInput.type = IsHidden ? 'text' : 'password';
+
+            if (Icon) {
+                Icon.classList.toggle('fa-eye', !IsHidden);
+                Icon.classList.toggle('fa-eye-slash', IsHidden);
+            }
+        });
+    }
+});
+</script>
+
+
+
+<!-- ============================================================
+     NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
+     ------------------------------------------------------------
+     Este bloque lo uso para homologar todas las notificaciones.
+     Cualquier alerta puede cerrarse manualmente con la tachita y,
+     si el usuario no la cierra, desaparece sola después de unos segundos.
+     ============================================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    function OcultarNotificacion(Alerta) {
+        if (!Alerta || Alerta.dataset.Ocultando === '1') {
+            return;
+        }
+
+        Alerta.dataset.Ocultando = '1';
+        Alerta.style.transition = 'opacity .45s ease, transform .45s ease, max-height .45s ease, margin .45s ease, padding .45s ease';
+        Alerta.style.opacity = '0';
+        Alerta.style.transform = 'translateY(-12px)';
+        Alerta.style.maxHeight = '0';
+        Alerta.style.marginTop = '0';
+        Alerta.style.marginBottom = '0';
+        Alerta.style.paddingTop = '0';
+        Alerta.style.paddingBottom = '0';
+
+        setTimeout(function() {
+            Alerta.remove();
+        }, 500);
+    }
+
+    function PrepararNotificacion(Alerta) {
+        if (!Alerta || Alerta.dataset.NotificacionPreparada === '1') {
+            return;
+        }
+
+        Alerta.dataset.NotificacionPreparada = '1';
+        Alerta.classList.add('alert-dismissible', 'fade', 'show');
+        Alerta.style.position = 'relative';
+
+        let BotonCerrar = Alerta.querySelector('.btn-close');
+
+        if (!BotonCerrar) {
+            BotonCerrar = document.createElement('button');
+            BotonCerrar.type = 'button';
+            BotonCerrar.className = 'btn-close';
+            BotonCerrar.setAttribute('aria-label', 'CERRAR');
+            Alerta.appendChild(BotonCerrar);
+        }
+
+        BotonCerrar.addEventListener('click', function(Evento) {
+            Evento.preventDefault();
+            OcultarNotificacion(Alerta);
+        });
+
+        function ProgramarAutoCierre() {
+            if (!Alerta.classList.contains('d-none') && Alerta.dataset.AutoCierreProgramado !== '1') {
+                Alerta.dataset.AutoCierreProgramado = '1';
+
+                setTimeout(function() {
+                    OcultarNotificacion(Alerta);
+                }, 4500);
+            }
+        }
+
+        ProgramarAutoCierre();
+
+        const Observador = new MutationObserver(function() {
+            ProgramarAutoCierre();
+        });
+
+        Observador.observe(Alerta, {
+            attributes: true,
+            attributeFilter: ['class', 'style']
+        });
+    }
+
+    document.querySelectorAll('.alert').forEach(function(Alerta) {
+        PrepararNotificacion(Alerta);
+    });
+
+    const ObservadorBody = new MutationObserver(function(Mutaciones) {
+        Mutaciones.forEach(function(Mutacion) {
+            Mutacion.addedNodes.forEach(function(Nodo) {
+                if (Nodo.nodeType !== 1) {
+                    return;
+                }
+
+                if (Nodo.classList && Nodo.classList.contains('alert')) {
+                    PrepararNotificacion(Nodo);
+                }
+
+                if (Nodo.querySelectorAll) {
+                    Nodo.querySelectorAll('.alert').forEach(function(Alerta) {
+                        PrepararNotificacion(Alerta);
+                    });
+                }
+            });
+        });
+    });
+
+    ObservadorBody.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+});
+</script>
+
+
+<script>
+// =====================================================
+// EFECTOS VISUALES LIGEROS
+// Agrego una clase al cargar la página y preparo animaciones suaves.
+// No afecta la lógica del sistema, solo mejora la experiencia visual.
+// =====================================================
+document.addEventListener('DOMContentLoaded', function(){
+    document.body.classList.add('PageFadeIn');
+
+    const Elementos = document.querySelectorAll('.card, .card-custom, .MainCard, .StatsCard, .CardClase, .alert, .TopBar, .TopHeader');
+
+    if ('IntersectionObserver' in window) {
+        const Observador = new IntersectionObserver(function(Entradas){
+            Entradas.forEach(function(Entrada){
+                if (Entrada.isIntersecting) {
+                    Entrada.target.style.animationPlayState = 'running';
+                    Observador.unobserve(Entrada.target);
+                }
+            });
+        }, { threshold:0.08 });
+
+        Elementos.forEach(function(Elemento, Indice){
+            Elemento.style.animationDelay = Math.min(Indice * 0.035, 0.35) + 's';
+            Observador.observe(Elemento);
+        });
+    }
+});
+</script>
 
 </body>
 
