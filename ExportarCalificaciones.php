@@ -52,7 +52,7 @@ if ($Modo === 'Asignacion') {
         FROM Asignaciones A
         JOIN Grupos G ON A.GrupoId = G.Id
         JOIN Usuarios U ON A.MaestroId = U.Id
-        WHERE A.Id = ?
+        WHERE A.Id = ? AND A.Activo = 1
     ");
     $Stmt->execute([$AsignacionId]);
     $Info = $Stmt->fetch();
@@ -72,6 +72,7 @@ if ($Modo === 'Asignacion') {
             ON C.AlumnoId = Al.Id
             AND C.AsignacionId = ?
         WHERE Al.GrupoId = ?
+        AND Al.Activo = 1
         ORDER BY Al.NombreCompleto ASC
     ");
     $StmtAlumnos->execute([$AsignacionId, $Info['GrupoId']]);
@@ -680,7 +681,63 @@ if ($Modo === 'Asignacion') {
             color:#FFFFFF !important;
         }
 
-    </style></head><body>
+    </style>    <style>
+/* ============================================================
+   SGCE FIX7 - DISENO INTEGRADO POR ARCHIVO
+   Se elimino sgce-fix.css. Este bloque queda dentro de cada PHP
+   para evitar cache y conflictos entre archivos externos.
+   ============================================================ */
+:root{
+    --SgceGuinda:#7A0818;
+    --SgceGuinda2:#A10D26;
+    --SgceGuindaHover:#4F050F;
+    --SgceTexto:#1F2937;
+    --SgceMuted:#6B7280;
+    --SgceFondo:#EEF2F7;
+    --SgceBorde:#E5E7EB;
+    --SgceCard:#FFFFFF;
+    --SgceAzul:#2563EB;
+    --SgceAzulHover:#1D4ED8;
+    --SgceRojo:#DC2626;
+    --SgceRojoHover:#991B1B;
+    --SgceVerde:#15803D;
+    --SgceVerdeHover:#166534;
+    --SgceNaranja:#C2410C;
+    --SgceMorado:#6D28D9;
+}
+html{scroll-behavior:smooth;}
+body{overflow-x:hidden;}
+.card,.Card,.Panel,.TablaCard,.DashboardCard,.Contenedor,.ContainerCard{border-radius:22px !important;}
+.form-control,.form-select{border-radius:14px !important;border:2px solid var(--SgceBorde) !important;min-height:44px;}
+.form-control:focus,.form-select:focus{border-color:var(--SgceGuinda) !important;box-shadow:0 0 0 .18rem rgba(122,8,24,.14) !important;}
+.btn:not(.btn-close):not(.navbar-toggler),.ActionBtn,.BotonAccion,.BtnExport,.BtnGuardar,.BtnBack,.ExportIcon,.BtnLogin,.MenuButton,.ModuleButton,.NavButton{min-height:42px;border-radius:999px !important;font-weight:800 !important;letter-spacing:.02em;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;text-decoration:none !important;transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease !important;}
+.btn:not(.btn-close):not(.navbar-toggler):hover,.ActionBtn:hover,.BotonAccion:hover,.BtnExport:hover,.BtnGuardar:hover,.BtnBack:hover,.ExportIcon:hover,.BtnLogin:hover,.MenuButton:hover,.ModuleButton:hover,.NavButton:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(122,8,24,.20) !important;}
+.btn-primary,.ActionPrimary,.BtnGuardar,.BtnCalificaciones,.BtnLogin,.ModuleButton,.MenuButton,.NavButton,.BotonAccion{background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda2)) !important;border:2px solid var(--SgceGuinda) !important;color:#FFFFFF !important;}
+.btn-primary:hover,.ActionPrimary:hover,.BtnGuardar:hover,.BtnCalificaciones:hover,.BtnLogin:hover,.ModuleButton:hover,.MenuButton:hover,.NavButton:hover,.BotonAccion:hover{background:linear-gradient(135deg,var(--SgceGuindaHover),var(--SgceGuinda)) !important;border-color:var(--SgceGuindaHover) !important;color:#FFFFFF !important;}
+.ActionBtn.ActionEdit,.btn-outline-primary.ActionBtn,.btn-outline-primary:not(.SgceBtnInicio):not(.ReporteBtn){background:linear-gradient(135deg,var(--SgceAzul),#3B82F6) !important;border-color:var(--SgceAzul) !important;color:#FFFFFF !important;}
+.ActionBtn.ActionEdit:hover,.btn-outline-primary.ActionBtn:hover,.btn-outline-primary:not(.SgceBtnInicio):not(.ReporteBtn):hover{background:linear-gradient(135deg,var(--SgceAzulHover),var(--SgceAzul)) !important;border-color:var(--SgceAzulHover) !important;color:#FFFFFF !important;}
+.ActionBtn.ActionDelete,.btn-outline-danger.ActionBtn,.btn-outline-danger:not(.SgceBtnInicio):not(.ReporteBtn),.btn-danger{background:linear-gradient(135deg,var(--SgceRojo),#EF4444) !important;border-color:var(--SgceRojo) !important;color:#FFFFFF !important;}
+.ActionBtn.ActionDelete:hover,.btn-outline-danger.ActionBtn:hover,.btn-outline-danger:not(.SgceBtnInicio):not(.ReporteBtn):hover,.btn-danger:hover{background:linear-gradient(135deg,var(--SgceRojoHover),var(--SgceRojo)) !important;border-color:var(--SgceRojoHover) !important;color:#FFFFFF !important;}
+.ExportIcon.ExportExcel,.BtnExport.ExportCalifExcel,.BtnExport.ExportAsisExcel,.btn-success{background:linear-gradient(135deg,var(--SgceVerde),#22C55E) !important;border-color:var(--SgceVerde) !important;color:#FFFFFF !important;}
+.ExportIcon.ExportExcel:hover,.BtnExport.ExportCalifExcel:hover,.BtnExport.ExportAsisExcel:hover,.btn-success:hover{background:linear-gradient(135deg,var(--SgceVerdeHover),var(--SgceVerde)) !important;border-color:var(--SgceVerdeHover) !important;color:#FFFFFF !important;}
+.ExportIcon.ExportPdf,.BtnExport.ExportCalifPdf,.BtnExport.ExportAsisPdf{background:linear-gradient(135deg,#B91C1C,#EF4444) !important;border-color:#B91C1C !important;color:#FFFFFF !important;}
+.ExportIcon.ExportHoy{background:linear-gradient(135deg,var(--SgceNaranja),#F97316) !important;border-color:var(--SgceNaranja) !important;color:#FFFFFF !important;}
+.ExportIcon.ExportTodas{background:linear-gradient(135deg,var(--SgceMorado),#8B5CF6) !important;border-color:var(--SgceMorado) !important;color:#FFFFFF !important;}
+.SgceBtnInicio,a.SgceBtnInicio,button.SgceBtnInicio,.Top .SgceBtnInicio,.navbar .SgceBtnInicio,.BtnBack.SgceBtnInicio,.ActionBtn.SgceBtnInicio,.btn-outline-light.SgceBtnInicio,.btn-light.SgceBtnInicio,.BtnGuinda.SgceBtnInicio{background:#FFFFFF !important;color:var(--SgceGuinda) !important;border:2px solid rgba(255,255,255,.92) !important;border-radius:999px !important;box-shadow:0 8px 18px rgba(0,0,0,.10) !important;text-decoration:none !important;}
+.SgceBtnInicio:hover,a.SgceBtnInicio:hover,button.SgceBtnInicio:hover,.Top .SgceBtnInicio:hover,.navbar .SgceBtnInicio:hover,.BtnBack.SgceBtnInicio:hover,.ActionBtn.SgceBtnInicio:hover,.btn-outline-light.SgceBtnInicio:hover,.btn-light.SgceBtnInicio:hover,.BtnGuinda.SgceBtnInicio:hover{background:#FFFFFF !important;color:var(--SgceGuinda) !important;border-color:#FFFFFF !important;transform:translateY(-1px) !important;box-shadow:0 10px 22px rgba(0,0,0,.14) !important;}
+.SgceBtnInicio i,.SgceBtnInicio:hover i{color:var(--SgceGuinda) !important;}
+a[href*="Logout.php"],.BtnLogout,a[href*="Logout.php"]:hover,.BtnLogout:hover{background:#FFFFFF !important;color:var(--SgceGuinda) !important;border:2px solid rgba(255,255,255,.92) !important;box-shadow:0 8px 18px rgba(0,0,0,.12) !important;}
+a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:hover i{color:var(--SgceGuinda) !important;}
+.ReporteBtn,button.ReporteBtn,.card .ReporteBtn,.Card .ReporteBtn,form .ReporteBtn,.btn.ReporteBtn{background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda2)) !important;color:#FFFFFF !important;border:2px solid var(--SgceGuinda) !important;border-radius:999px !important;min-height:46px !important;font-weight:800 !important;letter-spacing:.3px !important;box-shadow:0 10px 22px rgba(122,8,24,.18) !important;text-decoration:none !important;}
+.ReporteBtn:hover,button.ReporteBtn:hover,.card .ReporteBtn:hover,.Card .ReporteBtn:hover,form .ReporteBtn:hover,.btn.ReporteBtn:hover{background:linear-gradient(135deg,var(--SgceGuindaHover),var(--SgceGuinda)) !important;color:#FFFFFF !important;border-color:var(--SgceGuindaHover) !important;transform:translateY(-2px) !important;box-shadow:0 14px 30px rgba(122,8,24,.28) !important;}
+.ReporteBtn i,.ReporteBtn:hover i,button.ReporteBtn i,button.ReporteBtn:hover i{color:#FFFFFF !important;}
+.table td,.table th{vertical-align:middle !important;}
+.modal-dialog{display:flex;align-items:center;min-height:calc(100vh - 1rem);}
+.modal-content{border-radius:24px !important;border:0 !important;box-shadow:0 25px 70px rgba(0,0,0,.25) !important;}
+@media (max-width:768px){.btn:not(.btn-close):not(.navbar-toggler),.ActionBtn,.BotonAccion,.BtnExport,.ReporteBtn{width:100%;}.table-responsive{border-radius:18px;}}
+</style>
+
+</head><body>
         <table><tr><td colspan="3" class="Titulo">ESCUELA SECUNDARIA TÉCNICA 101</td></tr><tr><td colspan="3" class="SubTitulo">REPORTE OFICIAL DE CALIFICACIONES</td></tr></table><br>
         <table>
             <tr><td class="Info">Materia</td><td colspan="2"><?= htmlspecialchars($Info['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?></td></tr>
@@ -824,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php endforeach; ?>
         </tbody></table>
         <div class="Firma"><div class="FirmaLinea"><strong><?= htmlspecialchars($Info['Maestro'], ENT_QUOTES, 'UTF-8') ?></strong><br>Firma Del Docente</div></div>
-        <script>window.onload=function(){setTimeout(function(){window.print();},300);}</script>
+        <script>window.onload=function(){setTimeout(function(){window.focus(); window.print();},300);}</script>
         </body></html>
         <?php exit;
     }
@@ -835,7 +892,7 @@ document.addEventListener('DOMContentLoaded', function() {
 | MODO GRUPO: reporte de todas las materias/asignaciones del grupo
 |--------------------------------------------------------------------------
 */
-$StmtGrupo = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id = ?");
+$StmtGrupo = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND Activo = 1");
 $StmtGrupo->execute([$GrupoId]);
 $InfoGrupo = $StmtGrupo->fetch();
 if (!$InfoGrupo) { die("Grupo No Disponible."); }
@@ -855,7 +912,7 @@ $StmtAsignaciones = $Pdo->prepare("
 $StmtAsignaciones->execute([$GrupoId]);
 $ListaAsignaciones = $StmtAsignaciones->fetchAll();
 
-$StmtAlumnos = $Pdo->prepare("SELECT Id, NombreCompleto FROM Alumnos WHERE GrupoId = ? ORDER BY NombreCompleto ASC");
+$StmtAlumnos = $Pdo->prepare("SELECT Id, NombreCompleto FROM Alumnos WHERE GrupoId = ? AND Activo = 1 ORDER BY NombreCompleto ASC");
 $StmtAlumnos->execute([$GrupoId]);
 $ListaAlumnos = $StmtAlumnos->fetchAll();
 
@@ -936,7 +993,239 @@ if ($Tipo === 'Pdf') {
         .form-select{
             letter-spacing:0.2px;
         }
-</style></head><body>
+
+
+        /* ==========================================================
+           AJUSTE FINAL: BOTONES RELLENOS Y ESTILO INSTITUCIONAL
+           ----------------------------------------------------------
+           En esta versión dejé los botones principales rellenos, sin
+           fondo blanco. La intención es que el sistema se vea más firme,
+           más escolar e institucional usando el color guinda/tinto de la
+           Secundaria Técnica 101. En hover solo oscurecen un poco para
+           que se note claramente el paso del mouse.
+           ========================================================== */
+        :root{
+            --Tinto101:#7A0818;
+            --Tinto101Claro:#A10D26;
+            --Tinto101Hover:#4F050F;
+            --AzulAccion:#2563EB;
+            --AzulAccionHover:#1D4ED8;
+            --RojoAccion:#DC2626;
+            --RojoAccionHover:#991B1B;
+            --VerdeExcel:#15803D;
+            --VerdeExcelHover:#166534;
+            --RojoPdf:#B91C1C;
+            --RojoPdfHover:#7F1D1D;
+            --NaranjaHoy:#C2410C;
+            --NaranjaHoyHover:#9A3412;
+            --MoradoTodas:#6D28D9;
+            --MoradoTodasHover:#4C1D95;
+        }
+
+        .nav-tabs .nav-link,
+        .NavButton,
+        .MenuButton,
+        .ModuleButton,
+        .btn:not(.btn-close),
+        .BotonAccion,
+        .BtnExport,
+        .BtnGuardar,
+        .BtnBack,
+        .BtnLogin,
+        .ActionBtn{
+            background:linear-gradient(135deg,var(--Tinto101),var(--Tinto101Claro)) !important;
+            color:#FFFFFF !important;
+            border:2px solid var(--Tinto101) !important;
+            box-shadow:0 10px 22px rgba(122,8,24,.18) !important;
+            text-decoration:none !important;
+        }
+
+        .nav-tabs .nav-link i,
+        .NavButton i,
+        .MenuButton i,
+        .ModuleButton i,
+        .btn:not(.btn-close) i,
+        .BotonAccion i,
+        .BtnExport i,
+        .BtnGuardar i,
+        .BtnBack i,
+        .BtnLogin i,
+        .ActionBtn i,
+        .ActionBtn span,
+        .BtnExport span,
+        .btn:not(.btn-close) span{
+            color:inherit !important;
+        }
+
+        .nav-tabs .nav-link:hover,
+        .nav-tabs .nav-link.active,
+        .NavButton:hover,
+        .MenuButton:hover,
+        .ModuleButton:hover,
+        .btn:not(.btn-close):hover,
+        .BotonAccion:hover,
+        .BtnExport:hover,
+        .BtnGuardar:hover,
+        .BtnBack:hover,
+        .BtnLogin:hover,
+        .ActionBtn:hover{
+            background:linear-gradient(135deg,var(--Tinto101Hover),var(--Tinto101)) !important;
+            color:#FFFFFF !important;
+            border-color:var(--Tinto101Hover) !important;
+            transform:translateY(-2px) !important;
+            box-shadow:0 14px 30px rgba(122,8,24,.28) !important;
+        }
+
+        .ModulosRecomendados .ActionBtn{
+            background:linear-gradient(135deg,var(--Tinto101),var(--Tinto101Claro)) !important;
+            color:#FFFFFF !important;
+            border-color:var(--Tinto101) !important;
+        }
+
+        .ModulosRecomendados .ActionBtn:hover{
+            background:linear-gradient(135deg,var(--Tinto101Hover),var(--Tinto101)) !important;
+            color:#FFFFFF !important;
+            border-color:var(--Tinto101Hover) !important;
+        }
+
+        /* Acciones de tablas: quedan rellenas desde el inicio. */
+        .ActionBtn.ActionEdit,
+        .btn-outline-primary.ActionBtn,
+        .btn-outline-primary{
+            background:linear-gradient(135deg,var(--AzulAccion),#3B82F6) !important;
+            border-color:var(--AzulAccion) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ActionBtn.ActionEdit:hover,
+        .btn-outline-primary.ActionBtn:hover,
+        .btn-outline-primary:hover{
+            background:linear-gradient(135deg,var(--AzulAccionHover),var(--AzulAccion)) !important;
+            border-color:var(--AzulAccionHover) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ActionBtn.ActionDelete,
+        .btn-outline-danger.ActionBtn,
+        .btn-outline-danger{
+            background:linear-gradient(135deg,var(--RojoAccion),#EF4444) !important;
+            border-color:var(--RojoAccion) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ActionBtn.ActionDelete:hover,
+        .btn-outline-danger.ActionBtn:hover,
+        .btn-outline-danger:hover{
+            background:linear-gradient(135deg,var(--RojoAccionHover),var(--RojoAccion)) !important;
+            border-color:var(--RojoAccionHover) !important;
+            color:#FFFFFF !important;
+        }
+
+        /* Exportaciones: se conservan colores, pero ahora rellenos. */
+        .ExportIcon{
+            color:#FFFFFF !important;
+            border-width:2px !important;
+            box-shadow:0 8px 20px rgba(15,23,42,.12) !important;
+        }
+
+        .ExportIcon i,
+        .ExportIcon span{
+            color:inherit !important;
+        }
+
+        .ExportIcon.ExportExcel:not(.ExportHoy):not(.ExportTodas){
+            background:linear-gradient(135deg,var(--VerdeExcel),#22C55E) !important;
+            border-color:var(--VerdeExcel) !important;
+        }
+
+        .ExportIcon.ExportExcel:not(.ExportHoy):not(.ExportTodas):hover{
+            background:linear-gradient(135deg,var(--VerdeExcelHover),var(--VerdeExcel)) !important;
+            border-color:var(--VerdeExcelHover) !important;
+        }
+
+        .ExportIcon.ExportPdf:not(.ExportHoy):not(.ExportTodas){
+            background:linear-gradient(135deg,var(--RojoPdf),#EF4444) !important;
+            border-color:var(--RojoPdf) !important;
+        }
+
+        .ExportIcon.ExportPdf:not(.ExportHoy):not(.ExportTodas):hover{
+            background:linear-gradient(135deg,var(--RojoPdfHover),var(--RojoPdf)) !important;
+            border-color:var(--RojoPdfHover) !important;
+        }
+
+        .ExportIcon.ExportHoy{
+            background:linear-gradient(135deg,var(--NaranjaHoy),#F97316) !important;
+            border-color:var(--NaranjaHoy) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportHoy:hover{
+            background:linear-gradient(135deg,var(--NaranjaHoyHover),var(--NaranjaHoy)) !important;
+            border-color:var(--NaranjaHoyHover) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportTodas{
+            background:linear-gradient(135deg,var(--MoradoTodas),#8B5CF6) !important;
+            border-color:var(--MoradoTodas) !important;
+            color:#FFFFFF !important;
+        }
+
+        .ExportIcon.ExportTodas:hover{
+            background:linear-gradient(135deg,var(--MoradoTodasHover),var(--MoradoTodas)) !important;
+            border-color:var(--MoradoTodasHover) !important;
+            color:#FFFFFF !important;
+        }
+
+        /* Botones de exportación del portal docente, también rellenos. */
+        .BtnExport.ExportCalifExcel,
+        .BtnExport.ExportAsisExcel{
+            background:linear-gradient(135deg,var(--VerdeExcel),#22C55E) !important;
+            border-color:var(--VerdeExcel) !important;
+            color:#FFFFFF !important;
+        }
+
+        .BtnExport.ExportCalifExcel:hover,
+        .BtnExport.ExportAsisExcel:hover{
+            background:linear-gradient(135deg,var(--VerdeExcelHover),var(--VerdeExcel)) !important;
+            border-color:var(--VerdeExcelHover) !important;
+        }
+
+        .BtnExport.ExportCalifPdf,
+        .BtnExport.ExportAsisPdf{
+            background:linear-gradient(135deg,var(--RojoPdf),#EF4444) !important;
+            border-color:var(--RojoPdf) !important;
+            color:#FFFFFF !important;
+        }
+
+        .BtnExport.ExportCalifPdf:hover,
+        .BtnExport.ExportAsisPdf:hover{
+            background:linear-gradient(135deg,var(--RojoPdfHover),var(--RojoPdf)) !important;
+            border-color:var(--RojoPdfHover) !important;
+        }
+
+        /* En asignaciones el grupo se muestra como texto normal, sin rectángulo. */
+        .GrupoTextoSimple{
+            display:inline-flex !important;
+            align-items:center !important;
+            justify-content:center !important;
+            gap:6px !important;
+            background:transparent !important;
+            border:0 !important;
+            box-shadow:none !important;
+            padding:0 !important;
+            margin:0 !important;
+            border-radius:0 !important;
+            color:#111827 !important;
+            font-weight:800 !important;
+            white-space:nowrap !important;
+        }
+
+        .GrupoTextoSimple i{
+            color:#111827 !important;
+        }
+
+    </style></head><body>
     <div class="NoPrint p-3 rounded mb-4 d-flex justify-content-between align-items-center"><div>Vista Preliminar</div><button onclick="window.print()" class="btn btn-danger btn-sm rounded-pill fw-bold px-4">Imprimir / Guardar PDF</button></div>
     <div class="Header d-flex justify-content-between"><div><h2>ESCUELA SECUNDARIA TÉCNICA 101</h2><h5>Reporte De Calificaciones Por Grupo</h5></div><div class="text-end"><strong>Grupo:</strong> <?= htmlspecialchars($InfoGrupo['Grado'], ENT_QUOTES, 'UTF-8') ?> "<?= htmlspecialchars($InfoGrupo['Grupo'], ENT_QUOTES, 'UTF-8') ?>"<br><strong>Turno:</strong> <?= htmlspecialchars($InfoGrupo['Turno'], ENT_QUOTES, 'UTF-8') ?></div></div>
     <table><thead><tr><th style="width:40px;">No.</th><th>Alumno</th><?php foreach($ListaAsignaciones as $Asg): ?><th><?= htmlspecialchars($Asg['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?><br><small><?= htmlspecialchars($Asg['Maestro'], ENT_QUOTES, 'UTF-8') ?></small></th><?php endforeach; ?></tr></thead><tbody>
@@ -944,7 +1233,7 @@ if ($Tipo === 'Pdf') {
         <tr><td class="Centro"><?= $N++ ?></td><td><?= htmlspecialchars($Al['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></td><?php foreach($ListaAsignaciones as $Asg): ?><td class="Centro"><?= FormatoCalificacion($MapaCalificaciones[(int)$Al['Id']][(int)$Asg['Id']] ?? null) ?></td><?php endforeach; ?></tr>
     <?php endforeach; ?>
     </tbody></table>
-    <script>window.onload=function(){setTimeout(function(){window.print();},300);}
+    <script>window.onload=function(){setTimeout(function(){window.focus(); window.print();},300);}
 
     // ============================================================
     // HOMOLOGAR TEXTOS POR DEFECTO EN MAYÚSCULAS

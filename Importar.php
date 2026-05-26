@@ -19,6 +19,8 @@ if (!$UserSession || $UserSession['Rol'] !== 'admin') {
     exit;
 }
 
+RequerirCsrfPost();
+
 // Valido la pestaña para regresar al mismo módulo después de importar.
 function TabPermitidaImportar($Tab) {
     $Permitidas = ['maestros','grupos','alumnos','asignaciones'];
@@ -79,6 +81,36 @@ function TieneCsvValido($NombreArchivo) {
     return strtolower(pathinfo((string)$NombreArchivo, PATHINFO_EXTENSION)) === 'csv';
 }
 
+function ValidarArchivoCsvSubido($Archivo) {
+    if (!isset($Archivo) || !is_array($Archivo) || ($Archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        return 'Error al subir el archivo.';
+    }
+
+    if (($Archivo['size'] ?? 0) <= 0) {
+        return 'El archivo está vacío.';
+    }
+
+    if (($Archivo['size'] ?? 0) > 5 * 1024 * 1024) {
+        return 'El archivo CSV no debe pesar más de 5 MB.';
+    }
+
+    if (!TieneCsvValido($Archivo['name'] ?? '')) {
+        return 'Solo se permiten archivos CSV.';
+    }
+
+    $MimePermitidos = ['text/plain', 'text/csv', 'application/csv', 'application/vnd.ms-excel', 'application/octet-stream'];
+    if (function_exists('finfo_open') && is_uploaded_file($Archivo['tmp_name'] ?? '')) {
+        $Finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $Mime = $Finfo ? finfo_file($Finfo, $Archivo['tmp_name']) : '';
+        if ($Finfo) { finfo_close($Finfo); }
+        if ($Mime !== '' && !in_array($Mime, $MimePermitidos, true)) {
+            return 'El archivo no parece ser un CSV válido.';
+        }
+    }
+
+    return '';
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: Admin.php');
     exit;
@@ -101,12 +133,9 @@ if (isset($_POST['ImportarAlumnos'])) {
         RedirectAdminImportar('alumnos', 'Por favor, selecciona un grupo válido.', true);
     }
 
-    if (!isset($_FILES['CsvAlumnos']) || $_FILES['CsvAlumnos']['error'] !== UPLOAD_ERR_OK) {
-        RedirectAdminImportar('alumnos', 'Error al subir el archivo de alumnos.', true);
-    }
-
-    if (!TieneCsvValido($_FILES['CsvAlumnos']['name'])) {
-        RedirectAdminImportar('alumnos', 'Solo se permiten archivos CSV.', true);
+    $ErrorCsv = ValidarArchivoCsvSubido($_FILES['CsvAlumnos'] ?? null);
+    if ($ErrorCsv !== '') {
+        RedirectAdminImportar('alumnos', $ErrorCsv, true);
     }
 
     $Handle = fopen($_FILES['CsvAlumnos']['tmp_name'], 'r');
@@ -121,7 +150,7 @@ if (isset($_POST['ImportarAlumnos'])) {
     $Duplicados = 0;
     $Invalidos = 0;
 
-    $CheckGrupo = $Pdo->prepare("SELECT COUNT(*) FROM Grupos WHERE Id = ?");
+    $CheckGrupo = $Pdo->prepare("SELECT COUNT(*) FROM Grupos WHERE Id = ? AND Activo = 1");
     $CheckGrupo->execute([$GrupoId]);
 
     if ((int)$CheckGrupo->fetchColumn() <= 0) {
@@ -169,6 +198,7 @@ if (isset($_POST['ImportarAlumnos'])) {
         }
 
         $Pdo->commit();
+        RegistrarBitacora($Pdo, $UserSession, 'IMPORTAR_ALUMNOS', 'Alumnos', null, 'ALUMNOS IMPORTADOS: ' . $Insertados);
 
     } catch (Exception $E) {
         if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
@@ -194,12 +224,9 @@ if (isset($_POST['ImportarAlumnos'])) {
 // =====================================================
 if (isset($_POST['ImportarDocentes'])) {
 
-    if (!isset($_FILES['CsvDocentes']) || $_FILES['CsvDocentes']['error'] !== UPLOAD_ERR_OK) {
-        RedirectAdminImportar('maestros', 'Error al subir el archivo de docentes.', true);
-    }
-
-    if (!TieneCsvValido($_FILES['CsvDocentes']['name'])) {
-        RedirectAdminImportar('maestros', 'Solo se permiten archivos CSV.', true);
+    $ErrorCsv = ValidarArchivoCsvSubido($_FILES['CsvDocentes'] ?? null);
+    if ($ErrorCsv !== '') {
+        RedirectAdminImportar('maestros', $ErrorCsv, true);
     }
 
     $Handle = fopen($_FILES['CsvDocentes']['tmp_name'], 'r');
@@ -256,6 +283,7 @@ if (isset($_POST['ImportarDocentes'])) {
         }
 
         $Pdo->commit();
+        RegistrarBitacora($Pdo, $UserSession, 'IMPORTAR_DOCENTES', 'Usuarios', null, 'DOCENTES IMPORTADOS: ' . $Insertados);
 
     } catch (Exception $E) {
         if ($Pdo->inTransaction()) { $Pdo->rollBack(); }

@@ -9,6 +9,7 @@
 require 'Conexion.php';
 
 // Cargo la conexión para poder limpiar el token de sesión en la base de datos.
+$UsuarioActivoLogout = VerificarSesionCookie($Pdo);
 
 // ELIMINAR TOKEN DE BASE DE DATOS
 
@@ -28,6 +29,11 @@ if (isset($_COOKIE['AuthToken'])) {
         $Stmt->execute([
             $Token
         ]);
+
+        // Registro el cierre de sesión antes de eliminar la cookie.
+        if ($UsuarioActivoLogout) {
+            RegistrarBitacora($Pdo, $UsuarioActivoLogout, 'CIERRE_SESION', 'Usuarios', $UsuarioActivoLogout['Id'], 'USUARIO CERRÓ SESIÓN');
+        }
     }
 
     // ELIMINAR COOKIE
