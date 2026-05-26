@@ -2,6 +2,11 @@
 
 require 'Conexion.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+
+    session_start();
+}
+
 $UserSession = VerificarSesionCookie($Pdo);
 
 if (
@@ -160,11 +165,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             ";
                         }
 
-                        header(
-                            "Location: Admin.php?M="
-                            .
-                            urlencode($Mensaje)
-                        );
+                        $_SESSION['Mensaje'] = $Mensaje;
+
+                        header("Location: Admin.php");
 
                         exit;
                     }
@@ -331,11 +334,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             ";
                         }
 
-                        header(
-                            "Location: Admin.php?M="
-                            .
-                            urlencode($Mensaje)
-                        );
+                        $_SESSION['Mensaje'] = $Mensaje;
+
+                        header("Location: Admin.php");
 
                         exit;
                     }
