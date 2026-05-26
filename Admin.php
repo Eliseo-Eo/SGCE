@@ -489,6 +489,40 @@ $Grupos   = $Pdo->query("SELECT * FROM Grupos WHERE Activo = 1 ORDER BY Turno, G
 $Alumnos  = $Pdo->query("SELECT A.Id, A.NombreCompleto, A.GrupoId, G.Grado, G.Grupo, G.Turno FROM Alumnos A LEFT JOIN Grupos G ON A.GrupoId = G.Id WHERE A.Activo = 1 ORDER BY G.Turno, G.Grado, G.Grupo, A.NombreCompleto ASC")->fetchAll();
 $Asignaciones = $Pdo->query("SELECT Asn.Id, Asn.MateriaNombre, U.NombreCompleto AS Maestro, U.Id AS MaestroId, G.Id AS GrupoId, G.Grado, G.Grupo, G.Turno FROM Asignaciones Asn JOIN Usuarios U ON Asn.MaestroId = U.Id JOIN Grupos G ON Asn.GrupoId = G.Id WHERE Asn.Activo = 1 AND U.Activo = 1 AND G.Activo = 1 ORDER BY U.NombreCompleto ASC")->fetchAll();
 
+// Expedientes: no cargo todos los alumnos de golpe.
+// Primero se selecciona un grupo y solo entonces se consulta ese padrón.
+$ExpedienteGrupoId = intval($_GET['ExpGrupoId'] ?? 0);
+$AlumnosExpedientes = [];
+$GrupoExpedienteSeleccionado = null;
+
+if ($ExpedienteGrupoId > 0) {
+    $StmtGrupoExp = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND Activo = 1 LIMIT 1");
+    $StmtGrupoExp->execute([$ExpedienteGrupoId]);
+    $GrupoExpedienteSeleccionado = $StmtGrupoExp->fetch();
+
+    if ($GrupoExpedienteSeleccionado) {
+        $StmtExp = $Pdo->prepare("
+            SELECT
+                A.Id,
+                A.NombreCompleto,
+                A.GrupoId,
+                G.Grado,
+                G.Grupo,
+                G.Turno
+            FROM Alumnos A
+            JOIN Grupos G ON A.GrupoId = G.Id
+            WHERE A.Activo = 1
+            AND G.Activo = 1
+            AND A.GrupoId = ?
+            ORDER BY A.NombreCompleto ASC
+        ");
+        $StmtExp->execute([$ExpedienteGrupoId]);
+        $AlumnosExpedientes = $StmtExp->fetchAll();
+    } else {
+        $ExpedienteGrupoId = 0;
+    }
+}
+
 $TotalAlumnosActivos = (int)$Pdo->query("SELECT COUNT(*) FROM Alumnos WHERE Activo = 1")->fetchColumn();
 $TotalMaestrosActivos = (int)$Pdo->query("SELECT COUNT(*) FROM Usuarios WHERE Rol='maestro' AND Activo = 1")->fetchColumn();
 $TotalGruposActivos = (int)$Pdo->query("SELECT COUNT(*) FROM Grupos WHERE Activo = 1")->fetchColumn();
@@ -1080,7 +1114,7 @@ try {
         input[type="file"]{
             border:2px solid var(--SgceBorde) !important;
             border-radius:16px !important;
-            min-height:48px !important;
+            min-height:44px !important;
             padding:12px 14px !important;
             box-shadow:none !important;
             transition:.18s ease !important;
@@ -3088,6 +3122,105 @@ try {
             }
         }
 
+
+
+/* ==========================================================
+   FIX8 - BOTONES DE REGRESO / CERRAR SESION HOMOLOGADOS
+   Estado normal: blanco con texto tinto.
+   Hover: relleno tinto con texto blanco.
+   ========================================================== */
+.SgceBtnInicio,
+a.SgceBtnInicio,
+button.SgceBtnInicio,
+.BtnBack.SgceBtnInicio,
+.ActionBtn.SgceBtnInicio,
+.btn.SgceBtnInicio,
+.btn-outline-light.SgceBtnInicio,
+.btn-light.SgceBtnInicio,
+.BtnGuinda.SgceBtnInicio,
+.Top .SgceBtnInicio,
+.navbar .SgceBtnInicio,
+.NavbarMaestro .SgceBtnInicio,
+.navbar-custom .SgceBtnInicio{
+    background:#FFFFFF !important;
+    color:#7A0818 !important;
+    border:2px solid #FFFFFF !important;
+    border-radius:999px !important;
+    box-shadow:0 8px 18px rgba(0,0,0,.12) !important;
+    text-decoration:none !important;
+}
+.SgceBtnInicio i,
+a.SgceBtnInicio i,
+button.SgceBtnInicio i,
+.btn.SgceBtnInicio i{
+    color:#7A0818 !important;
+}
+.SgceBtnInicio:hover,
+a.SgceBtnInicio:hover,
+button.SgceBtnInicio:hover,
+.BtnBack.SgceBtnInicio:hover,
+.ActionBtn.SgceBtnInicio:hover,
+.btn.SgceBtnInicio:hover,
+.btn-outline-light.SgceBtnInicio:hover,
+.btn-light.SgceBtnInicio:hover,
+.BtnGuinda.SgceBtnInicio:hover,
+.Top .SgceBtnInicio:hover,
+.navbar .SgceBtnInicio:hover,
+.NavbarMaestro .SgceBtnInicio:hover,
+.navbar-custom .SgceBtnInicio:hover{
+    background:linear-gradient(135deg,#7A0818,#A10D26) !important;
+    color:#FFFFFF !important;
+    border-color:#7A0818 !important;
+    transform:translateY(-1px) !important;
+    box-shadow:0 12px 26px rgba(122,8,24,.28) !important;
+}
+.SgceBtnInicio:hover i,
+a.SgceBtnInicio:hover i,
+button.SgceBtnInicio:hover i,
+.btn.SgceBtnInicio:hover i{
+    color:#FFFFFF !important;
+}
+
+a[href*="Logout.php"],
+.BtnLogout,
+.NavbarMaestro a[href="Logout.php"],
+.navbar-custom a[href="Logout.php"],
+.navbar a[href="Logout.php"]{
+    background:#FFFFFF !important;
+    color:#7A0818 !important;
+    border:2px solid #FFFFFF !important;
+    border-radius:999px !important;
+    box-shadow:0 8px 18px rgba(0,0,0,.12) !important;
+    text-decoration:none !important;
+}
+a[href*="Logout.php"] i,
+.BtnLogout i,
+.NavbarMaestro a[href="Logout.php"] i,
+.navbar-custom a[href="Logout.php"] i,
+.navbar a[href="Logout.php"] i,
+a[href*="Logout.php"] span{
+    color:#7A0818 !important;
+}
+a[href*="Logout.php"]:hover,
+.BtnLogout:hover,
+.NavbarMaestro a[href="Logout.php"]:hover,
+.navbar-custom a[href="Logout.php"]:hover,
+.navbar a[href="Logout.php"]:hover{
+    background:linear-gradient(135deg,#7A0818,#A10D26) !important;
+    color:#FFFFFF !important;
+    border-color:#7A0818 !important;
+    transform:translateY(-1px) !important;
+    box-shadow:0 12px 26px rgba(122,8,24,.28) !important;
+}
+a[href*="Logout.php"]:hover i,
+.BtnLogout:hover i,
+.NavbarMaestro a[href="Logout.php"]:hover i,
+.navbar-custom a[href="Logout.php"]:hover i,
+.navbar a[href="Logout.php"]:hover i,
+a[href*="Logout.php"]:hover span{
+    color:#FFFFFF !important;
+}
+
 </style>
     <style>
 /* ============================================================
@@ -3143,7 +3276,725 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
 .modal-dialog{display:flex;align-items:center;min-height:calc(100vh - 1rem);}
 .modal-content{border-radius:24px !important;border:0 !important;box-shadow:0 25px 70px rgba(0,0,0,.25) !important;}
 @media (max-width:768px){.btn:not(.btn-close):not(.navbar-toggler),.ActionBtn,.BotonAccion,.BtnExport,.ReporteBtn{width:100%;}.table-responsive{border-radius:18px;}}
+
+
+/* ==========================================================
+   FIX8 - BOTONES DE REGRESO / CERRAR SESION HOMOLOGADOS
+   Estado normal: blanco con texto tinto.
+   Hover: relleno tinto con texto blanco.
+   ========================================================== */
+.SgceBtnInicio,
+a.SgceBtnInicio,
+button.SgceBtnInicio,
+.BtnBack.SgceBtnInicio,
+.ActionBtn.SgceBtnInicio,
+.btn.SgceBtnInicio,
+.btn-outline-light.SgceBtnInicio,
+.btn-light.SgceBtnInicio,
+.BtnGuinda.SgceBtnInicio,
+.Top .SgceBtnInicio,
+.navbar .SgceBtnInicio,
+.NavbarMaestro .SgceBtnInicio,
+.navbar-custom .SgceBtnInicio{
+    background:#FFFFFF !important;
+    color:#7A0818 !important;
+    border:2px solid #FFFFFF !important;
+    border-radius:999px !important;
+    box-shadow:0 8px 18px rgba(0,0,0,.12) !important;
+    text-decoration:none !important;
+}
+.SgceBtnInicio i,
+a.SgceBtnInicio i,
+button.SgceBtnInicio i,
+.btn.SgceBtnInicio i{
+    color:#7A0818 !important;
+}
+.SgceBtnInicio:hover,
+a.SgceBtnInicio:hover,
+button.SgceBtnInicio:hover,
+.BtnBack.SgceBtnInicio:hover,
+.ActionBtn.SgceBtnInicio:hover,
+.btn.SgceBtnInicio:hover,
+.btn-outline-light.SgceBtnInicio:hover,
+.btn-light.SgceBtnInicio:hover,
+.BtnGuinda.SgceBtnInicio:hover,
+.Top .SgceBtnInicio:hover,
+.navbar .SgceBtnInicio:hover,
+.NavbarMaestro .SgceBtnInicio:hover,
+.navbar-custom .SgceBtnInicio:hover{
+    background:linear-gradient(135deg,#7A0818,#A10D26) !important;
+    color:#FFFFFF !important;
+    border-color:#7A0818 !important;
+    transform:translateY(-1px) !important;
+    box-shadow:0 12px 26px rgba(122,8,24,.28) !important;
+}
+.SgceBtnInicio:hover i,
+a.SgceBtnInicio:hover i,
+button.SgceBtnInicio:hover i,
+.btn.SgceBtnInicio:hover i{
+    color:#FFFFFF !important;
+}
+
+a[href*="Logout.php"],
+.BtnLogout,
+.NavbarMaestro a[href="Logout.php"],
+.navbar-custom a[href="Logout.php"],
+.navbar a[href="Logout.php"]{
+    background:#FFFFFF !important;
+    color:#7A0818 !important;
+    border:2px solid #FFFFFF !important;
+    border-radius:999px !important;
+    box-shadow:0 8px 18px rgba(0,0,0,.12) !important;
+    text-decoration:none !important;
+}
+a[href*="Logout.php"] i,
+.BtnLogout i,
+.NavbarMaestro a[href="Logout.php"] i,
+.navbar-custom a[href="Logout.php"] i,
+.navbar a[href="Logout.php"] i,
+a[href*="Logout.php"] span{
+    color:#7A0818 !important;
+}
+a[href*="Logout.php"]:hover,
+.BtnLogout:hover,
+.NavbarMaestro a[href="Logout.php"]:hover,
+.navbar-custom a[href="Logout.php"]:hover,
+.navbar a[href="Logout.php"]:hover{
+    background:linear-gradient(135deg,#7A0818,#A10D26) !important;
+    color:#FFFFFF !important;
+    border-color:#7A0818 !important;
+    transform:translateY(-1px) !important;
+    box-shadow:0 12px 26px rgba(122,8,24,.28) !important;
+}
+a[href*="Logout.php"]:hover i,
+.BtnLogout:hover i,
+.NavbarMaestro a[href="Logout.php"]:hover i,
+.navbar-custom a[href="Logout.php"]:hover i,
+.navbar a[href="Logout.php"]:hover i,
+a[href*="Logout.php"]:hover span{
+    color:#FFFFFF !important;
+}
+
+
+
+/* ==========================================================
+   SGCE FIX9 - HOMOLOGACIÓN VISUAL FINAL
+   Botones con borde visible, hover institucional y efectos.
+   ========================================================== */
+:root{
+    --SgceGuinda:#7A0818;
+    --SgceGuinda2:#A10D26;
+    --SgceGuindaHover:#5E0612;
+    --SgceTintoOscuro:#4F0610;
+    --SgceBordeSuave:rgba(122,8,24,.22);
+    --SgceSombra:0 12px 28px rgba(122,8,24,.20);
+    --SgceSombraHover:0 18px 38px rgba(122,8,24,.32);
+    --SgceAnim:cubic-bezier(.22,.61,.36,1);
+}
+
+/* Botones superiores: cerrar sesión y volver a inicio */
+a.SgceBtnInicio,
+button.SgceBtnInicio,
+.btn.SgceBtnInicio,
+.BtnBack.SgceBtnInicio,
+.ActionBtn.SgceBtnInicio,
+.btn-light.SgceBtnInicio,
+.btn-outline-light.SgceBtnInicio,
+.Top .SgceBtnInicio,
+.navbar .SgceBtnInicio,
+.NavbarMaestro .SgceBtnInicio,
+.navbar-custom .SgceBtnInicio,
+a[href="Logout.php"],
+.navbar a[href="Logout.php"],
+.NavbarMaestro a[href="Logout.php"]{
+    background:#FFFFFF !important;
+    color:var(--SgceGuinda) !important;
+    border:2px solid rgba(122,8,24,.35) !important;
+    border-radius:999px !important;
+    box-shadow:0 8px 20px rgba(122,8,24,.12), inset 0 0 0 1px rgba(255,255,255,.75) !important;
+    font-weight:800 !important;
+    letter-spacing:.2px !important;
+    text-decoration:none !important;
+    transition:transform .22s var(--SgceAnim), box-shadow .22s var(--SgceAnim), background .22s var(--SgceAnim), color .22s var(--SgceAnim), border-color .22s var(--SgceAnim) !important;
+}
+a.SgceBtnInicio i,
+button.SgceBtnInicio i,
+.btn.SgceBtnInicio i,
+a[href="Logout.php"] i{color:var(--SgceGuinda) !important; transition:color .22s var(--SgceAnim) !important;}
+
+a.SgceBtnInicio:hover,
+button.SgceBtnInicio:hover,
+.btn.SgceBtnInicio:hover,
+.BtnBack.SgceBtnInicio:hover,
+.ActionBtn.SgceBtnInicio:hover,
+.btn-light.SgceBtnInicio:hover,
+.btn-outline-light.SgceBtnInicio:hover,
+.Top .SgceBtnInicio:hover,
+.navbar .SgceBtnInicio:hover,
+.NavbarMaestro .SgceBtnInicio:hover,
+.navbar-custom .SgceBtnInicio:hover,
+a[href="Logout.php"]:hover,
+.navbar a[href="Logout.php"]:hover,
+.NavbarMaestro a[href="Logout.php"]:hover{
+    background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda2)) !important;
+    color:#FFFFFF !important;
+    border-color:rgba(122,8,24,.75) !important;
+    transform:translateY(-2px) !important;
+    box-shadow:0 14px 32px rgba(122,8,24,.28), inset 0 0 0 1px rgba(255,255,255,.18) !important;
+}
+a.SgceBtnInicio:hover i,
+button.SgceBtnInicio:hover i,
+.btn.SgceBtnInicio:hover i,
+a[href="Logout.php"]:hover i{color:#FFFFFF !important;}
+
+/* Botones de reportes: rellenos, tinto y con movimiento como dashboard */
+.ReporteBtn,
+button.ReporteBtn,
+.btn.ReporteBtn,
+.Btn.ReporteBtn,
+form .ReporteBtn,
+.card .ReporteBtn,
+.Card .ReporteBtn,
+body .ReporteBtn,
+body button.ReporteBtn,
+body .btn.ReporteBtn,
+body .Btn.ReporteBtn{
+    position:relative !important;
+    overflow:hidden !important;
+    isolation:isolate !important;
+    background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda2)) !important;
+    color:#FFFFFF !important;
+    border:2px solid var(--SgceTintoOscuro) !important;
+    border-radius:999px !important;
+    min-height:44px !important;
+    font-weight:900 !important;
+    letter-spacing:.35px !important;
+    text-transform:uppercase !important;
+    box-shadow:0 10px 22px rgba(122,8,24,.22), inset 0 1px 0 rgba(255,255,255,.18) !important;
+    transition:transform .22s var(--SgceAnim), box-shadow .22s var(--SgceAnim), filter .22s var(--SgceAnim), border-color .22s var(--SgceAnim) !important;
+}
+.ReporteBtn::before,
+button.ReporteBtn::before,
+.btn.ReporteBtn::before,
+.Btn.ReporteBtn::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:-1;
+    background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.22) 40%,transparent 72%);
+    transform:translateX(-120%);
+    transition:transform .55s var(--SgceAnim);
+}
+.ReporteBtn:hover,
+button.ReporteBtn:hover,
+.btn.ReporteBtn:hover,
+.Btn.ReporteBtn:hover,
+form .ReporteBtn:hover,
+.card .ReporteBtn:hover,
+.Card .ReporteBtn:hover,
+body .ReporteBtn:hover,
+body button.ReporteBtn:hover,
+body .btn.ReporteBtn:hover,
+body .Btn.ReporteBtn:hover{
+    background:linear-gradient(135deg,var(--SgceGuindaHover),var(--SgceGuinda)) !important;
+    color:#FFFFFF !important;
+    border-color:var(--SgceTintoOscuro) !important;
+    transform:translateY(-3px) scale(1.01) !important;
+    box-shadow:0 18px 38px rgba(122,8,24,.34), inset 0 1px 0 rgba(255,255,255,.25) !important;
+    filter:saturate(1.05) !important;
+}
+.ReporteBtn:hover::before,
+button.ReporteBtn:hover::before,
+.btn.ReporteBtn:hover::before,
+.Btn.ReporteBtn:hover::before{transform:translateX(120%);}
+.ReporteBtn i,
+.ReporteBtn:hover i,
+button.ReporteBtn i,
+button.ReporteBtn:hover i,
+.btn.ReporteBtn i,
+.btn.ReporteBtn:hover i{color:#FFFFFF !important;}
+.ReporteBtn:active,
+button.ReporteBtn:active,
+.btn.ReporteBtn:active{transform:translateY(0) scale(.99) !important;}
+
+/* Efectos generales para botones de acciones sin romper colores existentes */
+.ActionBtn,
+.BotonAccion,
+.BtnExport,
+.BtnGuinda,
+.ExportIcon,
+button.btn:not(.btn-close):not(.navbar-toggler),
+a.btn:not(.btn-close):not(.navbar-toggler){
+    transition:transform .22s var(--SgceAnim), box-shadow .22s var(--SgceAnim), filter .22s var(--SgceAnim), background .22s var(--SgceAnim), color .22s var(--SgceAnim) !important;
+}
+.ActionBtn:hover,
+.BotonAccion:hover,
+.BtnExport:hover,
+.BtnGuinda:hover,
+.ExportIcon:hover,
+button.btn:not(.btn-close):not(.navbar-toggler):hover,
+a.btn:not(.btn-close):not(.navbar-toggler):hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 14px 30px rgba(15,23,42,.18) !important;
+}
+
+/* Tarjetas y cajas con respiración visual */
+.card,
+.Card,
+.CardClase,
+.ModuloCard,
+.StatCard,
+.PanelCard,
+.DashboardCard{
+    transition:transform .22s var(--SgceAnim), box-shadow .22s var(--SgceAnim), border-color .22s var(--SgceAnim) !important;
+}
+.card:hover,
+.Card:hover,
+.CardClase:hover,
+.ModuloCard:hover,
+.PanelCard:hover,
+.DashboardCard:hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 18px 45px rgba(15,23,42,.11) !important;
+}
+
+/* Inputs más limpios y consistentes */
+.form-control:focus,
+.form-select:focus{
+    border-color:var(--SgceGuinda) !important;
+    box-shadow:0 0 0 .22rem rgba(122,8,24,.12) !important;
+}
+
+/* Respeto a usuarios con reducción de movimiento */
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important; animation:none !important; transform:none !important;}
+}
 </style>
+
+
+
+<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
+<style>
+:root{
+    --SgceFixTinto:#7A0818;
+    --SgceFixTinto2:#A10D26;
+    --SgceFixTintoOscuro:#3B030A;
+    --SgceFixAnim:cubic-bezier(.22,.61,.36,1);
+}
+a.SgceBtnInicio,
+button.SgceBtnInicio,
+.btn.SgceBtnInicio,
+.BtnBack.SgceBtnInicio,
+.ActionBtn.SgceBtnInicio,
+.btn-light.SgceBtnInicio,
+.btn-outline-light.SgceBtnInicio,
+.Top .SgceBtnInicio,
+.TopHeader .SgceBtnInicio,
+.navbar .SgceBtnInicio,
+.navbar-custom .SgceBtnInicio,
+.NavbarMaestro .SgceBtnInicio,
+a[href="Logout.php"],
+.navbar a[href="Logout.php"],
+.navbar-custom a[href="Logout.php"],
+.NavbarMaestro a[href="Logout.php"],
+.BtnLogout{
+    background:#FFFFFF !important;
+    color:var(--SgceFixTinto) !important;
+    border:3px solid var(--SgceFixTinto) !important;
+    border-radius:999px !important;
+    min-height:42px !important;
+    padding:10px 22px !important;
+    font-weight:900 !important;
+    letter-spacing:.02em !important;
+    text-decoration:none !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:.45rem !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.75),
+        0 8px 18px rgba(122,8,24,.20) !important;
+    transition:transform .22s var(--SgceFixAnim), box-shadow .22s var(--SgceFixAnim), background .22s var(--SgceFixAnim), color .22s var(--SgceFixAnim), border-color .22s var(--SgceFixAnim) !important;
+}
+a.SgceBtnInicio i,
+button.SgceBtnInicio i,
+.btn.SgceBtnInicio i,
+a[href="Logout.php"] i,
+a[href="Logout.php"] span,
+.BtnLogout i,
+.BtnLogout span{
+    color:inherit !important;
+}
+a.SgceBtnInicio:hover,
+button.SgceBtnInicio:hover,
+.btn.SgceBtnInicio:hover,
+.BtnBack.SgceBtnInicio:hover,
+.ActionBtn.SgceBtnInicio:hover,
+.btn-light.SgceBtnInicio:hover,
+.btn-outline-light.SgceBtnInicio:hover,
+.Top .SgceBtnInicio:hover,
+.TopHeader .SgceBtnInicio:hover,
+.navbar .SgceBtnInicio:hover,
+.navbar-custom .SgceBtnInicio:hover,
+.NavbarMaestro .SgceBtnInicio:hover,
+a[href="Logout.php"]:hover,
+.navbar a[href="Logout.php"]:hover,
+.navbar-custom a[href="Logout.php"]:hover,
+.NavbarMaestro a[href="Logout.php"]:hover,
+.BtnLogout:hover{
+    background:linear-gradient(135deg,var(--SgceFixTinto),var(--SgceFixTintoOscuro)) !important;
+    color:#FFFFFF !important;
+    border:3px solid var(--SgceFixTintoOscuro) !important;
+    transform:translateY(-2px) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.16),
+        0 14px 30px rgba(122,8,24,.36),
+        0 0 0 4px rgba(122,8,24,.10) !important;
+}
+a.SgceBtnInicio:hover i,
+button.SgceBtnInicio:hover i,
+.btn.SgceBtnInicio:hover i,
+a[href="Logout.php"]:hover i,
+a[href="Logout.php"]:hover span,
+.BtnLogout:hover i,
+.BtnLogout:hover span{
+    color:#FFFFFF !important;
+}
+/* Reportes: botones principales siempre rellenos y con borde tinto fuerte */
+.ReporteBtn,
+button.ReporteBtn,
+.btn.ReporteBtn,
+.Btn.ReporteBtn,
+form .ReporteBtn,
+.card .ReporteBtn,
+.Card .ReporteBtn,
+body .ReporteBtn,
+body button.ReporteBtn,
+body .btn.ReporteBtn{
+    background:linear-gradient(135deg,var(--SgceFixTinto),var(--SgceFixTinto2)) !important;
+    color:#FFFFFF !important;
+    border:3px solid var(--SgceFixTintoOscuro) !important;
+    border-radius:999px !important;
+    min-height:44px !important;
+    font-weight:900 !important;
+    letter-spacing:.03em !important;
+    box-shadow:0 12px 28px rgba(122,8,24,.28) !important;
+    text-decoration:none !important;
+    transition:transform .22s var(--SgceFixAnim), box-shadow .22s var(--SgceFixAnim), filter .22s var(--SgceFixAnim) !important;
+}
+.ReporteBtn:hover,
+button.ReporteBtn:hover,
+.btn.ReporteBtn:hover,
+.Btn.ReporteBtn:hover,
+form .ReporteBtn:hover,
+.card .ReporteBtn:hover,
+.Card .ReporteBtn:hover,
+body .ReporteBtn:hover,
+body button.ReporteBtn:hover,
+body .btn.ReporteBtn:hover{
+    background:linear-gradient(135deg,var(--SgceFixTintoOscuro),var(--SgceFixTinto)) !important;
+    color:#FFFFFF !important;
+    border-color:var(--SgceFixTintoOscuro) !important;
+    transform:translateY(-2px) scale(1.01) !important;
+    box-shadow:0 16px 34px rgba(122,8,24,.36),0 0 0 4px rgba(122,8,24,.10) !important;
+    filter:saturate(1.06) !important;
+}
+.ReporteBtn i,
+.ReporteBtn:hover i,
+button.ReporteBtn i,
+button.ReporteBtn:hover i,
+.btn.ReporteBtn i,
+.btn.ReporteBtn:hover i{
+    color:#FFFFFF !important;
+}
+@media (max-width:768px){
+    a.SgceBtnInicio,button.SgceBtnInicio,.btn.SgceBtnInicio,a[href="Logout.php"],.BtnLogout{width:100%;}
+}
+
+
+/* ==========================================================
+   SGCE FIX11 - BOTONES SUPERIORES HOMOLOGADOS DEFINITIVOS
+   Aplicado directo en cada archivo para evitar conflictos.
+   ========================================================== */
+:root{
+    --SgceTopTinto:#7A0818;
+    --SgceTopTinto2:#A10D26;
+    --SgceTopTintoDark:#3B030A;
+    --SgceTopAnim:cubic-bezier(.22,.61,.36,1);
+}
+
+/* Volver a inicio / Cerrar sesión: mismo tamaño exacto */
+a.SgceBtnInicio,
+button.SgceBtnInicio,
+.btn.SgceBtnInicio,
+.BtnBack.SgceBtnInicio,
+.ActionBtn.SgceBtnInicio,
+.btn-light.SgceBtnInicio,
+.btn-outline-light.SgceBtnInicio,
+.BtnGuinda.SgceBtnInicio,
+.Top .SgceBtnInicio,
+.TopHeader .SgceBtnInicio,
+.navbar .SgceBtnInicio,
+.navbar-custom .SgceBtnInicio,
+.NavbarMaestro .SgceBtnInicio,
+a[href="Logout.php"],
+a[href*="Logout.php"],
+.navbar a[href="Logout.php"],
+.navbar-custom a[href="Logout.php"],
+.NavbarMaestro a[href="Logout.php"],
+#BtnCerrarSesionAdmin,
+.BotonCerrarSesionBlanco,
+.BtnLogout{
+    width:210px !important;
+    min-width:210px !important;
+    max-width:210px !important;
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 18px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:9px !important;
+    border-radius:999px !important;
+    background:#FFFFFF !important;
+    background-image:none !important;
+    color:var(--SgceTopTinto) !important;
+    border:3px solid var(--SgceTopTinto) !important;
+    font-weight:900 !important;
+    font-size:14px !important;
+    line-height:1 !important;
+    letter-spacing:.02em !important;
+    text-transform:none !important;
+    text-decoration:none !important;
+    white-space:nowrap !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.85),
+        0 8px 18px rgba(122,8,24,.18),
+        0 0 0 3px rgba(122,8,24,.06) !important;
+    opacity:1 !important;
+    filter:none !important;
+    transition:
+        transform .22s var(--SgceTopAnim),
+        box-shadow .22s var(--SgceTopAnim),
+        background .22s var(--SgceTopAnim),
+        color .22s var(--SgceTopAnim),
+        border-color .22s var(--SgceTopAnim) !important;
+}
+
+a.SgceBtnInicio i,
+button.SgceBtnInicio i,
+.btn.SgceBtnInicio i,
+.BtnBack.SgceBtnInicio i,
+.ActionBtn.SgceBtnInicio i,
+a[href="Logout.php"] i,
+a[href*="Logout.php"] i,
+a[href="Logout.php"] span,
+a[href*="Logout.php"] span,
+#BtnCerrarSesionAdmin i,
+#BtnCerrarSesionAdmin span,
+.BotonCerrarSesionBlanco i,
+.BotonCerrarSesionBlanco span,
+.BtnLogout i,
+.BtnLogout span{
+    color:inherit !important;
+    transition:color .22s var(--SgceTopAnim) !important;
+}
+
+a.SgceBtnInicio:hover,
+button.SgceBtnInicio:hover,
+.btn.SgceBtnInicio:hover,
+.BtnBack.SgceBtnInicio:hover,
+.ActionBtn.SgceBtnInicio:hover,
+.btn-light.SgceBtnInicio:hover,
+.btn-outline-light.SgceBtnInicio:hover,
+.BtnGuinda.SgceBtnInicio:hover,
+.Top .SgceBtnInicio:hover,
+.TopHeader .SgceBtnInicio:hover,
+.navbar .SgceBtnInicio:hover,
+.navbar-custom .SgceBtnInicio:hover,
+.NavbarMaestro .SgceBtnInicio:hover,
+a[href="Logout.php"]:hover,
+a[href*="Logout.php"]:hover,
+.navbar a[href="Logout.php"]:hover,
+.navbar-custom a[href="Logout.php"]:hover,
+.NavbarMaestro a[href="Logout.php"]:hover,
+#BtnCerrarSesionAdmin:hover,
+.BotonCerrarSesionBlanco:hover,
+.BtnLogout:hover{
+    background:linear-gradient(135deg,var(--SgceTopTinto),var(--SgceTopTintoDark)) !important;
+    background-image:linear-gradient(135deg,var(--SgceTopTinto),var(--SgceTopTintoDark)) !important;
+    color:#FFFFFF !important;
+    border-color:var(--SgceTopTintoDark) !important;
+    transform:translateY(-2px) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.20),
+        0 15px 32px rgba(122,8,24,.34),
+        0 0 0 4px rgba(122,8,24,.10) !important;
+}
+
+a.SgceBtnInicio:hover i,
+button.SgceBtnInicio:hover i,
+.btn.SgceBtnInicio:hover i,
+.BtnBack.SgceBtnInicio:hover i,
+.ActionBtn.SgceBtnInicio:hover i,
+a[href="Logout.php"]:hover i,
+a[href*="Logout.php"]:hover i,
+a[href="Logout.php"]:hover span,
+a[href*="Logout.php"]:hover span,
+#BtnCerrarSesionAdmin:hover i,
+#BtnCerrarSesionAdmin:hover span,
+.BotonCerrarSesionBlanco:hover i,
+.BotonCerrarSesionBlanco:hover span,
+.BtnLogout:hover i,
+.BtnLogout:hover span{
+    color:#FFFFFF !important;
+}
+
+/* Alineación del botón dentro de barras superiores */
+.navbar .container-fluid,
+.navbar-custom .container-fluid,
+.NavbarMaestro .container-fluid{
+    gap:16px !important;
+}
+
+/* En móviles, ocupa todo el ancho disponible sin romper diseño */
+@media (max-width:768px){
+    a.SgceBtnInicio,
+    button.SgceBtnInicio,
+    .btn.SgceBtnInicio,
+    .BtnBack.SgceBtnInicio,
+    .ActionBtn.SgceBtnInicio,
+    a[href="Logout.php"],
+    a[href*="Logout.php"],
+    #BtnCerrarSesionAdmin,
+    .BotonCerrarSesionBlanco,
+    .BtnLogout{
+        width:100% !important;
+        min-width:0 !important;
+        max-width:100% !important;
+    }
+}
+</style>
+
+
+
+<style id="SgceModalCleanFix20">
+/* ==========================================================
+   SGCE FIX20 - MODALES SIN PARPADEO
+   Causa encontrada: Admin.php tenía varios fixes acumulados que
+   centraban la modal por CSS y por JS con setTimeout. Bootstrap la
+   abría en una posición y luego esos scripts la movían, causando
+   el parpadeo. Este bloque deja un solo comportamiento estable.
+   ========================================================== */
+html body.modal-open{
+    overflow:hidden !important;
+    padding-right:0 !important;
+}
+html body .modal{
+    position:fixed !important;
+    inset:0 !important;
+    width:100vw !important;
+    height:100vh !important;
+    z-index:1060 !important;
+    overflow:hidden !important;
+    padding:16px !important;
+}
+html body .modal.show{
+    display:block !important;
+}
+html body .modal-dialog{
+    margin:0 auto !important;
+    pointer-events:none !important;
+    max-width:680px !important;
+}
+html body .modal-dialog-centered{
+    display:flex !important;
+    align-items:center !important;
+    min-height:calc(100vh - 32px) !important;
+}
+html body .modal-dialog.modal-sm{
+    max-width:520px !important;
+}
+html body .modal-dialog.modal-lg,
+html body .ModalEditarPro{
+    max-width:860px !important;
+}
+html body .modal-content,
+html body .EditModalContent,
+html body .DeleteModalContent{
+    width:100% !important;
+    max-height:calc(100vh - 32px) !important;
+    overflow:hidden !important;
+    pointer-events:auto !important;
+    border:0 !important;
+    border-radius:28px !important;
+    box-shadow:0 32px 95px rgba(15,23,42,.42) !important;
+    background:#FFFFFF !important;
+}
+html body .modal-body,
+html body .EditModalBody,
+html body .DeleteModalBody{
+    overflow-y:auto !important;
+    max-height:calc(100vh - 230px) !important;
+    background:#FFFFFF !important;
+}
+html body .modal-backdrop.show{
+    opacity:.58 !important;
+}
+/* Quito únicamente el deslizamiento de Bootstrap del cuadro para que no brinque. */
+html body .modal.fade .modal-dialog{
+    transition:none !important;
+    transform:none !important;
+}
+html body .modal.show .modal-dialog{
+    transform:none !important;
+}
+html body.modal-open .card-custom,
+html body.modal-open .TabPane,
+html body.modal-open .tab-pane,
+html body.modal-open .TableCard,
+html body.modal-open .ContentCard,
+html body.modal-open .TablaContenedor,
+html body.modal-open .table-responsive{
+    transform:none !important;
+    filter:none !important;
+}
+@media(max-width:576px){
+    html body .modal{padding:10px !important;}
+    html body .modal-dialog,
+    html body .modal-dialog.modal-sm,
+    html body .modal-dialog.modal-lg,
+    html body .ModalEditarPro{
+        width:calc(100vw - 20px) !important;
+        max-width:calc(100vw - 20px) !important;
+    }
+    html body .modal-dialog-centered{
+        min-height:calc(100vh - 20px) !important;
+    }
+    html body .modal-body,
+    html body .EditModalBody,
+    html body .DeleteModalBody{
+        max-height:calc(100vh - 210px) !important;
+        padding:20px !important;
+    }
+}
+</style>
+<script id="SgceModalCleanFix20Js">
+(function(){
+    function PrepararModales(){
+        document.querySelectorAll('.modal').forEach(function(Modal){
+            if(Modal.parentElement !== document.body){
+                document.body.appendChild(Modal);
+            }
+            var Dialog = Modal.querySelector('.modal-dialog');
+            if(Dialog && !Dialog.classList.contains('modal-dialog-centered')){
+                Dialog.classList.add('modal-dialog-centered');
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', PrepararModales);
+})();
+</script>
 
 </head>
 <body>
@@ -3153,10 +4004,9 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
         <span class="navbar-brand"><i class="fa-solid fa-sliders text-light"></i> SGCE | <span class="fw-light fs-6">Administrador</span></span>
         <a href="Logout.php"
            id="BtnCerrarSesionAdmin"
-           class="BotonCerrarSesionBlanco"
-           style="background:#FFFFFF !important; background-image:none !important; color:#7A0818 !important; border:2px solid #FFFFFF !important; border-radius:999px !important; min-height:42px !important; padding:8px 18px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; font-weight:900 !important; text-decoration:none !important; box-shadow:0 10px 24px rgba(0,0,0,.18) !important; opacity:1 !important; filter:none !important;">
-            <i class="fa-solid fa-power-off" style="color:#7A0818 !important;"></i>
-            <span style="color:#7A0818 !important;">Cerrar Sesión</span>
+           class="SgceTopAction BtnLogout">
+            <i class="fa-solid fa-power-off"></i>
+            <span>Cerrar Sesión</span>
         </a>
     </div>
 </nav>
@@ -3454,7 +4304,7 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
 
             <?php foreach($Maestros as $M): ?>
             <div class="modal fade" id="EM<?= $M['Id'] ?>" tabindex="-1">
-                <div class="modal-dialog modal-sm">
+                <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
 
                         <form method="POST">
@@ -3660,7 +4510,7 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
 
                 <?php foreach($Grupos as $G): ?>
                 <div class="modal fade" id="EG<?= $G['Id'] ?>" tabindex="-1">
-                    <div class="modal-dialog modal-sm">
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
                         <div class="modal-content">
 
                             <form method="POST">
@@ -3724,52 +4574,100 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
                                 Expedientes De Alumnos
                             </h4>
                             <p class="text-muted mb-0 fw-semibold small">
-                                En este módulo se abre el historial individual del alumno: datos, grupo, asistencias, faltas, retardos, calificaciones y promedio.
+                                Para evitar cargar alumnos de golpe, primero selecciona grado, grupo y turno. Después se muestra solo ese padrón.
                             </p>
                         </div>
+                    </div>
 
-                        <div class="input-group search-container" style="max-width: 360px;">
-                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="SearchExpedientes" class="form-control border-start-0" placeholder="Buscar expediente...">
+                    <form method="GET" action="Admin.php" class="mb-4">
+                        <input type="hidden" name="Tab" value="expedientes">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-lg-7 col-md-8">
+                                <label class="form-label fw-bold text-muted small">Grado / Grupo / Turno</label>
+                                <select name="ExpGrupoId" class="form-select" required>
+                                    <option value="">SELECCIONA GRUPO...</option>
+                                    <?php foreach($Grupos as $GExp): ?>
+                                        <option value="<?= (int)$GExp['Id'] ?>" <?= ((int)$ExpedienteGrupoId === (int)$GExp['Id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($GExp['Grado'].' '.$GExp['Grupo'].' - '.$GExp['Turno'], ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-lg-3 col-md-4">
+                                <button type="submit" class="ActionBtn ActionPrimary w-100">
+                                    <i class="fa-solid fa-filter"></i><span>Cargar Expedientes</span>
+                                </button>
+                            </div>
+                            <?php if($ExpedienteGrupoId > 0): ?>
+                            <div class="col-lg-2 col-md-12">
+                                <a href="Admin.php?Tab=expedientes" class="ActionBtn ActionDanger w-100">
+                                    <i class="fa-solid fa-eraser"></i><span>Limpiar</span>
+                                </a>
+                            </div>
+                            <?php endif; ?>
                         </div>
-                    </div>
+                    </form>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="TableExpedientes">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Alumno</th>
-                                    <th>Grupo</th>
-                                    <th>Turno</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($Alumnos as $Al): ?>
-                                <tr>
-                                    <td class="searchable fw-bold"><?= htmlspecialchars($Al['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="searchable">
-                                        <?= $Al['Grado']
-                                            ? htmlspecialchars($Al['Grado'].' '.$Al['Grupo'], ENT_QUOTES, 'UTF-8')
-                                            : '<span class="text-danger small">SIN GRUPO</span>' ?>
-                                    </td>
-                                    <td class="searchable">
-                                        <?= $Al['Turno']
-                                            ? '<span class="badge bg-dark">'.htmlspecialchars($Al['Turno'], ENT_QUOTES, 'UTF-8').'</span>'
-                                            : '<span class="text-muted small">-</span>' ?>
-                                    </td>
-                                    <td>
-                                        <a class="ActionBtn ActionInfo" href="HistorialAlumno.php?AlumnoId=<?= $Al['Id'] ?>" target="_blank">
-                                            <i class="fa-solid fa-folder-open"></i><span>Abrir Expediente</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                    <?php if($ExpedienteGrupoId <= 0): ?>
+                        <div class="alert alert-info border-0 shadow-sm fw-semibold mb-0">
+                            <i class="fa-solid fa-circle-info me-2"></i>
+                            Selecciona un grupo para cargar expedientes. Así el sistema no consulta todos los alumnos innecesariamente.
+                        </div>
+                    <?php else: ?>
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                            <div class="fw-bold text-danger">
+                                <i class="fa-solid fa-users me-2"></i>
+                                Grupo seleccionado:
+                                <?= $GrupoExpedienteSeleccionado
+                                    ? htmlspecialchars($GrupoExpedienteSeleccionado['Grado'].' '.$GrupoExpedienteSeleccionado['Grupo'].' - '.$GrupoExpedienteSeleccionado['Turno'], ENT_QUOTES, 'UTF-8')
+                                    : 'NO DISPONIBLE' ?>
+                            </div>
 
-                    <div id="PagerExpedientes" class="d-flex justify-content-center mt-3"></div>
+                            <div class="input-group search-container" style="max-width: 360px;">
+                                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="SearchExpedientes" class="form-control border-start-0" placeholder="Buscar expediente...">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="TableExpedientes">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Alumno</th>
+                                        <th>Grupo</th>
+                                        <th>Turno</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($AlumnosExpedientes as $Al): ?>
+                                    <tr>
+                                        <td class="searchable fw-bold"><?= htmlspecialchars($Al['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="searchable">
+                                            <?= htmlspecialchars($Al['Grado'].' '.$Al['Grupo'], ENT_QUOTES, 'UTF-8') ?>
+                                        </td>
+                                        <td class="searchable">
+                                            <span class="badge bg-dark"><?= htmlspecialchars($Al['Turno'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        </td>
+                                        <td>
+                                            <a class="ActionBtn ActionInfo" href="HistorialAlumno.php?AlumnoId=<?= $Al['Id'] ?>" target="_blank">
+                                                <i class="fa-solid fa-folder-open"></i><span>Abrir Expediente</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+
+                                    <?php if(count($AlumnosExpedientes) === 0): ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted fw-bold py-4">NO HAY ALUMNOS ACTIVOS EN ESTE GRUPO.</td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="PagerExpedientes" class="d-flex justify-content-center mt-3"></div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -3954,7 +4852,7 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
 
         <?php foreach($Alumnos as $Al): ?>
         <div class="modal fade" id="EAl<?= $Al['Id'] ?>" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
 
                     <form method="POST">
@@ -4241,9 +5139,18 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
                                 </p>
                             </div>
         
-                            <div class="BadgeTurno bg-light text-dark border">
-                                <i class="fa-solid fa-clock-rotate-left me-1 text-primary"></i>
-                                <?= count($BitacoraReciente) ?> REGISTROS RECIENTES
+                            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                                <div class="input-group input-group-sm search-container" style="width:min(360px,100%);">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </span>
+                                    <input type="text" id="SearchBitacora" class="form-control" placeholder="Buscar movimiento...">
+                                </div>
+
+                                <div class="BadgeTurno bg-light text-dark border">
+                                    <i class="fa-solid fa-clock-rotate-left me-1 text-primary"></i>
+                                    <?= count($BitacoraReciente) ?> REGISTROS RECIENTES
+                                </div>
                             </div>
                         </div>
         
@@ -4253,7 +5160,7 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
                         </div>
         
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle text-center">
+                            <table class="table table-hover align-middle text-center" id="TableBitacora">
                                 <thead>
                                     <tr>
                                         <th>Fecha</th>
@@ -4277,34 +5184,36 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
                                     <?php else: ?>
                                         <?php foreach($BitacoraReciente as $Mov): ?>
                                             <tr>
-                                                <td class="fw-bold">
+                                                <td class="fw-bold searchable">
                                                     <?= htmlspecialchars(date('d/m/Y H:i', strtotime($Mov['FechaRegistro'])), ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
-                                                <td>
+                                                <td class="searchable">
                                                     <?= htmlspecialchars($Mov['NombreCompleto'] ?: 'SISTEMA', ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
-                                                <td>
+                                                <td class="searchable">
                                                     <span class="badge bg-dark">
                                                         <?= htmlspecialchars(strtoupper((string)($Mov['Rol'] ?? '-')), ENT_QUOTES, 'UTF-8') ?>
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td class="searchable">
                                                     <span class="badge bg-primary">
                                                         <?= htmlspecialchars((string)$Mov['Accion'], ENT_QUOTES, 'UTF-8') ?>
                                                     </span>
                                                 </td>
-                                                <td><?= htmlspecialchars((string)($Mov['TablaAfectada'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td><?= htmlspecialchars((string)($Mov['RegistroId'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-start">
+                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['TablaAfectada'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['RegistroId'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-start searchable">
                                                     <?= htmlspecialchars((string)($Mov['Detalle'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
-                                                <td><?= htmlspecialchars((string)($Mov['Ip'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['Ip'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
+
+                        <div id="PagerBitacora" class="d-flex justify-content-center mt-3"></div>
                     </div>
                 </div>
         
@@ -4314,7 +5223,7 @@ a[href*="Logout.php"] i,a[href*="Logout.php"]:hover i,.BtnLogout i,.BtnLogout:ho
 
 <!-- MODAL GLOBAL PARA CONFIRMAR ELIMINACIONES -->
 <div class="modal fade" id="ModalConfirmarEliminar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog ModalEliminarFijo">
+    <div class="modal-dialog modal-dialog-centered ModalEliminarFijo">
         <div class="modal-content DeleteModalContent">
             <div class="DeleteModalHeader">
                 <div class="DeleteIcon">
@@ -4424,7 +5333,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // ============================
-    // BUSCADOR + PAGINACIÓN (10 POR PÁGINA)
+    // BUSCADOR + PAGINACIÓN (7 POR PÁGINA)
     // ============================
     function SetupSearchPagination(InputId, TableId, PagerId, RowsPerPage) {
 
@@ -4512,12 +5421,13 @@ document.addEventListener("DOMContentLoaded", function() {
         Apply();
     }
 
-    // 10 por página
-    SetupSearchPagination('SearchMaestros', 'TableMaestros', 'PagerMaestros', 10);
-    SetupSearchPagination('SearchGrupos',   'TableGrupos',   'PagerGrupos',   10);
-    SetupSearchPagination('SearchAlumnos',  'TableAlumnos',  'PagerAlumnos',  10);
-    SetupSearchPagination('SearchExpedientes','TableExpedientes','PagerExpedientes',10);
-    SetupSearchPagination('SearchAsig',     'TableAsig',     'PagerAsig',     10);
+    // FIX25: 7 registros por página en todas las tablas principales.
+    SetupSearchPagination('SearchMaestros', 'TableMaestros', 'PagerMaestros', 7);
+    SetupSearchPagination('SearchGrupos',   'TableGrupos',   'PagerGrupos',   7);
+    SetupSearchPagination('SearchAlumnos',  'TableAlumnos',  'PagerAlumnos',  7);
+    SetupSearchPagination('SearchExpedientes','TableExpedientes','PagerExpedientes',7);
+    SetupSearchPagination('SearchAsig',     'TableAsig',     'PagerAsig',     7);
+    SetupSearchPagination('SearchBitacora','TableBitacora','PagerBitacora',7);
 
 
 
@@ -4777,5 +5687,925 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <?php ImprimirCsrfScript(); ?>
+
+
+
+<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
+<style id="SgceFix12BotonesFinales">
+:root{
+    --SgceFix12Tinto:#7A0818;
+    --SgceFix12Tinto2:#A10D26;
+    --SgceFix12TintoDark:#3B030A;
+    --SgceFix12TintoBorder:#4F050F;
+    --SgceFix12Anim:cubic-bezier(.22,.61,.36,1);
+}
+
+/* Botones superiores: Cerrar sesión / Volver a inicio. Mismo tamaño y misma reacción. */
+html body a.SgceBtnInicio,
+html body button.SgceBtnInicio,
+html body .btn.SgceBtnInicio,
+html body .BtnBack.SgceBtnInicio,
+html body .ActionBtn.SgceBtnInicio,
+html body .btn-light.SgceBtnInicio,
+html body .btn-outline-light.SgceBtnInicio,
+html body .BtnGuinda.SgceBtnInicio,
+html body .SgceTopAction,
+html body a.SgceTopAction,
+html body .Top .SgceBtnInicio,
+html body .TopHeader .SgceBtnInicio,
+html body .navbar .SgceBtnInicio,
+html body .navbar-custom .SgceBtnInicio,
+html body .NavbarMaestro .SgceBtnInicio,
+html body a[href="Logout.php"],
+html body a[href*="Logout.php"],
+html body .navbar a[href="Logout.php"],
+html body .navbar-custom a[href="Logout.php"],
+html body .NavbarMaestro a[href="Logout.php"],
+html body #BtnCerrarSesionAdmin,
+html body .BotonCerrarSesionBlanco,
+html body .BtnLogout{
+    width:210px !important;
+    min-width:210px !important;
+    max-width:210px !important;
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 18px !important;
+    margin:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:9px !important;
+    border-radius:999px !important;
+    background:#FFFFFF !important;
+    background-image:none !important;
+    color:var(--SgceFix12Tinto) !important;
+    border:3px solid var(--SgceFix12TintoBorder) !important;
+    outline:0 !important;
+    font-weight:900 !important;
+    font-size:14px !important;
+    line-height:1 !important;
+    letter-spacing:.02em !important;
+    text-transform:none !important;
+    text-decoration:none !important;
+    white-space:nowrap !important;
+    opacity:1 !important;
+    filter:none !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.78),
+        0 8px 18px rgba(122,8,24,.22),
+        0 0 0 3px rgba(122,8,24,.07) !important;
+    transform:none !important;
+    transition:
+        transform .22s var(--SgceFix12Anim),
+        box-shadow .22s var(--SgceFix12Anim),
+        background .22s var(--SgceFix12Anim),
+        background-image .22s var(--SgceFix12Anim),
+        color .22s var(--SgceFix12Anim),
+        border-color .22s var(--SgceFix12Anim) !important;
+}
+
+html body a.SgceBtnInicio i,
+html body a.SgceBtnInicio span,
+html body button.SgceBtnInicio i,
+html body button.SgceBtnInicio span,
+html body .btn.SgceBtnInicio i,
+html body .btn.SgceBtnInicio span,
+html body .SgceTopAction i,
+html body .SgceTopAction span,
+html body a[href="Logout.php"] i,
+html body a[href="Logout.php"] span,
+html body a[href*="Logout.php"] i,
+html body a[href*="Logout.php"] span,
+html body #BtnCerrarSesionAdmin i,
+html body #BtnCerrarSesionAdmin span,
+html body .BotonCerrarSesionBlanco i,
+html body .BotonCerrarSesionBlanco span,
+html body .BtnLogout i,
+html body .BtnLogout span{
+    color:var(--SgceFix12Tinto) !important;
+    opacity:1 !important;
+    filter:none !important;
+}
+
+html body a.SgceBtnInicio:hover,
+html body button.SgceBtnInicio:hover,
+html body .btn.SgceBtnInicio:hover,
+html body .BtnBack.SgceBtnInicio:hover,
+html body .ActionBtn.SgceBtnInicio:hover,
+html body .btn-light.SgceBtnInicio:hover,
+html body .btn-outline-light.SgceBtnInicio:hover,
+html body .BtnGuinda.SgceBtnInicio:hover,
+html body .SgceTopAction:hover,
+html body a.SgceTopAction:hover,
+html body .Top .SgceBtnInicio:hover,
+html body .TopHeader .SgceBtnInicio:hover,
+html body .navbar .SgceBtnInicio:hover,
+html body .navbar-custom .SgceBtnInicio:hover,
+html body .NavbarMaestro .SgceBtnInicio:hover,
+html body a[href="Logout.php"]:hover,
+html body a[href*="Logout.php"]:hover,
+html body .navbar a[href="Logout.php"]:hover,
+html body .navbar-custom a[href="Logout.php"]:hover,
+html body .NavbarMaestro a[href="Logout.php"]:hover,
+html body #BtnCerrarSesionAdmin:hover,
+html body .BotonCerrarSesionBlanco:hover,
+html body .BtnLogout:hover,
+html body a.SgceBtnInicio:focus-visible,
+html body .SgceTopAction:focus-visible,
+html body a[href*="Logout.php"]:focus-visible,
+html body #BtnCerrarSesionAdmin:focus-visible{
+    background:linear-gradient(135deg,var(--SgceFix12Tinto),var(--SgceFix12TintoDark)) !important;
+    background-image:linear-gradient(135deg,var(--SgceFix12Tinto),var(--SgceFix12TintoDark)) !important;
+    color:#FFFFFF !important;
+    border-color:var(--SgceFix12TintoDark) !important;
+    transform:translateY(-2px) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.18),
+        0 15px 32px rgba(122,8,24,.36),
+        0 0 0 4px rgba(122,8,24,.12) !important;
+    opacity:1 !important;
+    filter:none !important;
+}
+
+html body a.SgceBtnInicio:hover i,
+html body a.SgceBtnInicio:hover span,
+html body button.SgceBtnInicio:hover i,
+html body button.SgceBtnInicio:hover span,
+html body .btn.SgceBtnInicio:hover i,
+html body .btn.SgceBtnInicio:hover span,
+html body .SgceTopAction:hover i,
+html body .SgceTopAction:hover span,
+html body a[href="Logout.php"]:hover i,
+html body a[href="Logout.php"]:hover span,
+html body a[href*="Logout.php"]:hover i,
+html body a[href*="Logout.php"]:hover span,
+html body #BtnCerrarSesionAdmin:hover i,
+html body #BtnCerrarSesionAdmin:hover span,
+html body .BotonCerrarSesionBlanco:hover i,
+html body .BotonCerrarSesionBlanco:hover span,
+html body .BtnLogout:hover i,
+html body .BtnLogout:hover span,
+html body a.SgceBtnInicio:focus-visible i,
+html body a.SgceBtnInicio:focus-visible span,
+html body #BtnCerrarSesionAdmin:focus-visible i,
+html body #BtnCerrarSesionAdmin:focus-visible span{
+    color:#FFFFFF !important;
+}
+
+/* Reportes: botones principales rellenos, con efecto igual al dashboard. */
+html body .ReporteBtn,
+html body button.ReporteBtn,
+html body .btn.ReporteBtn,
+html body .Btn.ReporteBtn,
+html body form .ReporteBtn,
+html body .card .ReporteBtn,
+html body .Card .ReporteBtn{
+    width:100% !important;
+    min-height:44px !important;
+    border-radius:999px !important;
+    background:linear-gradient(135deg,var(--SgceFix12Tinto),var(--SgceFix12Tinto2)) !important;
+    background-image:linear-gradient(135deg,var(--SgceFix12Tinto),var(--SgceFix12Tinto2)) !important;
+    color:#FFFFFF !important;
+    border:3px solid var(--SgceFix12TintoDark) !important;
+    font-weight:900 !important;
+    letter-spacing:.03em !important;
+    box-shadow:0 12px 28px rgba(122,8,24,.28) !important;
+    text-decoration:none !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:.5rem !important;
+    transition:transform .22s var(--SgceFix12Anim), box-shadow .22s var(--SgceFix12Anim), filter .22s var(--SgceFix12Anim) !important;
+}
+html body .ReporteBtn:hover,
+html body button.ReporteBtn:hover,
+html body .btn.ReporteBtn:hover,
+html body .Btn.ReporteBtn:hover,
+html body form .ReporteBtn:hover,
+html body .card .ReporteBtn:hover,
+html body .Card .ReporteBtn:hover{
+    background:linear-gradient(135deg,var(--SgceFix12TintoDark),var(--SgceFix12Tinto)) !important;
+    background-image:linear-gradient(135deg,var(--SgceFix12TintoDark),var(--SgceFix12Tinto)) !important;
+    color:#FFFFFF !important;
+    border-color:var(--SgceFix12TintoDark) !important;
+    transform:translateY(-2px) scale(1.01) !important;
+    box-shadow:0 16px 34px rgba(122,8,24,.36),0 0 0 4px rgba(122,8,24,.10) !important;
+    filter:saturate(1.06) !important;
+}
+html body .ReporteBtn i,
+html body .ReporteBtn span,
+html body .ReporteBtn:hover i,
+html body .ReporteBtn:hover span{
+    color:#FFFFFF !important;
+}
+
+@media (max-width:768px){
+    html body a.SgceBtnInicio,
+    html body button.SgceBtnInicio,
+    html body .btn.SgceBtnInicio,
+    html body .SgceTopAction,
+    html body a[href="Logout.php"],
+    html body a[href*="Logout.php"],
+    html body #BtnCerrarSesionAdmin,
+    html body .BotonCerrarSesionBlanco,
+    html body .BtnLogout{
+        width:100% !important;
+        min-width:0 !important;
+        max-width:100% !important;
+    }
+}
+</style>
+
+
+
+<!-- SGCE FIX13: blindaje definitivo del botón Cerrar Sesión en Admin -->
+<style id="SgceFix13AdminLogoutFinal">
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin,
+html body nav.navbar.navbar-custom #BtnCerrarSesionAdmin,
+html body .navbar-custom #BtnCerrarSesionAdmin,
+html body #BtnCerrarSesionAdmin{
+    width:210px !important;
+    min-width:210px !important;
+    max-width:210px !important;
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 18px !important;
+    margin:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:9px !important;
+    border-radius:999px !important;
+    background:#FFFFFF !important;
+    background-color:#FFFFFF !important;
+    background-image:none !important;
+    color:#7A0818 !important;
+    border:3px solid #4F050F !important;
+    font-weight:900 !important;
+    font-size:14px !important;
+    line-height:1 !important;
+    letter-spacing:.02em !important;
+    text-decoration:none !important;
+    white-space:nowrap !important;
+    opacity:1 !important;
+    filter:none !important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.82),0 8px 18px rgba(122,8,24,.22),0 0 0 3px rgba(122,8,24,.08) !important;
+    transform:none !important;
+}
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin i,
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin span,
+html body .navbar-custom #BtnCerrarSesionAdmin i,
+html body .navbar-custom #BtnCerrarSesionAdmin span,
+html body #BtnCerrarSesionAdmin i,
+html body #BtnCerrarSesionAdmin span{
+    color:#7A0818 !important;
+    opacity:1 !important;
+    filter:none !important;
+}
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin:hover,
+html body nav.navbar.navbar-custom #BtnCerrarSesionAdmin:hover,
+html body .navbar-custom #BtnCerrarSesionAdmin:hover,
+html body #BtnCerrarSesionAdmin:hover,
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin:focus-visible,
+html body .navbar-custom #BtnCerrarSesionAdmin:focus-visible,
+html body #BtnCerrarSesionAdmin:focus-visible{
+    background:#7A0818 !important;
+    background-color:#7A0818 !important;
+    background-image:linear-gradient(135deg,#7A0818,#3B030A) !important;
+    color:#FFFFFF !important;
+    border-color:#3B030A !important;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.20),0 15px 32px rgba(122,8,24,.38),0 0 0 4px rgba(122,8,24,.12) !important;
+    transform:translateY(-2px) !important;
+    opacity:1 !important;
+    filter:none !important;
+}
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin:hover i,
+html body nav.navbar.navbar-dark.navbar-custom #BtnCerrarSesionAdmin:hover span,
+html body .navbar-custom #BtnCerrarSesionAdmin:hover i,
+html body .navbar-custom #BtnCerrarSesionAdmin:hover span,
+html body #BtnCerrarSesionAdmin:hover i,
+html body #BtnCerrarSesionAdmin:hover span,
+html body #BtnCerrarSesionAdmin:focus-visible i,
+html body #BtnCerrarSesionAdmin:focus-visible span{
+    color:#FFFFFF !important;
+}
+</style>
+<script>
+(function(){
+    function AplicarEstiloBotonCerrarSesionAdmin(Hover){
+        var Boton=document.getElementById('BtnCerrarSesionAdmin');
+        if(!Boton){return;}
+        if(Hover){
+            Boton.style.setProperty('background','#7A0818','important');
+            Boton.style.setProperty('background-color','#7A0818','important');
+            Boton.style.setProperty('background-image','linear-gradient(135deg,#7A0818,#3B030A)','important');
+            Boton.style.setProperty('color','#FFFFFF','important');
+            Boton.style.setProperty('border-color','#3B030A','important');
+            Boton.style.setProperty('transform','translateY(-2px)','important');
+            Boton.style.setProperty('box-shadow','inset 0 0 0 1px rgba(255,255,255,.20),0 15px 32px rgba(122,8,24,.38),0 0 0 4px rgba(122,8,24,.12)','important');
+        }else{
+            Boton.style.setProperty('background','#FFFFFF','important');
+            Boton.style.setProperty('background-color','#FFFFFF','important');
+            Boton.style.setProperty('background-image','none','important');
+            Boton.style.setProperty('color','#7A0818','important');
+            Boton.style.setProperty('border-color','#4F050F','important');
+            Boton.style.setProperty('transform','none','important');
+            Boton.style.setProperty('box-shadow','inset 0 0 0 1px rgba(255,255,255,.82),0 8px 18px rgba(122,8,24,.22),0 0 0 3px rgba(122,8,24,.08)','important');
+        }
+        Boton.querySelectorAll('i,span').forEach(function(Elemento){
+            Elemento.style.setProperty('color',Hover ? '#FFFFFF' : '#7A0818','important');
+        });
+    }
+    document.addEventListener('DOMContentLoaded',function(){
+        var Boton=document.getElementById('BtnCerrarSesionAdmin');
+        if(!Boton){return;}
+        AplicarEstiloBotonCerrarSesionAdmin(false);
+        Boton.addEventListener('mouseenter',function(){AplicarEstiloBotonCerrarSesionAdmin(true);});
+        Boton.addEventListener('mouseleave',function(){AplicarEstiloBotonCerrarSesionAdmin(false);});
+        Boton.addEventListener('focus',function(){AplicarEstiloBotonCerrarSesionAdmin(true);});
+        Boton.addEventListener('blur',function(){AplicarEstiloBotonCerrarSesionAdmin(false);});
+    });
+})();
+</script>
+
+
+
+<!-- SGCE FIX26: tablas homologadas, 7 registros por página y paginador visible -->
+<style id="SgceFix26TableLayoutFinal">
+html body #TableMaestros,
+html body #TableGrupos,
+html body #TableAlumnos,
+html body #TableAsig,
+html body #TableBitacora,
+html body #TableExpedientes{
+    margin-bottom:0 !important;
+    table-layout:fixed !important;
+}
+
+html body #TableMaestros,
+html body #TableGrupos,
+html body #TableAlumnos,
+html body #TableAsig,
+html body #TableBitacora{
+    min-height:452px !important;
+}
+
+html body #TableExpedientes{
+    min-height:452px !important;
+}
+
+html body #TableMaestros thead tr,
+html body #TableGrupos thead tr,
+html body #TableAlumnos thead tr,
+html body #TableAsig thead tr,
+html body #TableBitacora thead tr,
+html body #TableExpedientes thead tr{
+    height:40px !important;
+}
+
+html body #TableMaestros tbody tr,
+html body #TableGrupos tbody tr,
+html body #TableAlumnos tbody tr,
+html body #TableAsig tbody tr,
+html body #TableBitacora tbody tr{
+    height:44px !important;
+}
+
+html body #TableExpedientes tbody tr{
+    height:44px !important;
+}
+
+html body #TableMaestros th,
+html body #TableMaestros td,
+html body #TableGrupos th,
+html body #TableGrupos td,
+html body #TableAlumnos th,
+html body #TableAlumnos td,
+html body #TableAsig th,
+html body #TableAsig td,
+html body #TableBitacora th,
+html body #TableBitacora td,
+html body #TableExpedientes th,
+html body #TableExpedientes td{
+    padding:.36rem .55rem !important;
+    vertical-align:middle !important;
+}
+
+html body #TableExpedientes th,
+html body #TableExpedientes td{
+    padding:.34rem .52rem !important;
+}
+
+html body #TableMaestros tbody,
+html body #TableGrupos tbody,
+html body #TableAlumnos tbody,
+html body #TableAsig tbody,
+html body #TableBitacora tbody,
+html body #TableExpedientes tbody{
+    position:relative !important;
+}
+
+html body #TableMaestros tbody::after,
+html body #TableGrupos tbody::after,
+html body #TableAlumnos tbody::after,
+html body #TableAsig tbody::after,
+html body #TableBitacora tbody::after,
+html body #TableExpedientes tbody::after{
+    content:"";
+    display:block;
+    height:1px;
+}
+
+html body #TableMaestros + *,
+html body #TableGrupos + *,
+html body #TableAlumnos + *,
+html body #TableAsig + *,
+html body #TableBitacora + *,
+html body #TableExpedientes + *{
+    margin-top:.45rem !important;
+}
+
+html body #PagerMaestros,
+html body #PagerGrupos,
+html body #PagerAlumnos,
+html body #PagerAsig,
+html body #PagerBitacora,
+html body #PagerExpedientes{
+    min-height:38px !important;
+    margin-top:.45rem !important;
+    align-items:center !important;
+}
+
+html body #PagerMaestros .btn,
+html body #PagerGrupos .btn,
+html body #PagerAlumnos .btn,
+html body #PagerAsig .btn,
+html body #PagerBitacora .btn,
+html body #PagerExpedientes .btn{
+    width:32px !important;
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 !important;
+    border-radius:50% !important;
+    font-size:12px !important;
+    font-weight:900 !important;
+}
+
+html body #TableExpedientes .ActionBtn,
+html body #TableAlumnos .ActionBtn,
+html body #TableMaestros .ActionBtn,
+html body #TableGrupos .ActionBtn{
+    min-height:32px !important;
+    height:32px !important;
+    padding:0 10px !important;
+    font-size:12px !important;
+    white-space:nowrap !important;
+}
+
+html body #TableExpedientes .badge{
+    min-height:28px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    padding:0 12px !important;
+}
+
+html body #TableExpedientes tbody tr td,
+html body #TableAlumnos tbody tr td,
+html body #TableMaestros tbody tr td,
+html body #TableGrupos tbody tr td,
+html body #TableAsig tbody tr td,
+html body #TableBitacora tbody tr td{
+    line-height:1.15 !important;
+}
+
+html body #TableMaestros:has(tbody tr[style*="display: none"]),
+html body #TableAlumnos:has(tbody tr[style*="display: none"]),
+html body #TableGrupos:has(tbody tr[style*="display: none"]),
+html body #TableAsig:has(tbody tr[style*="display: none"]),
+html body #TableBitacora:has(tbody tr[style*="display: none"]),
+html body #TableExpedientes:has(tbody tr[style*="display: none"]){
+    border-bottom:1px solid transparent !important;
+}
+
+
+
+/* FIX26: asignaciones sin etiquetas redundantes, botones compactos y paginador visible. */
+
+html body #TableAsig .ExportLabel{
+    display:none !important;
+}
+html body #TableAsig .ExportIcons{
+    margin-top:0 !important;
+}
+html body #TableAsig .ExportCell,
+html body #TableAsig td.text-center{
+    vertical-align:middle !important;
+}
+html body #TableAsig .ExportIcons{
+    gap:4px !important;
+    flex-wrap:nowrap !important;
+    justify-content:center !important;
+}
+html body #TableAsig .ExportIcon{
+    min-width:64px !important;
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 10px !important;
+    border-radius:999px !important;
+    font-size:11px !important;
+    line-height:1 !important;
+}
+html body #TableAsig .ExportLabel{
+    font-size:10px !important;
+    margin-bottom:2px !important;
+    line-height:1 !important;
+}
+html body #TableAsig .ActionBtn{
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 11px !important;
+    font-size:12px !important;
+}
+html body #TableAsig tbody tr{
+    height:48px !important;
+}
+html body #TableAsig td,
+html body #TableAsig th{
+    padding:.25rem .38rem !important;
+}
+
+@media(max-width:992px){
+    html body #TableMaestros,
+    html body #TableGrupos,
+    html body #TableAlumnos,
+    html body #TableAsig,
+    html body #TableBitacora{
+        min-height:438px !important;
+    }
+    html body #TableExpedientes{
+        min-height:438px !important;
+    }
+}
+</style>
+<script id="SgceFix26FixedTableSpace">
+(function(){
+    function AjustarContenedoresTablas(){
+        var Config={
+            TableMaestros:{Rows:7,Height:452},
+            TableGrupos:{Rows:7,Height:452},
+            TableAlumnos:{Rows:7,Height:452},
+            TableAsig:{Rows:7,Height:452},
+            TableBitacora:{Rows:7,Height:452},
+            TableExpedientes:{Rows:7,Height:452}
+        };
+        Object.keys(Config).forEach(function(Id){
+            var Tabla=document.getElementById(Id);
+            if(!Tabla){return;}
+            var Wrap=Tabla.closest('.table-responsive');
+            if(!Wrap){return;}
+            Wrap.classList.add('SgceTableFixedSpace');
+            Wrap.style.setProperty('min-height',Config[Id].Height+'px','important');
+            Wrap.style.setProperty('max-height','none','important');
+            Wrap.style.setProperty('overflow-x','auto','important');
+            Wrap.style.setProperty('overflow-y','visible','important');
+            Wrap.style.setProperty('border-radius','16px','important');
+        });
+    }
+    document.addEventListener('DOMContentLoaded',AjustarContenedoresTablas);
+})();
+</script>
+
+
+
+
+<style id="Fix27TablaAccionesSinRedundancia">
+/* FIX27: grupos sin etiquetas redundantes y acciones sin botones apilados.
+   Causa del bug: la columna Acciones quedaba demasiado angosta y .AdminActions tenía flex-wrap:wrap;
+   por eso Editar y Eliminar brincaban a dos líneas. Aquí se fuerza ancho mínimo y nowrap. */
+html body #TableGrupos .ExportLabel,
+html body #TableAsig .ExportLabel{
+    display:none !important;
+}
+
+html body #TableGrupos .ExportIcons,
+html body #TableAsig .ExportIcons{
+    margin-top:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+}
+
+html body #TableGrupos .ExportIcon,
+html body #TableAsig .ExportIcon{
+    min-width:66px !important;
+    width:66px !important;
+    height:32px !important;
+    min-height:32px !important;
+    padding:0 9px !important;
+    border-radius:999px !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    flex:0 0 auto !important;
+}
+
+html body #TableGrupos th,
+html body #TableGrupos td,
+html body #TableAsig th,
+html body #TableAsig td{
+    vertical-align:middle !important;
+}
+
+/* Columnas de exportación con suficiente ancho para los dos botones lado a lado. */
+html body #TableGrupos th:nth-child(4),
+html body #TableGrupos td:nth-child(4),
+html body #TableGrupos th:nth-child(5),
+html body #TableGrupos td:nth-child(5),
+html body #TableGrupos th:nth-child(6),
+html body #TableGrupos td:nth-child(6){
+    min-width:150px !important;
+    width:150px !important;
+}
+
+html body #TableAsig th:nth-child(4),
+html body #TableAsig td:nth-child(4),
+html body #TableAsig th:nth-child(5),
+html body #TableAsig td:nth-child(5),
+html body #TableAsig th:nth-child(6),
+html body #TableAsig td:nth-child(6){
+    min-width:150px !important;
+    width:150px !important;
+}
+
+/* Acciones: nunca apilar botones en tablas de escritorio. */
+html body .table .AdminActions{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex-wrap:nowrap !important;
+    gap:8px !important;
+    width:auto !important;
+    min-width:max-content !important;
+    white-space:nowrap !important;
+}
+
+html body .table .AdminActions form{
+    display:inline-flex !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    white-space:nowrap !important;
+}
+
+html body .table .AdminActions .ActionBtn{
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+    min-width:92px !important;
+    height:34px !important;
+    min-height:34px !important;
+    padding:0 12px !important;
+    font-size:12px !important;
+}
+
+html body #TableGrupos th:last-child,
+html body #TableGrupos td:last-child,
+html body #TableMaestros th:last-child,
+html body #TableMaestros td:last-child,
+html body #TableAsig th:last-child,
+html body #TableAsig td:last-child{
+    min-width:220px !important;
+    width:220px !important;
+}
+
+html body #TableAlumnos th:last-child,
+html body #TableAlumnos td:last-child{
+    min-width:330px !important;
+    width:330px !important;
+}
+
+html body #TableExpedientes th:last-child,
+html body #TableExpedientes td:last-child{
+    min-width:180px !important;
+    width:180px !important;
+}
+
+html body #TableGrupos tbody tr,
+html body #TableAsig tbody tr{
+    height:50px !important;
+}
+
+html body #TableGrupos td,
+html body #TableAsig td{
+    padding-top:.30rem !important;
+    padding-bottom:.30rem !important;
+}
+
+/* Si la pantalla es pequeña, se permite scroll horizontal de tabla, pero nunca botones encima de otros. */
+html body .table-responsive{
+    overflow-x:auto !important;
+    overflow-y:visible !important;
+}
+
+
+/* ==========================================================
+   FIX28 - DISEÑO COMPACTO SIN SCROLL HORIZONTAL
+   Reduce ligeramente botones/iconos/textos para que las tablas
+   quepan mejor con 7 registros por página y sin amontonarse.
+   ========================================================== */
+html body .table-responsive{
+    overflow-x:hidden !important;
+    overflow-y:visible !important;
+}
+
+html body .table{
+    width:100% !important;
+    table-layout:fixed !important;
+    margin-bottom:0 !important;
+}
+
+html body .table th,
+html body .table td{
+    padding-top:.34rem !important;
+    padding-bottom:.34rem !important;
+    padding-left:.30rem !important;
+    padding-right:.30rem !important;
+    font-size:.82rem !important;
+    line-height:1.12 !important;
+    overflow:visible !important;
+}
+
+html body .table thead th{
+    font-size:.70rem !important;
+    letter-spacing:.025em !important;
+    white-space:nowrap !important;
+}
+
+/* Quita etiquetas repetidas dentro de las filas: el encabezado de la tabla ya explica cada columna. */
+html body #TableGrupos .ExportLabel,
+html body #TableAsig .ExportLabel{
+    display:none !important;
+}
+
+html body #TableGrupos .ExportIcons,
+html body #TableAsig .ExportIcons{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+    width:100% !important;
+}
+
+html body #TableGrupos .ExportIcon,
+html body #TableAsig .ExportIcon{
+    width:54px !important;
+    min-width:54px !important;
+    height:28px !important;
+    min-height:28px !important;
+    padding:0 6px !important;
+    border-radius:999px !important;
+    font-size:10.4px !important;
+    gap:3px !important;
+    line-height:1 !important;
+    flex:0 0 auto !important;
+    box-shadow:0 6px 13px rgba(15,23,42,.15) !important;
+}
+
+html body #TableGrupos .ExportIcon i,
+html body #TableAsig .ExportIcon i{
+    font-size:.72rem !important;
+    margin:0 !important;
+}
+
+html body #TableGrupos .ExportIcon .ExportText,
+html body #TableAsig .ExportIcon .ExportText{
+    font-size:10.4px !important;
+    line-height:1 !important;
+}
+
+html body .table .AdminActions{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex-wrap:nowrap !important;
+    gap:5px !important;
+    width:100% !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+}
+
+html body .table .AdminActions form{
+    display:inline-flex !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+html body .table .AdminActions .ActionBtn{
+    min-width:69px !important;
+    width:auto !important;
+    height:29px !important;
+    min-height:29px !important;
+    padding:0 8px !important;
+    font-size:10.6px !important;
+    gap:4px !important;
+    border-radius:999px !important;
+    line-height:1 !important;
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+}
+
+html body .table .AdminActions .ActionBtn i{
+    font-size:.72rem !important;
+    margin:0 !important;
+}
+
+/* Anchos compactos por tabla para evitar scroll horizontal. */
+html body #TableGrupos th:nth-child(1),
+html body #TableGrupos td:nth-child(1){width:8% !important;min-width:0 !important;}
+html body #TableGrupos th:nth-child(2),
+html body #TableGrupos td:nth-child(2){width:8% !important;min-width:0 !important;}
+html body #TableGrupos th:nth-child(3),
+html body #TableGrupos td:nth-child(3){width:12% !important;min-width:0 !important;}
+html body #TableGrupos th:nth-child(4),
+html body #TableGrupos td:nth-child(4),
+html body #TableGrupos th:nth-child(5),
+html body #TableGrupos td:nth-child(5),
+html body #TableGrupos th:nth-child(6),
+html body #TableGrupos td:nth-child(6){width:14% !important;min-width:0 !important;}
+html body #TableGrupos th:nth-child(7),
+html body #TableGrupos td:nth-child(7){width:16% !important;min-width:0 !important;}
+
+html body #TableAsig th:nth-child(1),
+html body #TableAsig td:nth-child(1){width:20% !important;min-width:0 !important;}
+html body #TableAsig th:nth-child(2),
+html body #TableAsig td:nth-child(2){width:16% !important;min-width:0 !important;}
+html body #TableAsig th:nth-child(3),
+html body #TableAsig td:nth-child(3){width:16% !important;min-width:0 !important;}
+html body #TableAsig th:nth-child(4),
+html body #TableAsig td:nth-child(4),
+html body #TableAsig th:nth-child(5),
+html body #TableAsig td:nth-child(5),
+html body #TableAsig th:nth-child(6),
+html body #TableAsig td:nth-child(6){width:11% !important;min-width:0 !important;}
+html body #TableAsig th:nth-child(7),
+html body #TableAsig td:nth-child(7){width:15% !important;min-width:0 !important;}
+
+html body #TableAlumnos th:nth-child(1),
+html body #TableAlumnos td:nth-child(1){width:54% !important;}
+html body #TableAlumnos th:nth-child(2),
+html body #TableAlumnos td:nth-child(2){width:14% !important;}
+html body #TableAlumnos th:nth-child(3),
+html body #TableAlumnos td:nth-child(3){width:32% !important;min-width:0 !important;}
+html body #TableAlumnos .AdminActions .ActionBtn{min-width:72px !important;padding:0 8px !important;}
+
+html body #TableMaestros th:last-child,
+html body #TableMaestros td:last-child,
+html body #TableExpedientes th:last-child,
+html body #TableExpedientes td:last-child,
+html body #TableBitacora th:last-child,
+html body #TableBitacora td:last-child{
+    min-width:0 !important;
+}
+
+/* Altura compacta: 7 registros visibles sin que las filas se sientan apretadas. */
+html body .AdminTableBox,
+html body .TablaFijaBox{
+    min-height:390px !important;
+}
+
+html body #TableGrupos tbody tr,
+html body #TableAsig tbody tr,
+html body #TableAlumnos tbody tr,
+html body #TableMaestros tbody tr,
+html body #TableExpedientes tbody tr,
+html body #TableBitacora tbody tr{
+    height:42px !important;
+}
+
+html body #PagerMaestros,
+html body #PagerGrupos,
+html body #PagerAlumnos,
+html body #PagerExpedientes,
+html body #PagerAsig,
+html body #PagerBitacora{
+    margin-top:10px !important;
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+}
+
+html body .PagerBtn,
+html body [id^="Pager"] button{
+    width:30px !important;
+    height:30px !important;
+    min-height:30px !important;
+    padding:0 !important;
+    font-size:11px !important;
+}
+</style>
+
 </body>
 </html>

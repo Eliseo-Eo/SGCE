@@ -86,3 +86,4 @@ foreach ($Tablas as $TablaRow) {
 
 echo "SET FOREIGN_KEY_CHECKS=1;\n";
 exit;
+

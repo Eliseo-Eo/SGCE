@@ -133,3 +133,4 @@ foreach ($Tablas as $Tabla) {
 
 echo "SET FOREIGN_KEY_CHECKS=1;\n";
 exit;
+

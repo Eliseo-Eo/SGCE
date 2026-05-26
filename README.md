@@ -151,3 +151,14 @@ Después de reemplazar archivos, conserva `Instalar.php` bloqueado. Si algún d�
 - Los estilos finales quedaron integrados dentro de cada archivo PHP para evitar problemas de caché y prioridad CSS.
 - Los botones del Centro de reportes quedan rellenos color guinda como los módulos del dashboard.
 - Los botones Volver a inicio y Cerrar sesión quedan blancos con texto guinda, sin relleno al pasar el mouse.
+
+
+## FIX8
+- Botones de regreso y cerrar sesión homologados: blanco normal, tinto en hover.
+- Botones del centro de reportes forzados en relleno tinto para evitar conflictos de CSS.
+
+
+## FIX9
+- Homologación visual final de botones Volver a inicio y Cerrar sesión con borde visible y hover tinto.
+- Botones del Centro de reportes rellenos color tinto con efecto visual tipo dashboard.
+- Efectos suaves en tarjetas, botones e inputs sin usar CSS externo.

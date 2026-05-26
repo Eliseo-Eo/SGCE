@@ -241,3 +241,4 @@ function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $
 
 
 ?>
+
