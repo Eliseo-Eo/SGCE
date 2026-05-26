@@ -1,15 +1,44 @@
 <?php
+
 require 'Conexion.php';
 
-if (isset($_COOKIE['AuthToken'])) {
-    $Token = $_COOKIE['AuthToken'];
-    
-    $Stmt = $Pdo->prepare("UPDATE Usuarios SET SessionToken = NULL WHERE SessionToken = ?");
-    $Stmt->execute([$Token]);
+// ELIMINAR TOKEN DE BASE DE DATOS
 
-    setcookie('AuthToken', '', time() - 3600, '/');
+if (isset($_COOKIE['AuthToken'])) {
+
+    $Token = trim($_COOKIE['AuthToken']);
+
+    if ($Token !== '') {
+
+        $Stmt = $Pdo->prepare("
+            UPDATE Usuarios
+            SET SessionToken = NULL
+            WHERE SessionToken = ?
+        ");
+
+        $Stmt->execute([
+            $Token
+        ]);
+    }
+
+    // ELIMINAR COOKIE
+
+    setcookie(
+        'AuthToken',
+        '',
+        [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]
+    );
 }
 
+// REDIRECCIONAR
+
 header('Location: index.php');
+
 exit;
+
 ?>

@@ -49,14 +49,14 @@ CREATE TABLE Asistencias (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     AsignacionId INT NOT NULL,
     AlumnoId INT NOT NULL,
-    Fecha DATETIME NOT NULL, -- Cambiado a DATETIME para incluir hora
+    Fecha DATETIME NOT NULL,
     Estado ENUM('A', 'F', 'R', 'J') NOT NULL,
     FOREIGN KEY (AsignacionId) REFERENCES Asignaciones(Id) ON DELETE CASCADE,
     FOREIGN KEY (AlumnoId) REFERENCES Alumnos(Id) ON DELETE CASCADE,
-    -- Nota: Al incluir horas, ya no usamos UNIQUE KEY en Fecha, 
-    -- esto permite pasar lista varias veces al día si es necesario.
-    UNIQUE KEY asistencia_unica (AsignacionId, AlumnoId, Fecha)
+    -- ESTO ES LO QUE HACE LA MAGIA:
+    -- Impedimos que un alumno tenga dos registros para la misma materia el mismo día.
+    UNIQUE KEY registro_diario (AsignacionId, AlumnoId, (DATE(Fecha)))
 );
 
 INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo) 
-VALUES ('Admin', 'admin123', 'Administrador General', 'admin', 1);
+VALUES ('Admin', 'Admin123', 'Administrador General', 'Admin', 1);
