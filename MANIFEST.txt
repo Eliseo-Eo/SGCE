@@ -1,0 +1,16 @@
+SGCE 1.0.0 - Entrega definitiva
+
+Contenido principal:
+- Instalador inicial: Instalar.php
+- Acceso principal: index.php
+- Panel administrador: Admin.php
+- Portal docente: Maestro.php
+- Consulta de padres: ConsultaPadre.php
+- Manual de usuario: docs/MANUAL_USUARIO_SGCE.docx y docs/MANUAL_USUARIO_SGCE.pdf
+- SQL base: install/ControlEscolar.sql
+- Configuración: config/database.php y config/database.local.example.php
+
+Notas:
+- La base se configura desde el instalador.
+- No se incluye usuario administrador fijo.
+- No se incluyen alumnos, maestros, grupos, asignaciones ni avisos precargados.

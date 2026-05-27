@@ -1,71 +1,54 @@
-# SGCE - Versión final limpia para instalación desde cero
+# SGCE - Sistema de Gestión y Control Escolar
 
-Sistema de Gestión y Control Escolar preparado para iniciar con base de datos nueva.
+SGCE es un sistema web para administrar alumnos, docentes, grupos, asignaciones, asistencia, calificaciones, avisos, reportes, boletas, usuarios, respaldos y bitácora de movimientos.
 
-## Instalación recomendada
+## Requisitos
 
-1. Copia la carpeta del sistema en tu servidor local o hosting PHP.
-2. Importa `ControlEscolar.sql` en MySQL/MariaDB. Este archivo crea la base `ControlEscolar` desde cero.
-3. Revisa en `Conexion.php` los datos de conexión:
-   - host
-   - base de datos
-   - usuario
-   - contraseña
-4. Entra al sistema desde `index.php`.
-5. Usuario inicial:
-   - Usuario: `Admin`
-   - Contraseña: `Admin123`
-6. Después de entrar, crea tus usuarios reales desde **Usuarios y Roles**.
+- PHP 8.1 o superior recomendado.
+- MySQL / MariaDB.
+- Servidor web Apache o compatible con PHP.
+- Extensiones PHP: PDO, PDO MySQL, mbstring y session.
+- Acceso de escritura para PHP en las carpetas `config/` y `storage/` durante la instalación.
 
-## Roles disponibles
+## Instalación inicial
 
-- Administrador
-- Maestro
-- Director
-- Secretario
-- Coordinador
-- Prefecto
+1. Descomprime el sistema en el servidor.
+2. Abre `Instalar.php` desde el navegador.
+3. Captura la conexión MySQL.
+4. Captura los datos oficiales de la escuela.
+5. Captura el ciclo escolar inicial y sus tres periodos de evaluación.
+6. Crea el administrador principal.
+7. Escribe `INSTALAR SGCE` y presiona **Instalar sistema**.
 
-## Diseño y estructura
+La base seleccionada se prepara desde cero para SGCE. Usa una base exclusiva para el sistema.
 
-- CSS centralizado en `assets/css/sgce-base.css`.
-- JavaScript por módulo en `assets/js/`.
-- Helpers compartidos en `includes/SGCE_Helpers.php`.
-- `Conexion.php` solo conserva conexión, sesión, seguridad base, CSRF, rate limit y bitácora.
-- Las migraciones ya no se ejecutan automáticamente en cada carga.
+## Primer acceso
 
-## Base de datos desde cero
+Después de instalar, entra a `index.php` e inicia sesión con el usuario administrador creado durante la instalación.
 
-`ControlEscolar.sql` ya incluye:
+## Configuración general
 
-- Usuarios y roles
-- Grupos
-- Alumnos
-- Asignaciones
-- Ciclos escolares
-- Periodos de evaluación
-- Calificaciones por periodo
-- Asistencias
-- Avisos
-- Bitácora
-- Rate limit
-- Expiración de sesión
+Desde el panel administrador puedes entrar a **Configuración** para actualizar:
 
-## Reportes
+- Nombre oficial de la escuela.
+- CCT / clave.
+- Director(a).
+- Municipio y estado.
+- Teléfono y correo.
+- Ciclo escolar activo.
+- Periodos de evaluación.
 
-El centro de reportes ya no carga miles de alumnos de golpe. Para boletas individuales primero se filtra por grupo o por búsqueda de nombre.
+Estos datos se usan en reportes, boletas y vistas del sistema.
 
-## Seguridad operativa
+## Seguridad recomendada
 
-Las contraseñas se conservan visibles en la base de datos por decisión operativa del proyecto. Por eso los respaldos SQL deben tratarse como información sensible.
+- Usar HTTPS en producción.
+- Usar un usuario MySQL exclusivo para SGCE.
+- Mantener protegidas las carpetas `config/`, `includes/`, `modules/`, `reports/`, `storage/`, `install/` y `cron/`.
+- Mover respaldos fuera del directorio público cuando el hosting lo permita.
+- Cambiar contraseñas periódicamente.
+- Hacer respaldos antes de cambios importantes.
 
-Antes de usar en producción real:
+## Manual de usuario
 
-- Cambia la contraseña del usuario `Admin`.
-- Elimina o protege `Instalar.php` si no lo usarás.
-- No publiques respaldos SQL.
-- Usa HTTPS si el sistema se sube a internet.
-
-## Archivo opcional
-
-`Migrar.php` queda como validador técnico para instalaciones existentes, pero si instalas desde cero con `ControlEscolar.sql`, normalmente no necesitas ejecutarlo.
+El paquete incluye el manual en la carpeta `docs/`.

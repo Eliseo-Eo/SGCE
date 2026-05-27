@@ -1,16 +1,26 @@
 -- ============================================================
--- BASE DE DATOS SGCE - VERSIÓN PROFESIONAL OPTIMIZADA
--- Pensada para escuela grande: muchos alumnos, docentes, grupos,
--- asistencias diarias por materia, reportes y consulta pública segura.
+-- BASE DE DATOS SGCE - INSTALACIÓN INICIAL
+-- Estructura limpia. El instalador crea administrador, configuración
+-- institucional, ciclo escolar activo y periodos iniciales.
 -- ============================================================
 
-DROP DATABASE IF EXISTS ControlEscolar;
-CREATE DATABASE ControlEscolar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE ControlEscolar;
+DROP DATABASE IF EXISTS `{{SGCE_DB_NAME}}`;
+CREATE DATABASE `{{SGCE_DB_NAME}}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `{{SGCE_DB_NAME}}`;
+
+-- ============================================================
+-- CONFIGURACIÓN INSTITUCIONAL
+-- ============================================================
+CREATE TABLE ConfiguracionSistema (
+    Clave VARCHAR(80) NOT NULL PRIMARY KEY,
+    Valor TEXT NULL,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_config_fecha (FechaActualizacion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- USUARIOS DEL SISTEMA
--- Username y Password se respetan exactamente como se escriben.
+-- Las contraseñas se almacenan con hash seguro generado por PHP password_hash().
 -- ============================================================
 CREATE TABLE Usuarios (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -89,7 +99,6 @@ CREATE TABLE Asignaciones (
     INDEX idx_asignaciones_materia (MateriaNombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- ============================================================
 -- CICLOS ESCOLARES Y PERIODOS DE EVALUACIÓN
 -- ============================================================
@@ -113,6 +122,7 @@ CREATE TABLE PeriodosEvaluacion (
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_periodos_ciclos FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE KEY unico_periodo_ciclo_nombre (CicloId, Nombre),
+    UNIQUE KEY unico_periodo_ciclo_orden (CicloId, Orden),
     INDEX idx_periodos_ciclo_orden (CicloId, Activo, Orden)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -162,6 +172,7 @@ CREATE TABLE Asistencias (
 
 -- ============================================================
 -- AVISOS DEL SISTEMA
+-- La tabla queda vacía en instalación. Los avisos se capturan desde el sistema.
 -- ============================================================
 CREATE TABLE Avisos (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -194,7 +205,6 @@ CREATE TABLE BitacoraMovimientos (
     INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 -- ============================================================
 -- INTENTOS DE SEGURIDAD
 -- Controla intentos fallidos de login y consulta pública.
@@ -210,20 +220,3 @@ CREATE TABLE IntentosSeguridad (
     INDEX idx_intentos_bloqueado (Contexto, BloqueadoHasta),
     INDEX idx_intentos_ultimo (UltimoIntento)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- USUARIO ADMINISTRADOR INICIAL
--- ============================================================
-INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo)
-VALUES ('Admin', 'Admin123', 'ADMINISTRADOR GENERAL', 'admin', 1);
-
-INSERT INTO Avisos (Titulo, Mensaje, Publico, Activo)
-VALUES ('BIENVENIDO A SGCE', 'SISTEMA INTEGRAL DE GESTIÓN ESCOLAR LISTO PARA INICIAR.', 'TODOS', 1);
-
-
-INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES ('2025-2026','2025-08-01','2026-07-31',1);
-INSERT INTO PeriodosEvaluacion (CicloId, Nombre, Orden, Activo) VALUES
-(1,'PRIMER PERIODO',1,1),
-(1,'SEGUNDO PERIODO',2,1),
-(1,'TERCER PERIODO',3,1),
-(1,'FINAL',4,1);
