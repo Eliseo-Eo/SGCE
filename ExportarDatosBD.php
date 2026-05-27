@@ -54,6 +54,8 @@ $TablasPreferidas = [
     'Grupos',
     'Alumnos',
     'Asignaciones',
+    'CiclosEscolares',
+    'PeriodosEvaluacion',
     'Calificaciones',
     'Asistencias',
     'Avisos',
@@ -87,6 +89,8 @@ echo "-- GENERADO: " . date('Y-m-d H:i:s') . "\n";
 echo "-- USO: RestaurarBD.php permite fusionar o reemplazar datos con este archivo.\n";
 echo "-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n";
 echo "-- ============================================================\n\n";
+echo "-- SGCE_EXPORT_SIGNATURE=SGCE_FIX30\n";
+echo "-- ADVERTENCIA: LAS CONTRASEÑAS SE RESPALDAN EN TEXTO NORMAL POR CONFIGURACIÓN DEL PROYECTO.\n";
 echo "SET FOREIGN_KEY_CHECKS=0;\n";
 echo "SET NAMES utf8mb4;\n\n";
 

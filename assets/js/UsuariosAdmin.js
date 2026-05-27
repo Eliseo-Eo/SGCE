@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.UpperInput').forEach(Input=>{Input.addEventListener('input',()=>{const Start=Input.selectionStart;const End=Input.selectionEnd;Input.value=Input.value.toUpperCase();try{Input.setSelectionRange(Start,End)}catch(e){}})});});

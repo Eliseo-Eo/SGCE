@@ -873,7 +873,7 @@ if (!$InfoGrupo) {
     die("Grupo No Disponible.");
 }
 
-if ($UserSession['Rol'] !== 'admin') {
+if (!SgcePuedeAdministrarReportes($UserSession)) {
     die("No Tienes Permiso.");
 }
 

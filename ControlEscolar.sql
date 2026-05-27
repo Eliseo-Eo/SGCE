@@ -17,7 +17,7 @@ CREATE TABLE Usuarios (
     Username VARCHAR(50) NOT NULL,
     Password VARCHAR(255) NOT NULL,
     NombreCompleto VARCHAR(140) NOT NULL,
-    Rol ENUM('admin', 'maestro', 'director', 'prefecto') NOT NULL DEFAULT 'maestro',
+    Rol ENUM('admin', 'maestro', 'director', 'secretario', 'coordinador', 'prefecto') NOT NULL DEFAULT 'maestro',
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     SessionToken CHAR(64) DEFAULT NULL,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -87,6 +87,33 @@ CREATE TABLE Asignaciones (
     INDEX idx_asignaciones_materia (MateriaNombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- ============================================================
+-- CICLOS ESCOLARES Y PERIODOS DE EVALUACIÓN
+-- ============================================================
+CREATE TABLE CiclosEscolares (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(30) NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unico_ciclo_nombre (Nombre),
+    INDEX idx_ciclos_activo_fecha (Activo, FechaInicio, FechaFin)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE PeriodosEvaluacion (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    CicloId INT UNSIGNED NOT NULL,
+    Nombre VARCHAR(60) NOT NULL,
+    Orden INT UNSIGNED NOT NULL DEFAULT 1,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_periodos_ciclos FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_periodo_ciclo_nombre (CicloId, Nombre),
+    INDEX idx_periodos_ciclo_orden (CicloId, Activo, Orden)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================================
 -- CALIFICACIONES
 -- ============================================================
@@ -94,12 +121,15 @@ CREATE TABLE Calificaciones (
     Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     AlumnoId INT UNSIGNED NOT NULL,
     AsignacionId INT UNSIGNED NOT NULL,
+    PeriodoId INT UNSIGNED NOT NULL,
     Calificacion DECIMAL(4,2) NOT NULL,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_calificaciones_alumnos FOREIGN KEY (AlumnoId) REFERENCES Alumnos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_calificaciones_asignaciones FOREIGN KEY (AsignacionId) REFERENCES Asignaciones(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE KEY unico_alumno_asignacion (AlumnoId, AsignacionId),
+    CONSTRAINT fk_calificaciones_periodos FOREIGN KEY (PeriodoId) REFERENCES PeriodosEvaluacion(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_alumno_asignacion_periodo (AlumnoId, AsignacionId, PeriodoId),
     INDEX idx_calificaciones_asignacion (AsignacionId, AlumnoId),
+    INDEX idx_calificaciones_periodo (PeriodoId, AsignacionId, AlumnoId),
     INDEX idx_calificaciones_alumno (AlumnoId, AsignacionId),
     INDEX idx_calificaciones_valor (Calificacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -187,3 +217,11 @@ VALUES ('Admin', 'Admin123', 'ADMINISTRADOR GENERAL', 'admin', 1);
 
 INSERT INTO Avisos (Titulo, Mensaje, Publico, Activo)
 VALUES ('BIENVENIDO A SGCE', 'SISTEMA INTEGRAL DE GESTIÓN ESCOLAR LISTO PARA INICIAR.', 'TODOS', 1);
+
+
+INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES ('2025-2026','2025-08-01','2026-07-31',1);
+INSERT INTO PeriodosEvaluacion (CicloId, Nombre, Orden, Activo) VALUES
+(1,'PRIMER PERIODO',1,1),
+(1,'SEGUNDO PERIODO',2,1),
+(1,'TERCER PERIODO',3,1),
+(1,'FINAL',4,1);

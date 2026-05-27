@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('form[method]').forEach(function(F){if((F.getAttribute('method')||'').toLowerCase()==='post'&&!F.querySelector('input[name=\\\"CsrfToken\\\"]')){var I=document.createElement('input');I.type='hidden';I.name='CsrfToken';I.value='".$Token."';F.appendChild(I);}});});

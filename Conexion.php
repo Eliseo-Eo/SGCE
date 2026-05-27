@@ -240,5 +240,6 @@ function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $
 }
 
 
-?>
-
+// Helpers comunes SGCE FIX30
+require_once __DIR__ . '/includes/SGCE_Helpers.php';
+try { SgceAsegurarCicloPeriodos($Pdo); } catch (Exception $E) { /* No detengo el sistema por migración automática. */ }

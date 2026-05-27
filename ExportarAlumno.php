@@ -6,12 +6,13 @@
 */
 require 'Conexion.php';
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !in_array($UserSession['Rol'], ['admin','director','prefecto'], true)) {
+if (!$UserSession || !in_array($UserSession['Rol'], ['admin','director','secretario','coordinador','prefecto'], true)) {
     header('Location: index.php');
     exit;
 }
 
 $AlumnoId = intval($_GET['AlumnoId'] ?? 0);
+$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
 if ($AlumnoId <= 0) { die('Alumno inválido.'); }
 function HBol($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
 
@@ -20,7 +21,7 @@ $StmtAlumno->execute([$AlumnoId]);
 $Alumno = $StmtAlumno->fetch();
 if (!$Alumno) { die('Alumno no encontrado.'); }
 
-$StmtCal = $Pdo->prepare("SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, C.Calificacion FROM Calificaciones C JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id JOIN Usuarios U ON Asg.MaestroId = U.Id WHERE C.AlumnoId = ? ORDER BY Asg.MateriaNombre ASC");
+$StmtCal = $Pdo->prepare("SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, C.Calificacion, P.Nombre AS PeriodoEvaluacion FROM Calificaciones C LEFT JOIN PeriodosEvaluacion P ON C.PeriodoId = P.Id JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id JOIN Usuarios U ON Asg.MaestroId = U.Id WHERE C.AlumnoId = ? ORDER BY Asg.MateriaNombre ASC");
 $StmtCal->execute([$AlumnoId]);
 $Calificaciones = $StmtCal->fetchAll();
 

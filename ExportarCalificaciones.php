@@ -14,6 +14,8 @@ if (!$UserSession) { die("Acceso Denegado."); }
 $AsignacionId = intval($_GET['AsignacionId'] ?? 0);
 $GrupoId = intval($_GET['GrupoId'] ?? 0);
 $Tipo = (($_GET['Tipo'] ?? 'Excel') === 'Pdf') ? 'Pdf' : 'Excel';
+$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
+$PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
 
 if ($AsignacionId <= 0 && $GrupoId <= 0) {
     die("Parámetros inválidos. Debes enviar AsignacionId o GrupoId.");
@@ -71,11 +73,12 @@ if ($Modo === 'Asignacion') {
         LEFT JOIN Calificaciones C
             ON C.AlumnoId = Al.Id
             AND C.AsignacionId = ?
+            AND C.PeriodoId = ?
         WHERE Al.GrupoId = ?
         AND Al.Activo = 1
         ORDER BY Al.NombreCompleto ASC
     ");
-    $StmtAlumnos->execute([$AsignacionId, $Info['GrupoId']]);
+    $StmtAlumnos->execute([$AsignacionId, $PeriodoId, $Info['GrupoId']]);
     $ListaAlumnos = $StmtAlumnos->fetchAll();
 
     $TituloArchivo = "Reporte_Calificaciones_" . NombreArchivoSeguro($Info['MateriaNombre']) . "_" . NombreArchivoSeguro($Info['Grado'] . $Info['Grupo']);
@@ -1565,7 +1568,7 @@ $InfoGrupo = $StmtGrupo->fetch();
 if (!$InfoGrupo) { die("Grupo No Disponible."); }
 
 // Los reportes completos por grupo solo deben ser exportados por administración.
-if ($UserSession['Rol'] !== 'admin') {
+if (!SgcePuedeAdministrarReportes($UserSession)) {
     die("No Tienes Permiso.");
 }
 
@@ -1588,8 +1591,9 @@ $StmtCal = $Pdo->prepare("
     FROM Calificaciones C
     JOIN Asignaciones A ON C.AsignacionId = A.Id
     WHERE A.GrupoId = ?
+    AND C.PeriodoId = ?
 ");
-$StmtCal->execute([$GrupoId]);
+$StmtCal->execute([$GrupoId, $PeriodoId]);
 $MapaCalificaciones = [];
 foreach ($StmtCal->fetchAll() as $Cal) {
     $MapaCalificaciones[(int)$Cal['AlumnoId']][(int)$Cal['AsignacionId']] = $Cal['Calificacion'];
