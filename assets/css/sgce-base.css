@@ -85,9 +85,212 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
 .BtnGuinda:hover,.ReporteBtn:hover,.BtnExport:hover,button[type="submit"]:not(.btn-close):hover{filter:brightness(.96);transform:translateY(-1px)}
 .table{margin-bottom:0}.table thead th{background:#F8FAFC!important;color:#667085!important;text-transform:uppercase;font-size:.75rem;letter-spacing:.3px;border:0!important}.table td{vertical-align:middle;border-color:#EEF2F7!important}
 .table-responsive{border-radius:18px;overflow:hidden}.BadgeGlass,.InfoBadge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:.86rem}.SmallText{font-size:.92rem;color:#6B7280}.DangerZone{border:2px dashed var(--SgceRojo)!important;background:#FEF2F2!important}.alert{border-radius:18px;border:0;box-shadow:0 10px 24px rgba(15,23,42,.07)}
-/* Dashboard */
-.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(151,5,30,.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(151,5,30,.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,#2775F5,#3A86FF)!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}.navbar,.navbar-custom,.NavbarMaestro,.NavbarPublica{display:none!important}/* evita barras superiores heredadas */
-@media(max-width:1200px){.DashboardTopSplit{grid-template-columns:1fr}.DashboardModuleGrid{grid-template-columns:repeat(4,110px)}}
+/* Dashboard profesional */
+.DashboardTopSplit{
+  display:grid;
+  grid-template-columns:42% 58%;
+  gap:18px;
+  margin:0 0 18px!important;
+}
+.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}
+.DashboardPanelCard,.DashboardStatsPanel{
+  height:100%;
+  padding:20px!important;
+  overflow:hidden;
+}
+.DashboardSectionHead,.DashboardRiskHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+.DashboardSectionHead h5,.DashboardRiskHead h5{
+  margin:0;
+  color:var(--SgceGuindaOscuro)!important;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.25px;
+  font-size:1.05rem;
+}
+.DashboardSectionHead p,.DashboardRiskHead p{
+  margin:3px 0 0;
+  color:var(--SgceTextoSuave);
+  font-size:.82rem;
+  font-weight:700;
+}
+.DashboardModuleGrid{
+  display:grid;
+  grid-template-columns:repeat(4,112px);
+  gap:14px;
+  justify-content:center;
+  align-content:center;
+  padding:2px 0;
+}
+.DashboardModuleCard{
+  width:112px;
+  height:84px;
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#fff!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
+  box-shadow:0 12px 26px rgba(151,5,30,.18);
+  position:relative;
+  overflow:hidden;
+  transition:.22s ease;
+}
+.DashboardModuleCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.23),transparent 28%);
+  pointer-events:none;
+}
+.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(151,5,30,.25)}
+.DashboardModuleCard i{
+  font-size:1.28rem;
+  width:32px;
+  height:32px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.16);
+  margin-bottom:6px;
+}
+.DashboardModuleCard span{font-size:.78rem;font-weight:950;text-transform:uppercase;line-height:1}
+.DashboardModuleCard small{font-size:.58rem;font-weight:850;opacity:.95;line-height:1.1;margin-top:3px}
+.DashboardModuleBlue{background:linear-gradient(135deg,#2775F5,#3A86FF)!important}
+.DashboardStatsGrid,.StatsGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.DashboardStatCard,.StatCard,.StatMini{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  background:linear-gradient(180deg,#fff,#FBFCFF);
+  border:1px solid #EEF2F7;
+  border-radius:18px;
+  padding:13px 14px;
+  min-height:76px;
+  box-shadow:0 8px 20px rgba(15,23,42,.045);
+}
+.DashboardStatIcon,.StatIcon,.StatIconBox{
+  width:40px;
+  height:40px;
+  min-width:40px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#F8FAFC;
+  font-size:1.05rem;
+}
+.DashboardStatText span,.StatLabel,.StatCard small{
+  display:block;
+  font-size:.70rem;
+  font-weight:950;
+  text-transform:uppercase;
+  color:#667085;
+  line-height:1.12;
+}
+.DashboardStatText strong,.StatValue,.StatCard strong{
+  display:block;
+  margin-top:5px;
+  font-size:1.55rem;
+  font-weight:950;
+  color:#1F2937;
+  line-height:1;
+}
+.DashboardDayStatus{
+  margin-top:14px;
+  border:1px solid rgba(151,5,30,.10);
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(151,5,30,.06),rgba(47,124,246,.05));
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.DashboardDayIcon{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  color:var(--SgceGuinda);
+  box-shadow:0 8px 18px rgba(15,23,42,.06);
+  font-size:1.15rem;
+}
+.DashboardDayStatus span{
+  display:block;
+  color:var(--SgceGuindaOscuro);
+  font-size:.74rem;
+  font-weight:950;
+  text-transform:uppercase;
+}
+.DashboardDayStatus strong{
+  display:block;
+  color:#111827;
+  font-size:1.05rem;
+  font-weight:950;
+  margin-top:1px;
+}
+.DashboardDayStatus p{
+  margin:3px 0 0;
+  color:#667085;
+  font-size:.82rem;
+  font-weight:700;
+}
+.RiskCard{padding:18px!important}
+.DashboardRiskHead{margin-bottom:10px}
+.DashboardRiskHead h5{color:var(--SgceRojo)!important}
+.DashboardEmptyRisk{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  border:1px dashed rgba(22,163,74,.35);
+  background:linear-gradient(135deg,rgba(22,163,74,.08),rgba(255,255,255,.9));
+  border-radius:20px;
+  padding:18px 20px;
+  min-height:92px;
+}
+.DashboardEmptyRiskIcon{
+  width:48px;
+  height:48px;
+  min-width:48px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#ECFDF3;
+  color:var(--SgceVerde);
+  font-size:1.35rem;
+}
+.DashboardEmptyRisk strong{
+  display:block;
+  font-size:1rem;
+  color:#14532D;
+  font-weight:950;
+  text-transform:uppercase;
+}
+.DashboardEmptyRisk p{
+  margin:4px 0 0;
+  color:#667085;
+  font-weight:700;
+  font-size:.9rem;
+}
+.RiskCard .table-responsive{min-height:80px}
+@media(max-width:1200px){.DashboardTopSplit{grid-template-columns:1fr}.DashboardModuleGrid{grid-template-columns:repeat(4,112px)}}
 @media(max-width:720px){.SgcePageWrap{padding:16px 12px 24px}.SgceHero,.Top,.TopBar,.TopHeader{border-radius:20px;padding:20px;align-items:flex-start;flex-direction:column}.SgceHeroInfo{align-items:flex-start}.SgceHeroIcon,.HeaderIcon,.IconBox,.HeroIcon{width:50px;height:50px;min-width:50px}.SgceHeroActions{width:100%;justify-content:flex-start}.SgceHeroBtn:not(.SgceHeroLogout){width:100%}.DashboardModuleGrid{grid-template-columns:repeat(3,100px);gap:10px}.DashboardModuleCard{width:100px;height:76px}.DashboardStatsGrid,.StatsGrid{grid-template-columns:1fr}}
 @media(max-width:430px){.DashboardModuleGrid{grid-template-columns:repeat(2,1fr)}.DashboardModuleCard{width:100%;height:76px}}
 .HeroCard{
@@ -97,10 +300,291 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
 .HeroCard h1,.HeroCard h2,.HeroCard h3{color:#fff!important;font-weight:900;text-transform:uppercase}
 .HeroCard p{color:rgba(255,255,255,.82)!important}
 .HeroCard .HeroIcon{background:rgba(255,255,255,.14)!important;color:#fff!important}
-/* Login */
-.Overlay{position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,rgba(151,5,30,.16),transparent 30%);pointer-events:none}.ContainerPrincipal{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}.GridLogin{width:min(1120px,100%);display:grid;grid-template-columns:1.1fr .9fr;background:#fff;border-radius:30px;box-shadow:0 22px 60px rgba(15,23,42,.14);overflow:hidden}.PanelIzquierdo{padding:44px;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));color:#fff}.LogoSistema{width:70px;height:70px;border-radius:22px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:18px}.TituloSistema{font-size:3rem;font-weight:900;margin:0}.SubtituloSistema{font-size:1.15rem;font-weight:800;opacity:.9}.DescripcionSistema{opacity:.82;margin:20px 0}.Caracteristicas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.CardCaracteristica{background:rgba(255,255,255,.12);border-radius:18px;padding:16px}.IconoCaracteristica{font-size:22px;margin-bottom:8px}.TituloCaracteristica{font-weight:900}.TextoCaracteristica{font-size:.86rem;opacity:.82}.PanelDerecho{padding:44px}.TarjetaLogin,.LoginCard{background:#fff}.TituloLogin{font-weight:900;color:var(--SgceGuindaOscuro)}.BotonLogin{width:100%;min-height:50px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));color:white;font-weight:900;box-shadow:0 14px 28px rgba(151,5,30,.22)}@media(max-width:900px){.GridLogin{grid-template-columns:1fr}.PanelIzquierdo,.PanelDerecho{padding:28px}.Caracteristicas{grid-template-columns:1fr}.TituloSistema{font-size:2.2rem}}
 
-/* ===== FIX45: layout limpio y compacto para módulos independientes ===== */
+/* Login institucional */
+.Overlay{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(151,5,30,.16), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(47,124,246,.08), transparent 26%);
+}
+.ContainerPrincipal{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px;
+}
+.GridLogin{
+  width:min(1120px, 100%);
+  display:grid;
+  grid-template-columns:1.08fr .92fr;
+  background:#FFFFFF;
+  border-radius:30px;
+  box-shadow:0 28px 70px rgba(15,23,42,.16);
+  overflow:hidden;
+}
+.PanelIzquierdo{
+  padding:52px 46px;
+  background:
+    radial-gradient(circle at 22% 12%, rgba(255,255,255,.12), transparent 26%),
+    linear-gradient(135deg, var(--SgceGuindaOscuro), var(--SgceGuinda));
+  color:#FFFFFF;
+}
+.LogoSistema{
+  width:72px;
+  height:72px;
+  border-radius:22px;
+  background:rgba(255,255,255,.16);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  margin-bottom:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+}
+.TituloSistema{
+  font-size:3.15rem;
+  line-height:1;
+  font-weight:900;
+  margin:0 0 8px;
+  letter-spacing:.5px;
+  color:#FFFFFF;
+}
+.SubtituloSistema{
+  font-size:1.13rem;
+  font-weight:900;
+  opacity:.95;
+  margin:0;
+}
+.DescripcionSistema{
+  margin:24px 0;
+  color:rgba(255,255,255,.82);
+  line-height:1.55;
+}
+.Caracteristicas{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:14px;
+}
+.CardCaracteristica{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:18px;
+  padding:18px;
+  transition:.22s ease;
+}
+.CardCaracteristica:hover{
+  transform:translateY(-3px);
+  background:rgba(255,255,255,.16);
+}
+.IconoCaracteristica{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.14);
+  font-size:22px;
+  margin-bottom:12px;
+}
+.TituloCaracteristica{
+  font-weight:900;
+  margin-bottom:4px;
+}
+.TextoCaracteristica{
+  font-size:.9rem;
+  color:rgba(255,255,255,.78);
+  line-height:1.4;
+}
+.PanelDerecho{
+  padding:54px 46px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:#FFFFFF;
+}
+.LoginHeader{
+  text-align:center;
+  margin-bottom:30px;
+}
+.LoginIcon{
+  width:88px;
+  height:88px;
+  margin:0 auto 18px;
+  border-radius:24px;
+  background:linear-gradient(135deg, var(--SgceGuindaOscuro), var(--SgceGuinda));
+  color:#FFFFFF;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  box-shadow:0 14px 30px rgba(151,5,30,.28);
+}
+.TituloLogin{
+  font-size:2rem;
+  font-weight:900;
+  color:var(--SgceTexto);
+  margin:0;
+}
+.SubtituloLogin{
+  color:var(--SgceTextoSuave);
+  margin:8px 0 0;
+}
+.InputContainer{
+  margin-bottom:22px;
+}
+.InputLabel{
+  display:block;
+  margin-bottom:9px;
+  font-weight:800;
+  color:var(--SgceTexto);
+}
+.InputGroupCustom{
+  min-height:60px;
+  display:flex!important;
+  align-items:stretch;
+  flex-wrap:nowrap!important;
+  background:#F8FAFC;
+  border:2px solid #E2E8F0;
+  border-radius:18px;
+  overflow:hidden;
+  transition:.22s ease;
+}
+.InputGroupCustom:focus-within{
+  border-color:rgba(151,5,30,.58);
+  box-shadow:0 0 0 5px rgba(151,5,30,.08);
+  background:#FFFFFF;
+}
+.InputIcon{
+  width:62px;
+  min-width:62px;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  color:#64748B;
+  font-size:18px;
+  background:transparent;
+}
+.InputCustom,
+.InputGroupCustom .InputCustom,
+.InputGroupCustom .form-control{
+  flex:1 1 auto;
+  min-width:0;
+  height:60px;
+  min-height:60px;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:0 16px 0 0;
+  font-size:1rem;
+}
+.InputCustom:focus,
+.InputGroupCustom .form-control:focus{
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+.TextoLibre{
+  text-transform:none!important;
+}
+.TextoLibre::placeholder{
+  text-transform:uppercase!important;
+}
+.BtnVerPassword{
+  width:58px;
+  min-width:58px;
+  border:0!important;
+  border-left:1px solid #E2E8F0!important;
+  border-radius:0!important;
+  background:#F8FAFC!important;
+  color:var(--SgceGuindaOscuro)!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:none!important;
+  transition:.2s ease;
+}
+.BtnVerPassword:hover{
+  background:#EEF2F7!important;
+  color:var(--SgceGuinda)!important;
+}
+.BtnLogin,
+.btn.BtnLogin{
+  width:100%;
+  min-height:58px;
+  border:0!important;
+  border-radius:18px!important;
+  background:linear-gradient(135deg, var(--SgceGuindaOscuro), var(--SgceGuinda))!important;
+  color:#FFFFFF!important;
+  font-weight:900;
+  letter-spacing:.3px;
+  box-shadow:0 14px 28px rgba(151,5,30,.24)!important;
+  transition:.22s ease;
+}
+.BtnLogin:hover,
+.btn.BtnLogin:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.03);
+  box-shadow:0 20px 38px rgba(151,5,30,.32)!important;
+}
+.BtnConsultaPadre{
+  margin-top:16px;
+  width:100%;
+  min-height:48px;
+  border-radius:999px;
+  border:2px solid #2563EB;
+  background:#FFFFFF;
+  color:#2563EB!important;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  text-decoration:none!important;
+  transition:.22s ease;
+}
+.BtnConsultaPadre:hover{
+  background:#2563EB;
+  color:#FFFFFF!important;
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px rgba(37,99,235,.22);
+}
+.AlertError{
+  background:#FEE2E2;
+  color:#991B1B;
+  border:0;
+  border-radius:16px;
+  padding:15px 16px;
+  margin-bottom:22px;
+  font-weight:700;
+}
+.FooterLogin{
+  margin-top:24px;
+  text-align:center;
+  color:#94A3B8;
+  font-size:.9rem;
+}
+@media(max-width:992px){
+  .GridLogin{grid-template-columns:1fr;max-width:560px}
+  .PanelIzquierdo{display:none}
+  .PanelDerecho{padding:40px 30px}
+}
+@media(max-width:520px){
+  .ContainerPrincipal{padding:18px}
+  .GridLogin{border-radius:24px}
+  .PanelDerecho{padding:30px 22px}
+  .LoginIcon{width:72px;height:72px;font-size:30px}
+  .TituloLogin{font-size:1.65rem}
+}
+
 .MainWrap,
 .SgceModuleWrap{
   width:min(1360px, calc(100% - 36px));
@@ -215,7 +699,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   .CardPanel,.SgcePanel{padding:16px!important}
 }
 
-/* ===== FIX46: botones legacy Bootstrap recuperados ===== */
+
 .btn-guinda,
 .btn.btn-guinda,
 button.btn-guinda,
@@ -257,7 +741,7 @@ button.btn-guinda{
 .btn-success.w-100,
 .btn.btn-success.w-100{width:100%!important}
 
-/* ===== FIX47: restauración de modales profesionales y separación en acciones ===== */
+
 .modal-dialog{
   display:flex;
   align-items:center;
@@ -494,7 +978,7 @@ button.btn-guinda{
   }
 }
 
-/* ===== FIX48: botones de exportación recuperados para grupos y asignaciones ===== */
+
 .ExportLabel{
   display:block!important;
   margin-bottom:5px!important;
@@ -575,12 +1059,11 @@ button.btn-guinda{
   .ExportIcon .ExportText{font-size:.68rem!important}
 }
 
-/* FIX49: Ocultar textos redundantes arriba de botones de exportación.
-   Las columnas ya indican si es Calif., Asis. Hoy o Asis. Todas. */
+
 .ExportLabel{display:none!important;}
 .ExportBtns,.ExportButtonGroup,.ExportGroup{align-items:center!important;justify-content:center!important;}
 
-/* ===== FIX50: campos de búsqueda integrados ===== */
+
 .search-container.input-group,
 .input-group.search-container{
   display:flex!important;
@@ -645,4 +1128,1386 @@ button.btn-guinda{
 }
 @media(max-width:768px){
   .search-container.w-50,.search-container.w-25{width:100%!important;}
+}
+
+/* Respaldos e importación - diseño final restaurado */
+.SgceRestorePage{
+  background:
+    radial-gradient(circle at top left,rgba(151,5,30,.08),transparent 30%),
+    linear-gradient(135deg,#F8FAFC 0%,#EEF3F9 100%)!important;
+}
+.SgceRestoreWrap{
+  max-width:1320px!important;
+}
+.SgceRestoreWrap .Top{
+  border-radius:26px!important;
+  padding:28px 30px!important;
+  box-shadow:0 20px 48px rgba(122,8,24,.24)!important;
+}
+.SgceRestoreWrap .Top h1{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  font-size:clamp(1.8rem,2.5vw,2.65rem)!important;
+}
+.SgceRestoreBack{
+  min-width:170px!important;
+  min-height:48px!important;
+  padding:11px 20px!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16)!important;
+}
+.SgceRestoreCard{
+  border-radius:26px!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+  border:1px solid rgba(226,232,240,.72)!important;
+  overflow:visible!important;
+}
+.SgceRestoreCardHead{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:16px!important;
+  margin-bottom:20px!important;
+}
+.SgceRestoreCardHead .IconBox{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  border-radius:18px!important;
+  background:linear-gradient(135deg,rgba(151,5,30,.12),rgba(151,5,30,.06))!important;
+  color:var(--SgceGuinda)!important;
+  box-shadow:none!important;
+  font-size:1.5rem!important;
+}
+.SgceRestoreCardHead h4{
+  margin:0 0 4px!important;
+  color:#111827!important;
+  font-weight:900!important;
+  letter-spacing:.1px!important;
+}
+.SgceRestoreCardHead p{
+  margin:0!important;
+  color:#64748B!important;
+  font-size:.94rem!important;
+  line-height:1.45!important;
+}
+.SgceRestoreCard .ActionBtn{
+  min-height:44px!important;
+  font-size:.86rem!important;
+  gap:10px!important;
+  border-radius:999px!important;
+}
+.SgceRestoreCard .ActionSuccess{
+  background:linear-gradient(135deg,#15803D,#22C55E)!important;
+  color:#fff!important;
+  box-shadow:0 12px 28px rgba(22,163,74,.22)!important;
+}
+.SgceRestoreCard .ActionDanger{
+  background:linear-gradient(135deg,#B91C1C,#EF4444)!important;
+  color:#fff!important;
+  box-shadow:0 12px 28px rgba(220,38,38,.20)!important;
+}
+.SgceRestoreInfo{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  margin-top:14px!important;
+  padding:13px 15px!important;
+  border-radius:18px!important;
+  background:#ECFEFF!important;
+  color:#155E75!important;
+  font-size:.92rem!important;
+  line-height:1.45!important;
+  border:1px solid #A5F3FC!important;
+}
+.SgceRestoreInfo i{
+  color:#0891B2!important;
+  margin-top:3px!important;
+}
+.SgceDangerCard{
+  border:2px dashed #EF4444!important;
+  background:linear-gradient(135deg,#FFF7F7,#FFFFFF)!important;
+}
+.SgceDangerHead .IconBox{
+  background:linear-gradient(135deg,rgba(239,68,68,.16),rgba(239,68,68,.08))!important;
+  color:#DC2626!important;
+}
+.SgceDangerHead h4{
+  color:#DC2626!important;
+}
+.SgceRestoreCard label{
+  color:#0F172A!important;
+  font-weight:900!important;
+}
+.SgceRestoreCard .FormControl,
+.SgceRestoreCard .form-control,
+.SgceRestoreCard .form-select{
+  min-height:48px!important;
+  border-radius:16px!important;
+  background:#fff!important;
+}
+@media(max-width:768px){
+  .SgceRestoreWrap .Top{padding:22px!important}
+  .SgceRestoreBack{width:100%!important}
+  .SgceRestoreCardHead{align-items:center!important}
+}
+
+/* Bitácora - diseño final */
+.SgceBitacoraCard{
+  border:0!important;
+  border-radius:24px!important;
+  padding:26px!important;
+  background:#fff!important;
+  box-shadow:0 22px 46px rgba(15,23,42,.08)!important;
+}
+.SgceBitacoraHead{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:22px!important;
+  margin-bottom:18px!important;
+}
+.SgceBitacoraTitle{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:14px!important;
+  min-width:0!important;
+}
+.SgceBitacoraIcon{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:16px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:linear-gradient(135deg,rgba(151,5,30,.14),rgba(151,5,30,.06))!important;
+  color:var(--SgceGuinda)!important;
+  font-size:1.25rem!important;
+}
+.SgceBitacoraTitle h4{
+  margin:0 0 6px!important;
+  color:var(--SgceGuinda)!important;
+  font-size:1.45rem!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+}
+.SgceBitacoraTitle p{
+  margin:0!important;
+  color:#64748B!important;
+  line-height:1.45!important;
+  max-width:760px!important;
+  font-size:.95rem!important;
+}
+.SgceBitacoraTools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:12px!important;
+  flex-wrap:wrap!important;
+  min-width:min(100%,520px)!important;
+}
+.SgceSearchBox{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  width:min(360px,100%)!important;
+}
+.SgceSearchBox i{
+  position:absolute!important;
+  left:16px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  color:#64748B!important;
+  z-index:2!important;
+  font-size:.95rem!important;
+}
+.SgceSearchBox input{
+  width:100%!important;
+  min-height:46px!important;
+  border:2px solid #E2E8F0!important;
+  border-radius:16px!important;
+  padding:0 16px 0 46px!important;
+  background:#fff!important;
+  color:#0F172A!important;
+  font-size:.9rem!important;
+  font-weight:700!important;
+  outline:none!important;
+  box-shadow:0 10px 24px rgba(15,23,42,.04)!important;
+  transition:.2s ease!important;
+}
+.SgceSearchBox input:focus{
+  border-color:rgba(151,5,30,.45)!important;
+  box-shadow:0 0 0 .22rem rgba(151,5,30,.10)!important;
+}
+.SgceSearchBox input::placeholder{
+  color:#64748B!important;
+  text-transform:uppercase!important;
+  font-weight:700!important;
+}
+.SgceSearchBoxSmall input{min-height:42px!important;border-radius:15px!important;}
+.SgceCountPill{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-height:42px!important;
+  padding:0 16px!important;
+  border-radius:999px!important;
+  background:linear-gradient(135deg,#F8FAFC,#EEF2FF)!important;
+  border:1px solid #E2E8F0!important;
+  color:#334155!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+  box-shadow:0 10px 24px rgba(15,23,42,.05)!important;
+}
+.SgceCountPill i{color:#2563EB!important;font-size:.92rem!important;}
+.SgceInfoBanner{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  padding:14px 16px!important;
+  border-radius:18px!important;
+  background:#ECFEFF!important;
+  color:#155E75!important;
+  border:1px solid #A5F3FC!important;
+  box-shadow:0 12px 30px rgba(6,182,212,.10)!important;
+  line-height:1.45!important;
+  font-weight:700!important;
+}
+.SgceInfoBanner i{margin-top:3px!important;color:#0891B2!important;}
+.SgceTableWrap table thead th{
+  background:#F8FAFC!important;
+  color:#64748B!important;
+  font-size:.75rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  border:0!important;
+}
+.SgceTableWrap table tbody td{
+  vertical-align:middle!important;
+  border-color:#EEF2F7!important;
+}
+#TableBitacora .badge{
+  border-radius:999px!important;
+  padding:.42rem .65rem!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+}
+@media(max-width:1100px){
+  .SgceBitacoraHead{flex-direction:column!important;}
+  .SgceBitacoraTools{width:100%!important;justify-content:flex-start!important;min-width:0!important;}
+  .SgceSearchBox{width:100%!important;}
+}
+@media(max-width:640px){
+  .SgceBitacoraCard{padding:18px!important;}
+  .SgceBitacoraTitle{flex-direction:column!important;}
+  .SgceCountPill{width:100%!important;}
+}
+
+/* Consulta pública de padres - diseño final limpio */
+.ConsultaPublicaBody{
+  background:
+    radial-gradient(circle at 12% 10%, rgba(151,5,30,.10), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(47,124,246,.07), transparent 26%),
+    linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
+}
+.ConsultaPublicaBody .NavbarPublica,
+.ConsultaPublicaBody .SgceBtnInicio{
+  display:none!important;
+}
+.ConsultaPublicaWrap{
+  width:min(1280px, calc(100% - 36px));
+  margin:34px auto 42px;
+}
+.ConsultaHero{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
+  color:#fff;
+  border-radius:28px;
+  padding:34px 38px;
+  box-shadow:var(--SgceSombraGuinda);
+  margin-bottom:24px;
+}
+.ConsultaHeroIcon{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:22px;
+  background:rgba(255,255,255,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:34px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20);
+}
+.ConsultaBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  font-weight:900;
+  font-size:.82rem;
+  text-transform:uppercase;
+  letter-spacing:.35px;
+  margin-bottom:10px;
+}
+.ConsultaHero h1{
+  margin:0;
+  font-size:clamp(1.8rem,3.3vw,3rem);
+  line-height:1.02;
+  color:#fff!important;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.2px;
+}
+.ConsultaHero p{
+  margin:10px 0 0;
+  color:rgba(255,255,255,.82)!important;
+  font-weight:500;
+  max-width:920px;
+}
+.ConsultaAvisosCard,
+.ConsultaCard,
+.ResultadoCard{
+  background:#fff!important;
+  border:1px solid #EEF2F7;
+  border-radius:26px;
+  box-shadow:var(--SgceSombra);
+  padding:28px;
+}
+.ConsultaAvisosCard h5,
+.ConsultaCard h4,
+.ResultadoCard h3,
+.ResultadoCard h5{
+  color:#111827!important;
+}
+.ConsultaGrid{
+  display:grid;
+  grid-template-columns:minmax(360px,.82fr) minmax(0,1.18fr);
+  gap:22px;
+  align-items:stretch;
+}
+.ConsultaCard label{
+  font-weight:800;
+  color:#374151;
+  margin-bottom:7px;
+  font-size:.92rem;
+}
+.ConsultaCard .form-control,
+.ConsultaCard .form-select{
+  min-height:52px;
+  border-radius:16px!important;
+  background:#fff!important;
+  font-weight:700;
+}
+.BtnPrincipal{
+  width:100%;
+  min-height:54px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  border:0!important;
+  border-radius:999px!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.2px;
+  box-shadow:0 16px 30px rgba(151,5,30,.22)!important;
+}
+.BtnPrincipal:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.03);
+  box-shadow:0 20px 38px rgba(151,5,30,.30)!important;
+}
+.AvisoPrivacidad{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:15px 16px;
+  border-radius:18px;
+  background:#F8FAFC;
+  color:#475467;
+  border:1px solid #EEF2F7;
+  font-weight:600;
+  line-height:1.45;
+}
+.AvisoPrivacidad i{
+  color:var(--SgceGuinda)!important;
+  margin-top:2px;
+}
+.ResultadoCard{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.ResultadoCard .EstadoIcon{
+  width:72px;
+  height:72px;
+  margin:0 auto 16px;
+  border-radius:24px;
+  background:#F8FAFC;
+  color:var(--SgceGuinda)!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+}
+.EstadoBox{
+  border-radius:24px;
+  padding:24px;
+  text-align:center;
+  border:1px solid #EEF2F7;
+}
+.EstadoBox .EstadoIcon{
+  background:#fff!important;
+  box-shadow:0 10px 24px rgba(15,23,42,.08);
+}
+.EstadoBox.success{background:#ECFDF3;border-color:#BBF7D0;color:#166534}
+.EstadoBox.warning{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
+.EstadoBox.danger{background:#FEF2F2;border-color:#FECACA;color:#991B1B}
+.EstadoBox.secondary{background:#F8FAFC;border-color:#E2E8F0;color:#475467}
+.MetricCard{
+  min-height:95px;
+  border-radius:20px;
+  background:#F8FAFC;
+  border:1px solid #EEF2F7;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:14px;
+}
+.MetricCard .Numero{
+  font-size:2rem;
+  font-weight:900;
+  color:var(--SgceGuindaOscuro);
+  line-height:1;
+}
+.MetricCard .Texto{
+  margin-top:6px;
+  color:#667085;
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.25px;
+}
+.ConsultaAvisosCard .rounded-4{
+  border-radius:18px!important;
+  background:#F8FAFC!important;
+  border-color:#E7ECF3!important;
+}
+@media(max-width:992px){
+  .ConsultaGrid{grid-template-columns:1fr}
+  .ConsultaHero{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:560px){
+  .ConsultaPublicaWrap{width:min(100% - 24px,1280px);margin:18px auto 28px}
+  .ConsultaHero,.ConsultaAvisosCard,.ConsultaCard,.ResultadoCard{border-radius:22px;padding:22px}
+  .ConsultaHeroIcon{width:60px;height:60px;min-width:60px;font-size:28px}
+}
+
+/* Avisos y comunicados: diseño final limpio */
+.AvisosBody{
+  background:radial-gradient(circle at top left,rgba(151,5,30,.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
+}
+.AvisosWrap{
+  width:min(100% - 34px,1360px);
+  margin:0 auto;
+  padding:26px 0 42px;
+}
+.AvisosHero{margin-bottom:22px!important}
+.AvisosLayout{
+  display:grid;
+  grid-template-columns:380px minmax(0,1fr);
+  gap:22px;
+  align-items:start;
+}
+.AvisosFormCard,
+.AvisosTableCard{
+  padding:22px!important;
+  border-radius:26px!important;
+  overflow:visible!important;
+}
+.AvisosTableCard{min-height:360px}
+.SgceCardHeaderLine{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+.SgceCardHeaderLine h2{
+  margin:0;
+  font-size:1.15rem;
+  font-weight:900;
+  color:var(--SgceGuindaOscuro)!important;
+  letter-spacing:.15px;
+  text-transform:uppercase;
+}
+.SgceCardHeaderLine p{
+  margin:3px 0 0;
+  color:#667085;
+  font-weight:600;
+  font-size:.86rem;
+}
+.SgceMiniIcon{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(151,5,30,.10)!important;
+  color:var(--SgceGuinda)!important;
+  font-size:1.15rem;
+}
+.AvisosForm{
+  display:grid;
+  gap:10px;
+}
+.AvisosForm label,
+.AvisosTable th{
+  font-size:.76rem;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#667085;
+}
+.AvisosForm .form-control,
+.AvisosForm .form-select{
+  margin-bottom:4px;
+}
+.AvisosSubmit{
+  width:100%;
+  margin-top:6px;
+  min-height:46px;
+}
+.AvisosTableHeader{
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+}
+.SgceCountPill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#F8FAFC;
+  border:1px solid #E7ECF3;
+  color:#475467;
+  font-weight:900;
+  text-transform:uppercase;
+  font-size:.76rem;
+  white-space:nowrap;
+}
+.AvisosTableResponsive{
+  border-radius:20px!important;
+  border:1px solid #EEF2F7;
+  overflow:auto!important;
+}
+.AvisosTable td,
+.AvisosTable th{
+  padding:12px 10px!important;
+}
+.AvisoFecha{font-weight:800;color:#334155;white-space:nowrap}
+.AvisoTituloTabla{color:#0F172A!important;min-width:210px}
+.BadgePublico,
+.BadgeEstado{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+}
+.BadgePublico{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.BadgeEstado{background:#ECFDF3;color:#047857;border:1px solid #BBF7D0}
+.BadgeInactivo{background:#FEF2F2!important;color:#B91C1C!important;border-color:#FECACA!important}
+.AccionesAviso .ActionBtn{
+  min-height:36px!important;
+  padding:8px 12px!important;
+  border-radius:999px!important;
+  font-size:.78rem!important;
+  box-shadow:0 10px 20px rgba(15,23,42,.08)!important;
+}
+.AccionesAviso .ActionBtn i{font-size:.86rem!important}
+.AccionesAviso .ActionBtn span{margin-left:2px!important}
+.ModalAvisoEstado .DeleteModalHeader h4,
+.ModalAvisoEstado .DeleteModalHeader p{color:#fff!important}
+.HeaderActivar{background:linear-gradient(135deg,#047857,#22C55E)!important}
+.HeaderDesactivar{background:linear-gradient(135deg,var(--SgceGuindaOscuro),#DC2626)!important}
+.AvisoTituloModal{
+  border-radius:16px;
+  padding:12px 14px;
+  background:#F8FAFC;
+  border:1px solid #E7ECF3;
+  color:#0F172A;
+  font-weight:900;
+}
+.BtnConfirmActivar{
+  color:#16A34A!important;
+  border-color:#16A34A!important;
+}
+.BtnConfirmActivar:hover{
+  background:#16A34A!important;
+  color:#fff!important;
+}
+@media(max-width:1100px){
+  .AvisosLayout{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .AvisosWrap{width:min(100% - 22px,1360px);padding-top:18px}
+  .AvisosTableHeader{flex-direction:column;align-items:flex-start}
+  .SgceCountPill{width:100%;justify-content:center}
+  .AccionesAviso{flex-wrap:wrap!important;justify-content:flex-start!important}
+}
+
+/* Ciclos escolares y periodos - diseño final limpio */
+.SgcePeriodosWrap{
+  width:min(1360px, calc(100% - 36px));
+  margin:24px auto 34px;
+}
+.SgcePeriodosHero{
+  margin-bottom:22px!important;
+}
+.SgceNoticeInfo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 18px;
+  margin:0 0 18px;
+  border-radius:18px;
+  background:#EAF6FF;
+  color:#075985;
+  font-weight:800;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+.SgcePeriodosGrid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:22px;
+  align-items:stretch;
+}
+.SgcePeriodCard{
+  background:#fff;
+  border:1px solid rgba(226,232,240,.88);
+  border-radius:26px;
+  box-shadow:0 16px 38px rgba(15,23,42,.08);
+  padding:24px;
+  min-height:300px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.SgcePeriodFormCard{min-height:320px;}
+.SgcePeriodTableCard{min-height:300px;}
+.SgcePeriodCardTitle{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:18px;
+  padding-bottom:14px;
+  border-bottom:1px solid #EEF2F7;
+}
+.SgcePeriodCardTitle>span{
+  width:46px;
+  height:46px;
+  min-width:46px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, rgba(151,5,30,.12), rgba(151,5,30,.20));
+  color:var(--SgceGuinda);
+  font-size:1.25rem;
+}
+.SgcePeriodCardTitle h2{
+  margin:0;
+  color:var(--SgceGuindaOscuro);
+  font-weight:900;
+  font-size:1.16rem;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+}
+.SgcePeriodCardTitle p{
+  margin:4px 0 0;
+  color:var(--SgceTextoSuave);
+  font-size:.86rem;
+  font-weight:600;
+}
+.SgcePeriodForm{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  flex:1;
+}
+.SgcePeriodForm .form-control,
+.SgcePeriodForm .form-select{
+  min-height:48px;
+  border-radius:15px!important;
+  font-weight:600;
+}
+.SgceFieldLabel{
+  display:block;
+  margin-bottom:7px;
+  font-size:.82rem;
+  font-weight:900;
+  color:#475467;
+  text-transform:uppercase;
+  letter-spacing:.25px;
+}
+.SgceTwoCols,
+.SgcePeriodFormGrid{
+  display:grid;
+  gap:14px;
+}
+.SgceTwoCols{grid-template-columns:repeat(2,minmax(0,1fr));}
+.SgcePeriodFormGrid{grid-template-columns:1.2fr 1fr .62fr;}
+.SgceSwitch{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  width:max-content;
+  cursor:pointer;
+  user-select:none;
+  margin:2px 0 4px;
+}
+.SgceSwitch input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.SgceSwitch > span:not(.SgceSwitchText){
+  width:50px;
+  height:28px;
+  border-radius:999px;
+  background:#CBD5E1;
+  position:relative;
+  transition:.2s ease;
+  box-shadow:inset 0 2px 5px rgba(15,23,42,.18);
+}
+.SgceSwitch > span:not(.SgceSwitchText)::after{
+  content:"";
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#fff;
+  position:absolute;
+  top:3px;
+  left:3px;
+  box-shadow:0 5px 12px rgba(15,23,42,.22);
+  transition:.2s ease;
+}
+.SgceSwitch input:checked + span:not(.SgceSwitchText){
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
+}
+.SgceSwitch input:checked + span:not(.SgceSwitchText)::after{
+  transform:translateX(22px);
+}
+.SgceSwitch strong{
+  color:#334155;
+  font-weight:900;
+}
+.SgcePeriodSubmit{
+  align-self:flex-start;
+  min-width:210px;
+  margin-top:auto;
+}
+.SgcePeriodTableBox{
+  flex:1;
+  min-height:170px;
+  max-height:245px;
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid #EEF2F7;
+}
+.SgcePeriodTable thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#F8FAFC!important;
+}
+.SgcePeriodTable td,
+.SgcePeriodTable th{
+  padding:12px 14px!important;
+}
+.SgceStatusBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:78px;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.25px;
+  color:#fff;
+  box-shadow:0 8px 16px rgba(15,23,42,.10);
+}
+.SgceStatusBadge.IsActive{background:linear-gradient(135deg,#15803D,#22C55E);}
+.SgceStatusBadge.IsInactive{background:linear-gradient(135deg,#64748B,#94A3B8);}
+.SgcePeriodCard .SgcePagerServer{
+  margin-top:14px;
+}
+.SgcePeriodCard .SgcePagerServer .pagination{
+  margin-bottom:0;
+}
+@media(max-width:1100px){
+  .SgcePeriodosGrid{grid-template-columns:1fr;}
+  .SgcePeriodCard{min-height:auto;}
+}
+@media(max-width:680px){
+  .SgcePeriodosWrap{width:min(100% - 24px, 1360px);}
+  .SgceTwoCols,.SgcePeriodFormGrid{grid-template-columns:1fr;}
+  .SgcePeriodSubmit{width:100%;}
+  .SgcePeriodCard{padding:18px;border-radius:22px;}
+}
+
+
+/* ===== Usuarios y Roles - diseño final ===== */
+.SgceUsersPage{
+  max-width:1360px;
+}
+.SgceUsersPage .TopBar{
+  margin-bottom:18px;
+}
+.SgceUsersStats{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-bottom:18px;
+}
+.SgceUsersStats .StatCard{
+  min-height:70px;
+  border-radius:18px!important;
+  background:linear-gradient(180deg,#fff,#FBFCFE)!important;
+  border:1px solid #EEF2F7!important;
+  box-shadow:0 10px 24px rgba(15,23,42,.055)!important;
+}
+.SgceUsersStats .StatCard span{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#475569;
+}
+.SgceUsersStats .StatCard span::before{
+  content:"";
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  background:var(--SgceGuinda);
+  box-shadow:0 0 0 4px rgba(151,5,30,.08);
+}
+.SgceUsersCreateCard,
+.SgceUsersTableCard{
+  padding:24px!important;
+}
+.SgceUsersCreateCard h2,
+.SgceUsersTableCard h2{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.SgceUsersCreateForm .form-control,
+.SgceUsersCreateForm .form-select,
+.SgceUsersFilterBar .form-control,
+.SgceUsersFilterBar .form-select,
+.SgceUsersTable .form-control,
+.SgceUsersTable .form-select{
+  min-height:44px;
+  border-radius:14px!important;
+  border:1.5px solid #DCE5F0!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  color:#1F2937!important;
+  font-weight:700;
+}
+.SgceUsersCreateForm .form-control:focus,
+.SgceUsersCreateForm .form-select:focus,
+.SgceUsersFilterBar .form-control:focus,
+.SgceUsersFilterBar .form-select:focus,
+.SgceUsersTable .form-control:focus,
+.SgceUsersTable .form-select:focus{
+  border-color:rgba(151,5,30,.42)!important;
+  box-shadow:0 0 0 4px rgba(151,5,30,.08)!important;
+}
+.SgceUsersCreateForm .form-label{
+  font-weight:800;
+  color:#334155;
+  margin-bottom:6px;
+}
+.SgceUsersTableHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:16px;
+}
+.SgceUsersFilterBar{
+  width:min(720px,100%);
+  grid-template-columns:minmax(230px,1.35fr) minmax(165px,.8fr) minmax(140px,.7fr) 46px;
+}
+.SgceUsersTableCard .table-responsive{
+  border:1px solid #EEF2F7;
+  border-radius:20px;
+  overflow:auto;
+  background:#fff;
+}
+.SgceUsersTable{
+  margin:0!important;
+  min-width:1080px;
+}
+.SgceUsersTable thead th{
+  background:#F8FAFC!important;
+  color:#64748B!important;
+  font-size:.76rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  border-bottom:1px solid #E8EEF6!important;
+  padding:13px 12px!important;
+}
+.SgceUsersTable tbody td{
+  padding:12px!important;
+  vertical-align:middle!important;
+  border-bottom:1px solid #EEF2F7!important;
+}
+.SgceUsersTable tbody tr:hover td{
+  background:#FCF7F9!important;
+}
+.SgceUsersTable .form-control-sm,
+.SgceUsersTable .form-select-sm{
+  min-height:40px;
+  font-size:.9rem;
+  padding:.48rem .7rem;
+}
+.SgceUsersTable .ActionsInline{
+  justify-content:center!important;
+  gap:8px!important;
+}
+.SgceUsersTable .BtnSmall{
+  min-height:36px!important;
+  padding:8px 12px!important;
+  border-radius:999px!important;
+  font-size:.78rem!important;
+  gap:8px!important;
+}
+.SgceSwitch{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  cursor:pointer;
+  user-select:none;
+  margin:0;
+  min-width:116px;
+}
+.SgceSwitchInput{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.SgceSwitchSlider{
+  width:50px;
+  height:28px;
+  border-radius:999px;
+  background:#CBD5E1;
+  border:1px solid #CBD5E1;
+  position:relative;
+  transition:.2s ease;
+  box-shadow:inset 0 2px 6px rgba(15,23,42,.10);
+}
+.SgceSwitchSlider::after{
+  content:"";
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  background:#fff;
+  position:absolute;
+  top:2px;
+  left:2px;
+  transition:.2s ease;
+  box-shadow:0 3px 8px rgba(15,23,42,.22);
+}
+.SgceSwitchInput:checked + .SgceSwitchSlider{
+  background:linear-gradient(135deg,#15803D,#22C55E);
+  border-color:#16A34A;
+}
+.SgceSwitchInput:checked + .SgceSwitchSlider::after{
+  transform:translateX(22px);
+}
+.SgceSwitchText{
+  min-width:52px;
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#64748B;
+}
+.SgceSwitchInput:checked ~ .SgceSwitchText{
+  color:#15803D;
+}
+.SgceSwitch.IsDisabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+.SgceSwitch.IsDisabled .SgceSwitchSlider{
+  filter:grayscale(.1);
+}
+.UsuariosTable th:nth-child(1){width:24%}
+.UsuariosTable th:nth-child(2){width:15%}
+.UsuariosTable th:nth-child(3){width:15%}
+.UsuariosTable th:nth-child(4){width:17%}
+.UsuariosTable th:nth-child(5){width:12%}
+.UsuariosTable th:nth-child(6){width:17%}
+@media(max-width:992px){
+  .SgceUsersStats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .SgceUsersFilterBar{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .SgceUsersStats{grid-template-columns:1fr}
+  .SgceUsersFilterBar{grid-template-columns:1fr}
+  .SgceUsersTableHeader{align-items:stretch}
+}
+
+
+/* SGCE Producción: Usuarios y Roles - corrección final de tabla, switch y acciones */
+.SgceUsersTableCard{
+  overflow:hidden;
+}
+.SgceUsersTableCard .table-responsive{
+  overflow-x:auto;
+  border-radius:18px;
+}
+.UsuariosTable{
+  table-layout:fixed;
+  width:100%;
+  margin-bottom:0;
+}
+.UsuariosTable th,
+.UsuariosTable td{
+  vertical-align:middle!important;
+}
+.UsuariosTable th:nth-child(1){width:24%}
+.UsuariosTable th:nth-child(2){width:15%}
+.UsuariosTable th:nth-child(3){width:15%}
+.UsuariosTable th:nth-child(4){width:17%}
+.UsuariosTable th:nth-child(5){width:13%}
+.UsuariosTable th:nth-child(6){width:16%}
+.UsuariosTable .form-control-sm,
+.UsuariosTable .form-select-sm{
+  width:100%;
+  min-height:40px;
+  border:1px solid #D9E2EF!important;
+  background:#fff!important;
+  border-radius:13px!important;
+  box-shadow:none!important;
+  font-weight:800;
+  color:#1F2937!important;
+}
+.UsuariosTable .form-select-sm{
+  appearance:auto;
+  padding-right:34px!important;
+  background-color:#fff!important;
+}
+.UsuariosTable .form-select-sm:disabled{
+  background:#F1F5F9!important;
+  color:#475569!important;
+  opacity:1!important;
+}
+.SgceUserStatusCell{
+  white-space:nowrap;
+}
+.SgceUserStatusCell .SgceSwitch{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-width:118px!important;
+  margin:0 auto!important;
+}
+.SgceUserStatusCell .SgceSwitchInput{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.SgceUserStatusCell .SgceSwitchSlider{
+  display:inline-block!important;
+  flex:0 0 50px!important;
+  width:50px!important;
+  height:28px!important;
+  border-radius:999px!important;
+  background:#CBD5E1!important;
+  border:1px solid #CBD5E1!important;
+  position:relative!important;
+  box-shadow:inset 0 2px 6px rgba(15,23,42,.10)!important;
+}
+.SgceUserStatusCell .SgceSwitchSlider::after{
+  content:""!important;
+  width:22px!important;
+  height:22px!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  position:absolute!important;
+  top:2px!important;
+  left:2px!important;
+  transform:none!important;
+  box-shadow:0 3px 8px rgba(15,23,42,.22)!important;
+  transition:.18s ease!important;
+}
+.SgceUserStatusCell .SgceSwitchInput:checked + .SgceSwitchSlider{
+  background:linear-gradient(135deg,#15803D,#22C55E)!important;
+  border-color:#16A34A!important;
+}
+.SgceUserStatusCell .SgceSwitchInput:checked + .SgceSwitchSlider::after{
+  transform:translateX(22px)!important;
+}
+.SgceUserStatusCell .SgceSwitchText{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  min-width:58px!important;
+  height:auto!important;
+  padding:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  position:static!important;
+  color:#64748B!important;
+  font-size:.72rem!important;
+  line-height:1!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+}
+.SgceUserStatusCell .SgceSwitchText::after{content:none!important;display:none!important;}
+.SgceUserStatusCell .SgceSwitchInput:checked ~ .SgceSwitchText{color:#15803D!important;}
+.SgceUsersTable .ActionsInline{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:9px!important;
+}
+.SgceUsersTable .ActionsInline form{margin:0!important;}
+.SgceUsersTable .BtnSmall{
+  min-width:86px!important;
+  min-height:38px!important;
+  padding:8px 13px!important;
+  border-radius:999px!important;
+  border:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.SgceUsersTable .BtnSave{
+  background:linear-gradient(135deg,#0F766E,#14B8A6)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(20,184,166,.22)!important;
+}
+.SgceUsersTable .BtnDisable{
+  background:linear-gradient(135deg,#8A0019,#B00022)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(176,0,34,.22)!important;
+}
+.SgceUsersTable .BtnReactivate{
+  background:linear-gradient(135deg,#15803D,#22C55E)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(34,197,94,.20)!important;
+}
+.SgceUsersTable .BtnSmall:disabled{
+  filter:grayscale(.2);
+  opacity:.45!important;
+  cursor:not-allowed!important;
+}
+@media(max-width:1200px){
+  .UsuariosTable{min-width:1060px;}
+}
+
+
+/* Usuarios y Roles: colores finales de acciones (alta especificidad para evitar herencia guinda de BtnPrimary/BtnSmall) */
+.SgceUsersPage .BtnUserCreateSave,
+.SgceUsersPage form .BtnUserCreateSave,
+body .SgceUsersPage .BtnPrimary.BtnUserCreateSave{
+  background:linear-gradient(135deg,#1D4ED8,#2563EB)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 26px rgba(37,99,235,.24)!important;
+}
+.SgceUsersPage .BtnUserCreateSave:hover,
+body .SgceUsersPage .BtnPrimary.BtnUserCreateSave:hover{
+  transform:translateY(-1px);
+  box-shadow:0 18px 34px rgba(37,99,235,.30)!important;
+}
+.SgceUsersPage .SgceUsersTable .BtnUserSave,
+.SgceUsersPage .SgceUsersTable form .BtnUserSave,
+body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 10px 18px rgba(16,185,129,.24)!important;
+}
+.SgceUsersPage .SgceUsersTable .BtnUserSave:hover,
+body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 24px rgba(16,185,129,.30)!important;
+}
+
+
+/* Avisos y comunicados: acciones homologadas con Usuarios y Roles */
+.AvisosSubmit.BtnAvisoPublish,
+body .AvisosBody .BtnPrimary.AvisosSubmit.BtnAvisoPublish{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 26px rgba(16,185,129,.24)!important;
+}
+.AvisosSubmit.BtnAvisoPublish:hover,
+body .AvisosBody .BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover{
+  transform:translateY(-1px);
+  box-shadow:0 18px 34px rgba(16,185,129,.30)!important;
+}
+.AccionesAviso .ActionBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  min-height:36px!important;
+  padding:9px 14px!important;
+  border-radius:999px!important;
+  border:0!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  letter-spacing:.15px!important;
+  white-space:nowrap!important;
+  text-transform:none!important;
+}
+.AccionesAviso .BtnAvisoEdit,
+body .AvisosBody .AccionesAviso .ActionBtn.BtnAvisoEdit{
+  background:linear-gradient(135deg,#1D4ED8,#2563EB)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(37,99,235,.24)!important;
+}
+.AccionesAviso .BtnAvisoDeactivate,
+body .AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate{
+  background:linear-gradient(135deg,#8A0019,#B00022)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(176,0,34,.22)!important;
+}
+.AccionesAviso .BtnAvisoActivate,
+body .AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#fff!important;
+  box-shadow:0 10px 18px rgba(16,185,129,.24)!important;
+}
+.AccionesAviso .ActionBtn:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.06)!important;
+}
+.AccionesAviso .ActionBtn i,
+.AccionesAviso .ActionBtn span{
+  margin:0!important;
+}
+.BtnAvisoModalSave,
+body .modal .BtnSaveEdit.BtnAvisoModalSave{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(16,185,129,.24)!important;
+}
+.BtnAvisoModalDeactivate,
+body .modal .BtnConfirmDelete.BtnAvisoModalDeactivate{
+  background:linear-gradient(135deg,#8A0019,#B00022)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(176,0,34,.22)!important;
+}
+.BtnAvisoModalActivate,
+body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(16,185,129,.24)!important;
+}
+
+
+/* FIX FINAL AVISOS: colores idénticos a Usuarios y Roles, sin heredar ActionEdit/ActionDelete */
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody .AvisosForm button.BtnAvisoPublish,
+html body.AvisosBody .AvisosSubmit.BtnAvisoPublish{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 14px 26px rgba(16,185,129,.24)!important;
+}
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover,
+html body.AvisosBody .AvisosForm button.BtnAvisoPublish:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 18px 34px rgba(16,185,129,.30)!important;
+}
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoEdit{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 10px 18px rgba(16,185,129,.24)!important;
+}
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoDeactivate{
+  background:linear-gradient(135deg,#8A0019,#B00022)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 10px 18px rgba(176,0,34,.22)!important;
+}
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoActivate{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 10px 18px rgba(16,185,129,.24)!important;
+}
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoEdit:hover,
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoDeactivate:hover,
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoActivate:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.06)!important;
+}
+html body .modal .BtnSaveEdit.BtnAvisoModalSave{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(16,185,129,.24)!important;
+}
+html body .modal .BtnConfirmDelete.BtnAvisoModalDeactivate{
+  background:linear-gradient(135deg,#8A0019,#B00022)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(176,0,34,.22)!important;
+}
+html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
+  background:linear-gradient(135deg,#047857,#10B981)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 12px 22px rgba(16,185,129,.24)!important;
 }

@@ -20,10 +20,12 @@ CREATE TABLE Usuarios (
     Rol ENUM('admin', 'maestro', 'director', 'secretario', 'coordinador', 'prefecto') NOT NULL DEFAULT 'maestro',
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     SessionToken CHAR(64) DEFAULT NULL,
+    SessionTokenExpira DATETIME DEFAULT NULL,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unico_username (Username),
     INDEX idx_usuarios_session_token (SessionToken),
+    INDEX idx_usuarios_session_expira (SessionTokenExpira),
     INDEX idx_usuarios_rol_activo_nombre (Rol, Activo, NombreCompleto),
     INDEX idx_usuarios_nombre (NombreCompleto),
     INDEX idx_usuarios_activo (Activo)

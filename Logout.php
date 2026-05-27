@@ -22,7 +22,7 @@ if (isset($_COOKIE['AuthToken'])) {
 
         $Stmt = $Pdo->prepare("
             UPDATE Usuarios
-            SET SessionToken = NULL
+            SET SessionToken = NULL, SessionTokenExpira = NULL
             WHERE SessionToken = ?
         ");
 

@@ -58,14 +58,14 @@ function GarantizarSesionDespuesRestaurar($Pdo, $UserSession) {
     if ($Token !== '' && preg_match('/^[a-f0-9]{64}$/i', $Token)) {
         $Username = (string)($UserSession['Username'] ?? '');
         if ($Username !== '') {
-            $Stmt = $Pdo->prepare('UPDATE Usuarios SET SessionToken = ? WHERE Username = ? AND Activo = 1 LIMIT 1');
+            $Stmt = $Pdo->prepare('UPDATE Usuarios SET SessionToken = ?, SessionTokenExpira = DATE_ADD(NOW(), INTERVAL 1 DAY) WHERE Username = ? AND Activo = 1 LIMIT 1');
             $Stmt->execute([$Token, $Username]);
         }
     }
 
     $TotalUsuarios = (int)$Pdo->query('SELECT COUNT(*) FROM Usuarios')->fetchColumn();
     if ($TotalUsuarios <= 0) {
-        $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo, SessionToken) VALUES (?, ?, ?, 'admin', 1, ?)")
+        $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo, SessionToken, SessionTokenExpira) VALUES (?, ?, ?, 'admin', 1, ?, DATE_ADD(NOW(), INTERVAL 1 DAY))")
             ->execute(['Admin', 'Admin123', 'ADMINISTRADOR GENERAL', $Token !== '' ? $Token : null]);
     }
 }
@@ -222,27 +222,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="apple-touch-icon" href="favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-
-
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/RestaurarBD.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=51">
 </head>
-<body>
-<div class="container py-4">
+<body class="SgceRestorePage">
+<div class="container py-4 SgceRestoreWrap">
     <div class="Top mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
             <h1 class="fw-black mb-1"><i class="fa-solid fa-database me-2"></i> RESPALDOS E IMPORTACIÓN</h1>
             <p class="mb-0 opacity-75">Respalda, restaura o limpia los datos del sistema desde un solo lugar.</p>
         </div>
-        <a href="Admin.php?Tab=inicio" class="ActionBtn bg-white text-danger SgceBtnInicio"><i class="fa-solid fa-arrow-left"></i> VOLVER A INICIO</a>
+        <a href="Admin.php?Tab=inicio" class="ActionBtn bg-white text-danger SgceBtnInicio SgceRestoreBack"><i class="fa-solid fa-arrow-left"></i> VOLVER A INICIO</a>
     </div>
 
     <?php if ($Mensaje !== ''): ?>
@@ -251,18 +240,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="row g-4">
         <div class="col-lg-6">
-            <div class="Card p-4 h-100">
-                <div class="d-flex gap-3 align-items-start mb-3"><div class="IconBox"><i class="fa-solid fa-file-export"></i></div><div><h4 class="fw-bold mb-1">Exportar respaldos</h4><p class="SmallText mb-0">Usa este respaldo para restaurar desde esta misma pantalla. No toca la estructura de la base de datos.</p></div></div>
+            <div class="Card SgceRestoreCard p-4 h-100">
+                <div class="SgceRestoreCardHead"><div class="IconBox"><i class="fa-solid fa-file-export"></i></div><div><h4>Exportar respaldos</h4><p>Usa este respaldo para restaurar desde esta misma pantalla. No toca la estructura de la base de datos.</p></div></div>
                 <div class="d-grid gap-3">
                     <a href="ExportarDatosBD.php" class="ActionBtn ActionSuccess"><i class="fa-solid fa-download"></i> EXPORTAR SOLO DATOS</a>
                     </div>
-                <div class="alert alert-info border-0 rounded-4 mt-3 mb-0"><strong>Recomendado:</strong> este es el respaldo correcto para volver a importar desde el sistema. Para respaldo completo/manual sigue existiendo <code>RespaldoBD.php</code>, pero ya no aparece duplicado en el dashboard.</div>
+                <div class="SgceRestoreInfo"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> este es el respaldo correcto para volver a importar desde el sistema.</span></div>
             </div>
         </div>
 
         <div class="col-lg-6">
-            <div class="Card p-4 h-100">
-                <div class="d-flex gap-3 align-items-start mb-3"><div class="IconBox"><i class="fa-solid fa-file-import"></i></div><div><h4 class="fw-bold mb-1">Importar respaldo de datos</h4><p class="SmallText mb-0">Sube un .sql generado por “Exportar solo datos”.</p></div></div>
+            <div class="Card SgceRestoreCard p-4 h-100">
+                <div class="SgceRestoreCardHead"><div class="IconBox"><i class="fa-solid fa-file-import"></i></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”.</p></div></div>
                 <form method="POST" enctype="multipart/form-data">
                     <?= CampoCsrf() ?>
                     <div class="mb-3">
@@ -283,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="col-12">
-            <div class="Card DangerZone p-4">
-                <div class="d-flex gap-3 align-items-start mb-3"><div class="IconBox"><i class="fa-solid fa-triangle-exclamation"></i></div><div><h4 class="fw-bold text-danger mb-1">Borrar datos escolares</h4><p class="SmallText mb-0">Esto borra grupos, alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora. Conserva usuarios para que no pierdas acceso.</p></div></div>
+            <div class="Card SgceRestoreCard SgceDangerCard p-4">
+                <div class="SgceRestoreCardHead SgceDangerHead"><div class="IconBox"><i class="fa-solid fa-triangle-exclamation"></i></div><div><h4>Borrar datos escolares</h4><p>Esto borra grupos, alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora. Conserva usuarios para que no pierdas acceso.</p></div></div>
                 <form method="POST" class="row g-3 align-items-end">
                     <?= CampoCsrf() ?>
                     <div class="col-lg-8">
@@ -301,13 +290,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 </body>
 </html>

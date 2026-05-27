@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $Stmt = $Pdo->prepare("
                 UPDATE Usuarios 
-                SET SessionToken = ? 
+                SET SessionToken = ?, SessionTokenExpira = DATE_ADD(NOW(), INTERVAL 1 DAY)
                 WHERE Id = ?
             ");
 
@@ -100,20 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-
-    
-
-    
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/index.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=login-final">
 </head>
 
 <body>
@@ -345,26 +332,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 
-<!-- ============================================================
-     NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
-     ------------------------------------------------------------
-     Este bloque lo uso para homologar todas las notificaciones.
-     Cualquier alerta puede cerrarse manualmente con la tachita y,
-     si el usuario no la cierra, desaparece sola después de unos segundos.
-     ============================================================ -->
-
-
-
-
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 <script src="assets/js/index.js?v=44"></script>
 </body>

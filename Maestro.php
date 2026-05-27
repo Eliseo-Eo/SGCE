@@ -58,19 +58,7 @@ $AvisosMaestro = $StmtAvisosMaestro ? $StmtAvisosMaestro->fetchAll() : [];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    
-    
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/Maestro.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=final">
 </head>
 
 <body>
@@ -307,18 +295,6 @@ $AvisosMaestro = $StmtAvisosMaestro ? $StmtAvisosMaestro->fetchAll() : [];
      Cualquier alerta puede cerrarse manualmente con la tachita y,
      si el usuario no la cierra, desaparece sola después de unos segundos.
      ============================================================ -->
-
-
-
-
-
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 </body>
 </html>

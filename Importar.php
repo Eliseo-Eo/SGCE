@@ -21,19 +21,13 @@ if (!$UserSession || $UserSession['Rol'] !== 'admin') {
 
 RequerirCsrfPost();
 
-// Valido la pestaña para regresar al mismo módulo después de importar.
-function TabPermitidaImportar($Tab) {
-    $Permitidas = ['maestros','grupos','alumnos','asignaciones'];
-    return in_array($Tab, $Permitidas, true) ? $Tab : 'maestros';
-}
-
 // Redirecciono al administrador con mensaje de éxito o error.
 function RedirectAdminImportar($Tab, $Mensaje, $EsError = false) {
     $_SESSION['Mensaje'] = $Mensaje;
     if ($EsError) {
         $_SESSION['MensajeTipo'] = 'danger';
     }
-    header("Location: Admin.php?Tab=" . urlencode(TabPermitidaImportar($Tab)));
+    header("Location: Admin.php?Tab=" . urlencode(SgceTabAdminPermitida($Tab)));
     exit;
 }
 
@@ -42,39 +36,6 @@ function BomStrip($Handle) {
     if (fgets($Handle, 4) !== "\xEF\xBB\xBF") {
         rewind($Handle);
     }
-}
-
-// Normalizo nombres importados: limpio espacios, valido letras y convierto a mayúsculas.
-function NormalizarNombreImportar($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-
-    $Valor = preg_replace('/\s+/u', ' ', $Valor);
-
-    if (!preg_match('/^[\p{L}\s]+$/u', $Valor)) {
-        return '';
-    }
-
-    if (function_exists('mb_strtoupper')) {
-        return mb_strtoupper($Valor, 'UTF-8');
-    }
-
-    return strtoupper($Valor);
-}
-
-// Normalizo cualquier texto importado que deba guardarse en mayúsculas.
-// No lo aplico a Username ni Password porque esos campos deben respetar lo escrito.
-function NormalizarMayusculasImportar($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-
-    $Valor = preg_replace('/\s+/u', ' ', $Valor);
-
-    if (function_exists('mb_strtoupper')) {
-        return mb_strtoupper($Valor, 'UTF-8');
-    }
-
-    return strtoupper($Valor);
 }
 
 function TieneCsvValido($NombreArchivo) {
@@ -116,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$Tab = TabPermitidaImportar($_POST['Tab'] ?? 'maestros');
+$Tab = SgceTabAdminPermitida($_POST['Tab'] ?? 'maestros');
 
 // =====================================================
 // IMPORTAR ALUMNOS
@@ -179,7 +140,7 @@ if (isset($_POST['ImportarAlumnos'])) {
                 continue;
             }
 
-            $Nombre = NormalizarNombreImportar($Data[0]);
+            $Nombre = SgceNormalizarNombre($Data[0]);
 
             if ($Nombre === '') {
                 $Invalidos++;
@@ -262,7 +223,7 @@ if (isset($_POST['ImportarDocentes'])) {
                 continue;
             }
 
-            $Nombre = NormalizarNombreImportar($Data[0]);
+            $Nombre = SgceNormalizarNombre($Data[0]);
             $User = trim((string)$Data[1]);
             $Pass = trim((string)$Data[2]);
 

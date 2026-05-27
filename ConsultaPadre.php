@@ -16,23 +16,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 date_default_timezone_set('America/Mexico_City');
 
-function NormalizarConsultaPublica($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-    $Valor = preg_replace('/\s+/u', ' ', $Valor);
-    if (function_exists('mb_strtoupper')) {
-        return mb_strtoupper($Valor, 'UTF-8');
-    }
-    return strtoupper($Valor);
-}
-
-function ValidarGradoPublico($Valor) {
-    $Valor = trim((string)$Valor);
-    return ($Valor !== '' && preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ\-]+$/u', $Valor));
-}
-
 function ValidarGrupoPublico($Valor) {
-    $Valor = NormalizarConsultaPublica($Valor);
+    $Valor = SgceNormalizarMayusculas($Valor);
     return ($Valor !== '' && preg_match('/^[A-ZÁÉÍÓÚÜÑ0-9\-]+$/u', $Valor)) ? $Valor : '';
 }
 
@@ -67,16 +52,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     RequerirCsrfPost();
 
-    $NombreAlumno = NormalizarConsultaPublica($_POST['NombreAlumno'] ?? '');
-    $Grado = NormalizarConsultaPublica($_POST['Grado'] ?? '');
+    $NombreAlumno = SgceNormalizarMayusculas($_POST['NombreAlumno'] ?? '');
+    $Grado = SgceNormalizarMayusculas($_POST['Grado'] ?? '');
     $Grupo = ValidarGrupoPublico($_POST['Grupo'] ?? '');
-    $Turno = NormalizarConsultaPublica($_POST['Turno'] ?? '');
+    $Turno = SgceNormalizarMayusculas($_POST['Turno'] ?? '');
 
     if (!RateLimitDisponible($Pdo, 'consulta_padre', $NombreAlumno . '|' . $Grado . '|' . $Grupo . '|' . $Turno)) {
         $Error = 'DEMASIADOS INTENTOS DE CONSULTA. ESPERA 15 MINUTOS E INTENTA NUEVAMENTE.';
     } elseif ($NombreAlumno === '' || !preg_match('/^[\p{L}\s]+$/u', $NombreAlumno)) {
         $Error = 'ESCRIBE EL NOMBRE COMPLETO DEL ALUMNO, SOLO CON LETRAS Y ESPACIOS.';
-    } elseif (!ValidarGradoPublico($Grado) || $Grupo === '' || !in_array($Turno, ['MATUTINO', 'VESPERTINO'], true)) {
+    } elseif (!SgceValidarGrado($Grado) || $Grupo === '' || !in_array($Turno, ['MATUTINO', 'VESPERTINO'], true)) {
         $Error = 'SELECCIONA GRADO, GRUPO Y TURNO PARA VALIDAR LA CONSULTA.';
     } else {
 
@@ -192,51 +177,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=53">
 
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/ConsultaPadre.css?v=44">
 </head>
-<body>
+<body class="ConsultaPublicaBody">
 
-<nav class="navbar navbar-dark NavbarPublica py-3">
-    <div class="container-fluid px-4">
-        <span class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2">
-            <i class="fa-solid fa-shield-heart"></i>
-            SGCE
-            <span class="fw-light fs-6">Consulta Familiar</span>
-        </span>
-        <a href="index.php" class="btn btn-outline-light rounded-pill px-4 fw-bold SgceBtnInicio">
-            <i class="fa-solid fa-arrow-left"></i> VOLVER A INICIO
-        </a>
-    </div>
-</nav>
+<main class="ConsultaPublicaWrap">
 
-<main class="container py-4 py-lg-5">
-
-    <section class="HeroCard p-4 p-lg-5 mb-4">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-auto">
-                <div class="HeroIcon"><i class="fa-solid fa-user-shield"></i></div>
-            </div>
-            <div class="col-lg">
-                <span class="GlassBadge mb-3"><i class="fa-solid fa-lock"></i> CONSULTA PROTEGIDA POR DATOS EXACTOS</span>
-                <h1 class="display-6 fw-black mb-2" style="font-weight:900;">Consulta de asistencia del día</h1>
-                <p class="mb-0 opacity-75">Escribe el nombre completo del alumno y selecciona su grado, grupo y turno. El sistema solo muestra el resultado del alumno consultado.</p>
-            </div>
+    <section class="ConsultaHero">
+        <div class="ConsultaHeroIcon"><i class="fa-solid fa-user-shield"></i></div>
+        <div>
+            <span class="ConsultaBadge"><i class="fa-solid fa-lock"></i> Consulta protegida</span>
+            <h1>Consulta de asistencia del día</h1>
+            <p>Escribe el nombre completo del alumno y selecciona su grado, grupo y turno. El sistema solo muestra el resultado del alumno consultado.</p>
         </div>
     </section>
 
     <?php if(!empty($AvisosPadres)): ?>
-        <div class="ConsultaCard bg-white p-4 mb-4">
+        <div class="ConsultaAvisosCard mb-4">
             <h5 class="fw-bold text-danger mb-3"><i class="fa-solid fa-bullhorn me-2"></i> AVISOS PARA PADRES</h5>
             <div class="row g-3">
                 <?php foreach($AvisosPadres as $Aviso): ?>
@@ -252,9 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="ConsultaCard bg-white p-4 h-100">
+    <div class="ConsultaGrid">
+        <div>
+            <div class="ConsultaCard">
                 <h4 class="fw-bold mb-1"><i class="fa-solid fa-magnifying-glass text-danger me-2"></i>Buscar alumno</h4>
                 <p class="text-muted mb-4">Escribe el nombre completo y selecciona grado, grupo y turno. No se muestran listas completas por privacidad.</p>
 
@@ -301,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <button type="submit" class="BtnPrincipal w-100 mt-4">
+                    <button type="submit" class="BtnPrincipal mt-4">
                         <i class="fa-solid fa-calendar-check"></i>
                         CONSULTAR ASISTENCIA DE HOY
                     </button>
@@ -314,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="col-lg-7">
-            <div class="ResultadoCard bg-white p-4 h-100">
+        <div>
+            <div class="ResultadoCard">
                 <?php if($Resultado): ?>
                     <div class="EstadoBox <?= htmlspecialchars($Resultado['ClaseEstado'], ENT_QUOTES, 'UTF-8') ?> mb-4">
                         <div class="EstadoIcon">
@@ -360,14 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
-<script src="assets/js/sgce-shared.js?v=44"></script>
-<script src="assets/js/ConsultaPadre.js?v=44"></script>
+<script src="assets/js/sgce-shared.js?v=53"></script>
+<script src="assets/js/ConsultaPadre.js?v=53"></script>
 </body>
 </html>

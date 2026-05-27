@@ -2,8 +2,8 @@
 
 /*
     Archivo: Conexion.php
-    Descripción: Configuración de conexión PDO con MySQL y funciones base de sesión.
-    Las contraseñas se mantienen normales porque así se pidió para este proyecto.
+    Descripción: conexión PDO, sesión, CSRF, rate limit y bitácora base.
+    Nota: las contraseñas se conservan visibles por decisión operativa del proyecto.
 */
 
 // Defino la zona horaria del sistema para fechas de asistencia y reportes.
@@ -54,6 +54,7 @@ function VerificarSesionCookie($Pdo) {
         FROM Usuarios
         WHERE SessionToken = ?
         AND Activo = 1
+        AND (SessionTokenExpira IS NULL OR SessionTokenExpira >= NOW())
         LIMIT 1
     ");
 
@@ -240,6 +241,4 @@ function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $
 }
 
 
-// Helpers comunes SGCE FIX30
 require_once __DIR__ . '/includes/SGCE_Helpers.php';
-try { SgceAsegurarCicloPeriodos($Pdo); } catch (Exception $E) { /* No detengo el sistema por migración automática. */ }

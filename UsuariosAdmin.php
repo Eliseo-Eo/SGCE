@@ -174,12 +174,10 @@ foreach ($Roles as $Key => $Label) {
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=45">
-    <link rel="stylesheet" href="assets/css/UsuariosAdmin.css?v=45">
+    <link rel="stylesheet" href="assets/css/sgce-base.css?v=58">
 </head>
 <body>
-<div class="MainWrap SgceModuleWrap">
+<div class="MainWrap SgceModuleWrap SgceUsersPage">
     <div class="TopBar">
         <div>
             <h1><i class="fa-solid fa-users-gear"></i> Usuarios y Roles</h1>
@@ -193,7 +191,7 @@ foreach ($Roles as $Key => $Label) {
     <?php if ($Mensaje !== ''): ?><div class="alert alert-success shadow-sm"><i class="fa-solid fa-circle-check"></i> <?= htmlspecialchars($Mensaje) ?></div><?php endif; ?>
     <?php if ($Error !== ''): ?><div class="alert alert-danger shadow-sm"><i class="fa-solid fa-triangle-exclamation"></i> <?= htmlspecialchars($Error) ?></div><?php endif; ?>
 
-    <div class="StatsGrid">
+    <div class="StatsGrid SgceUsersStats">
         <?php foreach ($Roles as $Key => $Label): ?>
             <div class="StatCard">
                 <span><?= htmlspecialchars($Label) ?></span>
@@ -202,9 +200,9 @@ foreach ($Roles as $Key => $Label) {
         <?php endforeach; ?>
     </div>
 
-    <div class="CardPanel">
+    <div class="CardPanel SgceUsersCreateCard">
         <h2><i class="fa-solid fa-user-plus"></i> Nuevo usuario</h2>
-        <form method="POST" class="row g-3">
+        <form method="POST" class="row g-3 SgceUsersCreateForm">
             <?= CampoCsrf() ?>
             <input type="hidden" name="Accion" value="CrearUsuario">
             <div class="col-lg-4">
@@ -228,15 +226,15 @@ foreach ($Roles as $Key => $Label) {
                 </select>
             </div>
             <div class="col-lg-2 d-flex align-items-end">
-                <button class="BtnPrimary w-100" type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button class="BtnPrimary BtnUserCreateSave w-100" type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
             </div>
         </form>
     </div>
 
-    <div class="CardPanel">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div class="CardPanel SgceUsersTableCard">
+        <div class="SgceUsersTableHeader">
             <h2 class="mb-0"><i class="fa-solid fa-list-check"></i> Usuarios registrados</h2>
-            <form method="GET" class="FilterBar">
+            <form method="GET" class="FilterBar SgceUsersFilterBar">
                 <input type="text" name="Buscar" value="<?= htmlspecialchars($Buscar) ?>" class="form-control" placeholder="Buscar nombre o usuario">
                 <select name="Rol" class="form-select">
                     <option value="">Todos los roles</option>
@@ -254,7 +252,7 @@ foreach ($Roles as $Key => $Label) {
         </div>
 
         <div class="table-responsive">
-            <table class="table align-middle UsuariosTable">
+            <table class="table align-middle UsuariosTable SgceUsersTable">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -288,13 +286,15 @@ foreach ($Roles as $Key => $Label) {
                                 <input form="<?= $FormEditar ?>" type="hidden" name="Rol" value="<?= htmlspecialchars($U['Rol']) ?>">
                             <?php endif; ?>
                         </td>
-                        <td class="text-center">
-                            <div class="form-check form-switch d-inline-flex align-items-center gap-1">
-                                <input form="<?= $FormEditar ?>" class="form-check-input" type="checkbox" name="Activo" <?= ((int)$U['Activo'] === 1) ? 'checked' : '' ?> <?= ((int)$U['Id'] === (int)$UserSession['Id']) ? 'disabled' : '' ?>>
+                        <td class="text-center SgceUserStatusCell">
+                            <label class="SgceSwitch <?= ((int)$U['Id'] === (int)$UserSession['Id']) ? 'IsDisabled' : '' ?>" title="<?= ((int)$U['Activo'] === 1) ? 'Usuario activo' : 'Usuario inactivo' ?>">
+                                <input form="<?= $FormEditar ?>" class="SgceSwitchInput" type="checkbox" name="Activo" <?= ((int)$U['Activo'] === 1) ? 'checked' : '' ?> <?= ((int)$U['Id'] === (int)$UserSession['Id']) ? 'disabled' : '' ?>>
+                                <span class="SgceSwitchSlider" aria-hidden="true"></span>
+                                <span class="SgceSwitchText"><?= ((int)$U['Activo'] === 1) ? 'Activo' : 'Inactivo' ?></span>
                                 <?php if ((int)$U['Id'] === (int)$UserSession['Id']): ?>
                                     <input form="<?= $FormEditar ?>" type="hidden" name="Activo" value="1">
                                 <?php endif; ?>
-                            </div>
+                            </label>
                         </td>
                         <td class="text-center">
                             <div class="ActionsInline">
@@ -302,7 +302,7 @@ foreach ($Roles as $Key => $Label) {
                                     <?= CampoCsrf() ?>
                                     <input type="hidden" name="Accion" value="EditarUsuario">
                                     <input type="hidden" name="Id" value="<?= (int)$U['Id'] ?>">
-                                    <button type="submit" class="BtnSmall BtnSave"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                                    <button type="submit" class="BtnSmall BtnUserSave"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
                                 </form>
                                 <?php if ((int)$U['Activo'] === 1): ?>
                                     <form method="POST" onsubmit="return confirm('¿Desactivar este usuario?');">

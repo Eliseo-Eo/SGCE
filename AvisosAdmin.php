@@ -196,40 +196,29 @@ $Avisos = $Pdo->query("\n    SELECT *\n    FROM Avisos\n    ORDER BY Activo DESC
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    
-    
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/AvisosAdmin.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=58">
 </head>
-<body>
+<body class="AvisosBody">
 
-<div class="container-fluid px-4 py-4">
+<main class="SgcePageWrap AvisosWrap">
 
-    <div class="Top mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h2 class="mb-1" style="font-weight:900;">
-                <i class="fa-solid fa-bullhorn me-2"></i>
-                AVISOS Y COMUNICADOS
-            </h2>
-            <div>PUBLICA AVISOS PARA MAESTROS, PADRES O TODO EL SISTEMA.</div>
+    <section class="SgceHero AvisosHero">
+        <div class="SgceHeroInfo">
+            <div class="SgceHeroIcon">
+                <i class="fa-solid fa-bullhorn"></i>
+            </div>
+            <div>
+                <h1>AVISOS Y COMUNICADOS</h1>
+                <p>Publica avisos para maestros, padres o todo el sistema.</p>
+            </div>
         </div>
-
-        <a href="Admin.php?Tab=inicio" class="Btn BtnGuinda SgceBtnInicio">
-            <i class="fa-solid fa-arrow-left"></i>
-            VOLVER A INICIO
-        </a>
-    </div>
+        <div class="SgceHeroActions">
+            <a href="Admin.php?Tab=inicio" class="SgceHeroBtn">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Volver a inicio</span>
+            </a>
+        </div>
+    </section>
 
     <?php if (isset($_SESSION['Mensaje'])): ?>
         <div class="alert alert-<?= HAviso($_SESSION['MensajeTipo'] ?? 'success') ?> AlertAuto alert-dismissible fade show mb-4">
@@ -240,288 +229,226 @@ $Avisos = $Pdo->query("\n    SELECT *\n    FROM Avisos\n    ORDER BY Activo DESC
         </div>
     <?php endif; ?>
 
-    <div class="row g-4">
+    <section class="AvisosLayout">
+        <div class="SgceCard AvisosFormCard">
+            <div class="SgceCardHeaderLine">
+                <div class="SgceMiniIcon"><i class="fa-solid fa-plus"></i></div>
+                <div>
+                    <h2>NUEVO AVISO</h2>
+                    <p>Captura un comunicado y define a quién se mostrará.</p>
+                </div>
+            </div>
 
-        <div class="col-lg-4">
-            <div class="Card CardPadding">
-                <h5 class="fw-bold mb-3" style="color:var(--Guinda);">
-                    <i class="fa-solid fa-plus-circle me-2"></i>
-                    NUEVO AVISO
-                </h5>
+            <form method="POST" class="AvisosForm">
+                <?php echo CampoCsrf(); ?>
+                <input type="hidden" name="CrearAviso" value="1">
 
-                <form method="POST">
-                    <?php echo CampoCsrf(); ?>
-                    <input type="hidden" name="CrearAviso" value="1">
+                <label>TÍTULO</label>
+                <input name="Titulo" class="form-control" required placeholder="TÍTULO DEL AVISO" autocomplete="off">
+
+                <label>PÚBLICO</label>
+                <select name="Publico" class="form-select">
+                    <option value="TODOS">TODOS</option>
+                    <option value="MAESTROS">MAESTROS</option>
+                    <option value="PADRES">PADRES</option>
+                </select>
+
+                <label>MENSAJE</label>
+                <textarea name="Mensaje" class="form-control" rows="6" required placeholder="ESCRIBE EL COMUNICADO"></textarea>
+
+                <button class="BtnPrimary AvisosSubmit BtnAvisoPublish" type="submit">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>PUBLICAR AVISO</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="SgceCard AvisosTableCard">
+            <div class="SgceCardHeaderLine AvisosTableHeader">
+                <div class="SgceMiniIcon"><i class="fa-solid fa-list-check"></i></div>
+                <div>
+                    <h2>AVISOS REGISTRADOS</h2>
+                    <p>Administra comunicados activos e inactivos.</p>
+                </div>
+                <span class="SgceCountPill"><i class="fa-solid fa-clock-rotate-left"></i><?= count($Avisos) ?> registros</span>
+            </div>
+
+            <div class="table-responsive AvisosTableResponsive">
+                <table class="table align-middle AvisosTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Título</th>
+                            <th>Público</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($Avisos as $A): ?>
+                            <?php
+                                $AvisoId = (int)$A['Id'];
+                                $EstaActivo = (int)$A['Activo'] === 1;
+                            ?>
+                            <tr>
+                                <td class="AvisoFecha"><?= HAviso(date('d/m/Y H:i', strtotime($A['FechaCreacion']))) ?></td>
+                                <td class="fw-bold AvisoTituloTabla"><?= HAviso($A['Titulo']) ?></td>
+                                <td><span class="BadgePublico"><?= HAviso($A['Publico']) ?></span></td>
+                                <td>
+                                    <span class="BadgeEstado <?= $EstaActivo ? '' : 'BadgeInactivo' ?>">
+                                        <?= $EstaActivo ? 'ACTIVO' : 'INACTIVO' ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="AccionesAviso">
+                                        <button type="button" class="ActionBtn BtnAvisoEdit" data-bs-toggle="modal" data-bs-target="#ModalEditarAviso<?= $AvisoId ?>">
+                                            <i class="fa-solid fa-pen-to-square"></i><span>EDITAR</span>
+                                        </button>
+
+                                        <?php if ($EstaActivo): ?>
+                                            <button type="button" class="ActionBtn BtnAvisoDeactivate" data-bs-toggle="modal" data-bs-target="#ModalDesactivarAviso<?= $AvisoId ?>">
+                                                <i class="fa-solid fa-ban"></i><span>DESACTIVAR</span>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="ActionBtn BtnAvisoActivate" data-bs-toggle="modal" data-bs-target="#ModalActivarAviso<?= $AvisoId ?>">
+                                                <i class="fa-solid fa-circle-check"></i><span>ACTIVAR</span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                        <?php if (empty($Avisos)): ?>
+                            <tr>
+                                <td colspan="5" class="py-5 text-center text-muted fw-bold">SIN AVISOS REGISTRADOS.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+<?php foreach ($Avisos as $A): ?>
+<?php
+    $AvisoId = (int)$A['Id'];
+    $EstaActivoModal = (int)$A['Activo'] === 1;
+?>
+
+<div class="modal fade" id="ModalEditarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ModalEditarPro">
+        <div class="modal-content EditModalContent">
+            <form method="POST" class="m-0">
+                <?php echo CampoCsrf(); ?>
+                <input type="hidden" name="EditarAviso" value="1">
+                <input type="hidden" name="AvisoId" value="<?= $AvisoId ?>">
+
+                <div class="EditModalHeader">
+                    <div class="EditIcon"><i class="fa-solid fa-pen-to-square"></i></div>
+                    <h4>EDITAR AVISO</h4>
+                    <p>Actualiza el comunicado seleccionado</p>
+                </div>
+
+                <div class="EditModalBody">
+                    <div class="EditInfoBox">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        LOS CAMBIOS SE GUARDARÁN AL CONFIRMAR.
+                    </div>
 
                     <label>TÍTULO</label>
-                    <input name="Titulo" class="form-control mb-3" required placeholder="TÍTULO DEL AVISO" autocomplete="off">
+                    <input name="Titulo" class="form-control mb-3" required value="<?= HAviso($A['Titulo']) ?>">
 
                     <label>PÚBLICO</label>
                     <select name="Publico" class="form-select mb-3">
-                        <option value="TODOS">TODOS</option>
-                        <option value="MAESTROS">MAESTROS</option>
-                        <option value="PADRES">PADRES</option>
+                        <option value="TODOS" <?= $A['Publico'] === 'TODOS' ? 'selected' : '' ?>>TODOS</option>
+                        <option value="MAESTROS" <?= $A['Publico'] === 'MAESTROS' ? 'selected' : '' ?>>MAESTROS</option>
+                        <option value="PADRES" <?= $A['Publico'] === 'PADRES' ? 'selected' : '' ?>>PADRES</option>
                     </select>
 
                     <label>MENSAJE</label>
-                    <textarea name="Mensaje" class="form-control mb-3" rows="5" required placeholder="ESCRIBE EL COMUNICADO"></textarea>
+                    <textarea name="Mensaje" class="form-control mb-3" rows="5" required><?= HAviso($A['Mensaje']) ?></textarea>
 
-                    <button class="Btn BtnSave w-100" type="submit">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        PUBLICAR AVISO
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <div class="col-lg-8">
-            <div class="Card CardPadding">
-                <h5 class="fw-bold mb-3" style="color:var(--Guinda);">
-                    <i class="fa-solid fa-list me-2"></i>
-                    AVISOS REGISTRADOS
-                </h5>
-
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Título</th>
-                                <th>Público</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($Avisos as $A): ?>
-                                <?php
-                                    $AvisoId = (int)$A['Id'];
-                                    $EstaActivo = (int)$A['Activo'] === 1;
-                                ?>
-                                <tr>
-                                    <td><?= HAviso(date('d/m/Y H:i', strtotime($A['FechaCreacion']))) ?></td>
-                                    <td class="fw-bold"><?= HAviso($A['Titulo']) ?></td>
-                                    <td><span class="BadgePublico"><?= HAviso($A['Publico']) ?></span></td>
-                                    <td>
-                                        <span class="BadgeEstado <?= $EstaActivo ? '' : 'BadgeInactivo' ?>">
-                                            <?= $EstaActivo ? 'ACTIVO' : 'INACTIVO' ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="AccionesAviso">
-
-                                            <button type="button" class="Btn BtnEdit" data-bs-toggle="modal" data-bs-target="#ModalEditarAviso<?= $AvisoId ?>">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                                EDITAR
-                                            </button>
-
-                                            <?php if ($EstaActivo): ?>
-                                                <button type="button" class="Btn BtnDanger" data-bs-toggle="modal" data-bs-target="#ModalDesactivarAviso<?= $AvisoId ?>">
-                                                    <i class="fa-solid fa-ban"></i>
-                                                    DESACTIVAR
-                                                </button>
-                                            <?php else: ?>
-                                                <button type="button" class="Btn BtnActivate" data-bs-toggle="modal" data-bs-target="#ModalActivarAviso<?= $AvisoId ?>">
-                                                    <i class="fa-solid fa-circle-check"></i>
-                                                    ACTIVAR
-                                                </button>
-                                            <?php endif; ?>
-
-                                        </div>
-                                    </td>
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                            <?php if (empty($Avisos)): ?>
-                                <tr>
-                                    <td colspan="5" class="py-5 text-muted fw-bold">SIN AVISOS REGISTRADOS.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                    <div class="row g-2 mt-3">
+                        <div class="col-md-6">
+                            <button type="button" class="BtnCancelEdit" data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark"></i>
+                                CANCELAR
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="BtnSaveEdit BtnAvisoModalSave">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                GUARDAR CAMBIOS
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-
-
-            </div>
+            </form>
         </div>
-
     </div>
 </div>
 
-<!-- MODALES PARA EDITAR AVISOS - HIJAS DIRECTAS DEL BODY.
-     IMPORTANTE: no deben ir dentro de .Card porque .Card:hover usa transform,
-     y un ancestor con transform rompe position:fixed de Bootstrap. -->
-<?php foreach ($Avisos as $A): ?>
-                    <?php $AvisoId = (int)$A['Id']; ?>
-                    <!-- MODAL PARA EDITAR AVISO -->
-                    <div class="modal fade" id="ModalEditarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-
-                                            <div class="ModalHeaderEdit">
-                                                <div class="ModalIcon">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </div>
-                                                <h4 class="fw-bold mb-1">EDITAR AVISO</h4>
-                                                <div>ACTUALIZA EL COMUNICADO SELECCIONADO</div>
-                                            </div>
-
-                                            <form method="POST">
+<?php if ($EstaActivoModal): ?>
+<div class="modal fade ModalAvisoEstado" id="ModalDesactivarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm ModalEliminarFijo">
+        <div class="modal-content DeleteModalContent AvisoConfirmContent">
+            <div class="DeleteModalHeader AvisoConfirmHeader HeaderDesactivar">
+                <div class="DeleteIcon"><i class="fa-solid fa-ban"></i></div>
+                <h4 class="fw-bold mb-1">CONFIRMAR DESACTIVACIÓN</h4>
+                <p class="mb-0 opacity-75">AVISO</p>
+            </div>
+            <div class="DeleteModalBody">
+                <p class="fs-6 fw-bold mb-3">¿DESEAS DESACTIVAR ESTE AVISO?</p>
+                <div class="AvisoTituloModal mb-3"><?= HAviso($A['Titulo']) ?></div>
+                <div class="DeleteWarningBox mb-4">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    Revisa bien antes de confirmar. El aviso dejará de mostrarse, pero podrás activarlo después.
+                </div>
+                <form method="POST" class="m-0">
                     <?php echo CampoCsrf(); ?>
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="EditarAviso" value="1">
-                                                    <input type="hidden" name="AvisoId" value="<?= $AvisoId ?>">
-
-                                                    <label>TÍTULO</label>
-                                                    <input name="Titulo" class="form-control mb-3" required value="<?= HAviso($A['Titulo']) ?>">
-
-                                                    <label>PÚBLICO</label>
-                                                    <select name="Publico" class="form-select mb-3">
-                                                        <option value="TODOS" <?= $A['Publico'] === 'TODOS' ? 'selected' : '' ?>>TODOS</option>
-                                                        <option value="MAESTROS" <?= $A['Publico'] === 'MAESTROS' ? 'selected' : '' ?>>MAESTROS</option>
-                                                        <option value="PADRES" <?= $A['Publico'] === 'PADRES' ? 'selected' : '' ?>>PADRES</option>
-                                                    </select>
-
-                                                    <label>MENSAJE</label>
-                                                    <textarea name="Mensaje" class="form-control mb-3" rows="5" required><?= HAviso($A['Mensaje']) ?></textarea>
-
-                                                    <div class="row g-2 mt-2">
-                                                        <div class="col-md-6">
-                                                            <button type="button" class="Btn BtnCancel w-100" data-bs-dismiss="modal">
-                                                                <i class="fa-solid fa-xmark"></i>
-                                                                CANCELAR
-                                                            </button>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <button type="submit" class="Btn BtnEdit w-100">
-                                                                <i class="fa-solid fa-floppy-disk"></i>
-                                                                GUARDAR CAMBIOS
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                    <?php $EstaActivoModal = (int)$A['Activo'] === 1; ?>
-                    <?php if ($EstaActivoModal): ?>
-                    <!-- MODAL PARA DESACTIVAR AVISO -->
-                    <div class="modal fade ModalAvisoEstado" id="ModalDesactivarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-sm ModalEliminarFijo">
-                            <div class="modal-content DeleteModalContent AvisoConfirmContent">
-                                <div class="DeleteModalHeader AvisoConfirmHeader HeaderDesactivar">
-                                    <div class="DeleteIcon">
-                                        <i class="fa-solid fa-ban"></i>
-                                    </div>
-                                    <h4 class="fw-bold mb-1">CONFIRMAR DESACTIVACIÓN</h4>
-                                    <p class="mb-0 opacity-75">AVISO</p>
-                                </div>
-                                <div class="DeleteModalBody">
-                                    <p class="fs-6 fw-bold mb-3">¿DESEAS DESACTIVAR ESTE AVISO?</p>
-                                    <div class="AvisoTituloModal mb-3">
-                                        <?= HAviso($A['Titulo']) ?>
-                                    </div>
-                                    <div class="DeleteWarningBox mb-4">
-                                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                                        Revisa bien antes de confirmar. El aviso dejará de mostrarse, pero podrás activarlo después.
-                                    </div>
-                                    <form method="POST" class="m-0">
-                                        <?php echo CampoCsrf(); ?>
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                            <button type="button" class="BtnCancelDelete" data-bs-dismiss="modal">
-                                                <i class="fa-solid fa-xmark"></i> CANCELAR
-                                            </button>
-                                            <button name="DesactivarAviso" value="<?= $AvisoId ?>" type="submit" class="BtnConfirmDelete BtnConfirmDesactivar">
-                                                <i class="fa-solid fa-ban"></i> SÍ, DESACTIVAR
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" class="BtnCancelDelete" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> CANCELAR</button>
+                        <button name="DesactivarAviso" value="<?= $AvisoId ?>" type="submit" class="BtnConfirmDelete BtnConfirmDesactivar BtnAvisoModalDeactivate"><i class="fa-solid fa-ban"></i> SÍ, DESACTIVAR</button>
                     </div>
-                    <?php else: ?>
-                    <!-- MODAL PARA ACTIVAR AVISO -->
-                    <div class="modal fade ModalAvisoEstado" id="ModalActivarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-sm ModalEliminarFijo">
-                            <div class="modal-content DeleteModalContent AvisoConfirmContent">
-                                <div class="DeleteModalHeader AvisoConfirmHeader HeaderActivar">
-                                    <div class="DeleteIcon">
-                                        <i class="fa-solid fa-circle-check"></i>
-                                    </div>
-                                    <h4 class="fw-bold mb-1">CONFIRMAR ACTIVACIÓN</h4>
-                                    <p class="mb-0 opacity-75">AVISO</p>
-                                </div>
-                                <div class="DeleteModalBody">
-                                    <p class="fs-6 fw-bold mb-3">¿DESEAS ACTIVAR ESTE AVISO?</p>
-                                    <div class="AvisoTituloModal mb-3">
-                                        <?= HAviso($A['Titulo']) ?>
-                                    </div>
-                                    <div class="DeleteWarningBox mb-4">
-                                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                                        Revisa bien antes de confirmar. El aviso volverá a mostrarse al público seleccionado.
-                                    </div>
-                                    <form method="POST" class="m-0">
-                                        <?php echo CampoCsrf(); ?>
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                            <button type="button" class="BtnCancelDelete" data-bs-dismiss="modal">
-                                                <i class="fa-solid fa-xmark"></i> CANCELAR
-                                            </button>
-                                            <button name="ActivarAviso" value="<?= $AvisoId ?>" type="submit" class="BtnConfirmDelete BtnConfirmActivar">
-                                                <i class="fa-solid fa-circle-check"></i> SÍ, ACTIVAR
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<?php else: ?>
+<div class="modal fade ModalAvisoEstado" id="ModalActivarAviso<?= $AvisoId ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm ModalEliminarFijo">
+        <div class="modal-content DeleteModalContent AvisoConfirmContent">
+            <div class="DeleteModalHeader AvisoConfirmHeader HeaderActivar">
+                <div class="DeleteIcon"><i class="fa-solid fa-circle-check"></i></div>
+                <h4 class="fw-bold mb-1">CONFIRMAR ACTIVACIÓN</h4>
+                <p class="mb-0 opacity-75">AVISO</p>
+            </div>
+            <div class="DeleteModalBody">
+                <p class="fs-6 fw-bold mb-3">¿DESEAS ACTIVAR ESTE AVISO?</p>
+                <div class="AvisoTituloModal mb-3"><?= HAviso($A['Titulo']) ?></div>
+                <div class="DeleteWarningBox mb-4">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    Revisa bien antes de confirmar. El aviso volverá a mostrarse al público seleccionado.
+                </div>
+                <form method="POST" class="m-0">
+                    <?php echo CampoCsrf(); ?>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" class="BtnCancelDelete" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> CANCELAR</button>
+                        <button name="ActivarAviso" value="<?= $AvisoId ?>" type="submit" class="BtnConfirmDelete BtnConfirmActivar BtnAvisoModalActivate"><i class="fa-solid fa-circle-check"></i> SÍ, ACTIVAR</button>
                     </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-
-
-<!-- SGCE FIX16: modales profesionales para activar/desactivar avisos -->
-
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<?php endforeach; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
-
-<!-- SGCE FIX14: centrado final de modales y restauración visual -->
-
-
-
-
-<!-- SGCE FIX17: modales de activar/desactivar igual al diseño de eliminación y centrado blindado -->
-
-
-
-
-
-<!-- SGCE FIX18: botones de activar/desactivar avisos iguales al estilo tinto de eliminar -->
-
-
-
-
-<!-- SGCE FIX19 DEFINITIVO: botones de activar/desactivar avisos en tinto, sin gris -->
-
-
-
-<script src="assets/js/sgce-shared.js?v=44"></script>
-<script src="assets/js/AvisosAdmin.js?v=44"></script>
+<script src="assets/js/sgce-shared.js?v=57"></script>
+<script src="assets/js/AvisosAdmin.js?v=57"></script>
 </body>
 </html>

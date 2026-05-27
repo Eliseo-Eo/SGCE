@@ -16,85 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession || $UserSession['Rol'] !== 'admin') { header('Location: index.php'); exit; }
 
-// ================================
-// HELPERS
-// ================================
-
-function ValidarGrado($Valor) {
-    $Valor = trim((string)$Valor);
-    return ($Valor !== '' && ctype_digit($Valor));
-}
-
-function NormalizarGrupo($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-
-    $Valor = strtoupper($Valor);
-
-    // Solo letras A-Z (una o más)
-    if (!preg_match('/^[A-Z]+$/', $Valor)) { return ''; }
-
-    return $Valor;
-}
-
-// NOMBRE: SOLO LETRAS + ESPACIOS (incluye acentos/Ñ) y MAYÚSCULAS
-function NormalizarNombre($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-
-    $Valor = preg_replace('/\s+/u', ' ', $Valor);
-
-    if (!preg_match('/^[\p{L}\s]+$/u', $Valor)) { return ''; }
-
-    if (function_exists('mb_strtoupper')) {
-        $Valor = mb_strtoupper($Valor, 'UTF-8');
-    } else {
-        $Valor = strtoupper($Valor);
-    }
-
-    return $Valor;
-}
-
-// Con esta función guardo en MAYÚSCULAS todos los textos normales del sistema.
-// No la uso en usuario ni contraseña porque esos campos deben respetar mayúsculas/minúsculas.
-function NormalizarMayusculas($Valor) {
-    $Valor = trim((string)$Valor);
-    if ($Valor === '') { return ''; }
-
-    $Valor = preg_replace('/\s+/u', ' ', $Valor);
-
-    if (function_exists('mb_strtoupper')) {
-        return mb_strtoupper($Valor, 'UTF-8');
-    }
-
-    return strtoupper($Valor);
-}
-
-// El turno también se guarda en MAYÚSCULAS para mantener uniforme la base de datos.
-function NormalizarTurno($Valor) {
-    $Valor = NormalizarMayusculas($Valor);
-    return in_array($Valor, ['MATUTINO', 'VESPERTINO'], true) ? $Valor : '';
-}
-
-// ================================
-// HELPERS (TAB + REDIRECT)
-// ================================
-
-function TabPermitida($Tab) {
-    $Permitidas = ['inicio','maestros','grupos','alumnos','expedientes','asignaciones','bitacora'];
-    return in_array($Tab, $Permitidas, true) ? $Tab : 'inicio';
-}
-
-function RedirectTab($Tab) {
-    $Tab = TabPermitida($Tab);
-    header("Location: Admin.php?Tab=" . urlencode($Tab));
-    exit;
-}
-
 // Tab actual (para pintar activo en UI)
 // Al entrar al panel sin indicar pestaña, siempre inicio en el DASHBOARD.
 // Ya no uso la última pestaña guardada en sesión para evitar que al iniciar sesión abra Asignaciones u otra sección anterior.
-$TabActual = TabPermitida($_GET['Tab'] ?? $_POST['Tab'] ?? 'inicio');
+$TabActual = SgceTabAdminPermitida($_GET['Tab'] ?? $_POST['Tab'] ?? 'inicio');
 $_SESSION['Tab'] = $TabActual;
 
 // ================================
@@ -105,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     RequerirCsrfPost();
 
-    $TabPost = TabPermitida($_POST['Tab'] ?? 'maestros');
+    $TabPost = SgceTabAdminPermitida($_POST['Tab'] ?? 'maestros');
     $_SESSION['Tab'] = $TabPost;
 
     // ----------------------------
@@ -125,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Mensaje'] = "Error al eliminar docente.";
             }
 
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
     }
 
@@ -151,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
     }
 
@@ -172,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Mensaje'] = "Error al eliminar alumno.";
             }
 
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
     }
 
@@ -193,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Mensaje'] = "Error al desasignar materia.";
             }
 
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
     }
 
@@ -208,11 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $User = trim($_POST['User'] ?? '');
         $Pass = trim($_POST['Pass'] ?? '');
-        $Nombre = NormalizarNombre($_POST['Nombre'] ?? '');
+        $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
 
         if ($User === '' || $Pass === '' || $Nombre === '') {
             $_SESSION['Mensaje'] = "Completa Todos Los Campos Del Docente. (Nombre solo letras)";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -234,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     if (isset($_POST['EditMaestro'])) {
@@ -243,11 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $User = trim($_POST['User'] ?? '');
         $Pass = trim($_POST['Pass'] ?? '');
-        $Nombre = NormalizarNombre($_POST['Nombre'] ?? '');
+        $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
 
         if ($Id <= 0 || $User === '' || $Pass === '' || $Nombre === '') {
             $_SESSION['Mensaje'] = "Datos Del Docente Inválidos. (Nombre solo letras)";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -270,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     // ----------------------------
@@ -279,12 +204,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['AltaGrupo'])) {
 
         $Grado = trim($_POST['Grado'] ?? '');
-        $Grupo = NormalizarGrupo($_POST['Grupo'] ?? '');
-        $Turno = NormalizarTurno($_POST['Turno'] ?? '');
+        $Grupo = SgceNormalizarGrupo($_POST['Grupo'] ?? '');
+        $Turno = SgceNormalizarTurno($_POST['Turno'] ?? '');
 
-        if (!ValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
+        if (!SgceValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
             $_SESSION['Mensaje'] = "Grupo Inválido: Grado Solo Números y Grupo Solo Letras Mayúsculas.";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -306,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     if (isset($_POST['EditGrupo'])) {
@@ -314,12 +239,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Id = intval($_POST['Id'] ?? 0);
 
         $Grado = trim($_POST['Grado'] ?? '');
-        $Grupo = NormalizarGrupo($_POST['Grupo'] ?? '');
-        $Turno = NormalizarTurno($_POST['Turno'] ?? '');
+        $Grupo = SgceNormalizarGrupo($_POST['Grupo'] ?? '');
+        $Turno = SgceNormalizarTurno($_POST['Turno'] ?? '');
 
-        if ($Id <= 0 || !ValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
+        if ($Id <= 0 || !SgceValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
             $_SESSION['Mensaje'] = "Grupo Inválido: Grado Solo Números y Grupo Solo Letras Mayúsculas.";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -342,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     // ----------------------------
@@ -350,12 +275,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ----------------------------
     if (isset($_POST['AltaAlumno'])) {
 
-        $Nombre = NormalizarNombre($_POST['Nombre'] ?? '');
+        $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
 
         if ($Nombre === '' || $GrupoId <= 0) {
             $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. (Nombre solo letras)";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -377,18 +302,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     if (isset($_POST['EditAlumno'])) {
 
         $Id = intval($_POST['Id'] ?? 0);
-        $Nombre = NormalizarNombre($_POST['Nombre'] ?? '');
+        $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
 
         if ($Id <= 0 || $Nombre === '' || $GrupoId <= 0) {
             $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. (Nombre solo letras)";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -408,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     // ----------------------------
@@ -418,11 +343,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $MaestroId = intval($_POST['MaestroId'] ?? 0);
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
-        $Materia = NormalizarMayusculas($_POST['Materia'] ?? '');
+        $Materia = SgceNormalizarMayusculas($_POST['Materia'] ?? '');
 
         if ($MaestroId <= 0 || $GrupoId <= 0 || $Materia === '') {
             $_SESSION['Mensaje'] = "Datos De Asignación Inválidos.";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         $StmtValMaestro = $Pdo->prepare("SELECT COUNT(*) FROM Usuarios WHERE Id = ? AND Rol = 'maestro' AND Activo = 1");
@@ -431,7 +356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $StmtValGrupo->execute([$GrupoId]);
         if ((int)$StmtValMaestro->fetchColumn() <= 0 || (int)$StmtValGrupo->fetchColumn() <= 0) {
             $_SESSION['Mensaje'] = "La asignación requiere docente y grupo activos.";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -453,7 +378,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 
     if (isset($_POST['EditAsignacion'])) {
@@ -461,11 +386,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Id = intval($_POST['Id'] ?? 0);
         $MaestroId = intval($_POST['MaestroId'] ?? 0);
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
-        $Materia = NormalizarMayusculas($_POST['Materia'] ?? '');
+        $Materia = SgceNormalizarMayusculas($_POST['Materia'] ?? '');
 
         if ($Id <= 0 || $MaestroId <= 0 || $GrupoId <= 0 || $Materia === '') {
             $_SESSION['Mensaje'] = "Datos De Asignación Inválidos.";
-            RedirectTab($TabPost);
+            SgceRedirectAdminTab($TabPost);
         }
 
         try {
@@ -485,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
 
-        RedirectTab($TabPost);
+        SgceRedirectAdminTab($TabPost);
     }
 }
 
@@ -494,13 +419,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ================================
 
 $PageSizeAdmin = 7;
+$PagMaestros = SgcePaginaActual('PagMaestros');
+$PagGrupos = SgcePaginaActual('PagGrupos');
 $PagAlumnos = SgcePaginaActual('PagAlumnos');
 $PagAsig = SgcePaginaActual('PagAsig');
+[$OffsetMaestros, $LimitMaestros] = SgceLimitOffset($PagMaestros, $PageSizeAdmin);
+[$OffsetGrupos, $LimitGrupos] = SgceLimitOffset($PagGrupos, $PageSizeAdmin);
 [$OffsetAlumnos, $LimitAlumnos] = SgceLimitOffset($PagAlumnos, $PageSizeAdmin);
 [$OffsetAsig, $LimitAsig] = SgceLimitOffset($PagAsig, $PageSizeAdmin);
 
-$Maestros = $Pdo->query("SELECT * FROM Usuarios WHERE Rol='maestro' AND Activo = 1 ORDER BY NombreCompleto ASC")->fetchAll();
-$Grupos   = $Pdo->query("SELECT * FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo ASC")->fetchAll();
+$Maestros = $Pdo->query("SELECT Id, NombreCompleto, Username FROM Usuarios WHERE Rol='maestro' AND Activo = 1 ORDER BY NombreCompleto ASC")->fetchAll();
+$Grupos = $Pdo->query("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo ASC")->fetchAll();
+
+$TotalMaestrosTabla = (int)$Pdo->query("SELECT COUNT(*) FROM Usuarios WHERE Rol='maestro' AND Activo = 1")->fetchColumn();
+$StmtMaestrosTabla = $Pdo->prepare("SELECT Id, NombreCompleto, Username, Password FROM Usuarios WHERE Rol='maestro' AND Activo = 1 ORDER BY NombreCompleto ASC LIMIT ? OFFSET ?");
+$StmtMaestrosTabla->bindValue(1, $LimitMaestros, PDO::PARAM_INT);
+$StmtMaestrosTabla->bindValue(2, $OffsetMaestros, PDO::PARAM_INT);
+$StmtMaestrosTabla->execute();
+$MaestrosTabla = $StmtMaestrosTabla->fetchAll();
+
+$TotalGruposTabla = (int)$Pdo->query("SELECT COUNT(*) FROM Grupos WHERE Activo = 1")->fetchColumn();
+$StmtGruposTabla = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo ASC LIMIT ? OFFSET ?");
+$StmtGruposTabla->bindValue(1, $LimitGrupos, PDO::PARAM_INT);
+$StmtGruposTabla->bindValue(2, $OffsetGrupos, PDO::PARAM_INT);
+$StmtGruposTabla->execute();
+$GruposTabla = $StmtGruposTabla->fetchAll();
 
 $TotalAlumnosTabla = (int)$Pdo->query("SELECT COUNT(*) FROM Alumnos A WHERE A.Activo = 1")->fetchColumn();
 $StmtAlumnosTabla = $Pdo->prepare("SELECT A.Id, A.NombreCompleto, A.GrupoId, G.Grado, G.Grupo, G.Turno FROM Alumnos A LEFT JOIN Grupos G ON A.GrupoId = G.Id WHERE A.Activo = 1 ORDER BY G.Turno, G.Grado, G.Grupo, A.NombreCompleto ASC LIMIT ? OFFSET ?");
@@ -663,23 +606,8 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=59">
 
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-
-
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=46">
-    <link rel="stylesheet" href="assets/css/Admin.css?v=46">
 </head>
 <body>
 
@@ -730,10 +658,7 @@ try {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
-
-    <!-- FIX34: Menú superior eliminado. La navegación principal ahora vive en el dashboard. -->
-
-    <div class="tab-content">
+<div class="tab-content">
 
 
 
@@ -753,7 +678,12 @@ try {
             <div class="row g-3 mb-3 DashboardTopSplit">
                 <div class="col-12 col-xl-5 col-xxl-5 DashboardPanelCol">
                     <div class="card card-custom p-3 h-100 DashboardPanelCard">
-                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-grip me-2"></i> PANEL PRINCIPAL</h5>
+                        <div class="DashboardSectionHead">
+                            <div>
+                                <h5><i class="fa-solid fa-grip me-2"></i> Panel principal</h5>
+                                <p>Accesos rápidos del sistema</p>
+                            </div>
+                        </div>
                         <div class="DashboardModuleGrid ModulosRecomendados">
                             <a href="Admin.php?Tab=maestros" class="DashboardModuleCard DashboardModuleWine">
                                 <i class="fa-solid fa-user-tie"></i>
@@ -821,19 +751,39 @@ try {
 
                 <div class="col-12 col-xl-7 col-xxl-7 DashboardStatsCol">
                     <div class="card card-custom p-3 h-100 DashboardStatsPanel">
-                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-chart-simple me-2"></i> CONTADORES GENERALES</h5>
+                        <div class="DashboardSectionHead DashboardSectionHeadStats">
+                            <div>
+                                <h5><i class="fa-solid fa-chart-simple me-2"></i> Resumen general</h5>
+                                <p>Indicadores principales del sistema</p>
+                            </div>
+                        </div>
                         <div class="DashboardStatsGrid">
                             <?php foreach($TarjetasInicio as $T): ?>
                             <div class="DashboardStatCard">
-                                <div class="StatsIcon" style="background:<?= $T[3] ?>22;color:<?= $T[3] ?>;">
+                                <div class="DashboardStatIcon" style="background:<?= $T[3] ?>18;color:<?= $T[3] ?>;">
                                     <i class="fa-solid <?= $T[2] ?>"></i>
                                 </div>
-                                <div>
-                                    <div class="small text-muted fw-bold"><?= $T[0] ?></div>
-                                    <div class="fs-3 fw-black" style="font-weight:900;"><?= htmlspecialchars((string)$T[1]) ?></div>
+                                <div class="DashboardStatText">
+                                    <span><?= $T[0] ?></span>
+                                    <strong><?= htmlspecialchars((string)$T[1]) ?></strong>
                                 </div>
                             </div>
                             <?php endforeach; ?>
+                        </div>
+                        <div class="DashboardDayStatus">
+                            <div class="DashboardDayIcon"><i class="fa-solid fa-calendar-day"></i></div>
+                            <div>
+                                <span>Estado del día</span>
+                                <strong><?= date('d/m/Y') ?></strong>
+                                <p>
+                                    <?= ((int)$AsistenciasHoy > 0)
+                                        ? 'Ya existen asistencias registradas hoy.'
+                                        : 'Sin asistencias registradas todavía.' ?>
+                                    <?= ((int)$FaltasHoy > 0)
+                                        ? ' Faltas detectadas: '.(int)$FaltasHoy.'.'
+                                        : ' No hay faltas registradas.' ?>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -842,11 +792,25 @@ try {
             <div class="row g-3">
 
                 <div class="col-12">
-                    <div class="card card-custom p-3">
-                        <h5 class="fw-bold text-danger mb-3"><i class="fa-solid fa-triangle-exclamation me-2"></i> ALUMNOS CON MAYOR RIESGO ACADÉMICO Y DE ASISTENCIA</h5>
+                    <div class="card card-custom p-3 RiskCard">
+                        <div class="DashboardRiskHead">
+                            <div>
+                                <h5><i class="fa-solid fa-triangle-exclamation me-2"></i> Alumnos con mayor riesgo académico y de asistencia</h5>
+                                <p>Monitoreo preventivo de asistencia y promedio.</p>
+                            </div>
+                        </div>
                         <p class="text-muted fw-semibold small mb-3">
                             El riesgo se calcula con faltas y retardos de los últimos 30 días, más promedio menor a 7 cuando ya existen calificaciones. En la columna <strong>MOTIVO</strong> se explica si el riesgo viene por faltas, retardos, promedio bajo o una combinación de ellos.
                         </p>
+                        <?php if (empty($AlumnosRiesgo)): ?>
+                            <div class="DashboardEmptyRisk">
+                                <div class="DashboardEmptyRiskIcon"><i class="fa-solid fa-circle-check"></i></div>
+                                <div>
+                                    <strong>Sin alumnos en riesgo por ahora</strong>
+                                    <p>Cuando existan faltas, retardos o promedios bajos, aparecerán aquí automáticamente.</p>
+                                </div>
+                            </div>
+                        <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle text-center">
                                 <thead>
@@ -885,6 +849,7 @@ try {
                                 </tbody>
                             </table>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -992,7 +957,7 @@ try {
 
                                 <tbody>
 
-                                    <?php foreach($Maestros as $M): ?>
+                                    <?php foreach($MaestrosTabla as $M): ?>
                                     <tr>
                                         <td class="text-start searchable"><?= htmlspecialchars($M['NombreCompleto']) ?></td>
                                         <td class="searchable"><?= htmlspecialchars($M['Username']) ?></td>
@@ -1022,7 +987,7 @@ try {
                         </div>
 
                         <!-- PAGINACIÓN -->
-                        <div id="PagerMaestros" class="d-flex justify-content-center mt-3"></div>
+                        <?= SgceRenderPager('PagMaestros', $PagMaestros, $TotalMaestrosTabla, $PageSizeAdmin, ['Tab'=>'maestros']) ?>
 
                     </div>
 
@@ -1030,7 +995,7 @@ try {
 
             </div>
 
-            <?php foreach($Maestros as $M): ?>
+            <?php foreach($MaestrosTabla as $M): ?>
             <div class="modal fade" id="EM<?= $M['Id'] ?>" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
@@ -1158,7 +1123,7 @@ try {
                                 </thead>
 
                                 <tbody>
-                                    <?php foreach($Grupos as $G): ?>
+                                    <?php foreach($GruposTabla as $G): ?>
                                     <tr>
                                         <td class="searchable fw-bold"><?= htmlspecialchars($G['Grado']) ?></td>
                                         <td class="searchable"><?= htmlspecialchars($G['Grupo']) ?></td>
@@ -1228,12 +1193,12 @@ try {
                         </div>
 
                         <!-- PAGINACIÓN -->
-                        <div id="PagerGrupos" class="d-flex justify-content-center mt-3"></div>
+                        <?= SgceRenderPager('PagGrupos', $PagGrupos, $TotalGruposTabla, $PageSizeAdmin, ['Tab'=>'grupos']) ?>
 
                     </div>
                 </div>
 
-                <?php foreach($Grupos as $G): ?>
+                <?php foreach($GruposTabla as $G): ?>
                 <div class="modal fade" id="EG<?= $G['Id'] ?>" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered modal-sm">
                         <div class="modal-content">
@@ -1850,38 +1815,35 @@ try {
 
         <!-- ===================== BITÁCORA ===================== -->
                 <div class="tab-pane fade <?= $TabActual==='bitacora'?'show active':'' ?>" id="bitacora">
-                    <div class="card card-custom p-4">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-                            <div>
-                                <h4 class="fw-bold text-danger mb-1">
-                                    <i class="fa-solid fa-shield-halved me-2"></i> BITÁCORA DE MOVIMIENTOS
-                                </h4>
-                                <p class="text-muted mb-0">
-                                    Aquí se muestran los últimos movimientos importantes del sistema: altas, modificaciones, bajas, importaciones, asistencia y calificaciones.
-                                </p>
+                    <div class="card card-custom p-4 SgceBitacoraCard">
+                        <div class="SgceBitacoraHead">
+                            <div class="SgceBitacoraTitle">
+                                <span class="SgceBitacoraIcon"><i class="fa-solid fa-shield-halved"></i></span>
+                                <div>
+                                    <h4>BITÁCORA DE MOVIMIENTOS</h4>
+                                    <p>Aquí se muestran los últimos movimientos importantes del sistema: altas, modificaciones, bajas, importaciones, asistencia y calificaciones.</p>
+                                </div>
                             </div>
-        
-                            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                                <div class="input-group input-group-sm search-container" style="width:min(360px,100%);">
-                                    <span class="input-group-text">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                    </span>
-                                    <input type="text" id="SearchBitacora" class="form-control" placeholder="Buscar movimiento...">
+
+                            <div class="SgceBitacoraTools">
+                                <div class="SgceSearchBox SgceSearchBoxSmall">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="SearchBitacora" placeholder="Buscar movimiento...">
                                 </div>
 
-                                <div class="BadgeTurno bg-light text-dark border">
-                                    <i class="fa-solid fa-clock-rotate-left me-1 text-primary"></i>
-                                    <?= count($BitacoraReciente) ?> REGISTROS RECIENTES
+                                <div class="SgceCountPill">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    <span><?= count($BitacoraReciente) ?> registros recientes</span>
                                 </div>
                             </div>
                         </div>
-        
-                        <div class="alert alert-info border-0 shadow-sm mb-4">
-                            <i class="fa-solid fa-circle-info me-2"></i>
-                            Si antes no aparecían registros, normalmente era porque la tabla de bitácora no existía en la base instalada o no se estaba mostrando la pestaña correctamente. Esta versión crea/verifica la tabla y muestra los movimientos aquí.
+
+                        <div class="SgceInfoBanner mb-4">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Esta pantalla registra movimientos importantes del sistema y ayuda a revisar altas, bajas, modificaciones, sesiones, asistencias y calificaciones.</span>
                         </div>
-        
-                        <div class="table-responsive">
+
+                        <div class="table-responsive SgceTableWrap">
                             <table class="table table-hover align-middle text-center" id="TableBitacora">
                                 <thead>
                                     <tr>
@@ -1990,30 +1952,6 @@ try {
 
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
-
-<!-- SGCE FIX13: blindaje definitivo del botón Cerrar Sesión en Admin -->
-
-
-
-
-
-<!-- SGCE FIX26: tablas homologadas, 7 registros por página y paginador visible -->
-
-
-
-
-
-
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 <script src="assets/js/Admin.js?v=44"></script>
 </body>

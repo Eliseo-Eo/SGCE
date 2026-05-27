@@ -183,19 +183,7 @@ if ($Calificados > 0) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    
-    
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/Calificar.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=final">
 </head>
 
 <body>
@@ -505,13 +493,6 @@ if ($Calificados > 0) {
 
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 <script src="assets/js/Calificar.js?v=44"></script>
 </body>

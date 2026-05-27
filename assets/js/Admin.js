@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function() {
         Apply();
     }
 
-    // FIX25: 7 registros por página en todas las tablas principales.
+    
     SetupSearchPagination('SearchMaestros', 'TableMaestros', 'PagerMaestros', 7);
     SetupSearchPagination('SearchGrupos',   'TableGrupos',   'PagerGrupos',   7);
     SetupSearchPagination('SearchAlumnos',  'TableAlumnos',  'PagerAlumnos',  7);

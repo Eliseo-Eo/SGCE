@@ -91,15 +91,8 @@ $Stmt->execute([(int)$InfoClase['GrupoId']]);
 $Alumnos = $Stmt->fetchAll();
 
 // GUARDAR ASISTENCIA
-if (
-    $_SERVER['REQUEST_METHOD'] === 'POST'
-    &&
-    (RequerirCsrfPost() || true)
-    &&
-    isset($_POST['guardar'])
-    &&
-    !$YaSeRegistro
-) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar']) && !$YaSeRegistro) {
+    RequerirCsrfPost();
 
     if (!isset($_POST['estado']) || !is_array($_POST['estado'])) {
         $Mensaje = '
@@ -200,20 +193,8 @@ if (
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=final">
 
-
-
-    
-
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/Asistencia.css?v=44">
 </head>
 
 <body>
@@ -496,13 +477,6 @@ if (
 
 
 <?php ImprimirCsrfScript(); ?>
-
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 <script src="assets/js/Asistencia.js?v=44"></script>
 </body>

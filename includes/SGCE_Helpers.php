@@ -1,4 +1,57 @@
 <?php
+
+if (!function_exists('SgceNormalizarMayusculas')) {
+    function SgceNormalizarMayusculas($Valor) {
+        $Valor = trim((string)$Valor);
+        if ($Valor === '') { return ''; }
+        $Valor = preg_replace('/\s+/u', ' ', $Valor);
+        return function_exists('mb_strtoupper') ? mb_strtoupper($Valor, 'UTF-8') : strtoupper($Valor);
+    }
+}
+
+if (!function_exists('SgceNormalizarNombre')) {
+    function SgceNormalizarNombre($Valor) {
+        $Valor = SgceNormalizarMayusculas($Valor);
+        if ($Valor === '') { return ''; }
+        return preg_match('/^[\p{L}\s]+$/u', $Valor) ? $Valor : '';
+    }
+}
+
+if (!function_exists('SgceNormalizarGrupo')) {
+    function SgceNormalizarGrupo($Valor) {
+        $Valor = SgceNormalizarMayusculas($Valor);
+        return preg_match('/^[A-Z]+$/', $Valor) ? $Valor : '';
+    }
+}
+
+if (!function_exists('SgceValidarGrado')) {
+    function SgceValidarGrado($Valor) {
+        $Valor = trim((string)$Valor);
+        return $Valor !== '' && ctype_digit($Valor);
+    }
+}
+
+if (!function_exists('SgceNormalizarTurno')) {
+    function SgceNormalizarTurno($Valor) {
+        $Valor = SgceNormalizarMayusculas($Valor);
+        return in_array($Valor, ['MATUTINO', 'VESPERTINO'], true) ? $Valor : '';
+    }
+}
+
+if (!function_exists('SgceTabAdminPermitida')) {
+    function SgceTabAdminPermitida($Tab) {
+        $Permitidas = ['inicio','maestros','grupos','alumnos','expedientes','asignaciones','bitacora'];
+        return in_array($Tab, $Permitidas, true) ? $Tab : 'inicio';
+    }
+}
+
+if (!function_exists('SgceRedirectAdminTab')) {
+    function SgceRedirectAdminTab($Tab) {
+        header('Location: Admin.php?Tab=' . urlencode(SgceTabAdminPermitida($Tab)));
+        exit;
+    }
+}
+
 /*
     SGCE_Helpers.php
     Helpers comunes para seguridad, paginación real, permisos, ciclo escolar y periodos.
@@ -172,7 +225,6 @@ if (!function_exists('SgceAsegurarCicloPeriodos')) {
 
 if (!function_exists('SgcePeriodoActualId')) {
     function SgcePeriodoActualId($Pdo, $PeriodoSolicitado = 0) {
-        SgceAsegurarCicloPeriodos($Pdo);
         $PeriodoSolicitado = (int)$PeriodoSolicitado;
         if ($PeriodoSolicitado > 0) {
             $Stmt = $Pdo->prepare("SELECT Id FROM PeriodosEvaluacion WHERE Id = ? AND Activo = 1 LIMIT 1");
@@ -186,7 +238,6 @@ if (!function_exists('SgcePeriodoActualId')) {
 
 if (!function_exists('SgcePeriodosDisponibles')) {
     function SgcePeriodosDisponibles($Pdo) {
-        SgceAsegurarCicloPeriodos($Pdo);
         return $Pdo->query("SELECT P.Id, P.Nombre, P.Orden, C.Nombre AS CicloNombre FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId=C.Id WHERE P.Activo=1 AND C.Activo=1 ORDER BY C.FechaInicio DESC, P.Orden ASC")->fetchAll();
     }
 }

@@ -29,22 +29,8 @@ $InstaladorPermitido = file_exists(__DIR__ . '/PERMITIR_INSTALACION.lock');
 if (!$InstaladorPermitido) {
     http_response_code(403);
     echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Instalador protegido</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-<!-- SGCE FIX10: Botones de regreso/cerrar sesión con borde tinto fuerte y estilo homologado -->
-
-
-
-    <link rel="stylesheet" href="assets/css/sgce-base.css?v=50">
-    <link rel="stylesheet" href="assets/css/sgce-shared.css?v=44">
-    <link rel="stylesheet" href="assets/css/Instalar.css?v=44">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=final">
 </head><body class="bg-light"><main class="container py-5"><div class="card shadow border-0 p-4" style="max-width:760px;margin:auto;border-radius:24px"><h1 class="h3 fw-bold text-danger">Instalador bloqueado por seguridad</h1><p>Este archivo puede borrar o reinstalar la base de datos. Para usarlo de forma controlada, crea temporalmente un archivo vacío llamado <strong>PERMITIR_INSTALACION.lock</strong> en esta misma carpeta, ejecuta la instalación y después elimínalo.</p><a class="btn btn-primary SgceBtnInicio" href="index.php">VOLVER A INICIO</a></div></main>
-
-
-<!-- SGCE FIX12: Homologación final de botones superiores y reportes -->
-
-
-
 <script src="assets/js/sgce-shared.js?v=44"></script>
 <script src="assets/js/Instalar.js?v=44"></script>
 </body></html>';
