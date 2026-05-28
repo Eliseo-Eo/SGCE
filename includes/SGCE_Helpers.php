@@ -150,7 +150,7 @@ function SgceConfiguracionDefault() {
         'TelefonoEscuela' => '',
         'CorreoEscuela' => '',
         'LemaInstitucional' => '',
-        'ColorInstitucional' => '#7A0818',
+        'ColorInstitucional' => '#97051E',
         'SistemaNombre' => 'SGCE',
     ];
 }
@@ -158,7 +158,7 @@ function SgceConfiguracionDefault() {
 function SgceObtenerConfiguracion($Pdo) {
     $Config = SgceConfiguracionDefault();
     try {
-        SgceCrearTablaConfiguracionSiNoExiste($Pdo);
+        if (!$Pdo->inTransaction()) { SgceCrearTablaConfiguracionSiNoExiste($Pdo); }
         $Stmt = $Pdo->query('SELECT Clave, Valor FROM ConfiguracionSistema');
         foreach ($Stmt->fetchAll(PDO::FETCH_ASSOC) as $Row) {
             $Clave = (string)($Row['Clave'] ?? '');
@@ -171,7 +171,8 @@ function SgceObtenerConfiguracion($Pdo) {
 }
 
 function SgceGuardarConfiguracion($Pdo, $Datos) {
-    SgceCrearTablaConfiguracionSiNoExiste($Pdo);
+    // Evita ejecutar DDL dentro de una transacción activa, porque MySQL puede hacer commit implícito.
+    if (!$Pdo->inTransaction()) { SgceCrearTablaConfiguracionSiNoExiste($Pdo); }
     $Permitidas = array_keys(SgceConfiguracionDefault());
     $Stmt = $Pdo->prepare('INSERT INTO ConfiguracionSistema (Clave, Valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE Valor = VALUES(Valor), FechaActualizacion = CURRENT_TIMESTAMP');
     foreach ($Permitidas as $Clave) {
@@ -179,6 +180,46 @@ function SgceGuardarConfiguracion($Pdo, $Datos) {
             $Stmt->execute([$Clave, (string)$Datos[$Clave]]);
         }
     }
+}
+
+function SgceNormalizarColorHex($Color, $Default = '#97051E') {
+    $Color = trim((string)$Color);
+    if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $Color)) { return $Default; }
+    return strtoupper($Color);
+}
+
+function SgceColorAjustar($Color, $Porcentaje) {
+    $Color = ltrim(SgceNormalizarColorHex($Color), '#');
+    $R = hexdec(substr($Color, 0, 2));
+    $G = hexdec(substr($Color, 2, 2));
+    $B = hexdec(substr($Color, 4, 2));
+    $Porcentaje = max(-100, min(100, (int)$Porcentaje));
+    $Target = $Porcentaje >= 0 ? 255 : 0;
+    $Factor = abs($Porcentaje) / 100;
+    $R = (int)round($R + ($Target - $R) * $Factor);
+    $G = (int)round($G + ($Target - $G) * $Factor);
+    $B = (int)round($B + ($Target - $B) * $Factor);
+    return sprintf('#%02X%02X%02X', max(0, min(255, $R)), max(0, min(255, $G)), max(0, min(255, $B)));
+}
+
+function SgceColorRgb($Color) {
+    $Color = ltrim(SgceNormalizarColorHex($Color), '#');
+    return [hexdec(substr($Color, 0, 2)), hexdec(substr($Color, 2, 2)), hexdec(substr($Color, 4, 2))];
+}
+
+function SgceColorInstitucional($Pdo) {
+    $Config = SgceObtenerConfiguracion($Pdo);
+    return SgceNormalizarColorHex($Config['ColorInstitucional'] ?? '#97051E');
+}
+
+function SgceEstilosTema($Pdo) {
+    $Base = SgceColorInstitucional($Pdo);
+    $Oscuro = SgceColorAjustar($Base, -22);
+    $Profundo = SgceColorAjustar($Base, -48);
+    $Suave = SgceColorAjustar($Base, 84);
+    $Claro = SgceColorAjustar($Base, 32);
+    [$R, $G, $B] = SgceColorRgb($Base);
+    return '<style id="SgceTemaInstitucional">:root{--SgceGuinda:' . $Base . ';--SgceGuindaRGB:' . $R . ',' . $G . ',' . $B . ';--SgceGuindaOscuro:' . $Oscuro . ';--SgceGuindaProfundo:' . $Profundo . ';--SgceGuindaSuave:' . $Suave . ';--SgceGuindaClaro:' . $Claro . ';--SgceSombraGuinda:0 18px 42px rgba(' . $R . ',' . $G . ',' . $B . ',.22);}</style>';
 }
 
 function SgceNombreEscuela($Pdo) {
@@ -401,7 +442,8 @@ function CrearTablaBitacoraSiNoExiste($Pdo) {
 
 function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $RegistroId = null, $Detalle = null) {
     try {
-        CrearTablaBitacoraSiNoExiste($Pdo);
+        // Evita DDL dentro de transacciones activas para no provocar commit implícito en MySQL.
+        if (!$Pdo->inTransaction()) { CrearTablaBitacoraSiNoExiste($Pdo); }
         $Stmt = $Pdo->prepare('INSERT INTO BitacoraMovimientos (UsuarioId, Rol, Accion, TablaAfectada, RegistroId, Detalle, Ip) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $Stmt->execute([
             is_array($UserSession) && isset($UserSession['Id']) ? $UserSession['Id'] : null,
@@ -458,15 +500,26 @@ function SgceCrearRespaldoSql($Pdo, $RutaArchivo, $SoloDatos = false) {
     return true;
 }
 
-function SgceGenerarBackupAutomatico($Pdo) {
+function SgceGenerarBackupAutomatico($Pdo, $Frecuencia = 'diario', $Retener = 14) {
+    $Frecuencia = in_array($Frecuencia, ['diario', 'semanal'], true) ? $Frecuencia : 'diario';
+    $Retener = max(3, min(60, (int)$Retener));
     $Dir = defined('SGCE_BACKUP_DIR') ? SGCE_BACKUP_DIR : dirname(__DIR__) . '/storage/backups';
-    if (!is_dir($Dir)) { @mkdir($Dir, 0755, true); }
-    $Archivo = $Dir . '/AutoBackup_' . date('Ymd') . '.sql';
-    if (is_file($Archivo)) { return; }
-    SgceCrearRespaldoSql($Pdo, $Archivo, false);
-    $Archivos = glob($Dir . '/AutoBackup_*.sql') ?: [];
+    if (!is_dir($Dir) && !@mkdir($Dir, 0775, true) && !is_dir($Dir)) {
+        throw new RuntimeException('No se pudo crear la carpeta de respaldos automáticos.');
+    }
+    if (!is_writable($Dir)) {
+        throw new RuntimeException('La carpeta de respaldos automáticos no tiene permisos de escritura.');
+    }
+    $Sufijo = $Frecuencia === 'semanal' ? date('o_W') : date('Ymd');
+    $Archivo = $Dir . '/AutoBackup_' . ucfirst($Frecuencia) . '_' . $Sufijo . '.sql';
+    if (is_file($Archivo) && filesize($Archivo) > 0) { return $Archivo; }
+    if (!SgceCrearRespaldoSql($Pdo, $Archivo, false)) {
+        throw new RuntimeException('No se pudo generar el archivo de respaldo automático.');
+    }
+    $Archivos = glob($Dir . '/AutoBackup_' . ucfirst($Frecuencia) . '_*.sql') ?: [];
     rsort($Archivos);
-    foreach (array_slice($Archivos, 10) as $Viejo) { @unlink($Viejo); }
+    foreach (array_slice($Archivos, $Retener) as $Viejo) { @unlink($Viejo); }
+    return $Archivo;
 }
 
 

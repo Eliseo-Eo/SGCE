@@ -103,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 </head>
 
 <body>

@@ -7,5 +7,6 @@ return [
     'charset' => 'utf8mb4',
     'timezone' => 'America/Mexico_City',
     'backup_dir' => __DIR__ . '/../storage/backups',
+    'log_dir' => __DIR__ . '/../storage/logs',
     'production' => true,
 ];

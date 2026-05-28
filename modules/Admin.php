@@ -693,11 +693,12 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 
 </head>
 <body>
 
-<div class="SgcePageWrap container-fluid px-4 py-4">
+<div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
     <?php
         $AdminTabMeta = [
             'inicio' => ['SGCE | Administrador', 'Panel principal, accesos rápidos, contadores y alumnos con riesgo.', 'fa-sliders'],
@@ -793,10 +794,10 @@ try {
                     </div>
 
                     <div class="DashboardModuleGridPro ModulosRecomendados">
-                        <a href="AvisosAdmin.php" class="DashboardModuleCard DashboardModuleBlue">
-                            <i class="fa-solid fa-bullhorn"></i>
-                            <span>Avisos</span>
-                            <small>Comunicados</small>
+                        <a href="PeriodosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Periodos</span>
+                            <small>Ciclos</small>
                         </a>
                         <a href="Admin.php?Tab=maestros" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-user-tie"></i>
@@ -818,25 +819,15 @@ try {
                             <span>Asignaciones</span>
                             <small>Materias</small>
                         </a>
+                        <a href="AvisosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            <span>Avisos</span>
+                            <small>Comunicados</small>
+                        </a>
                         <a href="Admin.php?Tab=expedientes" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Expedientes</span>
                             <small>Alumnos</small>
-                        </a>
-                        <a href="UsuariosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-users-gear"></i>
-                            <span>Usuarios</span>
-                            <small>Roles</small>
-                        </a>
-                        <a href="PeriodosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-calendar-days"></i>
-                            <span>Periodos</span>
-                            <small>Ciclos</small>
-                        </a>
-                        <a href="ConfiguracionAdmin.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-school-circle-check"></i>
-                            <span>Config.</span>
-                            <small>Escuela</small>
                         </a>
                         <a href="ReportesAdmin.php" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-chart-line"></i>
@@ -848,10 +839,20 @@ try {
                             <span>Padres</span>
                             <small>Consulta</small>
                         </a>
+                        <a href="UsuariosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-users-gear"></i>
+                            <span>Usuarios</span>
+                            <small>Roles</small>
+                        </a>
                         <a href="RestaurarBD.php" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-database"></i>
                             <span>Respaldos</span>
                             <small>Datos</small>
+                        </a>
+                        <a href="ConfiguracionAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-school-circle-check"></i>
+                            <span>Config.</span>
+                            <small>Escuela</small>
                         </a>
                         <a href="Admin.php?Tab=bitacora" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-shield-halved"></i>
@@ -1012,7 +1013,7 @@ try {
 
                     <div class="card card-custom MaestrosSideCard MaestrosImportCard">
                         <div class="card-header-custom MaestrosCardTitle MaestrosImportTitle">
-                            <i class="fa-solid fa-file-excel"></i> Importar Excel
+                            <i class="fa-solid fa-file-excel"></i> Importar CSV / Excel
                         </div>
 
                         <div class="card-body">
@@ -1022,12 +1023,12 @@ try {
                                 <input type="hidden" name="Tab" value="maestros">
 
                                 <p class="MaestrosHelpText">
-                                    FORMATO CSV: <code>NOMBRE, USUARIO, CONTRASEÑA</code>
+                                    FORMATO CSV O EXCEL: <code>NOMBRE, USUARIO, CONTRASEÑA</code>
                                 </p>
 
                                 <div class="MaestrosFieldGroup">
-                                    <label>Archivo CSV</label>
-                                    <input type="file" name="CsvDocentes" class="form-control form-control-sm MaestrosInput MaestrosFileInput" accept=".csv" required>
+                                    <label>Archivo CSV o Excel</label>
+                                    <input type="file" name="CsvDocentes" class="form-control form-control-sm MaestrosInput MaestrosFileInput" accept=".csv,.xlsx" required>
                                 </div>
 
                                 <button type="submit" class="BtnPrimary BtnTeacherPrimary w-100">
@@ -1220,7 +1221,7 @@ try {
 
                     <div class="card card-custom MaestrosSideCard GruposSideCard GruposImportCard">
                         <div class="card-header-custom MaestrosCardTitle MaestrosImportTitle GruposCardTitle GruposImportTitle">
-                            <i class="fa-solid fa-file-excel"></i> Importar Excel
+                            <i class="fa-solid fa-file-excel"></i> Importar CSV / Excel
                         </div>
 
                         <div class="card-body">
@@ -1230,13 +1231,13 @@ try {
                                 <input type="hidden" name="Tab" value="grupos">
 
                                 <p class="MaestrosHelpText GruposHelpText">
-                                    FORMATO CSV: <code>GRADO, GRUPO, TURNO</code><br>
+                                    FORMATO CSV O EXCEL: <code>GRADO, GRUPO, TURNO</code><br>
                                     EJEMPLO: <code>1, C, VESPERTINO</code>
                                 </p>
 
                                 <div class="MaestrosFieldGroup GruposFieldGroup">
-                                    <label>Archivo CSV</label>
-                                    <input type="file" name="CsvGrupos" class="form-control form-control-sm MaestrosInput MaestrosFileInput GruposInput" accept=".csv" required>
+                                    <label>Archivo CSV o Excel</label>
+                                    <input type="file" name="CsvGrupos" class="form-control form-control-sm MaestrosInput MaestrosFileInput GruposInput" accept=".csv,.xlsx" required>
                                 </div>
 
                                 <button type="submit" class="BtnPrimary BtnTeacherPrimary BtnGroupPrimary w-100">
@@ -1278,10 +1279,10 @@ try {
                                     <?php foreach($GruposTabla as $G): ?>
                                     <tr>
                                         <td class="searchable fw-bold"><?= htmlspecialchars($G['Grado']) ?></td>
-                                        <td class="searchable"><?= htmlspecialchars($G['Grupo']) ?></td>
+                                        <td class="searchable"><span class="GruposGrupoBadge"><?= htmlspecialchars($G['Grupo']) ?></span></td>
 
                                         <td class="searchable">
-                                            <span class="badge bg-<?= strtoupper((string)$G['Turno']) === 'MATUTINO' ? 'primary' : 'warning text-dark' ?>">
+                                            <span class="GruposTurnoBadge">
                                                 <?= htmlspecialchars($G['Turno']) ?>
                                             </span>
                                         </td>
@@ -1577,7 +1578,7 @@ try {
                                 <input type="hidden" name="Tab" value="alumnos">
 
                                 <p class="MaestrosHelpText AlumnosHelpText">
-                                    Selecciona el grupo destino y carga el archivo CSV con nombres de alumnos.
+                                    Selecciona el grupo destino y carga un archivo CSV o Excel con nombres de alumnos.
                                 </p>
 
                                 <div class="MaestrosFieldGroup AlumnosFieldGroup">
@@ -1593,8 +1594,8 @@ try {
                                 </div>
 
                                 <div class="MaestrosFieldGroup AlumnosFieldGroup">
-                                    <label>Archivo CSV</label>
-                                    <input type="file" name="CsvAlumnos" class="form-control form-control-sm MaestrosInput MaestrosFileInput AlumnosInput AlumnosFileInput" accept=".csv" required>
+                                    <label>Archivo CSV o Excel</label>
+                                    <input type="file" name="CsvAlumnos" class="form-control form-control-sm MaestrosInput MaestrosFileInput AlumnosInput AlumnosFileInput" accept=".csv,.xlsx" required>
                                 </div>
 
                                 <button type="submit" class="BtnPrimary BtnStudentPrimary w-100">
@@ -1812,14 +1813,17 @@ try {
                                 <tr>
                                     <td class="searchable fw-medium"><?= htmlspecialchars($Asg['Maestro']) ?></td>
 
-                                    <td class="searchable text-danger fw-bold"><?= htmlspecialchars($Asg['MateriaNombre']) ?></td>
+                                    <td class="searchable">
+                                        <span class="AsignacionMateriaTexto"><?= htmlspecialchars($Asg['MateriaNombre']) ?></span>
+                                    </td>
 
                                     <td class="searchable">
                                         <?php $TurnoAsignacion = strtoupper((string)$Asg['Turno']); ?>
-                                        <span class="GrupoTextoSimple">
-                                            <i class="fa-solid <?= $TurnoAsignacion === 'MATUTINO' ? 'fa-sun' : 'fa-moon' ?>"></i>
-                                            <?= htmlspecialchars($Asg['Grado'], ENT_QUOTES, 'UTF-8') ?> "<?= htmlspecialchars($Asg['Grupo'], ENT_QUOTES, 'UTF-8') ?>" - <?= htmlspecialchars($TurnoAsignacion, ENT_QUOTES, 'UTF-8') ?>
-                                        </span>
+                                        <div class="AsignacionGrupoChips">
+                                            <span class="AsignacionGrupoChip AsignacionGradoChip"><?= htmlspecialchars($Asg['Grado'], ENT_QUOTES, 'UTF-8') ?></span>
+                                            <span class="AsignacionGrupoChip AsignacionGrupoChipLetra"><?= htmlspecialchars($Asg['Grupo'], ENT_QUOTES, 'UTF-8') ?></span>
+                                            <span class="AsignacionGrupoChip AsignacionTurnoChip"><?= htmlspecialchars($TurnoAsignacion, ENT_QUOTES, 'UTF-8') ?></span>
+                                        </div>
                                     </td>
 
                                     <!-- CALIFICACIONES -->
@@ -2084,7 +2088,7 @@ try {
 <!-- ============================================================
      NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
      ------------------------------------------------------------
-     Este bloque lo uso para homologar todas las notificaciones.
+     Bloque utilizado para homologar notificaciones visuales del sistema.
      Cualquier alerta puede cerrarse manualmente con la tachita y,
      si el usuario no la cierra, desaparece sola después de unos segundos.
      ============================================================ -->

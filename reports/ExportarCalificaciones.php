@@ -1,6 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/includes/SGCE_Pdf.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { die('Acceso denegado.'); }
@@ -19,9 +20,11 @@ function ArchivoSeguroCal($Texto) {
 }
 function FormatoCal($Valor) { return $Valor !== null && $Valor !== '' ? number_format((float)$Valor, 2) : '-'; }
 $ConfigReporte = SgceObtenerConfiguracion($Pdo);
+$ColorReporte = SgceColorInstitucional($Pdo);
 function EstilosReporteCal($Landscape = false) { ?>
 <style>
-@page{size:letter <?= $Landscape ? 'landscape' : '' ?>;margin:1.1cm}*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,'Segoe UI',sans-serif;color:#1f2937;font-size:12px}.ReportSheet{width:100%;max-width:<?= $Landscape ? '1180' : '950' ?>px;margin:22px auto;padding:24px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 18px 45px rgba(15,23,42,.10)}.Header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;border-bottom:4px solid #7A0818;margin-bottom:16px;padding-bottom:12px}.Header h2{margin:0;color:#7A0818;font-size:24px;font-weight:900}.SchoolName{margin:0 0 4px;color:#111827;font-size:13px;font-weight:900;text-transform:uppercase}.SchoolMeta{margin:0 0 5px;color:#6b7280;font-size:10.5px;font-weight:700;text-transform:uppercase}.Header p{margin:5px 0 0;color:#4b5563;font-weight:700}.HeaderTag{padding:7px 12px;border:1px solid #ead5da;background:#fff7f8;border-radius:999px;color:#7A0818;font-weight:900;white-space:nowrap}.TablaWrap{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}table{width:100%;border-collapse:collapse}th{background:#7A0818;color:#fff;padding:9px 8px;border:1px solid #7A0818;text-transform:uppercase;font-size:11px;letter-spacing:.25px}td{padding:7px 8px;border:1px solid #e5e7eb}tbody tr:nth-child(even){background:#f9fafb}.Centro{text-align:center}.Negrita{font-weight:800}.Firma{margin-top:55px;text-align:center}.FirmaLinea{width:290px;margin:auto;border-top:1px solid #374151;padding-top:7px;color:#374151}@media print{body{background:#fff}.ReportSheet{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}th{background:#7A0818!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even),.HeaderTag{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+:root{--ReportColor:<?= HExpCal($ColorReporte ?? '#97051E') ?>;}
+@page{size:letter <?= $Landscape ? 'landscape' : '' ?>;margin:1.1cm}*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,'Segoe UI',sans-serif;color:#1f2937;font-size:12px}.ReportSheet{width:100%;max-width:<?= $Landscape ? '1180' : '950' ?>px;margin:22px auto;padding:24px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 18px 45px rgba(15,23,42,.10)}.Header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;border-bottom:4px solid var(--ReportColor);margin-bottom:16px;padding-bottom:12px}.Header h2{margin:0;color:var(--ReportColor);font-size:24px;font-weight:900}.SchoolName{margin:0 0 4px;color:#111827;font-size:13px;font-weight:900;text-transform:uppercase}.SchoolMeta{margin:0 0 5px;color:#6b7280;font-size:10.5px;font-weight:700;text-transform:uppercase}.Header p{margin:5px 0 0;color:#4b5563;font-weight:700}.HeaderTag{padding:7px 12px;border:1px solid #ead5da;background:#fff7f8;border-radius:999px;color:var(--ReportColor);font-weight:900;white-space:nowrap}.TablaWrap{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}table{width:100%;border-collapse:collapse}th{background:var(--ReportColor);color:#fff;padding:9px 8px;border:1px solid var(--ReportColor);text-transform:uppercase;font-size:11px;letter-spacing:.25px}td{padding:7px 8px;border:1px solid #e5e7eb}tbody tr:nth-child(even){background:#f9fafb}.Centro{text-align:center}.Negrita{font-weight:800}.Firma{margin-top:55px;text-align:center}.FirmaLinea{width:290px;margin:auto;border-top:1px solid #374151;padding-top:7px;color:#374151}@media print{body{background:#fff}.ReportSheet{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}th{background:var(--ReportColor)!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even),.HeaderTag{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 <?php }
 
@@ -53,8 +56,34 @@ if ($GrupoId > 0) {
 
     $TituloArchivo = 'Calificaciones_Grupo_' . ArchivoSeguroCal($Grupo['Grado'].$Grupo['Grupo'].'_'.$Grupo['Turno']);
     if ($Tipo === 'Excel') { header('Content-Type: application/vnd.ms-excel; charset=utf-8'); header("Content-Disposition: attachment; filename={$TituloArchivo}.xls"); echo "\xEF\xBB\xBF"; }
+    if ($Tipo === 'Pdf') {
+        $ColumnasPdf = ['#', 'Alumno'];
+        foreach ($Asignaciones as $A) { $ColumnasPdf[] = $A['MateriaNombre']; }
+        $ColumnasPdf[] = 'Promedio';
+        $FilasPdf = [];
+        $Npdf = 1;
+        foreach ($Alumnos as $Al) {
+            $FilaPdf = [(string)$Npdf++, $Al['NombreCompleto']];
+            $SumaPdf = 0; $CuentaPdf = 0;
+            foreach ($Asignaciones as $A) {
+                $Val = $Calificaciones[(int)$Al['Id']][(int)$A['Id']] ?? null;
+                if ($Val !== null) { $SumaPdf += (float)$Val; $CuentaPdf++; }
+                $FilaPdf[] = FormatoCal($Val);
+            }
+            $FilaPdf[] = $CuentaPdf > 0 ? number_format($SumaPdf / $CuentaPdf, 2) : '-';
+            $FilasPdf[] = $FilaPdf;
+        }
+        $Disponible = 720;
+        $AnchosPdf = [34, 190];
+        $Restantes = max(1, count($ColumnasPdf) - 3);
+        $AnchoMateria = max(55, min(90, ($Disponible - 34 - 190 - 70) / $Restantes));
+        for ($I = 0; $I < $Restantes; $I++) { $AnchosPdf[] = $AnchoMateria; }
+        $AnchosPdf[] = 70;
+        $SubtituloPdf = 'Grupo: ' . $Grupo['Grado'] . ' ' . $Grupo['Grupo'] . ' ' . $Grupo['Turno'] . ' | Periodo: ' . $Periodo['Nombre'] . ' ' . $Periodo['Ciclo'];
+        SgcePdfRespuestaTabla($Pdo, 'Reporte de calificaciones por grupo', $SubtituloPdf, $ColumnasPdf, $FilasPdf, $TituloArchivo, 'L', $AnchosPdf);
+    }
     ?>
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title><?= HExpCal($TituloArchivo) ?></title><?php EstilosReporteCal(true); ?><?php if ($Tipo === 'Pdf'): ?><script>window.addEventListener('load',function(){setTimeout(function(){window.print();},450);});</script><?php endif; ?></head><body>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title><?= HExpCal($TituloArchivo) ?></title><?php EstilosReporteCal(true); ?></head><body>
 <div class="ReportSheet">
 <div class="Header"><div><div class="SchoolName"><?= HExpCal($ConfigReporte['NombreEscuela']) ?></div><div class="SchoolMeta"><?= HExpCal(trim(($ConfigReporte['ClaveCentroTrabajo'] ? 'CCT: '.$ConfigReporte['ClaveCentroTrabajo'].' · ' : '').($ConfigReporte['MunicipioEstado'] ?? ''))) ?></div><h2>Reporte de calificaciones por grupo</h2><p>Grupo: <?= HExpCal($Grupo['Grado'].' '.$Grupo['Grupo'].' '.$Grupo['Turno']) ?> · Periodo: <?= HExpCal($Periodo['Nombre'].' '.$Periodo['Ciclo']) ?></p></div><div class="HeaderTag"><?= HExpCal($Tipo) ?></div></div>
 <div class="TablaWrap"><table><thead><tr><th>#</th><th>Alumno</th><?php foreach($Asignaciones as $A): ?><th><?= HExpCal($A['MateriaNombre']) ?></th><?php endforeach; ?><th>Promedio</th></tr></thead><tbody>
@@ -76,8 +105,17 @@ $StmtAlumnos->execute([$AsignacionId, $PeriodoId, $Info['GrupoId']]);
 $Alumnos = $StmtAlumnos->fetchAll();
 $TituloArchivo = 'Calificaciones_' . ArchivoSeguroCal($Info['MateriaNombre'].'_'.$Info['Grado'].$Info['Grupo']);
 if ($Tipo === 'Excel') { header('Content-Type: application/vnd.ms-excel; charset=utf-8'); header("Content-Disposition: attachment; filename={$TituloArchivo}.xls"); echo "\xEF\xBB\xBF"; }
+if ($Tipo === 'Pdf') {
+    $FilasPdf = [];
+    $Npdf = 1;
+    foreach ($Alumnos as $Al) {
+        $FilasPdf[] = [(string)$Npdf++, $Al['NombreCompleto'], FormatoCal($Al['Calificacion'])];
+    }
+    $SubtituloPdf = 'Materia: ' . $Info['MateriaNombre'] . ' | Grupo: ' . $Info['Grado'] . ' ' . $Info['Grupo'] . ' ' . $Info['Turno'] . ' | Docente: ' . $Info['Maestro'] . ' | Periodo: ' . $Periodo['Nombre'] . ' ' . $Periodo['Ciclo'];
+    SgcePdfRespuestaTabla($Pdo, 'Reporte de calificaciones', $SubtituloPdf, ['#', 'Alumno', 'Calificación'], $FilasPdf, $TituloArchivo, 'P', [45, 390, 100]);
+}
 ?>
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title><?= HExpCal($TituloArchivo) ?></title><?php EstilosReporteCal(false); ?><?php if ($Tipo === 'Pdf'): ?><script>window.addEventListener('load',function(){setTimeout(function(){window.print();},450);});</script><?php endif; ?></head><body>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title><?= HExpCal($TituloArchivo) ?></title><?php EstilosReporteCal(false); ?></head><body>
 <div class="ReportSheet">
 <div class="Header"><div><div class="SchoolName"><?= HExpCal($ConfigReporte['NombreEscuela']) ?></div><div class="SchoolMeta"><?= HExpCal(trim(($ConfigReporte['ClaveCentroTrabajo'] ? 'CCT: '.$ConfigReporte['ClaveCentroTrabajo'].' · ' : '').($ConfigReporte['MunicipioEstado'] ?? ''))) ?></div><h2>Reporte de calificaciones</h2><p>Materia: <?= HExpCal($Info['MateriaNombre']) ?> · Grupo: <?= HExpCal($Info['Grado'].' '.$Info['Grupo'].' '.$Info['Turno']) ?> · Docente: <?= HExpCal($Info['Maestro']) ?> · Periodo: <?= HExpCal($Periodo['Nombre'].' '.$Periodo['Ciclo']) ?></p></div><div class="HeaderTag"><?= HExpCal($Tipo) ?></div></div>
 <div class="TablaWrap"><table><thead><tr><th>#</th><th>Alumno</th><th>Calificación</th></tr></thead><tbody><?php $N=1; foreach($Alumnos as $Al): ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><td class="Centro Negrita"><?= FormatoCal($Al['Calificacion']) ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="3" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?></tbody></table></div>

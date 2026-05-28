@@ -17,7 +17,9 @@ $User = $Config['username'];
 $Pass = $Config['password'];
 $Charset = $Config['charset'] ?? 'utf8mb4';
 if (!defined('SGCE_BACKUP_DIR')) { define('SGCE_BACKUP_DIR', $Config['backup_dir'] ?? dirname(__DIR__) . '/storage/backups'); }
+if (!defined('SGCE_LOG_DIR')) { define('SGCE_LOG_DIR', $Config['log_dir'] ?? dirname(__DIR__) . '/storage/logs'); }
 if (!defined('SGCE_PRODUCTION')) { define('SGCE_PRODUCTION', (bool)($Config['production'] ?? true)); }
+require_once dirname(__DIR__) . '/includes/SGCE_ErrorHandler.php';
 $Dsn = "mysql:host={$Host};dbname={$Db};charset={$Charset}";
 
 $Options = [
@@ -29,8 +31,10 @@ $Options = [
 try {
     $Pdo = new PDO($Dsn, $User, $Pass, $Options);
 } catch (PDOException $E) {
+    $CodigoError = function_exists('SgceRegistrarErrorTecnico') ? SgceRegistrarErrorTecnico('CONEXION_BASE_DATOS', $E) : '';
+    if (function_exists('SgceMostrarErrorCliente')) { SgceMostrarErrorCliente($CodigoError); exit; }
     http_response_code(500);
-    die('Error de conexión.');
+    exit('No fue posible conectar con la base de datos.');
 }
 
 require_once dirname(__DIR__) . '/includes/SGCE_Helpers.php';

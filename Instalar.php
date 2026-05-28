@@ -199,6 +199,76 @@ function InstalarGuardarConfiguracion($PdoDb, $Datos) {
     }
 }
 
+function InstalarLogDir() {
+    return __DIR__ . '/storage/logs';
+}
+
+function InstalarRegistrarError($Error, $Contexto = 'INSTALADOR') {
+    $Dir = InstalarLogDir();
+    if (!is_dir($Dir)) { @mkdir($Dir, 0775, true); }
+    $Id = date('YmdHis') . '-' . bin2hex(random_bytes(4));
+    $Linea = [
+        'id' => $Id,
+        'fecha' => date('c'),
+        'contexto' => $Contexto,
+        'mensaje' => $Error instanceof Throwable ? $Error->getMessage() : (string)$Error,
+        'archivo' => $Error instanceof Throwable ? $Error->getFile() : null,
+        'linea' => $Error instanceof Throwable ? $Error->getLine() : null,
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? 'CLI',
+    ];
+    @file_put_contents($Dir . '/instalador-' . date('Y-m-d') . '.log', json_encode($Linea, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL, FILE_APPEND | LOCK_EX);
+    return $Id;
+}
+
+function InstalarAddCheck(&$Checks, $Clave, $Titulo, $Estado, $Detalle) {
+    $Checks[] = ['clave' => $Clave, 'titulo' => $Titulo, 'estado' => $Estado, 'detalle' => $Detalle];
+}
+
+function InstalarVerificacionesServidor($Valores = [], $ProbarMysql = false) {
+    $Checks = [];
+    InstalarAddCheck($Checks, 'php', 'Versión PHP', PHP_VERSION_ID >= 80100 ? 'ok' : 'warning', 'Versión detectada: ' . PHP_VERSION . '. Recomendado: PHP 8.1 o superior.');
+    foreach (['pdo', 'pdo_mysql', 'mbstring', 'zip', 'simplexml', 'fileinfo', 'iconv', 'json'] as $Ext) {
+        InstalarAddCheck($Checks, 'ext_' . $Ext, 'Extensión ' . $Ext, extension_loaded($Ext) ? 'ok' : 'error', extension_loaded($Ext) ? 'Disponible.' : 'No disponible. Debe activarse en PHP.');
+    }
+    $Rutas = [
+        'config' => __DIR__ . '/config',
+        'storage' => __DIR__ . '/storage',
+        'backups' => trim((string)($Valores['BackupDir'] ?? (__DIR__ . '/storage/backups'))),
+        'logs' => __DIR__ . '/storage/logs',
+    ];
+    foreach ($Rutas as $Clave => $Ruta) {
+        if (!is_dir($Ruta)) { @mkdir($Ruta, 0775, true); }
+        $Ok = is_dir($Ruta) && is_writable($Ruta);
+        InstalarAddCheck($Checks, 'dir_' . $Clave, 'Carpeta ' . $Clave, $Ok ? 'ok' : 'error', $Ruta . ' | ' . InstalarFormatoPermisos($Ruta));
+    }
+    InstalarAddCheck($Checks, 'sql', 'Archivo SQL de instalación', is_file(__DIR__ . '/install/ControlEscolar.sql') ? 'ok' : 'error', is_file(__DIR__ . '/install/ControlEscolar.sql') ? 'Disponible.' : 'No se encontró install/ControlEscolar.sql.');
+    if ($ProbarMysql) {
+        $Host = trim((string)($Valores['Host'] ?? ''));
+        $Usuario = trim((string)($Valores['UsuarioMysql'] ?? ''));
+        $Password = (string)($Valores['PasswordMysql'] ?? '');
+        if ($Host !== '' && $Usuario !== '') {
+            try {
+                $Dsn = 'mysql:host=' . $Host . ';charset=utf8mb4';
+                new PDO($Dsn, $Usuario, $Password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
+                InstalarAddCheck($Checks, 'mysql', 'Conexión MySQL', 'ok', 'Conexión validada correctamente.');
+            } catch (Throwable $E) {
+                InstalarRegistrarError($E, 'VERIFICACION_MYSQL');
+                InstalarAddCheck($Checks, 'mysql', 'Conexión MySQL', 'error', 'No fue posible conectar con los datos capturados.');
+            }
+        } else {
+            InstalarAddCheck($Checks, 'mysql', 'Conexión MySQL', 'warning', 'Captura host y usuario MySQL para probar la conexión.');
+        }
+    }
+    return $Checks;
+}
+
+function InstalarChecksCriticosOk($Checks) {
+    foreach ($Checks as $Check) {
+        if (($Check['estado'] ?? '') === 'error') { return false; }
+    }
+    return true;
+}
+
 $YaInstalado = is_file($LockFile);
 
 $AnioActual = (int)date('Y');
@@ -216,6 +286,7 @@ $Valores = [
     'MunicipioEstado' => $_POST['MunicipioEstado'] ?? '',
     'TelefonoEscuela' => $_POST['TelefonoEscuela'] ?? '',
     'CorreoEscuela' => $_POST['CorreoEscuela'] ?? '',
+    'ColorInstitucional' => $_POST['ColorInstitucional'] ?? '#97051E',
     'CicloNombre' => $_POST['CicloNombre'] ?? ($AnioActual . '-' . ($AnioActual + 1)),
     'FechaInicio' => $_POST['FechaInicio'] ?? ($AnioActual . '-08-01'),
     'FechaFin' => $_POST['FechaFin'] ?? (($AnioActual + 1) . '-07-31'),
@@ -223,6 +294,12 @@ $Valores = [
     'PeriodoDos' => $_POST['PeriodoDos'] ?? 'SEGUNDO PARCIAL',
     'PeriodoTres' => $_POST['PeriodoTres'] ?? 'TERCER PARCIAL',
 ];
+
+if (isset($_GET['VerificarServidor'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['checks' => InstalarVerificacionesServidor($Valores, true)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
     $DetallesEliminacion = [];
@@ -247,6 +324,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
         $MunicipioEstado = InstalarNormalizarTexto($Valores['MunicipioEstado'], true);
         $TelefonoEscuela = InstalarNormalizarTexto($Valores['TelefonoEscuela']);
         $CorreoEscuela = InstalarNormalizarTexto($Valores['CorreoEscuela']);
+        $ColorInstitucional = strtoupper(trim((string)($Valores['ColorInstitucional'] ?? '#97051E')));
         $CicloNombre = InstalarNormalizarTexto($Valores['CicloNombre'], true);
         $FechaInicio = trim((string)$Valores['FechaInicio']);
         $FechaFin = trim((string)$Valores['FechaFin']);
@@ -270,6 +348,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             InstalarValidarCorreoOpcional($CorreoEscuela),
         ] as $ValidacionCampo) {
             if ($ValidacionCampo !== true) { throw new Exception($ValidacionCampo); }
+        }
+        if (!preg_match('/^#[0-9A-F]{6}$/', $ColorInstitucional)) {
+            throw new Exception('Selecciona un color institucional válido.');
+        }
+        $ChecksServidor = InstalarVerificacionesServidor($Valores, false);
+        if (!InstalarChecksCriticosOk($ChecksServidor)) {
+            throw new Exception('El servidor todavía no cumple los requisitos mínimos. Usa Verificar servidor para revisar permisos y extensiones.');
         }
         if ($AdminNombre === '' || mb_strlen($AdminNombre, 'UTF-8') < 3 || !InstalarSoloLetrasEspacios($AdminNombre)) {
             throw new Exception('Escribe el nombre del administrador. Solo debe contener letras y espacios.');
@@ -328,7 +413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             'TelefonoEscuela' => $TelefonoEscuela,
             'CorreoEscuela' => $CorreoEscuela,
             'LemaInstitucional' => '',
-            'ColorInstitucional' => '#7A0818',
+            'ColorInstitucional' => $ColorInstitucional,
             'SistemaNombre' => 'SGCE',
             'InstalacionFecha' => date('Y-m-d H:i:s'),
         ]);
@@ -357,6 +442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             "    'charset' => 'utf8mb4',\n" .
             "    'timezone' => 'America/Mexico_City',\n" .
             "    'backup_dir' => " . var_export($BackupDir, true) . ",\n" .
+            "    'log_dir' => " . var_export(__DIR__ . '/storage/logs', true) . ",\n" .
             "    'production' => true,\n" .
             "];\n";
         InstalarEscribirArchivoSeguro($LocalConfigFile, $ConfigExport);
@@ -371,14 +457,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
 
         $Mensaje = 'Instalación completada correctamente. Ya puedes entrar al sistema con el administrador inicial.';
         if ($DetallesEliminacion) { error_log('SGCE instalador: revisar limpieza automática: ' . implode(' | ', $DetallesEliminacion)); }
-        $Tipo = $DetallesEliminacion ? 'warning' : 'success';
+        $Tipo = 'success';
         $YaInstalado = true;
     } catch (Exception $E) {
         if (isset($PdoDb) && $PdoDb instanceof PDO && $PdoDb->inTransaction()) { $PdoDb->rollBack(); }
-        error_log('SGCE instalador: ' . $E->getMessage());
+$CodigoError = InstalarRegistrarError($E, 'INSTALACION');
         $Mensaje = InstalarModoDebug()
             ? 'Error al instalar: ' . $E->getMessage()
-            : 'No se pudo completar la instalación. Verifica los datos capturados, la conexión MySQL y los permisos de las carpetas config y storage.';
+            : 'No se pudo completar la instalación. Verifica los datos capturados y pulsa Verificar servidor. Código de seguimiento: ' . $CodigoError;
         $Tipo = 'danger';
     }
 }
@@ -421,9 +507,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
 
     <?php if ($YaInstalado): ?>
         <section class="SgcePanel mt-4 p-4 SgceInstallerCard">
-            <h2 class="h4 fw-bold text-success"><i class="fa-solid fa-circle-check me-2"></i>Sistema instalado</h2>
-            <p class="mb-3">El instalador quedó bloqueado. Entra al sistema desde la pantalla principal.</p>
-            <a href="index.php" class="BtnPrimary text-decoration-none d-inline-flex align-items-center gap-2"><i class="fa-solid fa-right-to-bracket"></i> Ir al login</a>
+            <h2 class="h4 fw-bold text-success"><i class="fa-solid fa-circle-check me-2"></i>Sistema listo</h2>
+            <p class="mb-3">El sistema está listo. Entra desde la pantalla principal con el administrador creado. Por seguridad, el instalador quedó bloqueado; si tu servidor lo permite, elimina el archivo <strong>Instalar.php</strong> después de confirmar el acceso.</p>
+            <a href="index.php" class="BtnPrimary text-decoration-none d-inline-flex align-items-center gap-2"><i class="fa-solid fa-right-to-bracket"></i> Ir al acceso principal</a>
         </section>
     <?php else: ?>
         <section class="SgcePanel mt-4 p-4 SgceInstallerCard">
@@ -437,6 +523,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             <div class="SgceInstallerWarning">
                 <i class="fa-solid fa-circle-info"></i>
                 <div><strong>Importante:</strong> utiliza una base de datos exclusiva para SGCE. La instalación preparará esa base desde cero.</div>
+            </div>
+            <div class="SgceInstallerCheckPanel" id="SgceInstallerCheckPanel">
+                <div>
+                    <strong><i class="fa-solid fa-list-check"></i> Verificación del servidor</strong>
+                    <p>Revisa requisitos de PHP, permisos y conexión antes de instalar.</p>
+                </div>
+                <button type="button" class="BtnPrimary SgceInstallerVerifyBtn" id="SgceInstallerVerifyBtn"><i class="fa-solid fa-shield-check"></i> Verificar servidor</button>
+                <div class="SgceInstallerCheckResults" id="SgceInstallerCheckResults"></div>
             </div>
             <form method="post" class="row g-3 mt-2" id="SgceInstallerForm">
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><i class="fa-solid fa-server"></i> Conexión MySQL</h3></div>
@@ -453,6 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                 <div class="col-md-6"><label class="fw-bold mb-2">Municipio y estado</label><input class="form-control FormControl InputUpper" name="MunicipioEstado" value="<?= HInst($Valores['MunicipioEstado']) ?>" maxlength="120" placeholder="Ej. ARANDAS, JALISCO"></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Teléfono</label><input class="form-control FormControl InputDigits" type="tel" name="TelefonoEscuela" value="<?= HInst($Valores['TelefonoEscuela']) ?>" inputmode="numeric" autocomplete="tel" minlength="7" maxlength="15" pattern="\d{7,15}" title="Solo números, mínimo 7 y máximo 15 dígitos." placeholder="Opcional"></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Correo institucional</label><input class="form-control FormControl" type="email" name="CorreoEscuela" value="<?= HInst($Valores['CorreoEscuela']) ?>" maxlength="120" autocomplete="email" placeholder="Opcional: direccion@escuela.com"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Color institucional</label><div class="SgceColorControl"><input class="form-control FormControl" type="color" name="ColorInstitucional" id="ColorInstitucional" value="<?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?>"><span id="ColorInstitucionalTexto"><?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?></span></div></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><i class="fa-solid fa-calendar-days"></i> Ciclo escolar inicial</h3></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Nombre del ciclo</label><input class="form-control FormControl InputUpper" name="CicloNombre" value="<?= HInst($Valores['CicloNombre']) ?>" required maxlength="40"></div>
@@ -473,6 +568,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
     <?php endif; ?>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
 <script src="assets/js/Instalar.js?v=1.0.0"></script>
 </body>
 </html>

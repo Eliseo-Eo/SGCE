@@ -179,21 +179,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.1">
+<?= SgceEstilosTema($Pdo) ?>
 
 </head>
 <body class="ConsultaPublicaBody">
 
 <main class="ConsultaPublicaWrap">
 
-    <section class="ConsultaHero">
-        <div class="ConsultaHeroIcon"><i class="fa-solid fa-user-shield"></i></div>
-        <div>
-            <span class="ConsultaBadge"><i class="fa-solid fa-lock"></i> Consulta protegida</span>
-            <div class="ConsultaSchoolName"><?= htmlspecialchars($NombreEscuelaConsulta, ENT_QUOTES, 'UTF-8') ?></div>
-            <h1>Consulta de asistencia del día</h1>
-            <p>Escribe el nombre completo del alumno y selecciona su grado, grupo y turno. El sistema solo muestra el resultado del alumno consultado.</p>
+    <section class="ConsultaHero ConsultaHeroCompact">
+        <div class="ConsultaHeroMain">
+            <div class="ConsultaHeroIcon"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="ConsultaHeroText">
+                <div class="ConsultaSchoolName"><?= htmlspecialchars($NombreEscuelaConsulta, ENT_QUOTES, 'UTF-8') ?></div>
+                <h1>Consulta de asistencia del día</h1>
+                <p>Escribe el nombre completo del alumno y selecciona grado, grupo y turno. Solo se muestra el resultado del alumno consultado.</p>
+            </div>
         </div>
+        <span class="ConsultaBadge"><i class="fa-solid fa-lock"></i> Consulta protegida</span>
     </section>
 
     <?php if(!empty($AvisosPadres)): ?>

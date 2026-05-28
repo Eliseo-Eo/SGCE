@@ -1,16 +1,19 @@
-SGCE 1.0.0 - Entrega definitiva
+SGCE - Versión Final de Producción 1.0
 
-Contenido principal:
-- Instalador inicial: Instalar.php
-- Acceso principal: index.php
-- Panel administrador: Admin.php
-- Portal docente: Maestro.php
-- Consulta de padres: ConsultaPadre.php
-- Manual de usuario: docs/MANUAL_USUARIO_SGCE.docx y docs/MANUAL_USUARIO_SGCE.pdf
-- SQL base: install/ControlEscolar.sql
-- Configuración: config/database.php y config/database.local.example.php
+Características principales:
+- Instalación limpia desde cero.
+- Verificación visual de servidor antes de instalar.
+- Configuración institucional y color global.
+- Importación CSV y Excel .xlsx.
+- Reportes PDF reales generados desde servidor.
+- Respaldos manuales y automáticos por cron.
+- Control de errores con mensajes simples y logs técnicos.
+- Manual de usuario y manual técnico incluidos.
 
-Notas:
-- La base se configura desde el instalador.
-- No se incluye usuario administrador fijo.
-- No se incluyen alumnos, maestros, grupos, asignaciones ni avisos precargados.
+Archivos nuevos o relevantes:
+- includes/SGCE_ErrorHandler.php
+- includes/SGCE_Pdf.php
+- cron/backup_diario.php
+- cron/backup_semanal.php
+- docs/MANUAL_USUARIO_SGCE.pdf
+- docs/MANUAL_TECNICO_INSTALACION_SGCE.pdf

@@ -97,9 +97,10 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="ExpedienteAlumnoBody">
-<div class="SgcePageWrap ExpedienteAlumnoPage">
+<div class="SgcePageWrap SgceModuleWrap ExpedienteAlumnoPage">
     <header class="Top ExpedienteAlumnoHero">
         <div class="SgceHeroInfo">
             <div class="IconBox"><i class="fa-solid fa-folder-open"></i></div>

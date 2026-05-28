@@ -213,10 +213,11 @@ $Avisos = $StmtAvisos->fetchAll();
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="AvisosBody">
 
-<main class="SgcePageWrap AvisosWrap">
+<main class="SgcePageWrap SgceModuleWrap AvisosWrap">
 
     <section class="SgceHero AvisosHero">
         <div class="SgceHeroInfo">
@@ -277,13 +278,11 @@ $Avisos = $StmtAvisos->fetchAll();
         </div>
 
         <div class="SgceCard AvisosTableCard">
-            <div class="SgceCardHeaderLine AvisosTableHeader">
+            <div class="SgceCardHeaderLine AvisosTableHeader AvisosTableHeaderClean">
                 <div class="SgceMiniIcon"><i class="fa-solid fa-list-check"></i></div>
                 <div>
                     <h2>AVISOS REGISTRADOS</h2>
-                    <p>Administra comunicados activos e inactivos.</p>
                 </div>
-                <span class="SgceCountPill"><i class="fa-solid fa-clock-rotate-left"></i><?= $TotalAvisos ?> registros</span>
             </div>
 
             <div class="table-responsive AvisosTableResponsive">

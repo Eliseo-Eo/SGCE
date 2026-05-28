@@ -1,8 +1,11 @@
 
 :root{
   --SgceGuinda:#97051E;
+  --SgceGuindaRGB:151,5,30;
   --SgceGuindaOscuro:#760617;
   --SgceGuindaProfundo:#4F0610;
+  --SgceGuindaSuave:#FCE7EF;
+  --SgceGuindaClaro:#C73A50;
   --SgceAzul:#2F7CF6;
   --SgceVerde:#16A34A;
   --SgceRojo:#DC2626;
@@ -15,14 +18,14 @@
   --SgceCard:#FFFFFF;
   --SgceRadio:24px;
   --SgceSombra:0 14px 38px rgba(15,23,42,.08);
-  --SgceSombraGuinda:0 18px 42px rgba(122,8,24,.22);
+  --SgceSombraGuinda:0 18px 42px rgba(var(--SgceGuindaRGB),.22);
 }
 *{box-sizing:border-box}
 html{min-height:100%}
 body{
   min-height:100vh;
   margin:0;
-  background:radial-gradient(circle at top left,rgba(151,5,30,.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%);
+  background:radial-gradient(circle at top left,rgba(var(--SgceGuindaRGB),.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%);
   color:var(--SgceTexto);
   font-family:'Poppins','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
   overflow-x:hidden;
@@ -104,8 +107,8 @@ a{text-decoration:none}
   inset:7px;
   z-index:-1;
   border-radius:13px;
-  background:linear-gradient(145deg,rgba(151,5,30,.10),rgba(255,255,255,.18));
-  border:1px solid rgba(151,5,30,.12);
+  background:linear-gradient(145deg,rgba(var(--SgceGuindaRGB),.10),rgba(255,255,255,.18));
+  border:1px solid rgba(var(--SgceGuindaRGB),.12);
   opacity:.82;
   transition:opacity .22s ease,background .22s ease,box-shadow .22s ease;
 }
@@ -130,7 +133,7 @@ a{text-decoration:none}
     inset 0 -10px 18px rgba(120,133,150,.15),
     0 18px 36px rgba(0,0,0,.20),
     0 0 0 4px rgba(255,255,255,.16),
-    0 0 0 8px rgba(151,5,30,.16),
+    0 0 0 8px rgba(var(--SgceGuindaRGB),.16),
     0 0 24px rgba(255,255,255,.34)!important;
   filter:saturate(1.08);
 }
@@ -139,14 +142,14 @@ a{text-decoration:none}
 .SgceHeroLogout:hover::after,
 .SgceHeroLogout:focus-visible::after{
   opacity:1;
-  background:linear-gradient(145deg,rgba(151,5,30,.18),rgba(255,255,255,.28));
+  background:linear-gradient(145deg,rgba(var(--SgceGuindaRGB),.18),rgba(255,255,255,.28));
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);
 }
 .SgceHeroLogout:hover i,
 .SgceHeroLogout:focus-visible i{
   transform:translateX(2px) scale(1.08);
   color:var(--SgceGuinda)!important;
-  filter:drop-shadow(0 2px 3px rgba(151,5,30,.18));
+  filter:drop-shadow(0 2px 3px rgba(var(--SgceGuindaRGB),.18));
 }
 .SgceHeroLogout:active{
   transform:scale(.94)!important;
@@ -154,7 +157,7 @@ a{text-decoration:none}
     inset 0 3px 12px rgba(79,6,16,.28),
     inset 0 1px 0 rgba(255,255,255,.95),
     0 8px 18px rgba(0,0,0,.16),
-    0 0 0 5px rgba(151,5,30,.18)!important;
+    0 0 0 5px rgba(var(--SgceGuindaRGB),.18)!important;
 }
 .SgceHeroLogout:active i{transform:translateX(3px) scale(.98)}
 .card-custom,.Card,.card,.SgceCard{
@@ -164,16 +167,16 @@ a{text-decoration:none}
 .FormControl,.form-control,.form-select,input,select,textarea{
   border:2px solid #E2E8F0!important;border-radius:15px!important;min-height:46px;box-shadow:none!important;
 }
-.FormControl:focus,.form-control:focus,.form-select:focus,input:focus,select:focus,textarea:focus{border-color:rgba(151,5,30,.45)!important;box-shadow:0 0 0 .22rem rgba(151,5,30,.10)!important}
+.FormControl:focus,.form-control:focus,.form-select:focus,input:focus,select:focus,textarea:focus{border-color:rgba(var(--SgceGuindaRGB),.45)!important;box-shadow:0 0 0 .22rem rgba(var(--SgceGuindaRGB),.10)!important}
 button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;letter-spacing:.25px}
 .BtnGuinda,.ReporteBtn,.BtnExport,.ActionSuccess,.ActionInfo,.ActionDanger,button[type="submit"]:not(.btn-close){
-  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;box-shadow:0 12px 24px rgba(151,5,30,.18)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.18)!important;
 }
 .BtnGuinda:hover,.ReporteBtn:hover,.BtnExport:hover,button[type="submit"]:not(.btn-close):hover{filter:brightness(.96);transform:translateY(-1px)}
 .table{margin-bottom:0}.table thead th{background:#F8FAFC!important;color:#667085!important;text-transform:uppercase;font-size:.75rem;letter-spacing:.3px;border:0!important}.table td{vertical-align:middle;border-color:#EEF2F7!important}
 .table-responsive{border-radius:18px;overflow:hidden}.BadgeGlass,.InfoBadge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:.86rem}.SmallText{font-size:.92rem;color:#6B7280}.DangerZone{border:2px dashed var(--SgceRojo)!important;background:#FEF2F2!important}.alert{border-radius:18px;border:0;box-shadow:0 10px 24px rgba(15,23,42,.07)}
 /* Dashboard */
-.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(151,5,30,.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(151,5,30,.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,#2775F5,#3A86FF)!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}/* evita barras superiores heredadas */
+.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}/* evita barras superiores heredadas */
 @media(max-width:1200px){.DashboardTopSplit{grid-template-columns:1fr}.DashboardModuleGrid{grid-template-columns:repeat(4,110px)}}
 @media(max-width:720px){.SgcePageWrap{padding:16px 12px 24px}.SgceHero,.Top,.TopBar,.TopHeader{border-radius:20px;padding:20px;align-items:flex-start;flex-direction:column}.SgceHeroInfo{align-items:flex-start}.SgceHeroIcon,.HeaderIcon,.IconBox,.HeroIcon{width:50px;height:50px;min-width:50px}.SgceHeroActions{width:100%;justify-content:flex-start}.SgceHeroBtn:not(.SgceHeroLogout){width:100%}.DashboardModuleGrid{grid-template-columns:repeat(3,100px);gap:10px}.DashboardModuleCard{width:100px;height:76px}.DashboardStatsGrid,.StatsGrid{grid-template-columns:1fr}}
 @media(max-width:430px){.DashboardModuleGrid{grid-template-columns:repeat(2,1fr)}.DashboardModuleCard{width:100%;height:76px}}
@@ -192,7 +195,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   z-index:0;
   pointer-events:none;
   background:
-    radial-gradient(circle at 12% 12%, rgba(151,5,30,.16), transparent 30%),
+    radial-gradient(circle at 12% 12%, rgba(var(--SgceGuindaRGB),.16), transparent 30%),
     radial-gradient(circle at 88% 18%, rgba(47,124,246,.08), transparent 26%);
 }
 .ContainerPrincipal{
@@ -309,7 +312,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   align-items:center;
   justify-content:center;
   font-size:36px;
-  box-shadow:0 14px 30px rgba(151,5,30,.28);
+  box-shadow:0 14px 30px rgba(var(--SgceGuindaRGB),.28);
 }
 .TituloLogin{
   font-size:2rem;
@@ -342,8 +345,8 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   transition:.22s ease;
 }
 .InputGroupCustom:focus-within{
-  border-color:rgba(151,5,30,.58);
-  box-shadow:0 0 0 5px rgba(151,5,30,.08);
+  border-color:rgba(var(--SgceGuindaRGB),.58);
+  box-shadow:0 0 0 5px rgba(var(--SgceGuindaRGB),.08);
   background:#FFFFFF;
 }
 .InputIcon{
@@ -410,14 +413,14 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   color:#FFFFFF!important;
   font-weight:900;
   letter-spacing:.3px;
-  box-shadow:0 14px 28px rgba(151,5,30,.24)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.24)!important;
   transition:.22s ease;
 }
 .BtnLogin:hover,
 .btn.BtnLogin:hover{
   transform:translateY(-2px);
   filter:brightness(1.03);
-  box-shadow:0 20px 38px rgba(151,5,30,.32)!important;
+  box-shadow:0 20px 38px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 .BtnConsultaPadre{
   margin-top:16px;
@@ -530,14 +533,14 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   width:44px;height:44px;
   background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
   color:#fff;
-  box-shadow:0 12px 24px rgba(151,5,30,.18);
+  box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.18);
 }
 .BtnPrimary{
   min-height:46px;
   padding:10px 18px;
   background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
   color:#fff!important;
-  box-shadow:0 12px 24px rgba(151,5,30,.18);
+  box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.18);
 }
 .BtnSmall,
 .ActionBtn{
@@ -547,7 +550,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
   line-height:1!important;
 }
 .BtnSave,.ActionEdit,.ActionInfo{background:linear-gradient(135deg,#2563EB,#3B82F6)!important;color:#fff!important;border:0!important}
-.BtnDisable,.ActionDelete{background:linear-gradient(135deg,#97051E,#DC2626)!important;color:#fff!important;border:0!important}
+.BtnDisable,.ActionDelete{background:linear-gradient(135deg,var(--SgceGuinda),#DC2626)!important;color:#fff!important;border:0!important}
 .BtnReactivate,.ActionSuccess{background:linear-gradient(135deg,#15803D,#22C55E)!important;color:#fff!important;border:0!important}
 .ActionsInline,
 .AdminActions,
@@ -601,7 +604,7 @@ button.btn-guinda,
   letter-spacing:.25px!important;
   color:#fff!important;
   text-decoration:none!important;
-  box-shadow:0 12px 24px rgba(151,5,30,.18)!important;
+  box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.18)!important;
 }
 .btn-guinda,
 .btn.btn-guinda,
@@ -919,7 +922,7 @@ button.btn-guinda{
   background:linear-gradient(135deg,#15803D,#22C55E)!important;
 }
 .ExportPdf{
-  background:linear-gradient(135deg,#97051E,#DC2626)!important;
+  background:linear-gradient(135deg,var(--SgceGuinda),#DC2626)!important;
 }
 .ExportHoy.ExportExcel{
   background:linear-gradient(135deg,#0F766E,#14B8A6)!important;
@@ -994,13 +997,13 @@ button.btn-guinda{
 }
 .search-container .form-control:focus,
 .input-group.search-container .form-control:focus{
-  border-color:rgba(151,5,30,.45)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.45)!important;
   border-left:0!important;
-  box-shadow:0 0 0 .22rem rgba(151,5,30,.10)!important;
+  box-shadow:0 0 0 .22rem rgba(var(--SgceGuindaRGB),.10)!important;
 }
 .search-container:focus-within .input-group-text,
 .input-group.search-container:focus-within .input-group-text{
-  border-color:rgba(151,5,30,.45)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.45)!important;
   color:var(--SgceGuinda)!important;
 }
 .search-container:focus-within .input-group-text i,
@@ -1017,7 +1020,7 @@ button.btn-guinda{
 /* Respaldos e importación */
 .SgceRestorePage{
   background:
-    radial-gradient(circle at top left,rgba(151,5,30,.08),transparent 30%),
+    radial-gradient(circle at top left,rgba(var(--SgceGuindaRGB),.08),transparent 30%),
     linear-gradient(135deg,#F8FAFC 0%,#EEF3F9 100%)!important;
 }
 .SgceRestoreWrap{
@@ -1026,7 +1029,7 @@ button.btn-guinda{
 .SgceRestoreWrap .Top{
   border-radius:26px!important;
   padding:28px 30px!important;
-  box-shadow:0 20px 48px rgba(122,8,24,.24)!important;
+  box-shadow:0 20px 48px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 .SgceRestoreWrap .Top h1{
   display:flex!important;
@@ -1058,7 +1061,7 @@ button.btn-guinda{
   height:58px!important;
   min-width:58px!important;
   border-radius:18px!important;
-  background:linear-gradient(135deg,rgba(151,5,30,.12),rgba(151,5,30,.06))!important;
+  background:linear-gradient(135deg,rgba(var(--SgceGuindaRGB),.12),rgba(var(--SgceGuindaRGB),.06))!important;
   color:var(--SgceGuinda)!important;
   box-shadow:none!important;
   font-size:1.5rem!important;
@@ -1165,7 +1168,7 @@ button.btn-guinda{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  background:linear-gradient(135deg,rgba(151,5,30,.14),rgba(151,5,30,.06))!important;
+  background:linear-gradient(135deg,rgba(var(--SgceGuindaRGB),.14),rgba(var(--SgceGuindaRGB),.06))!important;
   color:var(--SgceGuinda)!important;
   font-size:1.25rem!important;
 }
@@ -1221,8 +1224,8 @@ button.btn-guinda{
   transition:.2s ease!important;
 }
 .SgceSearchBox input:focus{
-  border-color:rgba(151,5,30,.45)!important;
-  box-shadow:0 0 0 .22rem rgba(151,5,30,.10)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.45)!important;
+  box-shadow:0 0 0 .22rem rgba(var(--SgceGuindaRGB),.10)!important;
 }
 .SgceSearchBox input::placeholder{
   color:#64748B!important;
@@ -1295,7 +1298,7 @@ button.btn-guinda{
 /* Consulta pública de padres */
 .ConsultaPublicaBody{
   background:
-    radial-gradient(circle at 12% 10%, rgba(151,5,30,.10), transparent 30%),
+    radial-gradient(circle at 12% 10%, rgba(var(--SgceGuindaRGB),.10), transparent 30%),
     radial-gradient(circle at 88% 18%, rgba(47,124,246,.07), transparent 26%),
     linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
 }
@@ -1405,12 +1408,12 @@ button.btn-guinda{
   font-weight:900;
   text-transform:uppercase;
   letter-spacing:.2px;
-  box-shadow:0 16px 30px rgba(151,5,30,.22)!important;
+  box-shadow:0 16px 30px rgba(var(--SgceGuindaRGB),.22)!important;
 }
 .BtnPrincipal:hover{
   transform:translateY(-2px);
   filter:brightness(1.03);
-  box-shadow:0 20px 38px rgba(151,5,30,.30)!important;
+  box-shadow:0 20px 38px rgba(var(--SgceGuindaRGB),.30)!important;
 }
 .AvisoPrivacidad{
   display:flex;
@@ -1502,7 +1505,7 @@ button.btn-guinda{
 
 /* Avisos y comunicados */
 .AvisosBody{
-  background:radial-gradient(circle at top left,rgba(151,5,30,.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
+  background:radial-gradient(circle at top left,rgba(var(--SgceGuindaRGB),.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
 }
 .AvisosWrap{
   width:min(100% - 34px,1360px);
@@ -1551,7 +1554,7 @@ button.btn-guinda{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(151,5,30,.10)!important;
+  background:rgba(var(--SgceGuindaRGB),.10)!important;
   color:var(--SgceGuinda)!important;
   font-size:1.15rem;
 }
@@ -1715,7 +1718,7 @@ button.btn-guinda{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:linear-gradient(135deg, rgba(151,5,30,.12), rgba(151,5,30,.20));
+  background:linear-gradient(135deg, rgba(var(--SgceGuindaRGB),.12), rgba(var(--SgceGuindaRGB),.20));
   color:var(--SgceGuinda);
   font-size:1.25rem;
 }
@@ -1892,7 +1895,7 @@ button.btn-guinda{
   height:9px;
   border-radius:999px;
   background:var(--SgceGuinda);
-  box-shadow:0 0 0 4px rgba(151,5,30,.08);
+  box-shadow:0 0 0 4px rgba(var(--SgceGuindaRGB),.08);
 }
 .SgceUsersCreateCard,
 .SgceUsersTableCard{
@@ -1924,8 +1927,8 @@ button.btn-guinda{
 .SgceUsersFilterBar .form-select:focus,
 .SgceUsersTable .form-control:focus,
 .SgceUsersTable .form-select:focus{
-  border-color:rgba(151,5,30,.42)!important;
-  box-shadow:0 0 0 4px rgba(151,5,30,.08)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.42)!important;
+  box-shadow:0 0 0 4px rgba(var(--SgceGuindaRGB),.08)!important;
 }
 .SgceUsersCreateForm .form-label{
   font-weight:800;
@@ -2497,13 +2500,13 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   border:0!important;
   font-size:.88rem!important;
   font-weight:900!important;
-  box-shadow:0 14px 28px rgba(151,5,30,.20)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20)!important;
   transition:.2s ease!important;
 }
 .BtnTeacherPrimary:hover{
   transform:translateY(-1px);
   filter:brightness(.97);
-  box-shadow:0 18px 32px rgba(151,5,30,.26)!important;
+  box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.26)!important;
 }
 .BtnTeacherPrimary i{
   color:#fff!important;
@@ -2631,12 +2634,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   box-shadow:0 16px 28px rgba(37,99,235,.30)!important;
 }
 #TableMaestros .ActionBtn.BtnTeacherDelete{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(164,5,34,.24)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 #TableMaestros .ActionBtn.BtnTeacherDelete:hover{
-  box-shadow:0 16px 28px rgba(164,5,34,.32)!important;
+  box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 @media(max-width:1199px){
   .MaestrosTableCard{min-height:540px!important}
@@ -2826,12 +2829,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   box-shadow:0 16px 28px rgba(37,99,235,.30)!important;
 }
 #TableGrupos .ActionBtn.BtnGroupDelete{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(164,5,34,.24)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 #TableGrupos .ActionBtn.BtnGroupDelete:hover{
-  box-shadow:0 16px 28px rgba(164,5,34,.32)!important;
+  box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 @media(max-width:1199px){
   .GruposTableCard{min-height:540px!important}
@@ -2916,13 +2919,13 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   border:0!important;
   font-size:.88rem!important;
   font-weight:900!important;
-  box-shadow:0 14px 28px rgba(151,5,30,.20)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20)!important;
   transition:.2s ease!important;
 }
 .BtnStudentPrimary:hover{
   transform:translateY(-1px);
   filter:brightness(.99) saturate(1.04);
-  box-shadow:0 18px 32px rgba(151,5,30,.28)!important;
+  box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.28)!important;
 }
 .AlumnosTableCard{
   min-height:568px!important;
@@ -3048,12 +3051,17 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   margin:0!important;
 }
 #TableAlumnos .ActionBtn.BtnStudentFile{
-  background:linear-gradient(135deg,#C2410C 0%,#F97316 48%,#FDBA74 100%)!important;
+  background:linear-gradient(135deg,#7C2D12 0%,#C2410C 46%,#EA580C 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(249,115,22,.24)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.28)!important;
+  box-shadow:0 12px 22px rgba(194,65,12,.28), inset 0 1px 0 rgba(255,255,255,.34)!important;
 }
 #TableAlumnos .ActionBtn.BtnStudentFile:hover{
-  box-shadow:0 16px 28px rgba(249,115,22,.34)!important;
+  box-shadow:0 16px 30px rgba(194,65,12,.38), inset 0 1px 0 rgba(255,255,255,.38)!important;
+}
+#TableAlumnos .ActionBtn.BtnStudentFile i,
+#TableAlumnos .ActionBtn.BtnStudentFile span{
+  color:#fff!important;
 }
 #TableAlumnos .ActionBtn.BtnStudentEdit{
   background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;
@@ -3064,12 +3072,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   box-shadow:0 16px 28px rgba(37,99,235,.30)!important;
 }
 #TableAlumnos .ActionBtn.BtnStudentDelete{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(164,5,34,.24)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 #TableAlumnos .ActionBtn.BtnStudentDelete:hover{
-  box-shadow:0 16px 28px rgba(164,5,34,.32)!important;
+  box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 @media(max-width:1199px){
   .AlumnosTableCard{min-height:540px!important}
@@ -3107,7 +3115,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
     content:"";
     position:absolute;
     inset:0;
-    background:radial-gradient(circle at 12% 8%,rgba(151,5,30,.06),transparent 32%),radial-gradient(circle at 90% 0,rgba(59,130,246,.055),transparent 30%);
+    background:radial-gradient(circle at 12% 8%,rgba(var(--SgceGuindaRGB),.06),transparent 32%),radial-gradient(circle at 90% 0,rgba(59,130,246,.055),transparent 30%);
     pointer-events:none;
 }
 .DashboardAccessPanel>* ,
@@ -3187,9 +3195,9 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
     padding:14px;
     margin-bottom:14px;
     border-radius:20px;
-    background:linear-gradient(135deg,#97051E,#B8072A);
+    background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuindaOscuro));
     color:#fff;
-    box-shadow:0 16px 32px rgba(151,5,30,.18);
+    box-shadow:0 16px 32px rgba(var(--SgceGuindaRGB),.18);
     overflow:hidden;
     position:relative;
 }
@@ -3309,7 +3317,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 .KpiBlue{--KpiColor:#2563EB;--KpiSoft:rgba(37,99,235,.12)}
 .KpiGreen{--KpiColor:#079455;--KpiSoft:rgba(7,148,85,.13)}
 .KpiOrange{--KpiColor:#F59E0B;--KpiSoft:rgba(245,158,11,.16)}
-.KpiWine{--KpiColor:#97051E;--KpiSoft:rgba(151,5,30,.12)}
+.KpiWine{--KpiColor:var(--SgceGuinda);--KpiSoft:rgba(var(--SgceGuindaRGB),.12)}
 .KpiRed{--KpiColor:#E11D48;--KpiSoft:rgba(225,29,72,.12)}
 .KpiPurple{--KpiColor:#7C3AED;--KpiSoft:rgba(124,58,237,.13)}
 .DashboardRiskRow{margin-top:0!important}
@@ -3409,11 +3417,11 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   justify-content:center!important;
   gap:9px!important;
   border:0!important;
-  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
   font-size:.9rem!important;
   font-weight:900!important;
-  box-shadow:0 14px 28px rgba(164,5,34,.22)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
   transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;
 }
 .BtnAsignacionPrimary::before{
@@ -3433,7 +3441,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 .BtnAsignacionPrimary:hover{
   transform:translateY(-1px)!important;
   filter:saturate(1.07) brightness(1.03)!important;
-  box-shadow:0 18px 32px rgba(164,5,34,.30)!important;
+  box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.30)!important;
 }
 .AsignacionesTableCard .d-flex.justify-content-between.align-items-center{
   flex:0 0 auto!important;
@@ -3550,12 +3558,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   box-shadow:0 16px 28px rgba(37,99,235,.30)!important;
 }
 #TableAsig .ActionBtn.BtnAsignacionDelete{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(164,5,34,.24)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 #TableAsig .ActionBtn.BtnAsignacionDelete:hover{
-  box-shadow:0 16px 28px rgba(164,5,34,.32)!important;
+  box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 @media(max-width:1199px){
   .AsignacionesTableCard{min-height:640px!important;max-height:none!important}
@@ -3624,7 +3632,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   pointer-events:none;
 }
 #asignaciones .BtnAsignacionEdit{background:linear-gradient(135deg,#2563EB,#3B82F6 55%,#60A5FA)!important;}
-#asignaciones .BtnAsignacionDelete{background:linear-gradient(135deg,#97051E,#B70B2A 55%,#E11D48)!important;}
+#asignaciones .BtnAsignacionDelete{background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuindaOscuro) 55%,#E11D48)!important;}
 #asignaciones .BtnAsignacionEdit i,
 #asignaciones .BtnAsignacionEdit span,
 #asignaciones .BtnAsignacionDelete i,
@@ -3779,10 +3787,10 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   margin:0!important;
 }
 .BtnExpedienteLoad{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
-  box-shadow:0 14px 28px rgba(164,5,34,.22)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
 }
-.BtnExpedienteLoad:hover{box-shadow:0 18px 34px rgba(164,5,34,.30)!important}
+.BtnExpedienteLoad:hover{box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.30)!important}
 .BtnExpedienteClean{
   background:linear-gradient(135deg,#991B1B 0%,#DC2626 48%,#FB7185 100%)!important;
   box-shadow:0 14px 28px rgba(220,38,38,.20)!important;
@@ -3793,11 +3801,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   min-height:38px!important;
   height:38px!important;
   padding:9px 16px!important;
-  background:linear-gradient(135deg,#C2410C 0%,#F97316 48%,#FDBA74 100%)!important;
-  box-shadow:0 12px 22px rgba(249,115,22,.24)!important;
+  background:linear-gradient(135deg,#7C2D12 0%,#C2410C 48%,#EA580C 100%)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.28)!important;
+  box-shadow:0 12px 22px rgba(194,65,12,.28), inset 0 1px 0 rgba(255,255,255,.34)!important;
   font-size:.78rem!important;
 }
-.BtnExpedienteOpen:hover{box-shadow:0 16px 28px rgba(249,115,22,.34)!important}
+.BtnExpedienteOpen:hover{box-shadow:0 16px 30px rgba(194,65,12,.38), inset 0 1px 0 rgba(255,255,255,.38)!important}
 .ExpedientesEmptyState{
   flex:1 1 auto!important;
   min-height:300px!important;
@@ -3836,11 +3845,12 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   display:flex!important;
   align-items:center!important;
   gap:8px!important;
-  color:#E11D48!important;
+  color:var(--SgceGuinda)!important;
   font-weight:900!important;
 }
-.ExpedientesSelectedGroup span{color:#64748B!important}
-.ExpedientesSelectedGroup strong{color:#E11D48!important}
+.ExpedientesSelectedGroup i{color:var(--SgceGuinda)!important}
+.ExpedientesSelectedGroup span{color:var(--SgceTextoSuave)!important}
+.ExpedientesSelectedGroup strong{color:var(--SgceGuinda)!important}
 .ExpedientesSearch{max-width:360px!important;min-width:280px!important}
 .ExpedientesTableWrap{
   flex:1 1 auto!important;
@@ -3990,15 +4000,15 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave:hover{
 }
 .SgceUsersPage .SgceUsersTable .BtnDisable,
 body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
-  box-shadow:0 12px 22px rgba(164,5,34,.24)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;
 }
 .SgceUsersPage .SgceUsersTable .BtnDisable:hover,
 body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable:hover{
   transform:translateY(-1px)!important;
   filter:saturate(1.08) brightness(1.02)!important;
-  box-shadow:0 16px 28px rgba(164,5,34,.32)!important;
+  box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 .SgceUsersPage .SgceUsersTable .BtnReactivate,
 body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
@@ -4107,10 +4117,10 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   width:100%!important;
 }
 .SgceUserDisableModal .BtnConfirmDelete{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;
   color:#fff!important;
   border:0!important;
-  box-shadow:0 14px 28px rgba(164,5,34,.25)!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.25)!important;
 }
 .SgceUserDisableModal .BtnConfirmDelete:hover{
   filter:saturate(1.08) brightness(1.02)!important;
@@ -4129,9 +4139,9 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   min-height:126px;
   border-radius:24px;
   padding:28px 34px;
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 45%,#B60B2D 100%);
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 45%,var(--SgceGuinda) 100%);
   color:#fff;
-  box-shadow:0 24px 45px rgba(122,0,22,.20);
+  box-shadow:0 24px 45px rgba(var(--SgceGuindaRGB),.20);
 }
 .SgceReportsPage .ReportHeroTitle{
   display:flex;
@@ -4181,7 +4191,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   position:absolute;
   inset:0 0 auto 0;
   height:6px;
-  background:linear-gradient(90deg,var(--ReportAccent,#A40522),rgba(255,255,255,0));
+  background:linear-gradient(90deg,var(--ReportAccent,var(--SgceGuinda)),rgba(255,255,255,0));
   opacity:.82;
 }
 .SgceReportsPage .SgceReportCardHead{
@@ -4199,7 +4209,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   display:grid;
   place-items:center;
   flex:0 0 auto;
-  color:var(--ReportAccent,#A40522);
+  color:var(--ReportAccent,var(--SgceGuinda));
   background:var(--ReportAccentBg,#FCE7EF);
   font-size:1.25rem;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
@@ -4207,7 +4217,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
 .SgceReportsPage .SgceReportCardHead h5{
   margin:0;
   text-transform:uppercase;
-  color:#7A0016;
+  color:var(--SgceGuindaOscuro);
   font-weight:950;
   letter-spacing:.02em;
 }
@@ -4270,8 +4280,8 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
 }
 .SgceReportsPage .form-control:focus,
 .SgceReportsPage .form-select:focus{
-  border-color:#A40522;
-  box-shadow:0 0 0 .18rem rgba(164,5,34,.11);
+  border-color:var(--SgceGuinda);
+  box-shadow:0 0 0 .18rem rgba(var(--SgceGuindaRGB),.11);
 }
 .SgceReportsPage .SgceReportBtn{
   min-height:44px;
@@ -4289,7 +4299,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   margin-top:auto;
   position:relative;
   overflow:hidden;
-  box-shadow:0 14px 28px rgba(164,5,34,.20);
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20);
   transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
 }
 .SgceReportsPage .SgceReportBtn::before{
@@ -4319,7 +4329,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
 .SgceReportsPage .SgceReportBtn i,
 .SgceReportsPage .SgceReportBtn span{position:relative;z-index:1;}
 .SgceReportsPage .BtnReportExport{
-  background:linear-gradient(135deg,#7A0016 0%,#A40522 48%,#D61F3C 100%);
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%);
 }
 .SgceReportsPage .BtnReportSearch{
   background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 50%,#60A5FA 100%);
@@ -4479,7 +4489,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
 .BtnBack.BtnBoletaPdf{
   background:linear-gradient(135deg,#FFFFFF 0%,#FFF6F8 100%)!important;
   color:var(--SgceGuindaOscuro)!important;
-  border:1.5px solid rgba(151,5,30,.18)!important;
+  border:1.5px solid rgba(var(--SgceGuindaRGB),.18)!important;
   box-shadow:0 10px 24px rgba(0,0,0,.14)!important;
   filter:none!important;
   transform:translateZ(0);
@@ -4491,8 +4501,8 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
 .BtnBack.BtnBoletaPdf:hover{
   background:linear-gradient(135deg,#FFFFFF 0%,#FCE8ED 100%)!important;
   color:var(--SgceGuindaOscuro)!important;
-  border-color:rgba(151,5,30,.34)!important;
-  box-shadow:0 16px 32px rgba(151,5,30,.18)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.34)!important;
+  box-shadow:0 16px 32px rgba(var(--SgceGuindaRGB),.18)!important;
   transform:scale(1.025)!important;
   filter:none!important;
 }
@@ -4502,8 +4512,8 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
 .BtnBack.BtnBoletaPdf:active{
   background:linear-gradient(135deg,#FFFFFF 0%,#FCE8ED 100%)!important;
   color:var(--SgceGuindaOscuro)!important;
-  border-color:rgba(151,5,30,.38)!important;
-  box-shadow:0 0 0 .22rem rgba(151,5,30,.12),0 14px 28px rgba(151,5,30,.16)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.38)!important;
+  box-shadow:0 0 0 .22rem rgba(var(--SgceGuindaRGB),.12),0 14px 28px rgba(var(--SgceGuindaRGB),.16)!important;
   transform:scale(1.015)!important;
   filter:none!important;
 }
@@ -4538,7 +4548,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
 .BtnExpedienteFilter{
   min-height:50px!important;
   background:linear-gradient(135deg,#8A0019 0%,#B00022 52%,#C8102E 100%)!important;
-  box-shadow:0 14px 26px rgba(151,5,30,.20)!important;
+  box-shadow:0 14px 26px rgba(var(--SgceGuindaRGB),.20)!important;
   position:relative;
   overflow:hidden;
 }
@@ -5006,7 +5016,8 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   background:linear-gradient(135deg,#15803D,#22C55E)!important;
 }
 .ExportCalifPdf,.ExportAsisPdf{
-  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  background:linear-gradient(135deg,#7A0818,#B40024,#DC2626)!important;
+  box-shadow:0 10px 22px rgba(180,0,36,.20)!important;
 }
 .MaestroExportGrid .BtnExport:hover{
   transform:translateY(-1px);
@@ -5164,9 +5175,8 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
 }
 
 /* =========================================================
-   BOTON UNICO: VOLVER AL INICIO - VERSION METALICA PRO
-   Reescrito para que se vea igual en todas las paginas.
-   No depende de BtnBack, btn, ActionBtn ni estilos locales.
+   BOTON UNICO: VOLVER AL INICIO
+   Estilo global para navegación consistente en el sistema.
    ========================================================= */
 a.SgceBtnVolverInicio,
 button.SgceBtnVolverInicio,
@@ -5273,9 +5283,9 @@ button.SgceBtnVolverInicio i,
   min-width:22px!important;
   padding:0!important;
   margin:0!important;
-  border:1px solid rgba(151,5,30,.12)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.12)!important;
   border-radius:999px!important;
-  background:linear-gradient(145deg,rgba(151,5,30,.10),rgba(151,5,30,.03))!important;
+  background:linear-gradient(145deg,rgba(var(--SgceGuindaRGB),.10),rgba(var(--SgceGuindaRGB),.03))!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
   font-family:'Font Awesome 6 Free'!important;
   font-size:.74rem!important;
@@ -5310,7 +5320,7 @@ button.SgceBtnVolverInicio:hover,
     inset 0 1px 0 rgba(255,255,255,1),
     inset 0 -1px 0 rgba(75,75,85,.18),
     0 0 0 3px rgba(255,255,255,.30),
-    0 0 0 6px rgba(151,5,30,.10),
+    0 0 0 6px rgba(var(--SgceGuindaRGB),.10),
     0 15px 34px rgba(79,6,16,.26)!important;
 }
 a.SgceBtnVolverInicio:hover::after,
@@ -5324,7 +5334,7 @@ button.SgceBtnVolverInicio:hover i,
 .BtnBack.SgceBtnVolverInicio:hover i{
   color:#fff!important;
   background:linear-gradient(145deg,var(--SgceGuinda),var(--SgceGuindaOscuro))!important;
-  box-shadow:0 7px 14px rgba(151,5,30,.22),inset 0 1px 0 rgba(255,255,255,.22)!important;
+  box-shadow:0 7px 14px rgba(var(--SgceGuindaRGB),.22),inset 0 1px 0 rgba(255,255,255,.22)!important;
 }
 a.SgceBtnVolverInicio:focus-visible,
 button.SgceBtnVolverInicio:focus-visible,
@@ -5332,7 +5342,7 @@ button.SgceBtnVolverInicio:focus-visible,
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
     0 0 0 4px rgba(255,255,255,.55),
-    0 0 0 7px rgba(151,5,30,.22),
+    0 0 0 7px rgba(var(--SgceGuindaRGB),.22),
     0 15px 34px rgba(79,6,16,.24)!important;
 }
 a.SgceBtnVolverInicio:active,
@@ -5474,7 +5484,7 @@ button.SgceBtnVolverInicio:active,
 }
 .MaestroEmptyClose:hover{
   transform:scale(1.06)!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   box-shadow:0 12px 24px rgba(15,23,42,.12),0 0 0 4px rgba(8,145,178,.08)!important;
 }
 .MaestroEmptyClose:active{
@@ -5503,18 +5513,18 @@ button.SgceBtnVolverInicio:active,
 .MaestroAvisosPanel{
   position:relative!important;
   overflow:hidden!important;
-  border:1px solid rgba(159,0,27,.08)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.08)!important;
   box-shadow:0 22px 46px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.92)!important;
   background:
     linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,255,255,.92)),
-    radial-gradient(circle at 4% 0%,rgba(159,0,27,.10),transparent 34%)!important;
+    radial-gradient(circle at 4% 0%,rgba(var(--SgceGuindaRGB),.10),transparent 34%)!important;
 }
 .MaestroAvisosPanel::before{
   content:"";
   position:absolute;
   inset:0 0 auto 0;
   height:4px;
-  background:linear-gradient(90deg,#9F001B,#EF3340,#9F001B);
+  background:linear-gradient(90deg,var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuinda));
   opacity:.95;
 }
 .MaestroAvisosHeader{
@@ -5539,12 +5549,12 @@ button.SgceBtnVolverInicio:active,
   justify-content:center!important;
   border-radius:12px!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#9F001B,#B50B2A)!important;
-  box-shadow:0 12px 24px rgba(159,0,27,.22), inset 0 1px 0 rgba(255,255,255,.28)!important;
+  background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda))!important;
+  box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.22), inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
 .MaestroAvisosEyebrow{
   display:block!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.68rem!important;
   font-weight:800!important;
   text-transform:uppercase!important;
@@ -5554,7 +5564,7 @@ button.SgceBtnVolverInicio:active,
 }
 .MaestroAvisosHeader h5{
   margin:0!important;
-  color:#8D0018!important;
+  color:var(--SgceGuindaOscuro)!important;
   font-size:1.18rem!important;
   font-weight:850!important;
   text-transform:uppercase!important;
@@ -5567,12 +5577,12 @@ button.SgceBtnVolverInicio:active,
   min-height:34px!important;
   padding:0 14px!important;
   border-radius:999px!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.74rem!important;
   font-weight:800!important;
   text-transform:uppercase!important;
   background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(248,250,252,.86))!important;
-  border:1px solid rgba(159,0,27,.10)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.10)!important;
   box-shadow:0 10px 22px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95)!important;
   white-space:nowrap!important;
 }
@@ -5587,14 +5597,14 @@ button.SgceBtnVolverInicio:active,
   border-radius:18px!important;
   background:
     linear-gradient(135deg,rgba(248,250,252,.98),rgba(255,255,255,.98)),
-    radial-gradient(circle at 0 0,rgba(159,0,27,.06),transparent 36%)!important;
+    radial-gradient(circle at 0 0,rgba(var(--SgceGuindaRGB),.06),transparent 36%)!important;
   border:1px solid rgba(100,116,139,.16)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.88)!important;
   transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease!important;
 }
 .MaestroAvisoItem:hover{
   transform:translateY(-2px)!important;
-  border-color:rgba(159,0,27,.18)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.18)!important;
   box-shadow:0 18px 32px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 .MaestroAvisoItemIcon{
@@ -5606,8 +5616,8 @@ button.SgceBtnVolverInicio:active,
   align-items:center!important;
   justify-content:center!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#9F001B,#B50B2A)!important;
-  box-shadow:0 14px 24px rgba(159,0,27,.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
+  background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
 }
 .MaestroAvisoItemBody{min-width:0!important;}
 .MaestroAvisoItemBody h6{
@@ -5627,7 +5637,7 @@ button.SgceBtnVolverInicio:active,
   font-weight:600!important;
   margin-bottom:8px!important;
 }
-.MaestroAvisoFecha i{color:#9F001B!important;}
+.MaestroAvisoFecha i{color:var(--SgceGuinda)!important;}
 .MaestroAvisoItemBody p{
   margin:0!important;
   color:#334155!important;
@@ -5692,10 +5702,10 @@ button.SgceBtnVolverInicio:active,
   overflow:hidden!important;
   padding:26px!important;
   border-radius:26px!important;
-  border:1px solid rgba(159,0,27,.09)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.09)!important;
   background:
     linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,255,255,.92)),
-    radial-gradient(circle at 4% 0%,rgba(159,0,27,.10),transparent 36%)!important;
+    radial-gradient(circle at 4% 0%,rgba(var(--SgceGuindaRGB),.10),transparent 36%)!important;
   box-shadow:0 22px 46px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisosPanel::before{
@@ -5703,7 +5713,7 @@ button.SgceBtnVolverInicio:active,
   position:absolute;
   inset:0 0 auto 0;
   height:4px;
-  background:linear-gradient(90deg,#8D0018,#B50B2A,#EF3340,#B50B2A,#8D0018);
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuinda),var(--SgceGuindaOscuro));
   opacity:.95;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisosHeader{
@@ -5730,13 +5740,13 @@ button.SgceBtnVolverInicio:active,
   justify-content:center!important;
   border-radius:14px!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#8D0018,#B50B2A)!important;
-  box-shadow:0 14px 26px rgba(159,0,27,.24), inset 0 1px 0 rgba(255,255,255,.28)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 26px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisosEyebrow{
   display:block!important;
   margin-bottom:4px!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.68rem!important;
   font-weight:800!important;
   line-height:1!important;
@@ -5745,7 +5755,7 @@ button.SgceBtnVolverInicio:active,
 }
 .ConsultaPublicaBody .ConsultaPadresAvisosHeader h5{
   margin:0!important;
-  color:#8D0018!important;
+  color:var(--SgceGuindaOscuro)!important;
   font-size:1.18rem!important;
   font-weight:850!important;
   text-transform:uppercase!important;
@@ -5758,13 +5768,13 @@ button.SgceBtnVolverInicio:active,
   min-height:34px!important;
   padding:0 14px!important;
   border-radius:999px!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.74rem!important;
   font-weight:800!important;
   text-transform:uppercase!important;
   white-space:nowrap!important;
   background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(248,250,252,.88))!important;
-  border:1px solid rgba(159,0,27,.10)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.10)!important;
   box-shadow:0 10px 22px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95)!important;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisosGrid{
@@ -5788,7 +5798,7 @@ button.SgceBtnVolverInicio:active,
   border-radius:20px!important;
   background:
     linear-gradient(135deg,rgba(248,250,252,.98),rgba(255,255,255,.98)),
-    radial-gradient(circle at 0 0,rgba(159,0,27,.07),transparent 38%)!important;
+    radial-gradient(circle at 0 0,rgba(var(--SgceGuindaRGB),.07),transparent 38%)!important;
   border:1px solid rgba(100,116,139,.16)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.88)!important;
   transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease!important;
@@ -5804,7 +5814,7 @@ button.SgceBtnVolverInicio:active,
 }
 .ConsultaPublicaBody .ConsultaPadresAvisoItem:hover{
   transform:translateY(-2px)!important;
-  border-color:rgba(159,0,27,.20)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.20)!important;
   box-shadow:0 18px 34px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisoItem:hover::after{left:118%!important;}
@@ -5817,8 +5827,8 @@ button.SgceBtnVolverInicio:active,
   align-items:center!important;
   justify-content:center!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#9F001B,#B50B2A)!important;
-  box-shadow:0 14px 24px rgba(159,0,27,.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
+  background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
 }
 .ConsultaPublicaBody .ConsultaPadresAvisoItemBody{min-width:0!important;}
 .ConsultaPublicaBody .ConsultaPadresAvisoItemBody h6{
@@ -5838,7 +5848,7 @@ button.SgceBtnVolverInicio:active,
   font-weight:650!important;
   margin-bottom:8px!important;
 }
-.ConsultaPublicaBody .ConsultaPadresAvisoFecha i{color:#9F001B!important;}
+.ConsultaPublicaBody .ConsultaPadresAvisoFecha i{color:var(--SgceGuinda)!important;}
 .ConsultaPublicaBody .ConsultaPadresAvisoItemBody p{
   margin:0!important;
   color:#1F2937!important;
@@ -5860,7 +5870,7 @@ button.SgceBtnVolverInicio:active,
   position:absolute;
   inset:0 0 auto 0;
   height:3px;
-  background:linear-gradient(90deg,rgba(159,0,27,.75),rgba(239,51,64,.35),rgba(159,0,27,.75));
+  background:linear-gradient(90deg,rgba(var(--SgceGuindaRGB),.75),rgba(239,51,64,.35),rgba(var(--SgceGuindaRGB),.75));
 }
 .ConsultaPublicaBody .BtnPrincipal{
   position:relative!important;
@@ -5895,10 +5905,10 @@ button.SgceBtnVolverInicio:active,
   overflow:hidden!important;
   padding:26px!important;
   border-radius:26px!important;
-  border:1px solid rgba(159,0,27,.09)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.09)!important;
   background:
     linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,255,255,.92)),
-    radial-gradient(circle at 4% 0%,rgba(159,0,27,.10),transparent 36%)!important;
+    radial-gradient(circle at 4% 0%,rgba(var(--SgceGuindaRGB),.10),transparent 36%)!important;
   box-shadow:0 22px 46px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 .MaestroAvisosPanel::before{
@@ -5906,7 +5916,7 @@ button.SgceBtnVolverInicio:active,
   position:absolute!important;
   inset:0 0 auto 0!important;
   height:4px!important;
-  background:linear-gradient(90deg,#8D0018,#B50B2A,#EF3340,#B50B2A,#8D0018)!important;
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuinda),var(--SgceGuindaOscuro))!important;
   opacity:.95!important;
 }
 .MaestroAvisosHeader{
@@ -5933,13 +5943,13 @@ button.SgceBtnVolverInicio:active,
   justify-content:center!important;
   border-radius:14px!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#8D0018,#B50B2A)!important;
-  box-shadow:0 14px 26px rgba(159,0,27,.24), inset 0 1px 0 rgba(255,255,255,.28)!important;
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 26px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
 .MaestroAvisosEyebrow{
   display:block!important;
   margin-bottom:4px!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.68rem!important;
   font-weight:800!important;
   line-height:1!important;
@@ -5948,7 +5958,7 @@ button.SgceBtnVolverInicio:active,
 }
 .MaestroAvisosHeader h5{
   margin:0!important;
-  color:#8D0018!important;
+  color:var(--SgceGuindaOscuro)!important;
   font-size:1.18rem!important;
   font-weight:850!important;
   text-transform:uppercase!important;
@@ -5961,13 +5971,13 @@ button.SgceBtnVolverInicio:active,
   min-height:34px!important;
   padding:0 14px!important;
   border-radius:999px!important;
-  color:#9F001B!important;
+  color:var(--SgceGuinda)!important;
   font-size:.74rem!important;
   font-weight:800!important;
   text-transform:uppercase!important;
   white-space:nowrap!important;
   background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(248,250,252,.88))!important;
-  border:1px solid rgba(159,0,27,.10)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.10)!important;
   box-shadow:0 10px 22px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.95)!important;
 }
 .MaestroAvisosGrid{
@@ -5988,7 +5998,7 @@ button.SgceBtnVolverInicio:active,
   border-radius:20px!important;
   background:
     linear-gradient(135deg,rgba(248,250,252,.98),rgba(255,255,255,.98)),
-    radial-gradient(circle at 0 0,rgba(159,0,27,.07),transparent 38%)!important;
+    radial-gradient(circle at 0 0,rgba(var(--SgceGuindaRGB),.07),transparent 38%)!important;
   border:1px solid rgba(100,116,139,.16)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.88)!important;
   transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease!important;
@@ -6004,7 +6014,7 @@ button.SgceBtnVolverInicio:active,
 }
 .MaestroAvisoItem:hover{
   transform:translateY(-2px)!important;
-  border-color:rgba(159,0,27,.20)!important;
+  border-color:rgba(var(--SgceGuindaRGB),.20)!important;
   box-shadow:0 18px 34px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 .MaestroAvisoItem:hover::after{left:118%!important;}
@@ -6017,8 +6027,8 @@ button.SgceBtnVolverInicio:active,
   align-items:center!important;
   justify-content:center!important;
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#9F001B,#B50B2A)!important;
-  box-shadow:0 14px 24px rgba(159,0,27,.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
+  background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.20), inset 0 1px 0 rgba(255,255,255,.24)!important;
 }
 .MaestroAvisoItemBody{min-width:0!important;}
 .MaestroAvisoItemBody h6{
@@ -6038,7 +6048,7 @@ button.SgceBtnVolverInicio:active,
   font-weight:650!important;
   margin-bottom:8px!important;
 }
-.MaestroAvisoFecha i{color:#9F001B!important;}
+.MaestroAvisoFecha i{color:var(--SgceGuinda)!important;}
 .MaestroAvisoItemBody p{
   margin:0!important;
   color:#1F2937!important;
@@ -6054,15 +6064,15 @@ button.SgceBtnVolverInicio:active,
 }
 
 /* ============================================================
-   SGCE FINAL FINAL - Instalador y configuración institucional
+   SGCE - Instalador y configuración institucional
    ============================================================ */
 .SgceInstallerSectionTitle{
     margin:18px 0 4px;
     padding:10px 14px;
     border-radius:16px;
-    color:#7A0818;
+    color:var(--SgceGuinda);
     background:linear-gradient(135deg,#fff,#fff7f8 42%,#f3f6fb);
-    border:1px solid rgba(122,8,24,.12);
+    border:1px solid rgba(var(--SgceGuindaRGB),.12);
     font-size:15px;
     font-weight:800;
     letter-spacing:.02em;
@@ -6090,7 +6100,7 @@ button.SgceBtnVolverInicio:active,
     position:absolute;
     inset:0 0 auto 0;
     height:4px;
-    background:linear-gradient(90deg,#7A0818,#B31633,#7A0818);
+    background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaOscuro));
 }
 .SgceConfigCardWide{grid-row:span 2;}
 .SgceConfigHead{
@@ -6106,10 +6116,10 @@ button.SgceBtnVolverInicio:active,
     display:grid;
     place-items:center;
     color:#fff;
-    background:linear-gradient(145deg,#7A0818,#B31633);
-    box-shadow:0 14px 24px rgba(122,8,24,.25);
+    background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
+    box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.25);
 }
-.SgceConfigHead h2{margin:0;color:#7A0818;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:.02em;}
+.SgceConfigHead h2{margin:0;color:var(--SgceGuinda);font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:.02em;}
 .SgceConfigHead p{margin:2px 0 0;color:#64748b;font-size:13px;font-weight:600;}
 .SgceConfigActions{
     grid-column:1/-1;
@@ -6119,7 +6129,7 @@ button.SgceBtnVolverInicio:active,
     gap:16px;
     background:linear-gradient(135deg,#fff,#fff7f8 38%,#eef6ff);
 }
-.SgceConfigActions strong{display:block;color:#7A0818;font-size:16px;font-weight:900;}
+.SgceConfigActions strong{display:block;color:var(--SgceGuinda);font-size:16px;font-weight:900;}
 .SgceConfigActions span{display:block;color:#64748b;font-size:13px;font-weight:600;margin-top:3px;}
 .SgceConfigSave{
     border:0;
@@ -6168,7 +6178,7 @@ button.SgceBtnVolverInicio:active,
     display:grid!important;
     place-items:center!important;
     background:rgba(255,255,255,.72)!important;
-    color:#7A0818!important;
+    color:var(--SgceGuinda)!important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 8px 20px rgba(15,23,42,.08)!important;
     cursor:pointer!important;
     pointer-events:auto!important;
@@ -6177,7 +6187,7 @@ button.SgceBtnVolverInicio:active,
 .SgceInstallerAlertClose:hover{
     transform:translateY(-50%) scale(1.08)!important;
     background:#fff!important;
-    box-shadow:0 10px 24px rgba(122,8,24,.18)!important;
+    box-shadow:0 10px 24px rgba(var(--SgceGuindaRGB),.18)!important;
 }
 .SgceInstallerAlertClose:active{
     transform:translateY(-50%) scale(.94)!important;
@@ -6199,4 +6209,2097 @@ button.SgceBtnVolverInicio:active,
 }
 .SgceInstallerPage input:valid:not(:placeholder-shown){
     border-color:rgba(22,163,74,.34)!important;
+}
+
+
+/* Selector de color institucional */
+.SgceColorControl{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid #E2E8F0;border-radius:15px;padding:6px 12px;min-height:46px;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.SgceColorControl input[type="color"]{width:58px!important;height:34px!important;min-height:34px!important;padding:0!important;border:0!important;border-radius:12px!important;background:transparent!important;cursor:pointer;box-shadow:none!important}
+.SgceColorControl input[type="color"]::-webkit-color-swatch-wrapper{padding:0;border-radius:12px}
+.SgceColorControl input[type="color"]::-webkit-color-swatch{border:0;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(15,23,42,.16)}
+.SgceColorControl input[type="color"]::-moz-color-swatch{border:0;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(15,23,42,.16)}
+.SgceColorControl span{font-weight:900;color:var(--SgceGuindaOscuro);letter-spacing:.04em}
+
+
+/* ============================================================
+   SGCE - Tema institucional consistente
+   Este bloque consolida el color elegido en Configuración para
+   paneles, reportes, iconos de dashboard, avisos y botones.
+   ============================================================ */
+.DashboardModuleBlue,
+.DashboardModuleWine,
+.DashboardModuleGridPro .DashboardModuleCard{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18)!important;
+}
+.DashboardModuleGridPro .DashboardModuleCard:hover{
+  box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)!important;
+}
+.KpiBlue,.KpiGreen,.KpiOrange,.KpiWine,.KpiRed,.KpiPurple{
+  --KpiColor:var(--SgceGuinda);
+  --KpiSoft:rgba(var(--SgceGuindaRGB),.12);
+}
+.SgceReportsPage .ReportHero{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 58%,var(--SgceGuindaOscuro) 100%)!important;
+  box-shadow:0 24px 45px rgba(var(--SgceGuindaRGB),.22)!important;
+}
+.SgceReportsPage .AccentRed,
+.SgceReportsPage .AccentBlue,
+.SgceReportsPage .AccentGreen,
+.SgceReportsPage .AccentOrange{
+  --ReportAccent:var(--SgceGuinda);
+  --ReportAccentBg:var(--SgceGuindaSuave);
+}
+.SgceReportsPage .SgceReportCardHead h5,
+.SgceReportsPage .SgceFormField label{
+  color:var(--SgceGuindaOscuro)!important;
+}
+.SgceReportsPage .form-control:focus,
+.SgceReportsPage .form-select:focus{
+  border-color:var(--SgceGuinda)!important;
+  box-shadow:0 0 0 .18rem rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.SgceReportsPage .BtnReportExport,
+.SgceReportsPage .BtnReportSearch,
+.SgceReportsPage .SgceReportBtn{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
+}
+.MaestroAvisosPanel,
+.ConsultaPublicaBody .ConsultaPadresAvisosPanel{
+  border-color:rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.MaestroAvisosPanel::before,
+.ConsultaPublicaBody .ConsultaPadresAvisosPanel::before{
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuinda),var(--SgceGuindaOscuro))!important;
+}
+.MaestroAvisosIcon,
+.MaestroAvisoItemIcon,
+.ConsultaPublicaBody .ConsultaPadresAvisosIcon,
+.ConsultaPublicaBody .ConsultaPadresAvisoItemIcon{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.22), inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+.MaestroAvisosEyebrow,
+.MaestroAvisosHeader h5,
+.MaestroAvisosBadge,
+.MaestroAvisoFecha i,
+.ConsultaPublicaBody .ConsultaPadresAvisosEyebrow,
+.ConsultaPublicaBody .ConsultaPadresAvisosHeader h5,
+.ConsultaPublicaBody .ConsultaPadresAvisosBadge,
+.ConsultaPublicaBody .ConsultaPadresAvisoFecha i{
+  color:var(--SgceGuinda)!important;
+}
+.MaestroAvisoItem:hover,
+.ConsultaPublicaBody .ConsultaPadresAvisoItem:hover{
+  border-color:rgba(var(--SgceGuindaRGB),.20)!important;
+}
+.SgceConfigHead>span{
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24)!important;
+}
+.SgceInstallerSectionTitle{
+  border-color:rgba(var(--SgceGuindaRGB),.12)!important;
+}
+
+/* ============================================================
+   SGCE v1.0 - Diseño unificado de módulos administrativos
+   Aplica el mismo lenguaje visual de Configuración y Reportes:
+   tarjetas blancas, línea superior institucional, iconos compactos,
+   sombras suaves y tablas limpias.
+   ============================================================ */
+.SgceModuleWrap .card-custom,
+.SgceModuleWrap .Card,
+.SgceModuleWrap .SgceCard,
+.SgceModuleWrap .CardPanel,
+.SgceModuleWrap .SgcePeriodCard,
+.SgceModuleWrap .SgceRestoreCard,
+.SgceModuleWrap .SgceUsersCreateCard,
+.SgceModuleWrap .SgceUsersTableCard,
+.SgceModuleWrap .SgceBitacoraCard,
+.SgceModuleWrap .ExpedientesCard,
+.SgceModuleWrap .AsignacionesTableCard,
+.SgceModuleWrap .MaestrosSideCard,
+.SgceModuleWrap .MaestrosTableCard,
+.SgceModuleWrap .AlumnosTableCard,
+.SgceModuleWrap .GruposTableCard,
+.SgceModuleWrap .AvisosFormCard,
+.SgceModuleWrap .AvisosTableCard,
+.SgceModuleWrap .MainCard,
+.SgceModuleWrap .StatsCard,
+.SgceModuleWrap .CardClase,
+.ConsultaPublicaBody .ConsultaAvisosCard,
+.ConsultaPublicaBody .ConsultaCard,
+.ConsultaPublicaBody .ResultadoCard{
+  background:linear-gradient(145deg,rgba(255,255,255,.985),rgba(248,250,252,.96))!important;
+  border:1px solid rgba(148,163,184,.22)!important;
+  border-radius:24px!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.SgceModuleWrap .card-custom::before,
+.SgceModuleWrap .Card::before,
+.SgceModuleWrap .SgceCard::before,
+.SgceModuleWrap .CardPanel::before,
+.SgceModuleWrap .SgcePeriodCard::before,
+.SgceModuleWrap .SgceRestoreCard::before,
+.SgceModuleWrap .SgceUsersCreateCard::before,
+.SgceModuleWrap .SgceUsersTableCard::before,
+.SgceModuleWrap .SgceBitacoraCard::before,
+.SgceModuleWrap .ExpedientesCard::before,
+.SgceModuleWrap .AsignacionesTableCard::before,
+.SgceModuleWrap .MaestrosSideCard::before,
+.SgceModuleWrap .MaestrosTableCard::before,
+.SgceModuleWrap .AlumnosTableCard::before,
+.SgceModuleWrap .GruposTableCard::before,
+.SgceModuleWrap .AvisosFormCard::before,
+.SgceModuleWrap .AvisosTableCard::before,
+.SgceModuleWrap .MainCard::before,
+.SgceModuleWrap .StatsCard::before,
+.SgceModuleWrap .CardClase::before,
+.ConsultaPublicaBody .ConsultaAvisosCard::before,
+.ConsultaPublicaBody .ConsultaCard::before,
+.ConsultaPublicaBody .ResultadoCard::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0 0 auto 0!important;
+  height:4px!important;
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),rgba(var(--SgceGuindaRGB),.18),var(--SgceGuindaOscuro))!important;
+  pointer-events:none!important;
+  z-index:1!important;
+}
+.SgceModuleWrap .card-custom>*,
+.SgceModuleWrap .Card>*,
+.SgceModuleWrap .SgceCard>*,
+.SgceModuleWrap .CardPanel>*,
+.SgceModuleWrap .SgcePeriodCard>*,
+.SgceModuleWrap .SgceRestoreCard>*,
+.SgceModuleWrap .SgceUsersCreateCard>*,
+.SgceModuleWrap .SgceUsersTableCard>*,
+.SgceModuleWrap .SgceBitacoraCard>*,
+.SgceModuleWrap .ExpedientesCard>*,
+.SgceModuleWrap .AsignacionesTableCard>*,
+.SgceModuleWrap .MainCard>*,
+.SgceModuleWrap .CardClase>*,
+.ConsultaPublicaBody .ConsultaAvisosCard>*,
+.ConsultaPublicaBody .ConsultaCard>*,
+.ConsultaPublicaBody .ResultadoCard>*{
+  position:relative!important;
+  z-index:2!important;
+}
+.SgceModuleWrap .card-header-custom,
+.SgceModuleWrap .SgceCardHeaderLine,
+.SgceModuleWrap .SgceRestoreCardHead,
+.SgceModuleWrap .SgceUsersTableHeader h2,
+.SgceModuleWrap .SgceUsersCreateCard h2,
+.SgceModuleWrap .SgceBitacoraTitle,
+.SgceModuleWrap .ExpedientesTitleBlock,
+.SgceModuleWrap .AsignacionesHeaderCard h6,
+.ConsultaPublicaBody .ConsultaCard h4,
+.ConsultaPublicaBody .ResultadoCard h4,
+.ConsultaPublicaBody .ConsultaPadresAvisosTitleBlock{
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  color:var(--SgceGuindaOscuro)!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+}
+.SgceModuleWrap .card-header-custom,
+.SgceModuleWrap .AsignacionesHeaderCard{
+  background:transparent!important;
+  border:0!important;
+  padding:4px 0 16px!important;
+  margin-bottom:10px!important;
+}
+.SgceModuleWrap .card-header-custom i,
+.SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+.SgceModuleWrap .SgceRestoreCardHead .IconBox,
+.SgceModuleWrap .SgceUsersCreateCard h2>i,
+.SgceModuleWrap .SgceUsersTableHeader h2>i,
+.SgceModuleWrap .SgceBitacoraIcon,
+.SgceModuleWrap .ExpedientesTitleIcon,
+.SgceModuleWrap .AsignacionesHeaderCard h6>i,
+.ConsultaPublicaBody .ConsultaCard h4>i,
+.ConsultaPublicaBody .ResultadoCard h4>i,
+.ConsultaPublicaBody .ConsultaPadresAvisosIcon{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:17px!important;
+  display:grid!important;
+  place-items:center!important;
+  color:#fff!important;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.22)!important;
+  font-size:1.08rem!important;
+  margin:0!important;
+  line-height:1!important;
+}
+.SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon i,
+.SgceModuleWrap .SgceRestoreCardHead .IconBox i,
+.SgceModuleWrap .SgceBitacoraIcon i,
+.SgceModuleWrap .ExpedientesTitleIcon i,
+.ConsultaPublicaBody .ConsultaPadresAvisosIcon i{
+  color:#fff!important;
+}
+.SgceModuleWrap .card-header-custom,
+.SgceModuleWrap .card-header-custom *,
+.SgceModuleWrap .SgceCardHeaderLine h2,
+.SgceModuleWrap .SgceRestoreCardHead h4,
+.SgceModuleWrap .SgceUsersCreateCard h2,
+.SgceModuleWrap .SgceUsersTableHeader h2,
+.SgceModuleWrap .SgceBitacoraTitle h4,
+.SgceModuleWrap .ExpedientesTitleBlock h4,
+.SgceModuleWrap .AsignacionesHeaderCard h6,
+.ConsultaPublicaBody .ConsultaCard h4,
+.ConsultaPublicaBody .ResultadoCard h4,
+.ConsultaPublicaBody .ConsultaPadresAvisosHeader h5{
+  font-weight:900!important;
+  color:var(--SgceGuindaOscuro)!important;
+}
+.SgceModuleWrap .SgceCardHeaderLine p,
+.SgceModuleWrap .SgceRestoreCardHead p,
+.SgceModuleWrap .SgceBitacoraTitle p,
+.SgceModuleWrap .ExpedientesTitleBlock p,
+.ConsultaPublicaBody .ConsultaCard p,
+.ConsultaPublicaBody .ResultadoCard p,
+.ConsultaPublicaBody .ConsultaPadresAvisosEyebrow{
+  color:#64748B!important;
+  font-weight:650!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+.SgceModuleWrap .MaestrosTableTop h6,
+.SgceModuleWrap .GruposTableTop h6,
+.SgceModuleWrap .AlumnosTableTop h6{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  color:var(--SgceGuindaOscuro)!important;
+  font-size:1.05rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+}
+.SgceModuleWrap .MaestrosTableTop h6::before,
+.SgceModuleWrap .GruposTableTop h6::before,
+.SgceModuleWrap .AlumnosTableTop h6::before{
+  content:"\f0ca";
+  font-family:"Font Awesome 6 Free";
+  font-weight:900;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda));
+  box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.22);
+}
+.SgceModuleWrap .GruposTableTop h6::before{content:"\f0c0";}
+.SgceModuleWrap .AlumnosTableTop h6::before{content:"\f501";}
+.SgceModuleWrap .table thead th,
+.ConsultaPublicaBody .table thead th{
+  background:#F8FAFC!important;
+  color:#64748B!important;
+  border-bottom:1px solid rgba(148,163,184,.22)!important;
+  font-size:.72rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.04em!important;
+}
+.SgceModuleWrap .table tbody td,
+.ConsultaPublicaBody .table tbody td{
+  border-color:#EEF2F7!important;
+}
+.SgceModuleWrap .form-control:focus,
+.SgceModuleWrap .form-select:focus,
+.ConsultaPublicaBody .form-control:focus,
+.ConsultaPublicaBody .form-select:focus{
+  border-color:var(--SgceGuinda)!important;
+  box-shadow:0 0 0 .18rem rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.SgceModuleWrap .BtnPrimary,
+.SgceModuleWrap .ActionBtn,
+.SgceModuleWrap .BtnFilter,
+.ConsultaPublicaBody .ConsultaBtn{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
+  border:0!important;
+}
+.SgceModuleWrap .BtnPrimary:hover,
+.SgceModuleWrap .ActionBtn:hover,
+.SgceModuleWrap .BtnFilter:hover,
+.ConsultaPublicaBody .ConsultaBtn:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.06)!important;
+  box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.30)!important;
+}
+.SgceModuleWrap .BtnPrimary:active,
+.SgceModuleWrap .ActionBtn:active,
+.SgceModuleWrap .BtnFilter:active,
+.ConsultaPublicaBody .ConsultaBtn:active{
+  transform:scale(.98)!important;
+}
+.SgceModuleWrap .ActionDanger,
+.SgceModuleWrap .btn-danger{
+  background:linear-gradient(135deg,#8F111D,#DC2626)!important;
+  box-shadow:0 14px 28px rgba(220,38,38,.22)!important;
+}
+.SgceModuleWrap .ActionSuccess,
+.SgceModuleWrap .btn-success,
+.SgceModuleWrap .BtnExcel,
+.SgceModuleWrap .BtnAsistencia{
+  background:linear-gradient(135deg,#0E7A3A,#22C55E)!important;
+  box-shadow:0 14px 28px rgba(34,197,94,.22)!important;
+}
+.SgceModuleWrap .search-container .input-group-text,
+.SgceModuleWrap .SgceSearchBox i,
+.ConsultaPublicaBody .input-group-text{
+  color:var(--SgceGuinda)!important;
+}
+.SgceModuleWrap .badge:not(.bg-success):not(.bg-danger):not(.bg-warning):not(.bg-dark):not(.bg-secondary),
+.SgceModuleWrap .SgceCountPill,
+.SgceModuleWrap .MaestroAvisosBadge,
+.ConsultaPublicaBody .ConsultaPadresAvisosBadge{
+  background:var(--SgceGuindaSuave)!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard i{
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+}
+.SgceModuleWrap .CardClase .CardHeader{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+}
+.SgceModuleWrap .CardClase .CardIcon,
+.SgceModuleWrap .CardClase .MaestroCardIcon{
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+}
+@media(max-width:768px){
+  .SgceModuleWrap .card-header-custom i,
+  .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+  .SgceModuleWrap .SgceRestoreCardHead .IconBox,
+  .SgceModuleWrap .SgceUsersCreateCard h2>i,
+  .SgceModuleWrap .SgceUsersTableHeader h2>i,
+  .SgceModuleWrap .SgceBitacoraIcon,
+  .SgceModuleWrap .ExpedientesTitleIcon,
+  .SgceModuleWrap .AsignacionesHeaderCard h6>i,
+  .ConsultaPublicaBody .ConsultaCard h4>i,
+  .ConsultaPublicaBody .ResultadoCard h4>i,
+  .ConsultaPublicaBody .ConsultaPadresAvisosIcon{
+    width:42px!important;height:42px!important;min-width:42px!important;border-radius:15px!important;
+  }
+}
+
+/* ============================================================
+   SGCE v1.0.4 - Homologación definitiva del tema institucional
+   Todo módulo administrativo usa el mismo estilo visual de
+   Configuración y Centro de Reportes: tarjeta blanca, línea
+   superior institucional, iconos de bloque y acciones temáticas.
+   ============================================================ */
+.SgceModuleWrap .card-custom,
+.SgceModuleWrap .Card,
+.SgceModuleWrap .SgceCard,
+.SgceModuleWrap .CardPanel,
+.SgceModuleWrap .MainCard,
+.SgceModuleWrap .StatsCard,
+.SgceModuleWrap .DashboardAccessPanel,
+.SgceModuleWrap .DashboardSummaryPanel,
+.SgceModuleWrap .DashboardRiskPro,
+.SgceModuleWrap .SgcePeriodCard,
+.SgceModuleWrap .SgceRestoreCard,
+.SgceModuleWrap .SgceUsersCreateCard,
+.SgceModuleWrap .SgceUsersTableCard,
+.SgceModuleWrap .SgceBitacoraCard,
+.SgceModuleWrap .ExpedientesCard,
+.SgceModuleWrap .AsignacionesTableCard,
+.SgceModuleWrap .MaestrosSideCard,
+.SgceModuleWrap .MaestrosTableCard,
+.SgceModuleWrap .AlumnosSideCard,
+.SgceModuleWrap .AlumnosTableCard,
+.SgceModuleWrap .GruposSideCard,
+.SgceModuleWrap .GruposTableCard,
+.SgceModuleWrap .AvisosFormCard,
+.SgceModuleWrap .AvisosTableCard,
+.SgceModuleWrap .CardClase,
+.ConsultaPublicaBody .ConsultaAvisosCard,
+.ConsultaPublicaBody .ConsultaCard,
+.ConsultaPublicaBody .ResultadoCard{
+  background:linear-gradient(145deg,rgba(255,255,255,.985),rgba(248,250,252,.965))!important;
+  border:1px solid rgba(148,163,184,.22)!important;
+  border-radius:24px!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.SgceModuleWrap .card-custom::before,
+.SgceModuleWrap .Card::before,
+.SgceModuleWrap .SgceCard::before,
+.SgceModuleWrap .CardPanel::before,
+.SgceModuleWrap .MainCard::before,
+.SgceModuleWrap .StatsCard::before,
+.SgceModuleWrap .DashboardAccessPanel::before,
+.SgceModuleWrap .DashboardSummaryPanel::before,
+.SgceModuleWrap .DashboardRiskPro::before,
+.SgceModuleWrap .SgcePeriodCard::before,
+.SgceModuleWrap .SgceRestoreCard::before,
+.SgceModuleWrap .SgceUsersCreateCard::before,
+.SgceModuleWrap .SgceUsersTableCard::before,
+.SgceModuleWrap .SgceBitacoraCard::before,
+.SgceModuleWrap .ExpedientesCard::before,
+.SgceModuleWrap .AsignacionesTableCard::before,
+.SgceModuleWrap .MaestrosSideCard::before,
+.SgceModuleWrap .MaestrosTableCard::before,
+.SgceModuleWrap .AlumnosSideCard::before,
+.SgceModuleWrap .AlumnosTableCard::before,
+.SgceModuleWrap .GruposSideCard::before,
+.SgceModuleWrap .GruposTableCard::before,
+.SgceModuleWrap .AvisosFormCard::before,
+.SgceModuleWrap .AvisosTableCard::before,
+.SgceModuleWrap .CardClase::before,
+.ConsultaPublicaBody .ConsultaAvisosCard::before,
+.ConsultaPublicaBody .ConsultaCard::before,
+.ConsultaPublicaBody .ResultadoCard::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0 0 auto 0!important;
+  height:4px!important;
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuindaOscuro))!important;
+  pointer-events:none!important;
+  z-index:1!important;
+}
+.SgceModuleWrap .card-custom>*,
+.SgceModuleWrap .Card>*,
+.SgceModuleWrap .SgceCard>*,
+.SgceModuleWrap .CardPanel>*,
+.SgceModuleWrap .MainCard>*,
+.SgceModuleWrap .StatsCard>*,
+.SgceModuleWrap .DashboardAccessPanel>*,
+.SgceModuleWrap .DashboardSummaryPanel>*,
+.SgceModuleWrap .DashboardRiskPro>*,
+.SgceModuleWrap .SgcePeriodCard>*,
+.SgceModuleWrap .SgceRestoreCard>*,
+.SgceModuleWrap .SgceUsersCreateCard>*,
+.SgceModuleWrap .SgceUsersTableCard>*,
+.SgceModuleWrap .SgceBitacoraCard>*,
+.SgceModuleWrap .ExpedientesCard>*,
+.SgceModuleWrap .AsignacionesTableCard>*,
+.SgceModuleWrap .MaestrosSideCard>*,
+.SgceModuleWrap .MaestrosTableCard>*,
+.SgceModuleWrap .AlumnosSideCard>*,
+.SgceModuleWrap .AlumnosTableCard>*,
+.SgceModuleWrap .GruposSideCard>*,
+.SgceModuleWrap .GruposTableCard>*,
+.SgceModuleWrap .AvisosFormCard>*,
+.SgceModuleWrap .AvisosTableCard>*,
+.SgceModuleWrap .CardClase>*,
+.ConsultaPublicaBody .ConsultaAvisosCard>*,
+.ConsultaPublicaBody .ConsultaCard>*,
+.ConsultaPublicaBody .ResultadoCard>*{
+  position:relative!important;
+  z-index:2!important;
+}
+
+/* Encabezados de tarjeta e iconos: sin azul, verde ni naranja fijos. */
+.SgceModuleWrap .card-header-custom,
+.SgceModuleWrap .MaestrosCardTitle,
+.SgceModuleWrap .SgceCardHeaderLine,
+.SgceModuleWrap .SgceRestoreCardHead,
+.SgceModuleWrap .SgceUsersTableHeader h2,
+.SgceModuleWrap .SgceUsersCreateCard h2,
+.SgceModuleWrap .SgceBitacoraTitle,
+.SgceModuleWrap .ExpedientesTitleBlock,
+.SgceModuleWrap .AsignacionesHeaderCard h6,
+.SgceModuleWrap .MainCard .card-header h4,
+.SgceModuleWrap .MainCard .card-header h5,
+.SgceModuleWrap .MainCard .card-header h6,
+.ConsultaPublicaBody .ConsultaCard h4,
+.ConsultaPublicaBody .ResultadoCard h4,
+.ConsultaPublicaBody .ConsultaPadresAvisosTitleBlock{
+  color:var(--SgceGuindaOscuro)!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+  font-weight:900!important;
+}
+.SgceModuleWrap .card-header-custom i,
+.SgceModuleWrap .MaestrosCardTitle i,
+.SgceModuleWrap .MaestrosImportTitle i,
+.SgceModuleWrap .SgceMiniIcon,
+.SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+.SgceModuleWrap .SgceRestoreCardHead .IconBox,
+.SgceModuleWrap .SgceUsersCreateCard h2>i,
+.SgceModuleWrap .SgceUsersTableHeader h2>i,
+.SgceModuleWrap .SgceBitacoraIcon,
+.SgceModuleWrap .ExpedientesTitleIcon,
+.SgceModuleWrap .AsignacionesHeaderCard h6>i,
+.SgceModuleWrap .MainCard .card-header i,
+.SgceModuleWrap .StatsIcon,
+.SgceModuleWrap .DashboardKpiIcon,
+.SgceModuleWrap .DashboardTodayIcon,
+.SgceModuleWrap .DashboardRiskEmptyIcon,
+.SgceModuleWrap .AlumnoAvatar,
+.SgceModuleWrap .CardIcon,
+.SgceModuleWrap .MaestroCardIcon,
+.SgceModuleWrap .MaestroAvisosIcon,
+.SgceModuleWrap .MaestroAvisoItemIcon,
+.ConsultaPublicaBody .ConsultaCard h4>i,
+.ConsultaPublicaBody .ResultadoCard h4>i,
+.ConsultaPublicaBody .ConsultaHeroIcon,
+.ConsultaPublicaBody .ConsultaPadresAvisosIcon,
+.ConsultaPublicaBody .ConsultaPadresAvisoItemIcon{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:17px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.22)!important;
+  border:0!important;
+  font-size:1.08rem!important;
+}
+.SgceModuleWrap .card-header-custom i::before,
+.SgceModuleWrap .MaestrosCardTitle i::before,
+.SgceModuleWrap .SgceMiniIcon i,
+.SgceModuleWrap .SgceRestoreCardHead .IconBox i,
+.SgceModuleWrap .SgceBitacoraIcon i,
+.SgceModuleWrap .ExpedientesTitleIcon i,
+.SgceModuleWrap .DashboardKpiIcon i,
+.SgceModuleWrap .DashboardTodayIcon i,
+.SgceModuleWrap .CardIcon i,
+.SgceModuleWrap .MaestroCardIcon i,
+.ConsultaPublicaBody .ConsultaPadresAvisosIcon i,
+.ConsultaPublicaBody .ConsultaPadresAvisoItemIcon i{
+  color:#fff!important;
+}
+
+/* Tablas: contenedor y encabezado con el mismo lenguaje de Reportes/Configuración. */
+.SgceModuleWrap .table-responsive,
+.ConsultaPublicaBody .table-responsive{
+  border:1px solid rgba(148,163,184,.18)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.SgceModuleWrap .table thead th,
+.ConsultaPublicaBody .table thead th{
+  background:#F8FAFC!important;
+  color:#64748B!important;
+  border:0!important;
+  border-bottom:1px solid rgba(148,163,184,.20)!important;
+  font-size:.72rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.04em!important;
+}
+.SgceModuleWrap .table tbody td,
+.ConsultaPublicaBody .table tbody td{
+  border-color:#EEF2F7!important;
+}
+
+/* Botones principales: todos obedecen el color institucional. */
+.SgceModuleWrap .BtnPrimary,
+.SgceModuleWrap .BtnGuinda,
+.SgceModuleWrap .BtnSave,
+.SgceModuleWrap .BtnFilter,
+.SgceModuleWrap .BtnExport,
+.SgceModuleWrap .BtnExcel,
+.SgceModuleWrap .BtnAsistencia,
+.SgceModuleWrap .BtnAsignacionEdit,
+.SgceModuleWrap .ActionBtn,
+.SgceModuleWrap .ActionEdit,
+.SgceModuleWrap .ActionInfo,
+.SgceModuleWrap .ActionSuccess,
+.SgceModuleWrap .btn-primary,
+.SgceModuleWrap .btn-success,
+.SgceModuleWrap .SgceConfigSave,
+.SgceModuleWrap button[type="submit"]:not(.btn-close),
+.ConsultaPublicaBody .ConsultaBtn,
+.SgceReportsPage .SgceReportBtn,
+.SgceReportsPage .BtnReportExport,
+.SgceReportsPage .BtnReportSearch{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
+}
+.SgceModuleWrap .BtnPrimary:hover,
+.SgceModuleWrap .BtnGuinda:hover,
+.SgceModuleWrap .BtnSave:hover,
+.SgceModuleWrap .BtnFilter:hover,
+.SgceModuleWrap .BtnExport:hover,
+.SgceModuleWrap .BtnExcel:hover,
+.SgceModuleWrap .BtnAsistencia:hover,
+.SgceModuleWrap .ActionBtn:hover,
+.SgceModuleWrap button[type="submit"]:not(.btn-close):hover,
+.ConsultaPublicaBody .ConsultaBtn:hover,
+.SgceReportsPage .SgceReportBtn:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.06) brightness(1.01)!important;
+  box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.30)!important;
+}
+
+/* Indicadores y accesos rápidos sin colores heredados. */
+.SgceReportsPage .AccentRed,
+.SgceReportsPage .AccentBlue,
+.SgceReportsPage .AccentGreen,
+.SgceReportsPage .AccentOrange{
+  --ReportAccent:var(--SgceGuinda)!important;
+  --ReportAccentBg:var(--SgceGuindaSuave)!important;
+}
+.KpiBlue,.KpiGreen,.KpiOrange,.KpiWine,.KpiRed,.KpiPurple{
+  --KpiColor:var(--SgceGuinda)!important;
+  --KpiSoft:rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.SgceModuleWrap .DashboardKpiCard .DashboardKpiIcon{
+  background:var(--SgceGuindaSuave)!important;
+  color:var(--SgceGuinda)!important;
+  box-shadow:none!important;
+}
+.SgceModuleWrap .DashboardKpiCard .DashboardKpiIcon i{color:var(--SgceGuinda)!important;}
+.SgceModuleWrap .DashboardModuleCard,
+.SgceModuleWrap .DashboardModuleWine,
+.SgceModuleWrap .DashboardModuleBlue{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18)!important;
+}
+.SgceModuleWrap .DashboardModuleCard i{
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+
+/* Limpieza de colores fijos en avisos, alumnos, docentes y asignaciones. */
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoEdit,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;
+}
+.SgceModuleWrap .badge:not(.bg-dark):not(.bg-secondary),
+.SgceModuleWrap .SgceCountPill,
+.SgceModuleWrap .MaestroAvisosBadge,
+.ConsultaPublicaBody .ConsultaPadresAvisosBadge{
+  background:var(--SgceGuindaSuave)!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.12)!important;
+}
+.SgceModuleWrap .search-container .input-group-text,
+.SgceModuleWrap .SgceSearchBox i,
+.ConsultaPublicaBody .input-group-text,
+.SgceReportsPage .SgceReportHint i{
+  color:var(--SgceGuinda)!important;
+}
+@media(max-width:768px){
+  .SgceModuleWrap .card-header-custom i,
+  .SgceModuleWrap .MaestrosCardTitle i,
+  .SgceModuleWrap .SgceMiniIcon,
+  .SgceModuleWrap .SgceRestoreCardHead .IconBox,
+  .SgceModuleWrap .SgceUsersCreateCard h2>i,
+  .SgceModuleWrap .SgceUsersTableHeader h2>i,
+  .SgceModuleWrap .SgceBitacoraIcon,
+  .SgceModuleWrap .ExpedientesTitleIcon,
+  .SgceModuleWrap .AsignacionesHeaderCard h6>i,
+  .SgceModuleWrap .MainCard .card-header i,
+  .ConsultaPublicaBody .ConsultaPadresAvisosIcon,
+  .ConsultaPublicaBody .ConsultaPadresAvisoItemIcon{
+    width:42px!important;height:42px!important;min-width:42px!important;border-radius:15px!important;
+  }
+}
+
+
+/* ============================================================
+   SGCE v1.0.5 - Ajuste definitivo de tarjetas, encabezados e iconos
+   Corrige iconos salidos del contenedor y elimina estilos heredados
+   con padding/posicionamiento irregular en módulos administrativos.
+   ============================================================ */
+html body .SgceModuleWrap .card-custom,
+html body .SgceModuleWrap .Card,
+html body .SgceModuleWrap .SgceCard,
+html body .SgceModuleWrap .CardPanel,
+html body .SgceModuleWrap .SgcePanel,
+html body .SgceModuleWrap .SgcePeriodCard,
+html body .SgceModuleWrap .SgceRestoreCard,
+html body .SgceModuleWrap .SgceUsersCreateCard,
+html body .SgceModuleWrap .SgceUsersTableCard,
+html body .SgceModuleWrap .SgceBitacoraCard,
+html body .SgceModuleWrap .ExpedientesCard,
+html body .SgceModuleWrap .AsignacionesTableCard,
+html body .SgceModuleWrap .MainCard,
+html body .SgceModuleWrap .CardClase,
+html body .SgceModuleWrap .MaestrosSideCard,
+html body .SgceModuleWrap .MaestrosTableCard,
+html body .SgceModuleWrap .GruposSideCard,
+html body .SgceModuleWrap .GruposTableCard,
+html body .SgceModuleWrap .AlumnosSideCard,
+html body .SgceModuleWrap .AlumnosTableCard,
+html body .SgceModuleWrap .AvisosFormCard,
+html body .SgceModuleWrap .AvisosTableCard,
+html body .ConsultaPublicaBody .ConsultaAvisosCard,
+html body .ConsultaPublicaBody .ConsultaCard,
+html body .ConsultaPublicaBody .ResultadoCard{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:22px!important;
+  border:1px solid rgba(148,163,184,.22)!important;
+  border-radius:24px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.99),rgba(248,250,252,.99))!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+}
+html body .SgceModuleWrap .card-custom::before,
+html body .SgceModuleWrap .Card::before,
+html body .SgceModuleWrap .SgceCard::before,
+html body .SgceModuleWrap .CardPanel::before,
+html body .SgceModuleWrap .SgcePanel::before,
+html body .SgceModuleWrap .SgcePeriodCard::before,
+html body .SgceModuleWrap .SgceRestoreCard::before,
+html body .SgceModuleWrap .SgceUsersCreateCard::before,
+html body .SgceModuleWrap .SgceUsersTableCard::before,
+html body .SgceModuleWrap .SgceBitacoraCard::before,
+html body .SgceModuleWrap .ExpedientesCard::before,
+html body .SgceModuleWrap .AsignacionesTableCard::before,
+html body .SgceModuleWrap .MainCard::before,
+html body .SgceModuleWrap .CardClase::before,
+html body .SgceModuleWrap .MaestrosSideCard::before,
+html body .SgceModuleWrap .MaestrosTableCard::before,
+html body .SgceModuleWrap .GruposSideCard::before,
+html body .SgceModuleWrap .GruposTableCard::before,
+html body .SgceModuleWrap .AlumnosSideCard::before,
+html body .SgceModuleWrap .AlumnosTableCard::before,
+html body .SgceModuleWrap .AvisosFormCard::before,
+html body .SgceModuleWrap .AvisosTableCard::before,
+html body .ConsultaPublicaBody .ConsultaAvisosCard::before,
+html body .ConsultaPublicaBody .ConsultaCard::before,
+html body .ConsultaPublicaBody .ResultadoCard::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0 0 auto 0!important;
+  height:4px!important;
+  width:100%!important;
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaOscuro))!important;
+  border-radius:24px 24px 0 0!important;
+  z-index:1!important;
+  pointer-events:none!important;
+}
+html body .SgceModuleWrap .card-custom > *,
+html body .SgceModuleWrap .Card > *,
+html body .SgceModuleWrap .SgceCard > *,
+html body .SgceModuleWrap .CardPanel > *,
+html body .SgceModuleWrap .SgcePanel > *,
+html body .SgceModuleWrap .SgcePeriodCard > *,
+html body .SgceModuleWrap .SgceRestoreCard > *,
+html body .SgceModuleWrap .SgceUsersCreateCard > *,
+html body .SgceModuleWrap .SgceUsersTableCard > *,
+html body .SgceModuleWrap .SgceBitacoraCard > *,
+html body .SgceModuleWrap .ExpedientesCard > *,
+html body .SgceModuleWrap .AsignacionesTableCard > *,
+html body .SgceModuleWrap .MainCard > *,
+html body .SgceModuleWrap .CardClase > *,
+html body .SgceModuleWrap .MaestrosSideCard > *,
+html body .SgceModuleWrap .MaestrosTableCard > *,
+html body .SgceModuleWrap .GruposSideCard > *,
+html body .SgceModuleWrap .GruposTableCard > *,
+html body .SgceModuleWrap .AlumnosSideCard > *,
+html body .SgceModuleWrap .AlumnosTableCard > *,
+html body .SgceModuleWrap .AvisosFormCard > *,
+html body .SgceModuleWrap .AvisosTableCard > *,
+html body .ConsultaPublicaBody .ConsultaAvisosCard > *,
+html body .ConsultaPublicaBody .ConsultaCard > *,
+html body .ConsultaPublicaBody .ResultadoCard > *{
+  position:relative!important;
+  z-index:2!important;
+}
+html body .SgceModuleWrap .MaestrosSideCard .card-body,
+html body .SgceModuleWrap .GruposSideCard .card-body,
+html body .SgceModuleWrap .AlumnosSideCard .card-body,
+html body .SgceModuleWrap .AvisosFormCard .card-body,
+html body .SgceModuleWrap .AvisosTableCard .card-body,
+html body .SgceModuleWrap .MainCard .card-body,
+html body .SgceModuleWrap .CardClase .card-body{
+  padding:0!important;
+}
+html body .SgceModuleWrap .card-header-custom,
+html body .SgceModuleWrap .MaestrosCardTitle,
+html body .SgceModuleWrap .GruposCardTitle,
+html body .SgceModuleWrap .AlumnosCardTitle,
+html body .SgceModuleWrap .SgceCardHeaderLine,
+html body .SgceModuleWrap .SgceRestoreCardHead,
+html body .SgceModuleWrap .SgceUsersTableHeader h2,
+html body .SgceModuleWrap .SgceUsersCreateCard h2,
+html body .SgceModuleWrap .SgceBitacoraTitle,
+html body .SgceModuleWrap .ExpedientesTitleBlock,
+html body .SgceModuleWrap .AsignacionesHeaderCard h6,
+html body .ConsultaPublicaBody .ConsultaCard h4,
+html body .ConsultaPublicaBody .ResultadoCard h4,
+html body .ConsultaPublicaBody .ConsultaPadresAvisosTitleBlock{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  width:100%!important;
+  min-height:48px!important;
+  padding:0!important;
+  margin:0 0 18px!important;
+  background:transparent!important;
+  border:0!important;
+  color:var(--SgceGuindaOscuro)!important;
+  font-size:1.05rem!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+  overflow:visible!important;
+}
+html body .SgceModuleWrap .card-header-custom i,
+html body .SgceModuleWrap .MaestrosCardTitle i,
+html body .SgceModuleWrap .GruposCardTitle i,
+html body .SgceModuleWrap .AlumnosCardTitle i,
+html body .SgceModuleWrap .SgceMiniIcon,
+html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+html body .SgceModuleWrap .SgceRestoreCardHead .IconBox,
+html body .SgceModuleWrap .SgceUsersCreateCard h2 > i,
+html body .SgceModuleWrap .SgceUsersTableHeader h2 > i,
+html body .SgceModuleWrap .SgceBitacoraIcon,
+html body .SgceModuleWrap .ExpedientesTitleIcon,
+html body .SgceModuleWrap .AsignacionesHeaderCard h6 > i,
+html body .SgceModuleWrap .MainCard .card-header i,
+html body .ConsultaPublicaBody .ConsultaCard h4 > i,
+html body .ConsultaPublicaBody .ResultadoCard h4 > i,
+html body .ConsultaPublicaBody .ConsultaPadresAvisosIcon{
+  position:static!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:none!important;
+  margin:0!important;
+  flex:0 0 48px!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  border-radius:17px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.22)!important;
+  font-size:1.08rem!important;
+  line-height:1!important;
+  overflow:hidden!important;
+}
+html body .SgceModuleWrap .card-header-custom i::before,
+html body .SgceModuleWrap .MaestrosCardTitle i::before,
+html body .SgceModuleWrap .GruposCardTitle i::before,
+html body .SgceModuleWrap .AlumnosCardTitle i::before,
+html body .SgceModuleWrap .SgceRestoreCardHead .IconBox i,
+html body .SgceModuleWrap .SgceUsersCreateCard h2 > i::before,
+html body .SgceModuleWrap .SgceUsersTableHeader h2 > i::before,
+html body .SgceModuleWrap .SgceBitacoraIcon i,
+html body .SgceModuleWrap .ExpedientesTitleIcon i,
+html body .SgceModuleWrap .AsignacionesHeaderCard h6 > i::before,
+html body .SgceModuleWrap .MainCard .card-header i::before,
+html body .ConsultaPublicaBody .ConsultaCard h4 > i::before,
+html body .ConsultaPublicaBody .ResultadoCard h4 > i::before,
+html body .ConsultaPublicaBody .ConsultaPadresAvisosIcon i{
+  color:#fff!important;
+  margin:0!important;
+}
+html body .SgceModuleWrap .MaestrosTableTop,
+html body .SgceModuleWrap .GruposTableTop,
+html body .SgceModuleWrap .AlumnosTableTop,
+html body .SgceModuleWrap .AvisosTableTop{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  margin:0 0 18px!important;
+  padding:0!important;
+}
+html body .SgceModuleWrap .MaestrosTableTop h6,
+html body .SgceModuleWrap .GruposTableTop h6,
+html body .SgceModuleWrap .AlumnosTableTop h6,
+html body .SgceModuleWrap .AvisosTableTop h6{
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  margin:0!important;
+  color:var(--SgceGuindaOscuro)!important;
+  font-size:1.05rem!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+}
+html body .SgceModuleWrap .MaestrosTableTop h6::before,
+html body .SgceModuleWrap .GruposTableTop h6::before,
+html body .SgceModuleWrap .AlumnosTableTop h6::before,
+html body .SgceModuleWrap .AvisosTableTop h6::before{
+  position:static!important;
+  transform:none!important;
+  margin:0!important;
+  flex:0 0 48px!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:17px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  color:#fff!important;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.22)!important;
+  font-size:1.08rem!important;
+  line-height:1!important;
+}
+html body .SgceModuleWrap .table-responsive,
+html body .ConsultaPublicaBody .table-responsive{
+  border:1px solid rgba(148,163,184,.20)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+  box-shadow:none!important;
+}
+html body .SgceModuleWrap .table,
+html body .ConsultaPublicaBody .table{
+  margin-bottom:0!important;
+}
+html body .SgceModuleWrap .table thead th,
+html body .ConsultaPublicaBody .table thead th{
+  background:#F8FAFC!important;
+  color:#64748B!important;
+  border:0!important;
+  border-bottom:1px solid rgba(148,163,184,.20)!important;
+  font-size:.72rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.04em!important;
+}
+html body .SgceModuleWrap .table tbody td,
+html body .ConsultaPublicaBody .table tbody td{
+  border-color:#EEF2F7!important;
+}
+html body .SgceModuleWrap .MaestrosTableCard,
+html body .SgceModuleWrap .GruposTableCard,
+html body .SgceModuleWrap .AlumnosTableCard{
+  min-height:560px!important;
+}
+html body .SgceModuleWrap .MaestrosTableCard .table-responsive,
+html body .SgceModuleWrap .GruposTableCard .table-responsive,
+html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
+  min-height:360px!important;
+}
+@media(max-width:992px){
+  html body .SgceModuleWrap .MaestrosTableTop,
+  html body .SgceModuleWrap .GruposTableTop,
+  html body .SgceModuleWrap .AlumnosTableTop,
+  html body .SgceModuleWrap .AvisosTableTop{
+    align-items:stretch!important;
+    flex-direction:column!important;
+  }
+  html body .SgceModuleWrap .MaestrosTableTop .search-container,
+  html body .SgceModuleWrap .GruposTableTop .search-container,
+  html body .SgceModuleWrap .AlumnosTableTop .search-container{
+    width:100%!important;
+  }
+}
+@media(max-width:576px){
+  html body .SgceModuleWrap .card-custom,
+  html body .SgceModuleWrap .Card,
+  html body .SgceModuleWrap .SgceCard,
+  html body .SgceModuleWrap .CardPanel,
+  html body .SgceModuleWrap .SgcePanel,
+  html body .SgceModuleWrap .MaestrosSideCard,
+  html body .SgceModuleWrap .MaestrosTableCard,
+  html body .SgceModuleWrap .GruposSideCard,
+  html body .SgceModuleWrap .GruposTableCard,
+  html body .SgceModuleWrap .AlumnosSideCard,
+  html body .SgceModuleWrap .AlumnosTableCard,
+  html body .ConsultaPublicaBody .ConsultaAvisosCard,
+  html body .ConsultaPublicaBody .ConsultaCard,
+  html body .ConsultaPublicaBody .ResultadoCard{
+    padding:18px!important;
+    border-radius:22px!important;
+  }
+  html body .SgceModuleWrap .card-header-custom i,
+  html body .SgceModuleWrap .MaestrosCardTitle i,
+  html body .SgceModuleWrap .GruposCardTitle i,
+  html body .SgceModuleWrap .AlumnosCardTitle i,
+  html body .SgceModuleWrap .MaestrosTableTop h6::before,
+  html body .SgceModuleWrap .GruposTableTop h6::before,
+  html body .SgceModuleWrap .AlumnosTableTop h6::before,
+  html body .SgceModuleWrap .AvisosTableTop h6::before{
+    flex-basis:42px!important;
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    border-radius:15px!important;
+  }
+}
+
+/* ============================================================
+   SGCE v1.0.6 - Corrección visual de iconos en Centro de Reportes
+   Los iconos de las tarjetas de reportes usan el mismo estilo
+   institucional que Configuración y los módulos administrativos.
+   ============================================================ */
+.SgceReportsPage .SgceReportIcon{
+  color:#fff!important;
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24), inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+.SgceReportsPage .SgceReportIcon i{
+  color:#fff!important;
+}
+.SgceReportsPage .SgceReportCard::before{
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),rgba(var(--SgceGuindaRGB),.18),var(--SgceGuindaOscuro))!important;
+}
+
+
+/* Ajuste final Avisos: botones sin verde fijo, todos obedecen color institucional */
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody .AvisosForm button.BtnAvisoPublish,
+html body.AvisosBody .AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoActivate,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave,
+html body .modal .BtnConfirmDelete.BtnAvisoModalActivate,
+body .AvisosBody .BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+body .modal .BtnSaveEdit.BtnAvisoModalSave,
+body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:var(--SgceSombraGuinda)!important;
+}
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover,
+html body.AvisosBody .AvisosForm button.BtnAvisoPublish:hover,
+html body.AvisosBody .AvisosSubmit.BtnAvisoPublish:hover,
+html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoActivate:hover,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave:hover,
+html body .modal .BtnConfirmDelete.BtnAvisoModalActivate:hover{
+  transform:translateY(-1px)!important;
+  filter:brightness(.98) saturate(1.06)!important;
+  box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.28)!important;
+}
+
+
+/* SGCE - Avisos: encabezado de tabla limpio sin texto redundante */
+.AvisosTableHeaderClean{
+  min-height:56px;
+  align-items:center!important;
+}
+.AvisosTableHeaderClean h2{
+  margin:0!important;
+}
+.AvisosTableHeaderClean p{
+  display:none!important;
+}
+
+/* ============================================================
+   SGCE - Dashboard con color institucional uniforme
+   Unifica títulos, subtítulos, badges y secciones del panel principal
+   para evitar mezcla de rojo fijo con el color seleccionado por la escuela.
+   ============================================================ */
+.SgceModuleWrap .DashboardSectionKicker,
+.SgceModuleWrap .DashboardRiskKicker,
+.SgceModuleWrap .DashboardSectionKicker i,
+.SgceModuleWrap .DashboardRiskKicker i{
+  color:var(--SgceGuinda)!important;
+}
+.SgceModuleWrap .DashboardSectionHeader h2,
+.SgceModuleWrap .DashboardRiskHeader h2{
+  color:var(--SgceGuindaOscuro)!important;
+}
+.SgceModuleWrap .DashboardCycleBadge,
+.SgceModuleWrap .DashboardMiniBadge,
+.SgceModuleWrap .DashboardRiskCount{
+  color:var(--SgceGuindaOscuro)!important;
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.14)!important;
+}
+.SgceModuleWrap .DashboardRiskPro .DashboardRiskHeader p{
+  color:#475467!important;
+}
+.SgceModuleWrap .DashboardRiskPro::before,
+.SgceModuleWrap .DashboardAccessPanel::before,
+.SgceModuleWrap .DashboardSummaryPanel::before{
+  background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuindaOscuro))!important;
+  height:4px!important;
+  inset:0 0 auto 0!important;
+  opacity:1!important;
+}
+.SgceModuleWrap .DashboardRiskEmptyIcon{
+  background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.22), inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+.SgceModuleWrap .DashboardRiskEmptyIcon i{
+  color:#fff!important;
+}
+
+/* ============================================================
+   SGCE - Botones destructivos fijos
+   Los botones de eliminar, baja o desactivar NO toman el color
+   institucional. Mantienen un rojo/tinto metálico de advertencia
+   para que el usuario identifique acciones peligrosas.
+   ============================================================ */
+:root{
+  --SgceDanger:#A0001D;
+  --SgceDangerOscuro:#670013;
+  --SgceDangerProfundo:#43000C;
+  --SgceDangerClaro:#E11D48;
+  --SgceDangerRGB:160,0,29;
+  --SgceDangerSombra:0 13px 25px rgba(var(--SgceDangerRGB),.24);
+}
+
+html body .ActionBtn.ActionDelete,
+html body .ActionDelete,
+html body .BtnDisable,
+html body .BtnSmall.BtnDisable,
+html body .BtnTeacherDelete,
+html body .BtnGroupDelete,
+html body .BtnStudentDelete,
+html body .BtnAsignacionDelete,
+html body #TableMaestros .ActionBtn.BtnTeacherDelete,
+html body #TableGrupos .ActionBtn.BtnGroupDelete,
+html body #TableAlumnos .ActionBtn.BtnStudentDelete,
+html body #TableAsig .ActionBtn.BtnAsignacionDelete,
+html body #asignaciones .BtnAsignacionDelete,
+html body .SgceUsersPage .SgceUsersTable .BtnDisable,
+html body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate,
+html body.AvisosBody .BtnAvisoDeactivate,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar),
+html body .modal .BtnConfirmDesactivar,
+html body .modal .BtnAvisoModalDeactivate,
+html body .modal .BtnConfirmarBajaUsuario{
+  background:linear-gradient(135deg,var(--SgceDangerProfundo) 0%,var(--SgceDangerOscuro) 34%,var(--SgceDanger) 62%,var(--SgceDangerClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:var(--SgceDangerSombra)!important;
+}
+
+html body .ActionBtn.ActionDelete::before,
+html body .BtnTeacherDelete::before,
+html body .BtnGroupDelete::before,
+html body .BtnStudentDelete::before,
+html body .BtnAsignacionDelete::before,
+html body .BtnDisable::before,
+html body .BtnAvisoDeactivate::before,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar)::before{
+  background:linear-gradient(115deg,rgba(255,255,255,.44) 0%,rgba(255,255,255,.15) 28%,transparent 52%,rgba(255,255,255,.18) 100%)!important;
+}
+
+html body .ActionBtn.ActionDelete:hover,
+html body .ActionDelete:hover,
+html body .BtnDisable:hover,
+html body .BtnSmall.BtnDisable:hover,
+html body .BtnTeacherDelete:hover,
+html body .BtnGroupDelete:hover,
+html body .BtnStudentDelete:hover,
+html body .BtnAsignacionDelete:hover,
+html body #TableMaestros .ActionBtn.BtnTeacherDelete:hover,
+html body #TableGrupos .ActionBtn.BtnGroupDelete:hover,
+html body #TableAlumnos .ActionBtn.BtnStudentDelete:hover,
+html body #TableAsig .ActionBtn.BtnAsignacionDelete:hover,
+html body #asignaciones .BtnAsignacionDelete:hover,
+html body .SgceUsersPage .SgceUsersTable .BtnDisable:hover,
+html body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable:hover,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate:hover,
+html body.AvisosBody .BtnAvisoDeactivate:hover,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar):hover,
+html body .modal .BtnConfirmDesactivar:hover,
+html body .modal .BtnAvisoModalDeactivate:hover,
+html body .modal .BtnConfirmarBajaUsuario:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.08) brightness(1.02)!important;
+  box-shadow:0 16px 30px rgba(var(--SgceDangerRGB),.32)!important;
+}
+
+html body .ActionBtn.ActionDelete i,
+html body .ActionBtn.ActionDelete span,
+html body .BtnDisable i,
+html body .BtnDisable span,
+html body .BtnTeacherDelete i,
+html body .BtnTeacherDelete span,
+html body .BtnGroupDelete i,
+html body .BtnGroupDelete span,
+html body .BtnStudentDelete i,
+html body .BtnStudentDelete span,
+html body .BtnAsignacionDelete i,
+html body .BtnAsignacionDelete span,
+html body .BtnAvisoDeactivate i,
+html body .BtnAvisoDeactivate span,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) i,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) span{
+  color:#fff!important;
+  position:relative;
+  z-index:1;
+}
+
+
+/* ============================================================
+   SGCE v1.1.2 - Expediente metálico fijo
+   El botón Abrir Expediente no depende del color institucional.
+   Mantiene el mismo ámbar/naranja metálico usado en Alumnos para
+   distinguirlo como acción especial de consulta.
+   ============================================================ */
+:root{
+  --SgceExpedienteOscuro:#7C2D12;
+  --SgceExpediente:#C2410C;
+  --SgceExpedienteClaro:#F97316;
+  --SgceExpedienteRGB:194,65,12;
+}
+html body .SgceModuleWrap #TableExpedientes .ActionBtn.BtnExpedienteOpen,
+html body .SgceModuleWrap a.ActionBtn.BtnExpedienteOpen,
+html body .SgceModuleWrap .BtnExpedienteOpen,
+html body #TableExpedientes .ActionBtn.BtnExpedienteOpen{
+  background:linear-gradient(135deg,var(--SgceExpedienteOscuro) 0%,var(--SgceExpediente) 48%,var(--SgceExpedienteClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.30)!important;
+  box-shadow:0 12px 22px rgba(var(--SgceExpedienteRGB),.30), inset 0 1px 0 rgba(255,255,255,.34)!important;
+}
+html body .SgceModuleWrap #TableExpedientes .ActionBtn.BtnExpedienteOpen::before,
+html body .SgceModuleWrap a.ActionBtn.BtnExpedienteOpen::before,
+html body .SgceModuleWrap .BtnExpedienteOpen::before,
+html body #TableExpedientes .ActionBtn.BtnExpedienteOpen::before{
+  background:linear-gradient(115deg,rgba(255,255,255,.48) 0%,rgba(255,255,255,.16) 28%,transparent 52%,rgba(255,255,255,.20) 100%)!important;
+}
+html body .SgceModuleWrap #TableExpedientes .ActionBtn.BtnExpedienteOpen:hover,
+html body .SgceModuleWrap a.ActionBtn.BtnExpedienteOpen:hover,
+html body .SgceModuleWrap .BtnExpedienteOpen:hover,
+html body #TableExpedientes .ActionBtn.BtnExpedienteOpen:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.08) brightness(1.03)!important;
+  box-shadow:0 16px 30px rgba(var(--SgceExpedienteRGB),.42), inset 0 1px 0 rgba(255,255,255,.38)!important;
+}
+html body .SgceModuleWrap #TableExpedientes .ActionBtn.BtnExpedienteOpen i,
+html body .SgceModuleWrap #TableExpedientes .ActionBtn.BtnExpedienteOpen span,
+html body .SgceModuleWrap a.ActionBtn.BtnExpedienteOpen i,
+html body .SgceModuleWrap a.ActionBtn.BtnExpedienteOpen span,
+html body .SgceModuleWrap .BtnExpedienteOpen i,
+html body .SgceModuleWrap .BtnExpedienteOpen span,
+html body #TableExpedientes .ActionBtn.BtnExpedienteOpen i,
+html body #TableExpedientes .ActionBtn.BtnExpedienteOpen span{
+  color:#fff!important;
+  position:relative!important;
+  z-index:1!important;
+}
+
+/* ============================================================
+   SGCE v1.1.4 - Chips de turno institucionales
+   El turno en Expedientes ya no usa fondo negro fijo. Ahora
+   copia el lenguaje visual de los chips del sistema: texto del
+   color institucional y fondo suave del mismo color.
+   ============================================================ */
+html body .SgceModuleWrap #TableExpedientes .ExpedientesTurnBadge,
+html body .SgceModuleWrap .ExpedientesTurnBadge{
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;
+  box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.10)!important;
+  text-shadow:none!important;
+}
+html body .SgceModuleWrap #TableExpedientes .ExpedientesGroupBadge,
+html body .SgceModuleWrap .ExpedientesGroupBadge{
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;
+  box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;
+}
+
+
+/* ============================================================
+   SGCE v1.1.5 - Chips institucionales en tabla de Grupos
+   El valor del grupo y turno dentro de Grupos Existentes usa el
+   mismo lenguaje visual que Expedientes: fondo suave, texto del
+   color institucional y borde sutil. No usa colores Bootstrap fijos.
+   ============================================================ */
+html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge,
+html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:25px!important;
+  padding:4px 10px!important;
+  border-radius:999px!important;
+  font-size:.72rem!important;
+  font-weight:950!important;
+  line-height:1!important;
+  letter-spacing:.01em!important;
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;
+  box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;
+  text-shadow:none!important;
+  white-space:nowrap!important;
+}
+html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge{
+  min-width:34px!important;
+  text-transform:uppercase!important;
+}
+html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
+  min-width:78px!important;
+  text-transform:uppercase!important;
+}
+
+
+/* ============================================================
+   SGCE v1.1.6 - Asignaciones con color institucional completo
+   La materia deja de usar rojo fijo y el grupo asignado se muestra
+   con chips institucionales sin iconos de sol/luna.
+   ============================================================ */
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,
+html body #TableAsig .AsignacionMateriaTexto{
+  display:inline-flex!important;
+  align-items:center!important;
+  color:var(--SgceGuindaOscuro)!important;
+  font-weight:950!important;
+  letter-spacing:.01em!important;
+  text-transform:uppercase!important;
+  text-shadow:none!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,
+html body #TableAsig .AsignacionGrupoChips{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+  white-space:normal!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChip,
+html body #TableAsig .AsignacionGrupoChip{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:25px!important;
+  padding:4px 10px!important;
+  border-radius:999px!important;
+  font-size:.72rem!important;
+  font-weight:950!important;
+  line-height:1!important;
+  letter-spacing:.01em!important;
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;
+  box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;
+  text-shadow:none!important;
+  text-transform:uppercase!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGradoChip,
+html body #TableAsig .AsignacionGradoChip,
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChipLetra,
+html body #TableAsig .AsignacionGrupoChipLetra{
+  min-width:34px!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionTurnoChip,
+html body #TableAsig .AsignacionTurnoChip{
+  min-width:78px!important;
+}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple,
+html body #TableAsig .GrupoTextoSimple{
+  color:var(--SgceGuindaOscuro)!important;
+}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple i,
+html body #TableAsig .GrupoTextoSimple i{
+  display:none!important;
+}
+
+/* ============================================================
+   SGCE v1.1.7 - Modales destructivas fijas
+   Las confirmaciones de eliminar, baja y desactivar NO dependen
+   del color institucional. Siempre usan rojo/tinto metálico.
+   ============================================================ */
+html body .modal .DeleteModalContent{
+  border:0!important;
+  border-radius:30px!important;
+  overflow:hidden!important;
+  box-shadow:0 28px 80px rgba(15,23,42,.30)!important;
+}
+html body .modal .DeleteModalHeader:not(.HeaderActivar),
+html body .modal .AvisoConfirmHeader.HeaderDesactivar,
+html body .modal .SgceUserDisableModal .DeleteModalHeader,
+html body #ModalConfirmarEliminar .DeleteModalHeader{
+  background:linear-gradient(135deg,var(--SgceDangerProfundo) 0%,var(--SgceDangerOscuro) 38%,var(--SgceDanger) 68%,var(--SgceDangerClaro) 100%)!important;
+  color:#fff!important;
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.16)!important;
+}
+html body .modal .DeleteModalHeader:not(.HeaderActivar) h4,
+html body .modal .DeleteModalHeader:not(.HeaderActivar) p,
+html body .modal .AvisoConfirmHeader.HeaderDesactivar h4,
+html body .modal .AvisoConfirmHeader.HeaderDesactivar p,
+html body .modal .SgceUserDisableModal .DeleteModalHeader h4,
+html body .modal .SgceUserDisableModal .DeleteModalHeader p,
+html body #ModalConfirmarEliminar .DeleteModalHeader h4,
+html body #ModalConfirmarEliminar .DeleteModalHeader p{
+  color:#fff!important;
+}
+html body .modal .DeleteModalHeader:not(.HeaderActivar) .DeleteIcon,
+html body .modal .AvisoConfirmHeader.HeaderDesactivar .DeleteIcon,
+html body .modal .SgceUserDisableModal .DeleteIcon,
+html body #ModalConfirmarEliminar .DeleteIcon{
+  background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.10))!important;
+  color:#fff!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.24),0 18px 36px rgba(0,0,0,.18)!important;
+}
+html body .modal .DeleteModalHeader:not(.HeaderActivar) .DeleteIcon i,
+html body .modal .AvisoConfirmHeader.HeaderDesactivar .DeleteIcon i,
+html body .modal .SgceUserDisableModal .DeleteIcon i,
+html body #ModalConfirmarEliminar .DeleteIcon i{
+  color:#fff!important;
+}
+html body .modal .DeleteWarningBox{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border:1px solid #FDA4AF!important;
+  color:#8A0019!important;
+}
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar),
+html body .modal .BtnConfirmDesactivar,
+html body .modal .BtnAvisoModalDeactivate,
+html body .modal .BtnConfirmarBajaUsuario,
+html body #ModalConfirmarEliminar .BtnConfirmDelete,
+html body .SgceUserDisableModal .BtnConfirmDelete{
+  background:linear-gradient(135deg,var(--SgceDangerProfundo) 0%,var(--SgceDangerOscuro) 38%,var(--SgceDanger) 68%,var(--SgceDangerClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 30px rgba(var(--SgceDangerRGB),.32)!important;
+}
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar):hover,
+html body .modal .BtnConfirmDesactivar:hover,
+html body .modal .BtnAvisoModalDeactivate:hover,
+html body .modal .BtnConfirmarBajaUsuario:hover,
+html body #ModalConfirmarEliminar .BtnConfirmDelete:hover,
+html body .SgceUserDisableModal .BtnConfirmDelete:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.10) brightness(1.02)!important;
+  box-shadow:0 18px 36px rgba(var(--SgceDangerRGB),.38)!important;
+}
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) i,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) span,
+html body .modal .BtnConfirmDesactivar i,
+html body .modal .BtnConfirmDesactivar span,
+html body .modal .BtnAvisoModalDeactivate i,
+html body .modal .BtnAvisoModalDeactivate span,
+html body .modal .BtnConfirmarBajaUsuario i,
+html body .modal .BtnConfirmarBajaUsuario span,
+html body #ModalConfirmarEliminar .BtnConfirmDelete i,
+html body #ModalConfirmarEliminar .BtnConfirmDelete span,
+html body .SgceUserDisableModal .BtnConfirmDelete i,
+html body .SgceUserDisableModal .BtnConfirmDelete span{
+  color:#fff!important;
+}
+
+/* ============================================================
+   SGCE v1.1.8 - Modales de actualización en azul metálico
+   Las ventanas de editar/actualizar NO dependen del color
+   institucional. Mantienen azul metálico para distinguir edición.
+   ============================================================ */
+:root{
+  --SgceUpdateAzulProfundo:#0B2F6B;
+  --SgceUpdateAzulOscuro:#1D4ED8;
+  --SgceUpdateAzul:#2563EB;
+  --SgceUpdateAzulClaro:#38BDF8;
+  --SgceUpdateAzulRGB:37,99,235;
+}
+html body .modal .EditModalContent{
+  border:0!important;
+  border-radius:30px!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  box-shadow:0 28px 80px rgba(15,23,42,.30)!important;
+}
+html body .modal .EditModalHeader{
+  background:linear-gradient(135deg,var(--SgceUpdateAzulProfundo) 0%,var(--SgceUpdateAzulOscuro) 38%,var(--SgceUpdateAzul) 68%,var(--SgceUpdateAzulClaro) 100%)!important;
+  color:#fff!important;
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.16)!important;
+  padding:28px!important;
+  text-align:center!important;
+}
+html body .modal .EditModalHeader h4,
+html body .modal .EditModalHeader p{
+  color:#fff!important;
+}
+html body .modal .EditIcon{
+  background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.10))!important;
+  color:#fff!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.24),0 18px 36px rgba(0,0,0,.18)!important;
+}
+html body .modal .EditIcon i{
+  color:#fff!important;
+}
+html body .modal .EditInfoBox{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border:1px solid #93C5FD!important;
+  color:#1E3A8A!important;
+}
+html body .modal .BtnSaveEdit,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave,
+html body .modal button.BtnSaveEdit[type="submit"]{
+  background:linear-gradient(135deg,var(--SgceUpdateAzulProfundo) 0%,var(--SgceUpdateAzulOscuro) 38%,var(--SgceUpdateAzul) 68%,var(--SgceUpdateAzulClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 30px rgba(var(--SgceUpdateAzulRGB),.32)!important;
+}
+html body .modal .BtnSaveEdit:hover,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave:hover,
+html body .modal button.BtnSaveEdit[type="submit"]:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.10) brightness(1.03)!important;
+  box-shadow:0 18px 36px rgba(var(--SgceUpdateAzulRGB),.40)!important;
+}
+html body .modal .BtnSaveEdit i,
+html body .modal .BtnSaveEdit span,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave i,
+html body .modal .BtnSaveEdit.BtnAvisoModalSave span{
+  color:#fff!important;
+}
+html body .modal .BtnCancelEdit{
+  background:#fff!important;
+  color:#64748B!important;
+  border:2px solid #CBD5E1!important;
+  box-shadow:none!important;
+}
+html body .modal .BtnCancelEdit:hover{
+  background:#64748B!important;
+  color:#fff!important;
+  transform:translateY(-1px)!important;
+  box-shadow:0 14px 28px rgba(100,116,139,.22)!important;
+}
+/* Botones de abrir modal de edición: azul metálico fijo. */
+html body .ActionBtn.ActionEdit,
+html body .ActionBtn.BtnTeacherEdit,
+html body .ActionBtn.BtnGroupEdit,
+html body .ActionBtn.BtnStudentEdit,
+html body .ActionBtn.BtnAsignacionEdit,
+html body .ActionBtn.BtnAvisoEdit,
+html body .SgceModuleWrap .ActionBtn.ActionEdit,
+html body .SgceModuleWrap .ActionBtn.BtnTeacherEdit,
+html body .SgceModuleWrap .ActionBtn.BtnGroupEdit,
+html body .SgceModuleWrap .ActionBtn.BtnStudentEdit,
+html body .SgceModuleWrap .ActionBtn.BtnAsignacionEdit,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoEdit{
+  background:linear-gradient(135deg,var(--SgceUpdateAzulProfundo) 0%,var(--SgceUpdateAzulOscuro) 46%,var(--SgceUpdateAzul) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 14px 28px rgba(var(--SgceUpdateAzulRGB),.30)!important;
+}
+html body .ActionBtn.ActionEdit:hover,
+html body .ActionBtn.BtnTeacherEdit:hover,
+html body .ActionBtn.BtnGroupEdit:hover,
+html body .ActionBtn.BtnStudentEdit:hover,
+html body .ActionBtn.BtnAsignacionEdit:hover,
+html body .ActionBtn.BtnAvisoEdit:hover,
+html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoEdit:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.10) brightness(1.03)!important;
+  box-shadow:0 18px 34px rgba(var(--SgceUpdateAzulRGB),.38)!important;
+}
+html body .ActionBtn.ActionEdit i,
+html body .ActionBtn.ActionEdit span,
+html body .ActionBtn.BtnTeacherEdit i,
+html body .ActionBtn.BtnTeacherEdit span,
+html body .ActionBtn.BtnGroupEdit i,
+html body .ActionBtn.BtnGroupEdit span,
+html body .ActionBtn.BtnStudentEdit i,
+html body .ActionBtn.BtnStudentEdit span,
+html body .ActionBtn.BtnAsignacionEdit i,
+html body .ActionBtn.BtnAsignacionEdit span,
+html body .ActionBtn.BtnAvisoEdit i,
+html body .ActionBtn.BtnAvisoEdit span{
+  color:#fff!important;
+}
+
+/* ============================================================
+   SGCE v1.1.9 - Homologación metálica de botones
+   Todos los botones operativos usan brillo metálico y presión.
+   - Primarios/guardar/cargar: color institucional.
+   - Modificar/actualizar: azul metálico fijo.
+   - Eliminar/desactivar: rojo/tinto metálico fijo.
+   - Expediente: ámbar metálico fijo.
+   ============================================================ */
+:root{
+  --SgceMetalHighlight:rgba(255,255,255,.42);
+  --SgceMetalEdge:rgba(255,255,255,.26);
+  --SgceMetalShadow:rgba(var(--SgceGuindaRGB),.30);
+}
+html body button:not(.btn-close),
+html body .btn:not(.btn-close),
+html body .BtnPrimary,
+html body .BtnGuinda,
+html body .BtnFilter,
+html body .BtnPrincipal,
+html body .BtnConsultaPadre,
+html body .BtnLogin,
+html body .SgceReportBtn,
+html body .ReporteBtn,
+html body .ActionBtn,
+html body .BtnSmall,
+html body .BtnGuardar,
+html body .SgceConfigSave,
+html body .SgceInstallerBtn,
+html body .BtnExpedienteLoad,
+html body .BtnExpedienteClean,
+html body .BtnExpedienteOpen,
+html body .BtnAsignacionPrimary,
+html body .AvisosSubmit,
+html body .BtnSaveEdit,
+html body .BtnConfirmDelete,
+html body .BtnConfirmActivar,
+html body .BtnConfirmDesactivar{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  border-radius:999px!important;
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,background .18s ease!important;
+  box-shadow:0 14px 30px var(--SgceMetalShadow),inset 0 1px 0 var(--SgceMetalEdge)!important;
+}
+html body button:not(.btn-close)::after,
+html body .btn:not(.btn-close)::after,
+html body .BtnPrimary::after,
+html body .BtnGuinda::after,
+html body .BtnFilter::after,
+html body .BtnPrincipal::after,
+html body .BtnConsultaPadre::after,
+html body .BtnLogin::after,
+html body .SgceReportBtn::after,
+html body .ReporteBtn::after,
+html body .ActionBtn::after,
+html body .BtnSmall::after,
+html body .BtnGuardar::after,
+html body .SgceConfigSave::after,
+html body .SgceInstallerBtn::after,
+html body .BtnExpedienteLoad::after,
+html body .BtnExpedienteClean::after,
+html body .BtnExpedienteOpen::after,
+html body .BtnAsignacionPrimary::after,
+html body .AvisosSubmit::after,
+html body .BtnSaveEdit::after,
+html body .BtnConfirmDelete::after,
+html body .BtnConfirmActivar::after,
+html body .BtnConfirmDesactivar::after{
+  content:""!important;
+  position:absolute!important;
+  top:-40%!important;
+  left:-85%!important;
+  width:54%!important;
+  height:190%!important;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.12) 24%,var(--SgceMetalHighlight) 50%,rgba(255,255,255,.10) 74%,transparent 100%)!important;
+  transform:rotate(18deg)!important;
+  transition:left .55s ease!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+html body button:not(.btn-close):hover::after,
+html body .btn:not(.btn-close):hover::after,
+html body .BtnPrimary:hover::after,
+html body .BtnGuinda:hover::after,
+html body .BtnFilter:hover::after,
+html body .BtnPrincipal:hover::after,
+html body .BtnConsultaPadre:hover::after,
+html body .BtnLogin:hover::after,
+html body .SgceReportBtn:hover::after,
+html body .ReporteBtn:hover::after,
+html body .ActionBtn:hover::after,
+html body .BtnSmall:hover::after,
+html body .BtnGuardar:hover::after,
+html body .SgceConfigSave:hover::after,
+html body .SgceInstallerBtn:hover::after,
+html body .BtnExpedienteLoad:hover::after,
+html body .BtnExpedienteClean:hover::after,
+html body .BtnExpedienteOpen:hover::after,
+html body .BtnAsignacionPrimary:hover::after,
+html body .AvisosSubmit:hover::after,
+html body .BtnSaveEdit:hover::after,
+html body .BtnConfirmDelete:hover::after,
+html body .BtnConfirmActivar:hover::after,
+html body .BtnConfirmDesactivar:hover::after{
+  left:130%!important;
+}
+html body button:not(.btn-close):hover,
+html body .btn:not(.btn-close):hover,
+html body .BtnPrimary:hover,
+html body .BtnGuinda:hover,
+html body .BtnFilter:hover,
+html body .BtnPrincipal:hover,
+html body .BtnConsultaPadre:hover,
+html body .BtnLogin:hover,
+html body .SgceReportBtn:hover,
+html body .ReporteBtn:hover,
+html body .ActionBtn:hover,
+html body .BtnSmall:hover,
+html body .BtnGuardar:hover,
+html body .SgceConfigSave:hover,
+html body .SgceInstallerBtn:hover,
+html body .BtnExpedienteLoad:hover,
+html body .BtnExpedienteClean:hover,
+html body .BtnExpedienteOpen:hover,
+html body .BtnAsignacionPrimary:hover,
+html body .AvisosSubmit:hover,
+html body .BtnSaveEdit:hover,
+html body .BtnConfirmDelete:hover,
+html body .BtnConfirmActivar:hover,
+html body .BtnConfirmDesactivar:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.08) brightness(1.02)!important;
+}
+html body button:not(.btn-close):active,
+html body .btn:not(.btn-close):active,
+html body .BtnPrimary:active,
+html body .BtnGuinda:active,
+html body .BtnFilter:active,
+html body .BtnPrincipal:active,
+html body .BtnConsultaPadre:active,
+html body .BtnLogin:active,
+html body .SgceReportBtn:active,
+html body .ReporteBtn:active,
+html body .ActionBtn:active,
+html body .BtnSmall:active,
+html body .BtnGuardar:active,
+html body .SgceConfigSave:active,
+html body .SgceInstallerBtn:active,
+html body .BtnExpedienteLoad:active,
+html body .BtnExpedienteClean:active,
+html body .BtnExpedienteOpen:active,
+html body .BtnAsignacionPrimary:active,
+html body .AvisosSubmit:active,
+html body .BtnSaveEdit:active,
+html body .BtnConfirmDelete:active,
+html body .BtnConfirmActivar:active,
+html body .BtnConfirmDesactivar:active{
+  transform:translateY(1px) scale(.985)!important;
+  filter:saturate(1.05) brightness(.96)!important;
+}
+html body button:not(.btn-close) > *,
+html body .btn:not(.btn-close) > *,
+html body .ActionBtn > *,
+html body .BtnSmall > *,
+html body .BtnPrimary > *,
+html body .BtnGuinda > *,
+html body .SgceReportBtn > *,
+html body .BtnGuardar > *,
+html body .SgceConfigSave > *{
+  position:relative!important;
+  z-index:1!important;
+}
+/* Botones primarios de alta/guardar/cargar/consultar: institucional metálico. */
+html body .BtnPrimary,
+html body .BtnGuinda,
+html body .BtnFilter,
+html body .BtnPrincipal,
+html body .BtnConsultaPadre,
+html body .BtnLogin,
+html body .SgceReportBtn,
+html body .ReporteBtn,
+html body .BtnExport,
+html body .SgceConfigSave,
+html body .SgceInstallerBtn,
+html body .BtnGuardar,
+html body .BtnTeacherPrimary,
+html body .BtnGroupPrimary,
+html body .BtnStudentPrimary,
+html body .BtnAsignacionPrimary,
+html body .AvisosSubmit.BtnAvisoPublish,
+html body .BtnExpedienteLoad,
+html body .BtnExpedienteClean,
+html body button.btn-guinda,
+html body .btn.btn-guinda,
+html body button.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),
+html body .btn.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),
+html body button[type="submit"]:not(.btn-close):not(.BtnCancelDelete):not(.BtnCancelEdit):not(.BtnConfirmDelete):not(.BtnSaveEdit):not(.BtnConfirmActivar):not(.BtnAvisoModalActivate):not(.ActionDelete):not(.BtnDisable):not(.BtnStudentDelete):not(.BtnAsignacionDelete):not(.BtnTeacherDelete):not(.BtnGroupDelete){
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro, var(--SgceGuinda)) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 15px 32px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+/* Modificar/editar siempre azul metálico. */
+html body .ActionBtn.ActionEdit,
+html body .ActionBtn.BtnTeacherEdit,
+html body .ActionBtn.BtnGroupEdit,
+html body .ActionBtn.BtnStudentEdit,
+html body .ActionBtn.BtnAsignacionEdit,
+html body .ActionBtn.BtnAvisoEdit,
+html body .modal button.btn-primary,
+html body .modal .btn.btn-primary,
+html body .modal button.btn-success,
+html body .modal .btn.btn-success,
+html body .modal .BtnSaveEdit,
+html body .modal button.BtnSaveEdit[type="submit"]{
+  background:linear-gradient(135deg,var(--SgceUpdateAzulProfundo) 0%,var(--SgceUpdateAzulOscuro) 40%,var(--SgceUpdateAzul) 72%,var(--SgceUpdateAzulClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 15px 32px rgba(var(--SgceUpdateAzulRGB),.34),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+/* Eliminar/desactivar siempre rojo/tinto metálico. */
+html body .ActionBtn.ActionDelete,
+html body .ActionBtn.BtnTeacherDelete,
+html body .ActionBtn.BtnGroupDelete,
+html body .ActionBtn.BtnStudentDelete,
+html body .ActionBtn.BtnAsignacionDelete,
+html body .ActionBtn.BtnAvisoDeactivate,
+html body .ActionBtn.BtnDisable,
+html body .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar),
+html body .BtnConfirmDesactivar,
+html body .BtnAvisoModalDeactivate,
+html body .BtnConfirmarBajaUsuario,
+html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar),
+html body .modal .BtnConfirmDesactivar,
+html body .modal .BtnAvisoModalDeactivate,
+html body .modal .BtnConfirmarBajaUsuario{
+  background:linear-gradient(135deg,var(--SgceDangerProfundo) 0%,var(--SgceDangerOscuro) 40%,var(--SgceDanger) 72%,var(--SgceDangerClaro) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 15px 32px rgba(var(--SgceDangerRGB),.34),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+/* Reactivar/activar: metálico, pero integrado al color institucional para evitar verdes fijos. */
+html body .ActionBtn.BtnAvisoActivate,
+html body .ActionBtn.BtnReactivate,
+html body .BtnConfirmActivar,
+html body .BtnAvisoModalActivate,
+html body .modal .BtnConfirmActivar,
+html body .modal .BtnAvisoModalActivate{
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 40%,var(--SgceGuinda) 72%,var(--SgceGuindaClaro, var(--SgceGuinda)) 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 15px 32px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+/* Expediente conserva ámbar metálico fijo como acción especial. */
+html body .ActionBtn.BtnStudentFile,
+html body .ActionBtn.BtnExpedienteOpen,
+html body .BtnExpedienteOpen,
+html body #TableAlumnos .ActionBtn.BtnStudentFile,
+html body #TablaExpedientes .ActionBtn.BtnExpedienteOpen{
+  background:linear-gradient(135deg,#92400E 0%,#C2410C 38%,#EA580C 72%,#FDBA74 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 16px 32px rgba(194,65,12,.34),inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+html body button:not(.btn-close) i,
+html body button:not(.btn-close) span,
+html body .btn:not(.btn-close) i,
+html body .btn:not(.btn-close) span,
+html body .ActionBtn i,
+html body .ActionBtn span,
+html body .BtnSmall i,
+html body .BtnSmall span{
+  color:inherit!important;
+}
+/* Botones blancos de navegación/cancelar conservan estilo claro metálico. */
+html body .SgceBtnVolverInicio,
+html body .BtnCancelDelete,
+html body .BtnCancelEdit,
+html body .modal .BtnCancelDelete,
+html body .modal .BtnCancelEdit{
+  background:linear-gradient(145deg,#FFFFFF 0%,#F8FAFC 45%,#E5E7EB 100%)!important;
+  color:#64748B!important;
+  border:1px solid rgba(148,163,184,.48)!important;
+  box-shadow:0 10px 22px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.85)!important;
+}
+html body .SgceBtnVolverInicio:hover,
+html body .BtnCancelDelete:hover,
+html body .BtnCancelEdit:hover,
+html body .modal .BtnCancelDelete:hover,
+html body .modal .BtnCancelEdit:hover{
+  color:var(--SgceGuinda)!important;
+  box-shadow:0 15px 28px rgba(15,23,42,.16),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+
+/* ============================================================
+   SGCE v1.2.0 - Corrección de botones primarios metálicos
+   Evita que botones de guardar/cargar/consultar queden blancos por
+   herencia o estado deshabilitado. Los botones primarios siempre
+   conservan color institucional metálico; si están deshabilitados se
+   muestran atenuados, pero nunca blancos con texto invisible.
+   ============================================================ */
+html body .SgceModuleWrap button.BtnPrimary,
+html body .SgceModuleWrap a.BtnPrimary,
+html body .SgceModuleWrap .BtnGuinda,
+html body .SgceModuleWrap .BtnGuardar,
+html body .SgceModuleWrap .BtnTeacherPrimary,
+html body .SgceModuleWrap .BtnGroupPrimary,
+html body .SgceModuleWrap .BtnStudentPrimary,
+html body .SgceModuleWrap .BtnAsignacionPrimary,
+html body .SgceModuleWrap .BtnExpedienteLoad,
+html body .SgceModuleWrap .BtnExpedienteClean,
+html body .SgceModuleWrap .BtnFilter,
+html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish,
+html body .SgceModuleWrap .SgceConfigSave,
+html body .SgceModuleWrap .SgceReportBtn,
+html body .SgceModuleWrap .ReporteBtn,
+html body .ConsultaPublicaBody .ConsultaBtn,
+html body .BtnConsultaPadre,
+html body .BtnLogin,
+html body .SgceInstallerBtn,
+html body .modal .BtnConfirmActivar,
+html body .modal .BtnAvisoModalActivate{
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro, var(--SgceGuinda)) 100%)!important;
+  background-color:var(--SgceGuinda)!important;
+  color:#fff!important;
+  border:0!important;
+  opacity:1!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.16)!important;
+  box-shadow:0 16px 34px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+html body .SgceModuleWrap button.BtnPrimary i,
+html body .SgceModuleWrap button.BtnPrimary span,
+html body .SgceModuleWrap .BtnTeacherPrimary i,
+html body .SgceModuleWrap .BtnTeacherPrimary span,
+html body .SgceModuleWrap .BtnGroupPrimary i,
+html body .SgceModuleWrap .BtnGroupPrimary span,
+html body .SgceModuleWrap .BtnStudentPrimary i,
+html body .SgceModuleWrap .BtnStudentPrimary span,
+html body .SgceModuleWrap .BtnAsignacionPrimary i,
+html body .SgceModuleWrap .BtnAsignacionPrimary span,
+html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish i,
+html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish span{
+  color:#fff!important;
+  position:relative!important;
+  z-index:1!important;
+}
+html body .SgceModuleWrap button.BtnPrimary:hover,
+html body .SgceModuleWrap .BtnGuinda:hover,
+html body .SgceModuleWrap .BtnGuardar:hover,
+html body .SgceModuleWrap .BtnTeacherPrimary:hover,
+html body .SgceModuleWrap .BtnGroupPrimary:hover,
+html body .SgceModuleWrap .BtnStudentPrimary:hover,
+html body .SgceModuleWrap .BtnAsignacionPrimary:hover,
+html body .SgceModuleWrap .BtnExpedienteLoad:hover,
+html body .SgceModuleWrap .BtnExpedienteClean:hover,
+html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish:hover,
+html body .SgceModuleWrap .SgceConfigSave:hover,
+html body .ConsultaPublicaBody .ConsultaBtn:hover,
+html body .BtnConsultaPadre:hover,
+html body .BtnLogin:hover,
+html body .SgceInstallerBtn:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.10) brightness(1.03)!important;
+  box-shadow:0 20px 40px rgba(var(--SgceGuindaRGB),.40),inset 0 1px 0 rgba(255,255,255,.34)!important;
+}
+html body .SgceModuleWrap button.BtnPrimary:disabled,
+html body .SgceModuleWrap .BtnPrimary.disabled,
+html body .SgceModuleWrap .BtnTeacherPrimary:disabled,
+html body .SgceModuleWrap .BtnGroupPrimary:disabled,
+html body .SgceModuleWrap .BtnStudentPrimary:disabled,
+html body .SgceModuleWrap .BtnAsignacionPrimary:disabled,
+html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish:disabled,
+html body .SgceModuleWrap .SgceConfigSave:disabled{
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro, var(--SgceGuinda)) 100%)!important;
+  color:#fff!important;
+  opacity:.72!important;
+  cursor:not-allowed!important;
+  filter:saturate(.82) brightness(1.04)!important;
+  box-shadow:0 10px 22px rgba(var(--SgceGuindaRGB),.20),inset 0 1px 0 rgba(255,255,255,.20)!important;
+}
+
+/* Instalador: verificación visual del servidor */
+.SgceInstallerCheckPanel{
+  margin:18px 0 22px;
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(var(--SgceGuindaRGB),.16);
+  border-top:4px solid var(--SgceGuinda);
+  background:linear-gradient(135deg,#fff,rgba(var(--SgceGuindaRGB),.035));
+  box-shadow:0 12px 28px rgba(15,23,42,.06);
+}
+.SgceInstallerCheckPanel strong{display:flex;align-items:center;gap:8px;color:var(--SgceGuindaOscuro);font-weight:900;text-transform:uppercase;letter-spacing:.2px}
+.SgceInstallerCheckPanel p{margin:5px 0 14px;color:var(--SgceTextoSuave);font-weight:600}
+.SgceInstallerVerifyBtn{margin-bottom:14px}
+.SgceInstallerCheckResults{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.SgceInstallerCheckItem{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:16px;border:1px solid #E5E7EB;background:#fff}
+.SgceInstallerCheckItem i{margin-top:2px;font-size:1rem}.SgceInstallerCheckItem strong{margin:0;color:#0F172A;text-transform:none}.SgceInstallerCheckItem p{margin:3px 0 0;font-size:.82rem;line-height:1.35}.SgceInstallerCheckOK i{color:#16A34A}.SgceInstallerCheckWARNING i{color:#D97706}.SgceInstallerCheckERROR i{color:#DC2626}
+
+
+/* Consulta pública: encabezado compacto */
+.ConsultaPublicaBody .ConsultaHero.ConsultaHeroCompact{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:24px!important;
+  padding:22px 32px!important;
+  min-height:124px!important;
+  margin-bottom:22px!important;
+  border-radius:26px!important;
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 44%,var(--SgceGuinda) 100%)!important;
+  box-shadow:0 22px 42px rgba(var(--SgceGuindaRGB),.24),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+.ConsultaPublicaBody .ConsultaHeroMain{
+  display:flex!important;
+  align-items:center!important;
+  gap:18px!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact .ConsultaHeroIcon{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  border-radius:19px!important;
+  font-size:26px!important;
+  background:rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 14px 26px rgba(0,0,0,.10)!important;
+}
+.ConsultaPublicaBody .ConsultaHeroText{min-width:0!important;}
+.ConsultaPublicaBody .ConsultaHeroCompact .ConsultaSchoolName{
+  margin:0 0 4px!important;
+  font-size:.82rem!important;
+  color:rgba(255,255,255,.90)!important;
+  font-weight:900!important;
+  letter-spacing:.055em!important;
+  line-height:1.15!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact h1{
+  font-size:clamp(1.9rem,3vw,2.55rem)!important;
+  line-height:.98!important;
+  margin:0!important;
+  letter-spacing:.12px!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact p{
+  margin:9px 0 0!important;
+  max-width:780px!important;
+  font-size:.98rem!important;
+  line-height:1.4!important;
+  color:rgba(255,255,255,.86)!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact .ConsultaBadge{
+  margin:0!important;
+  flex:0 0 auto!important;
+  align-self:flex-start!important;
+  padding:10px 15px!important;
+  border-radius:999px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(255,255,255,.10))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 12px 24px rgba(0,0,0,.10)!important;
+  white-space:nowrap!important;
+}
+@media(max-width:900px){
+  .ConsultaPublicaBody .ConsultaHero.ConsultaHeroCompact{
+    align-items:flex-start!important;
+    flex-direction:column!important;
+    padding:22px!important;
+    gap:16px!important;
+  }
+  .ConsultaPublicaBody .ConsultaHeroCompact .ConsultaBadge{
+    align-self:flex-start!important;
+    order:-1!important;
+  }
+}
+@media(max-width:560px){
+  .ConsultaPublicaBody .ConsultaHeroMain{
+    align-items:flex-start!important;
+    flex-direction:column!important;
+  }
+  .ConsultaPublicaBody .ConsultaHeroCompact h1{
+    font-size:1.74rem!important;
+    line-height:1.05!important;
+  }
+  .ConsultaPublicaBody .ConsultaHeroCompact p{font-size:.92rem!important;}
 }

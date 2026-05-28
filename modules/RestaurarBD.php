@@ -231,9 +231,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="SgceRestorePage">
-<div class="container py-4 SgceRestoreWrap">
+<div class="container py-4 SgceModuleWrap SgceRestoreWrap">
     <div class="Top mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
             <h1 class="fw-black mb-1"><i class="fa-solid fa-database me-2"></i> RESPALDOS E IMPORTACIÓN</h1>

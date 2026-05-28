@@ -3,7 +3,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 /*
     Archivo: RespaldoBD.php
     Descripción: Genera un respaldo SQL descargable de la base de datos.
-    Este archivo lo uso desde el panel administrador para tener una copia rápida del sistema.
+    Genera una copia completa de la base de datos desde el panel administrativo.
 */
 require_once dirname(__DIR__) . '/config/Conexion.php';
 $UserSession = VerificarSesionCookie($Pdo);

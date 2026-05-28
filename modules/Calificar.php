@@ -185,9 +185,10 @@ if ($Calificados > 0) {
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 
 <style>
-    :root { --SgceVino:#9b001b; --SgceVinoOscuro:#7d0016; --SgceAzul:#2f6fec; --SgceVerde:#149447; --SgceBorde:#e6ebf2; --SgceTexto:#111827; }
+    :root { --SgceVino:var(--SgceGuinda); --SgceVinoOscuro:var(--SgceGuindaOscuro); --SgceAzul:#2f6fec; --SgceVerde:#149447; --SgceBorde:#e6ebf2; --SgceTexto:#111827; }
     body { background: radial-gradient(circle at top left, rgba(155,0,27,.08), transparent 34%), #f4f7fb; font-family: 'Poppins', sans-serif; }
     .SgcePage { max-width: 1080px; }
     .TopBar { position: relative; overflow: hidden; border-radius: 24px; padding: 22px 26px; background: linear-gradient(135deg, var(--SgceVino), var(--SgceVinoOscuro)); box-shadow: 0 18px 45px rgba(80,0,14,.18); color:#fff; display:block !important; }
@@ -221,7 +222,7 @@ if ($Calificados > 0) {
 <body>
 
 
-<div class="container py-3 SgcePage">
+<div class="container py-3 SgcePage SgceModuleWrap">
 
     <div class="TopBar mb-4">
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
@@ -507,7 +508,7 @@ if ($Calificados > 0) {
 <!-- ============================================================
      NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
      ------------------------------------------------------------
-     Este bloque lo uso para homologar todas las notificaciones.
+     Bloque utilizado para homologar notificaciones visuales del sistema.
      Cualquier alerta puede cerrarse manualmente con la tachita y,
      si el usuario no la cierra, desaparece sola después de unos segundos.
      ============================================================ -->

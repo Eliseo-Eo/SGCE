@@ -50,6 +50,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+
+
+    function RenderChecks(Contenedor, Checks) {
+        if (!Contenedor) { return; }
+        Contenedor.innerHTML = '';
+        Checks.forEach(function (Check) {
+            var Item = document.createElement('div');
+            Item.className = 'SgceInstallerCheckItem SgceInstallerCheck' + (Check.estado || 'warning').toUpperCase();
+            var Icon = Check.estado === 'ok' ? 'fa-circle-check' : (Check.estado === 'error' ? 'fa-circle-xmark' : 'fa-triangle-exclamation');
+            Item.innerHTML = '<i class="fa-solid ' + Icon + '"></i><div><strong></strong><p></p></div>';
+            Item.querySelector('strong').textContent = Check.titulo || 'Verificación';
+            Item.querySelector('p').textContent = Check.detalle || '';
+            Contenedor.appendChild(Item);
+        });
+    }
+
+    var BotonVerificar = document.getElementById('SgceInstallerVerifyBtn');
+    var ResultadosVerificar = document.getElementById('SgceInstallerCheckResults');
+    var FormInstalador = document.getElementById('SgceInstallerForm');
+    if (BotonVerificar && ResultadosVerificar && FormInstalador) {
+        BotonVerificar.addEventListener('click', function () {
+            BotonVerificar.disabled = true;
+            BotonVerificar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
+            var Datos = new FormData(FormInstalador);
+            fetch('Instalar.php?VerificarServidor=1', { method: 'POST', body: Datos, credentials: 'same-origin' })
+                .then(function (Respuesta) { return Respuesta.json(); })
+                .then(function (DatosRespuesta) { RenderChecks(ResultadosVerificar, DatosRespuesta.checks || []); })
+                .catch(function () { MostrarMensaje(FormInstalador, 'No fue posible ejecutar la verificación del servidor. Revisa la conexión y vuelve a intentar.'); })
+                .finally(function () {
+                    BotonVerificar.disabled = false;
+                    BotonVerificar.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verificar servidor';
+                });
+        });
+    }
+
+    var Color = document.getElementById('ColorInstitucional');
+    var TextoColor = document.getElementById('ColorInstitucionalTexto');
+    if (Color && TextoColor) {
+        var ActualizarColor = function () {
+            var Valor = window.SgceAplicarTemaColor ? window.SgceAplicarTemaColor(Color.value) : (Color.value || '#97051E').toUpperCase();
+            TextoColor.textContent = Valor;
+        };
+        Color.addEventListener('input', ActualizarColor);
+        ActualizarColor();
+    }
+
     document.querySelectorAll('.SgceInstallerPage form').forEach(function (Form) {
         Form.addEventListener('submit', function (Evento) {
             var Telefono = Form.querySelector('input[name="TelefonoEscuela"]');
@@ -61,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var Confirmacion = Form.querySelector('input[name="ConfirmarInstalacion"]');
             var FechaInicio = Form.querySelector('input[name="FechaInicio"]');
             var FechaFin = Form.querySelector('input[name="FechaFin"]');
+            var ColorInstitucional = Form.querySelector('input[name="ColorInstitucional"]');
 
 
             if (NombreEscuela && NombreEscuela.value.trim().length < 3) {
@@ -95,6 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 Evento.preventDefault();
                 MostrarMensaje(Form, 'El correo institucional debe tener formato válido, por ejemplo direccion@escuela.com.');
                 Correo.focus();
+                return;
+            }
+
+            if (ColorInstitucional && !/^#[0-9A-Fa-f]{6}$/.test(ColorInstitucional.value.trim())) {
+                Evento.preventDefault();
+                MostrarMensaje(Form, 'Selecciona un color institucional válido.');
+                ColorInstitucional.focus();
                 return;
             }
 

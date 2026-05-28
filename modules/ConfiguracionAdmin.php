@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $TelefonoEscuela = ConfigNormalizar($_POST['TelefonoEscuela'] ?? '', false);
         $CorreoEscuela = ConfigNormalizar($_POST['CorreoEscuela'] ?? '', false);
         $LemaInstitucional = ConfigNormalizar($_POST['LemaInstitucional'] ?? '', false);
-        $ColorInstitucional = trim((string)($_POST['ColorInstitucional'] ?? '#7A0818'));
+        $ColorInstitucional = SgceNormalizarColorHex($_POST['ColorInstitucional'] ?? '#97051E');
 
         $CicloNombre = ConfigNormalizar($_POST['CicloNombre'] ?? '', true);
         $FechaInicio = trim((string)($_POST['FechaInicio'] ?? ''));
@@ -36,14 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $PeriodoTres = ConfigNormalizar($_POST['PeriodoTres'] ?? '', true);
 
         if ($NombreEscuela === '' || mb_strlen($NombreEscuela, 'UTF-8') < 3) { throw new Exception('Escribe el nombre oficial de la escuela.'); }
+        if ($ClaveCentroTrabajo !== '' && !preg_match('/^[A-Z0-9-]{3,30}$/', $ClaveCentroTrabajo)) { throw new Exception('La CCT / clave solo debe usar letras, números o guion.'); }
+        if ($DirectorNombre !== '' && !preg_match('/^[A-ZÁÉÍÓÚÜÑ .\'-]{3,120}$/u', $DirectorNombre)) { throw new Exception('El nombre del director solo debe contener letras y espacios.'); }
+        if ($TelefonoEscuela !== '' && !preg_match('/^\d{7,15}$/', $TelefonoEscuela)) { throw new Exception('El teléfono debe contener solo números, mínimo 7 y máximo 15 dígitos.'); }
         if ($CorreoEscuela !== '' && !filter_var($CorreoEscuela, FILTER_VALIDATE_EMAIL)) { throw new Exception('El correo institucional no tiene formato válido.'); }
-        if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $ColorInstitucional)) { $ColorInstitucional = '#7A0818'; }
+        if (!preg_match('/^#[0-9A-F]{6}$/', $ColorInstitucional)) { throw new Exception('El color institucional no tiene formato válido.'); }
         if ($CicloNombre === '' || !ConfigFechaValida($FechaInicio) || !ConfigFechaValida($FechaFin) || strtotime($FechaInicio) >= strtotime($FechaFin)) {
             throw new Exception('Revisa el ciclo escolar. Las fechas no son válidas.');
         }
         if ($PeriodoUno === '' || $PeriodoDos === '' || $PeriodoTres === '') { throw new Exception('Los tres periodos son obligatorios.'); }
         if (count(array_unique([$PeriodoUno, $PeriodoDos, $PeriodoTres])) !== 3) { throw new Exception('Los periodos no pueden repetirse.'); }
 
+        SgceCrearTablaConfiguracionSiNoExiste($Pdo);
+        CrearTablaBitacoraSiNoExiste($Pdo);
         $Pdo->beginTransaction();
         SgceGuardarConfiguracion($Pdo, [
             'NombreEscuela' => $NombreEscuela,
@@ -127,9 +132,10 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<?= SgceEstilosTema($Pdo) ?>
 </head>
 <body>
-<div class="SgcePageWrap container-fluid px-4 py-4">
+<div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
     <section class="SgceHero mb-4">
         <div class="SgceHeroInfo">
             <div class="SgceHeroIcon"><i class="fa-solid fa-school-circle-check"></i></div>
@@ -162,10 +168,10 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
                 <div class="col-md-4"><label class="SgceFieldLabel">CCT / Clave</label><input class="form-control FormControl InputUpper" name="ClaveCentroTrabajo" value="<?= HConfig($Config['ClaveCentroTrabajo']) ?>"></div>
                 <div class="col-md-6"><label class="SgceFieldLabel">Director(a)</label><input class="form-control FormControl InputUpper" name="DirectorNombre" value="<?= HConfig($Config['DirectorNombre']) ?>"></div>
                 <div class="col-md-6"><label class="SgceFieldLabel">Municipio y estado</label><input class="form-control FormControl InputUpper" name="MunicipioEstado" value="<?= HConfig($Config['MunicipioEstado']) ?>"></div>
-                <div class="col-md-6"><label class="SgceFieldLabel">Teléfono</label><input class="form-control FormControl" name="TelefonoEscuela" value="<?= HConfig($Config['TelefonoEscuela']) ?>"></div>
-                <div class="col-md-6"><label class="SgceFieldLabel">Correo institucional</label><input class="form-control FormControl" name="CorreoEscuela" value="<?= HConfig($Config['CorreoEscuela']) ?>"></div>
+                <div class="col-md-6"><label class="SgceFieldLabel">Teléfono</label><input class="form-control FormControl InputDigits" name="TelefonoEscuela" value="<?= HConfig($Config['TelefonoEscuela']) ?>" inputmode="numeric" maxlength="15" pattern="\d{0,15}"></div>
+                <div class="col-md-6"><label class="SgceFieldLabel">Correo institucional</label><input class="form-control FormControl" type="email" name="CorreoEscuela" value="<?= HConfig($Config['CorreoEscuela']) ?>" maxlength="120"></div>
                 <div class="col-md-8"><label class="SgceFieldLabel">Lema o leyenda inferior</label><input class="form-control FormControl" name="LemaInstitucional" value="<?= HConfig($Config['LemaInstitucional']) ?>"></div>
-                <div class="col-md-4"><label class="SgceFieldLabel">Color institucional</label><input class="form-control FormControl" type="color" name="ColorInstitucional" value="<?= HConfig($Config['ColorInstitucional'] ?: '#7A0818') ?>"></div>
+                <div class="col-md-4"><label class="SgceFieldLabel">Color institucional</label><div class="SgceColorControl"><input class="form-control FormControl" type="color" name="ColorInstitucional" id="ColorInstitucional" value="<?= HConfig(SgceNormalizarColorHex($Config['ColorInstitucional'] ?? '#97051E')) ?>"><span id="ColorInstitucionalTexto"><?= HConfig(SgceNormalizarColorHex($Config['ColorInstitucional'] ?? '#97051E')) ?></span></div></div>
             </div>
         </section>
 
@@ -205,7 +211,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sgce-shared.js?v=1.0.0"></script>
 <script>
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.InputUpper').forEach(function(Input){Input.addEventListener('input',function(){var Pos=Input.selectionStart;Input.value=Input.value.toUpperCase();try{Input.setSelectionRange(Pos,Pos);}catch(E){}});});});
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.InputUpper').forEach(function(Input){Input.addEventListener('input',function(){var Pos=Input.selectionStart;Input.value=Input.value.toUpperCase();try{Input.setSelectionRange(Pos,Pos);}catch(Error){} });});document.querySelectorAll('.InputDigits').forEach(function(Input){Input.addEventListener('input',function(){Input.value=Input.value.replace(/\D/g,'').slice(0,15);});});var Color=document.getElementById('ColorInstitucional');var Texto=document.getElementById('ColorInstitucionalTexto');if(Color&&Texto){var Actualizar=function(){var Valor=window.SgceAplicarTemaColor?window.SgceAplicarTemaColor(Color.value):Color.value.toUpperCase();Texto.textContent=Valor;};Color.addEventListener('input',Actualizar);Actualizar();}});
 </script>
 </body>
 </html>
