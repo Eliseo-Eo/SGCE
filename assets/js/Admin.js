@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     // ============================================================
-    // HOMOLOGAR TEXTBOX, TEXTAREA Y SELECT EN MAYÚSCULAS
+    // Normalización visual de campos
     // ------------------------------------------------------------
     // Aquí hago que los textos visibles se vean en mayúsculas.
     // Usuario y contraseña NO se convierten porque deben respetar
@@ -306,44 +306,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
-(function(){
-    function AplicarEstiloBotonCerrarSesionAdmin(Hover){
-        var Boton=document.getElementById('BtnCerrarSesionAdmin');
-        if(!Boton){return;}
-        var Estilos=getComputedStyle(document.documentElement);
-        var Color=(Estilos.getPropertyValue('--SgceGuinda')||'#97051E').trim();
-        var ColorOscuro=(Estilos.getPropertyValue('--SgceGuindaOscuro')||'#760617').trim();
-        if(Hover){
-            Boton.style.setProperty('background',Color,'important');
-            Boton.style.setProperty('background-color',Color,'important');
-            Boton.style.setProperty('background-image','linear-gradient(135deg,'+Color+','+ColorOscuro+')','important');
-            Boton.style.setProperty('color','#FFFFFF','important');
-            Boton.style.setProperty('border-color',ColorOscuro,'important');
-            Boton.style.setProperty('transform','translateY(-2px)','important');
-            Boton.style.setProperty('box-shadow','inset 0 0 0 1px rgba(255,255,255,.20),0 15px 32px rgba(15,23,42,.22),0 0 0 4px rgba(151,5,30,.12)','important');
-        }else{
-            Boton.style.setProperty('background','#FFFFFF','important');
-            Boton.style.setProperty('background-color','#FFFFFF','important');
-            Boton.style.setProperty('background-image','none','important');
-            Boton.style.setProperty('color',Color,'important');
-            Boton.style.setProperty('border-color',ColorOscuro,'important');
-            Boton.style.setProperty('transform','none','important');
-            Boton.style.setProperty('box-shadow','inset 0 0 0 1px rgba(255,255,255,.82),0 8px 18px rgba(15,23,42,.14),0 0 0 3px rgba(151,5,30,.08)','important');
-        }
-        Boton.querySelectorAll('i,span').forEach(function(Elemento){
-            Elemento.style.setProperty('color',Hover ? '#FFFFFF' : Color,'important');
-        });
-    }
-    document.addEventListener('DOMContentLoaded',function(){
-        var Boton=document.getElementById('BtnCerrarSesionAdmin');
-        if(!Boton){return;}
-        AplicarEstiloBotonCerrarSesionAdmin(false);
-        Boton.addEventListener('mouseenter',function(){AplicarEstiloBotonCerrarSesionAdmin(true);});
-        Boton.addEventListener('mouseleave',function(){AplicarEstiloBotonCerrarSesionAdmin(false);});
-        Boton.addEventListener('focus',function(){AplicarEstiloBotonCerrarSesionAdmin(true);});
-        Boton.addEventListener('blur',function(){AplicarEstiloBotonCerrarSesionAdmin(false);});
-    });
-})();
 
 (function(){
     function AjustarContenedoresTablas(){

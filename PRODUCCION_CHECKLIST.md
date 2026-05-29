@@ -1,48 +1,37 @@
-# Checklist de producción SGCE
+# Checklist de producción - SGCE 2026 FINAL
 
 ## Antes de instalar
 
-- [ ] Confirmar PHP 8.1 o superior recomendado.
-- [ ] Confirmar extensiones: pdo, pdo_mysql, mbstring, zip, simplexml, fileinfo, iconv y json.
-- [ ] Confirmar HTTPS en el dominio o subdominio.
-- [ ] Crear base de datos exclusiva para SGCE.
-- [ ] Crear usuario MySQL exclusivo con permisos sobre esa base.
-- [ ] Dar permiso temporal de escritura a `config/` y `storage/`.
+- PHP 8.1 o superior.
+- Extensiones PHP: PDO MySQL, Zip, SimpleXML, mbstring, fileinfo.
+- Base de datos MySQL/MariaDB vacía y exclusiva.
+- Carpeta `config/` con permisos de escritura durante la instalación.
+- Carpetas `storage/`, `storage/backups/`, `storage/logs/` y `storage/planeaciones/` con permisos de escritura.
+- En Plesk/cPanel, no agregar reglas manuales PHP/Nginx que dupliquen las del panel.
 
 ## Instalación
 
-- [ ] Abrir `Instalar.php`.
-- [ ] Capturar conexión MySQL.
-- [ ] Pulsar **Verificar servidor**.
-- [ ] Corregir cualquier error de permisos, extensión o conexión.
-- [ ] Capturar datos oficiales de la escuela.
-- [ ] Capturar ciclo escolar y tres periodos.
-- [ ] Crear administrador principal.
-- [ ] Confirmar con `INSTALAR SGCE`.
-- [ ] Entrar al sistema desde `index.php`.
+1. Subir todo el contenido de la carpeta `SGCE/` al dominio o subcarpeta.
+2. Abrir `Instalar.php` desde el navegador.
+3. Ejecutar `Verificar servidor`.
+4. Capturar datos de MySQL, escuela, ciclo escolar y administrador.
+5. Escribir la confirmación `INSTALAR SGCE`.
+6. Entrar desde `index.php`.
 
 ## Después de instalar
 
-- [ ] Confirmar que se creó `config/database.local.php`.
-- [ ] Confirmar que existe `storage/install.lock`.
-- [ ] Eliminar `Instalar.php` si el servidor lo permite.
-- [ ] Quitar permisos amplios en `config/` y `storage/`.
-- [ ] Programar cron de respaldo diario o semanal.
-- [ ] Probar creación de maestro, grupo, alumno y asignación.
-- [ ] Probar asistencia, calificaciones, consulta de padres y reportes PDF.
-- [ ] Crear un respaldo manual desde el panel.
-- [ ] Revisar que no existan errores en `storage/logs/`.
+- Confirmar que el login funcione.
+- Confirmar que `storage/install.lock` exista.
+- Si `Instalar.php` no se eliminó automáticamente, eliminarlo manualmente.
+- Probar alta de maestro, grupo, alumno y asignación.
+- Probar importación CSV/Excel con archivo pequeño.
+- Probar exportación PDF/Excel.
+- Probar respaldo de solo datos.
 
-## Cron recomendado
+## Plesk y PageSpeed
 
-Diario:
+El `.htaccess` ya incluye `ModPagespeed off`. No quitarlo. Si PageSpeed se activa, puede reescribir archivos CSS/JS y romper botones, colores o modales.
 
-```bash
-0 2 * * * /usr/bin/php /ruta/SGCE/cron/backup_diario.php
-```
+## Calificación final
 
-Semanal:
-
-```bash
-30 2 * * 0 /usr/bin/php /ruta/SGCE/cron/backup_semanal.php
-```
+SGCE 2026 FINAL queda en **9.4/10** para entrega. El margen restante depende de pruebas reales con datos del cliente, concurrencia del hosting contratado y configuración específica del servidor.

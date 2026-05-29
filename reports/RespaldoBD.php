@@ -32,14 +32,14 @@ function ColumnasInsertablesRespaldo($Pdo, $Tabla) {
 }
 
 
-$NombreArchivo = 'Respaldo_ControlEscolar_' . date('Ymd_His') . '.sql';
+$NombreArchivo = 'Respaldo_SGCE_' . date('Ymd_His') . '.sql';
 header('Content-Type: application/sql; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
 header('Pragma: no-cache');
 header('Expires: 0');
 
 echo "-- ============================================================\n";
-echo "-- RESPALDO SGCE - CONTROL ESCOLAR\n";
+echo "-- RESPALDO SGCE\n";
 echo "-- GENERADO: " . date('Y-m-d H:i:s') . "\n";
 echo "-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n";
 echo "-- ============================================================\n\n";

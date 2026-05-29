@@ -33,7 +33,7 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
 <link rel="icon" href="favicon.ico">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="SgceReportsPage">
@@ -71,11 +71,11 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                 <div class="SgceReportTwoCols">
                     <div class="SgceFormField">
                         <label>Fecha inicio</label>
-                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>">
+                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>" required>
                     </div>
                     <div class="SgceFormField">
                         <label>Fecha fin</label>
-                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>">
+                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>" required>
                     </div>
                 </div>
                 <div class="SgceFormField Full">
@@ -107,11 +107,11 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                 <div class="SgceReportTwoCols">
                     <div class="SgceFormField">
                         <label>Fecha inicio</label>
-                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>">
+                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>" required>
                     </div>
                     <div class="SgceFormField">
                         <label>Fecha fin</label>
-                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>">
+                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>" required>
                     </div>
                 </div>
                 <div class="SgceFormField Full">
@@ -127,7 +127,7 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                 <span class="SgceReportIcon"><i class="fa-solid fa-star"></i></span>
                 <div>
                     <h5>Calificaciones</h5>
-                    <p>Promedios y registros por periodo, grupo o asignación.</p>
+                    <p>Promedios y registros por periodo, grupo, asignación o resumen general.</p>
                 </div>
             </div>
             <form action="ExportarCalificaciones.php" method="GET" target="_blank" class="SgceReportForm">
@@ -138,17 +138,18 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                 <div class="SgceReportTwoCols">
                     <div class="SgceFormField">
                         <label>Grupo</label>
-                        <select name="GrupoId" class="form-select"><option value="">TODOS</option><?php foreach($Grupos as $G): ?><option value="<?= (int)$G['Id'] ?>"><?= HGlobal($G['Grado'].' '.$G['Grupo'].' '.$G['Turno']) ?></option><?php endforeach; ?></select>
+                        <select name="GrupoId" class="form-select"><option value="">GENERAL / TODOS</option><?php foreach($Grupos as $G): ?><option value="<?= (int)$G['Id'] ?>"><?= HGlobal($G['Grado'].' '.$G['Grupo'].' '.$G['Turno']) ?></option><?php endforeach; ?></select>
                     </div>
                     <div class="SgceFormField">
                         <label>Asignación</label>
-                        <select name="AsignacionId" class="form-select"><option value="">TODAS</option><?php foreach($Asignaciones as $A): ?><option value="<?= (int)$A['Id'] ?>"><?= HGlobal($A['MateriaNombre'].' - '.$A['Grado'].' '.$A['Grupo']) ?></option><?php endforeach; ?></select>
+                        <select name="AsignacionId" class="form-select"><option value="">GENERAL / TODAS</option><?php foreach($Asignaciones as $A): ?><option value="<?= (int)$A['Id'] ?>"><?= HGlobal($A['MateriaNombre'].' - '.$A['Grado'].' '.$A['Grupo']) ?></option><?php endforeach; ?></select>
                     </div>
                 </div>
                 <div class="SgceFormField Full">
                     <label>Formato</label>
                     <select name="Tipo" class="form-select"><option value="Pdf">PDF</option><option value="Excel">EXCEL</option></select>
                 </div>
+                <p class="SgceReportHint"><i class="fa-solid fa-circle-info"></i> Si dejas grupo y asignación en general, se exporta el resumen completo del periodo.</p>
                 <button class="SgceReportBtn BtnReportExport" type="submit"><i class="fa-solid fa-star"></i><span>Exportar calificaciones</span></button>
             </form>
         </section>
@@ -194,6 +195,22 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
         </section>
     </div>
 </div>
-<script src="assets/js/sgce-shared.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.SgceReportForm').forEach(function(Form){
+        Form.addEventListener('submit', function(Event){
+            var Inicio = Form.querySelector('input[name="FechaInicio"]');
+            var Fin = Form.querySelector('input[name="FechaFin"]');
+            if (Inicio && Fin && Inicio.value && Fin.value && Inicio.value > Fin.value) {
+                Event.preventDefault();
+                alert('La fecha de inicio no puede ser mayor que la fecha fin.');
+                Inicio.focus();
+            }
+        });
+    });
+});
+</script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
 </body>
 </html>

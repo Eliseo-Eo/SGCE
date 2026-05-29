@@ -1,7 +1,7 @@
 
 // =====================================================
 // TEMA INSTITUCIONAL DINÁMICO
-// Aplica en vista previa el mismo cálculo de tonos que usa PHP al guardar.
+// Aplica en vista previa el mismo cálculo de tonos utilizado por el servidor.
 // =====================================================
 window.SgceAjustarColorHex = function (ColorHex, Porcentaje) {
     var Color = String(ColorHex || '#97051E').replace('#', '').trim();
@@ -40,7 +40,7 @@ window.SgceAplicarTemaColor = function (ColorHex) {
     return Valor;
 };
 
-// ===== BLOQUE COMPARTIDO EXTRAÍDO =====
+// Funciones compartidas del sistema
 document.addEventListener('DOMContentLoaded', function() {
 
     function OcultarNotificacion(Alerta) {
@@ -72,19 +72,26 @@ document.addEventListener('DOMContentLoaded', function() {
         Alerta.classList.add('alert-dismissible', 'fade', 'show');
         Alerta.style.position = 'relative';
 
-        let BotonCerrar = Alerta.querySelector('.btn-close');
+        let BotonesCerrar = Alerta.querySelectorAll('.btn-close, [data-bs-dismiss="alert"], [data-sgce-dismiss], .SgceInstallerAlertClose');
 
-        if (!BotonCerrar) {
-            BotonCerrar = document.createElement('button');
+        if (BotonesCerrar.length === 0) {
+            const BotonCerrar = document.createElement('button');
             BotonCerrar.type = 'button';
             BotonCerrar.className = 'btn-close';
-            BotonCerrar.setAttribute('aria-label', 'CERRAR');
+            BotonCerrar.setAttribute('aria-label', 'Cerrar mensaje');
             Alerta.appendChild(BotonCerrar);
+            BotonesCerrar = Alerta.querySelectorAll('.btn-close');
         }
 
-        BotonCerrar.addEventListener('click', function(Evento) {
-            Evento.preventDefault();
-            OcultarNotificacion(Alerta);
+        BotonesCerrar.forEach(function(BotonCerrar) {
+            if (BotonCerrar.dataset.SgceCloseReady === '1') {
+                return;
+            }
+            BotonCerrar.dataset.SgceCloseReady = '1';
+            BotonCerrar.addEventListener('click', function(Evento) {
+                Evento.preventDefault();
+                OcultarNotificacion(Alerta);
+            });
         });
 
         function ProgramarAutoCierre() {
@@ -141,11 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// ===== BLOQUE COMPARTIDO EXTRAÍDO =====
 // =====================================================
 // EFECTOS VISUALES LIGEROS
-// Agrego una clase al cargar la página y preparo animaciones suaves.
-// No afecta la lógica del sistema, solo mejora la experiencia visual.
 // =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.add('PageFadeIn');
@@ -170,11 +174,193 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 
-// ===== BLOQUE COMPARTIDO EXTRAÍDO =====
+// =====================================================
+// MODALES GLOBALES
+// =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.modal').forEach(function(Modal){
         if (Modal.parentElement !== document.body) {
             document.body.appendChild(Modal);
         }
+    });
+});
+
+// =====================================================
+// SGCE 2026 FINAL - MODAL GLOBAL AMBER DE CONFIRMACIÓN
+// Confirma importaciones y cierre de sesión sin usar confirm() del navegador.
+// =====================================================
+document.addEventListener('DOMContentLoaded', function(){
+    var ModalActual = null;
+    var FormularioPendiente = null;
+    var EnlacePendiente = null;
+    var BotonSubmitPendiente = null;
+
+    function TextoSeguro(Valor, Predeterminado) {
+        Valor = String(Valor || '').trim();
+        return Valor !== '' ? Valor : Predeterminado;
+    }
+
+    function CrearModalConfirmacion() {
+        var Existente = document.getElementById('SgceConfirmModalGlobal');
+        if (Existente) {
+            return Existente;
+        }
+
+        var Modal = document.createElement('div');
+        Modal.className = 'modal fade SgceConfirmModal';
+        Modal.id = 'SgceConfirmModalGlobal';
+        Modal.tabIndex = -1;
+        Modal.setAttribute('aria-hidden', 'true');
+        Modal.innerHTML = '' +
+            '<div class="modal-dialog modal-dialog-centered SgceConfirmDialog">' +
+                '<div class="modal-content SgceConfirmContent">' +
+                    '<div class="SgceConfirmHeader">' +
+                        '<div class="SgceConfirmIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
+                        '<h4 id="SgceConfirmTitle">CONFIRMAR ACCIÓN</h4>' +
+                        '<p id="SgceConfirmSubtitle">REVISIÓN NECESARIA</p>' +
+                    '</div>' +
+                    '<div class="SgceConfirmBody">' +
+                        '<p class="SgceConfirmMessage" id="SgceConfirmMessage">¿DESEAS CONTINUAR?</p>' +
+                        '<div class="SgceConfirmDetail"><i class="fa-solid fa-circle-info"></i><span id="SgceConfirmDetail">Revisa la información antes de confirmar.</span></div>' +
+                        '<div class="SgceConfirmActions">' +
+                            '<button type="button" class="SgceConfirmCancel" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> CANCELAR</button>' +
+                            '<button type="button" class="SgceConfirmAccept" id="SgceConfirmAccept"><i class="fa-solid fa-check"></i> CONFIRMAR</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(Modal);
+        return Modal;
+    }
+
+    function ConfigurarModalDesde(Elemento) {
+        var Modal = CrearModalConfirmacion();
+        var Icono = TextoSeguro(Elemento.dataset.sgceConfirmIcon, Elemento.dataset.sgceConfirm === 'logout' ? 'fa-right-from-bracket' : 'fa-file-import');
+        var Titulo = TextoSeguro(Elemento.dataset.sgceConfirmTitle, 'CONFIRMAR ACCIÓN');
+        var Subtitulo = TextoSeguro(Elemento.dataset.sgceConfirmSubtitle, Elemento.dataset.sgceConfirm === 'logout' ? 'SALIDA DEL SISTEMA' : 'IMPORTACIÓN DE DATOS');
+        var Mensaje = TextoSeguro(Elemento.dataset.sgceConfirmMessage, '¿DESEAS CONTINUAR?');
+        var Detalle = TextoSeguro(Elemento.dataset.sgceConfirmDetail, 'Revisa la información antes de confirmar.');
+        var Boton = TextoSeguro(Elemento.dataset.sgceConfirmButton, 'SÍ, CONTINUAR');
+
+        Modal.querySelector('.SgceConfirmIcon i').className = 'fa-solid ' + Icono;
+        Modal.querySelector('#SgceConfirmTitle').textContent = Titulo;
+        Modal.querySelector('#SgceConfirmSubtitle').textContent = Subtitulo;
+        Modal.querySelector('#SgceConfirmMessage').textContent = Mensaje;
+        Modal.querySelector('#SgceConfirmDetail').textContent = Detalle;
+
+        var BotonAceptar = Modal.querySelector('#SgceConfirmAccept');
+        BotonAceptar.disabled = false;
+        BotonAceptar.innerHTML = '<i class="fa-solid fa-check"></i> ' + Boton;
+        BotonAceptar.dataset.loadingText = TextoSeguro(Elemento.dataset.sgceConfirmLoading, 'PROCESANDO...');
+
+        return Modal;
+    }
+
+    function AbrirConfirmacion(Elemento) {
+        var ModalElemento = ConfigurarModalDesde(Elemento);
+
+        if (window.bootstrap && bootstrap.Modal) {
+            ModalActual = bootstrap.Modal.getOrCreateInstance(ModalElemento, { backdrop: 'static', keyboard: true });
+            ModalActual.show();
+        } else {
+            var Mensaje = TextoSeguro(Elemento.dataset.sgceConfirmMessage, '¿DESEAS CONTINUAR?');
+            if (window.confirm(Mensaje)) {
+                ConfirmarAccion();
+            }
+        }
+    }
+
+    function AgregarSubmitter(Formulario, Boton) {
+        if (!Boton || !Boton.name) {
+            return;
+        }
+        var YaExiste = Formulario.querySelector('input[type="hidden"][data-sgce-submit-clone="1"][name="' + Boton.name + '"]');
+        if (YaExiste) {
+            YaExiste.value = Boton.value;
+            return;
+        }
+        var Campo = document.createElement('input');
+        Campo.type = 'hidden';
+        Campo.name = Boton.name;
+        Campo.value = Boton.value;
+        Campo.dataset.sgceSubmitClone = '1';
+        Formulario.appendChild(Campo);
+    }
+
+    function ConfirmarAccion() {
+        var ModalElemento = document.getElementById('SgceConfirmModalGlobal');
+        var BotonAceptar = ModalElemento ? ModalElemento.querySelector('#SgceConfirmAccept') : null;
+        if (BotonAceptar) {
+            BotonAceptar.disabled = true;
+            BotonAceptar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + TextoSeguro(BotonAceptar.dataset.loadingText, 'PROCESANDO...');
+        }
+
+        if (FormularioPendiente) {
+            FormularioPendiente.dataset.sgceConfirmado = '1';
+            AgregarSubmitter(FormularioPendiente, BotonSubmitPendiente);
+            FormularioPendiente.submit();
+            return;
+        }
+
+        if (EnlacePendiente) {
+            window.location.href = EnlacePendiente.href;
+        }
+    }
+
+    document.body.addEventListener('submit', function(Evento){
+        var Formulario = Evento.target;
+        if (!Formulario || !Formulario.matches || !Formulario.matches('form[data-sgce-confirm]')) {
+            return;
+        }
+        if (Formulario.dataset.sgceConfirmado === '1') {
+            return;
+        }
+
+        Evento.preventDefault();
+        FormularioPendiente = Formulario;
+        EnlacePendiente = null;
+        BotonSubmitPendiente = Evento.submitter || document.activeElement || null;
+        AbrirConfirmacion(Formulario);
+    }, true);
+
+    document.body.addEventListener('click', function(Evento){
+        var Enlace = Evento.target.closest ? Evento.target.closest('a[data-sgce-confirm]') : null;
+        if (!Enlace) {
+            return;
+        }
+        Evento.preventDefault();
+        EnlacePendiente = Enlace;
+        FormularioPendiente = null;
+        BotonSubmitPendiente = null;
+        AbrirConfirmacion(Enlace);
+    });
+
+    document.body.addEventListener('click', function(Evento){
+        var Boton = Evento.target.closest ? Evento.target.closest('#SgceConfirmAccept') : null;
+        if (!Boton) {
+            return;
+        }
+        Evento.preventDefault();
+        ConfirmarAccion();
+    });
+});
+
+
+// =====================================================
+// SGCE 2026 FINAL - AVISOS DOCENTE
+// Cierra correctamente el aviso cuando el docente no tiene materias asignadas.
+// =====================================================
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('[data-maestro-empty-close="true"]').forEach(function(Boton){
+        if (Boton.dataset.sgceMaestroCloseReady === '1') { return; }
+        Boton.dataset.sgceMaestroCloseReady = '1';
+        Boton.addEventListener('click', function(Evento){
+            Evento.preventDefault();
+            var Aviso = Boton.closest('.MaestroEmptyState');
+            if (Aviso) {
+                Aviso.classList.add('MaestroEmptyStateOculto');
+                window.setTimeout(function(){ Aviso.remove(); }, 260);
+            }
+        });
     });
 });

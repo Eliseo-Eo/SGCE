@@ -1,4 +1,5 @@
 <?php
+if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 /*
     Archivo: Logout.php
@@ -8,12 +9,12 @@
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
-// Cargo la conexión para poder limpiar el token de sesión en la base de datos.
+// Limpieza del token de sesión activo.
 $UsuarioActivoLogout = VerificarSesionCookie($Pdo);
 
-// ELIMINAR TOKEN DE BASE DE DATOS
+// LIMPIAR TOKEN DE BASE DE DATOS
 
-// Si existe cookie de sesión, la elimino también de la base de datos.
+// Si existe cookie de sesión, se limpia también en la base de datos.
 if (isset($_COOKIE['AuthToken'])) {
 
     $Token = trim($_COOKIE['AuthToken']);
@@ -30,13 +31,13 @@ if (isset($_COOKIE['AuthToken'])) {
             $Token
         ]);
 
-        // Registro el cierre de sesión antes de eliminar la cookie.
+        // Registro de cierre de sesión.
         if ($UsuarioActivoLogout) {
             RegistrarBitacora($Pdo, $UsuarioActivoLogout, 'CIERRE_SESION', 'Usuarios', $UsuarioActivoLogout['Id'], 'USUARIO CERRÓ SESIÓN');
         }
     }
 
-    // ELIMINAR COOKIE
+    // LIMPIAR COOKIE
 
     setcookie(
         'AuthToken',
@@ -51,9 +52,7 @@ if (isset($_COOKIE['AuthToken'])) {
     );
 }
 
-// REDIRECCIONAR
-
-// Al terminar, regreso al login.
+// Redirección final al login.
 header('Location: index.php');
 
 exit;

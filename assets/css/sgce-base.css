@@ -176,7 +176,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
 .table{margin-bottom:0}.table thead th{background:#F8FAFC!important;color:#667085!important;text-transform:uppercase;font-size:.75rem;letter-spacing:.3px;border:0!important}.table td{vertical-align:middle;border-color:#EEF2F7!important}
 .table-responsive{border-radius:18px;overflow:hidden}.BadgeGlass,.InfoBadge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:.86rem}.SmallText{font-size:.92rem;color:#6B7280}.DangerZone{border:2px dashed var(--SgceRojo)!important;background:#FEF2F2!important}.alert{border-radius:18px;border:0;box-shadow:0 10px 24px rgba(15,23,42,.07)}
 /* Dashboard */
-.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}/* evita barras superiores heredadas */
+.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}
 @media(max-width:1200px){.DashboardTopSplit{grid-template-columns:1fr}.DashboardModuleGrid{grid-template-columns:repeat(4,110px)}}
 @media(max-width:720px){.SgcePageWrap{padding:16px 12px 24px}.SgceHero,.Top,.TopBar,.TopHeader{border-radius:20px;padding:20px;align-items:flex-start;flex-direction:column}.SgceHeroInfo{align-items:flex-start}.SgceHeroIcon,.HeaderIcon,.IconBox,.HeroIcon{width:50px;height:50px;min-width:50px}.SgceHeroActions{width:100%;justify-content:flex-start}.SgceHeroBtn:not(.SgceHeroLogout){width:100%}.DashboardModuleGrid{grid-template-columns:repeat(3,100px);gap:10px}.DashboardModuleCard{width:100px;height:76px}.DashboardStatsGrid,.StatsGrid{grid-template-columns:1fr}}
 @media(max-width:430px){.DashboardModuleGrid{grid-template-columns:repeat(2,1fr)}.DashboardModuleCard{width:100%;height:76px}}
@@ -2246,19 +2246,6 @@ body .SgceUsersPage .BtnPrimary.BtnUserCreateSave:hover{
   transform:translateY(-1px);
   box-shadow:0 18px 34px rgba(37,99,235,.30)!important;
 }
-.SgceUsersPage .SgceUsersTable .BtnUserSave,
-.SgceUsersPage .SgceUsersTable form .BtnUserSave,
-body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave{
-  background:linear-gradient(135deg,#047857,#10B981)!important;
-  color:#fff!important;
-  border:0!important;
-  box-shadow:0 10px 18px rgba(16,185,129,.24)!important;
-}
-.SgceUsersPage .SgceUsersTable .BtnUserSave:hover,
-body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave:hover{
-  transform:translateY(-1px);
-  box-shadow:0 14px 24px rgba(16,185,129,.30)!important;
-}
 
 
 /* Avisos y comunicados: acciones homologadas con Usuarios y Roles */
@@ -2397,7 +2384,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 
 
-/* Instalador final */
+/* Instalador */
 .SgceInstallerPage{min-height:100vh;background:linear-gradient(135deg,#f7f8fc 0%,#eef2f7 100%)}
 .SgceInstallerHero{background:linear-gradient(135deg,#7b1e2b,#4f111a);box-shadow:0 18px 45px rgba(90,20,30,.24)}
 .SgceInstallerCard{border-radius:28px;border:1px solid rgba(120,30,42,.12);box-shadow:0 20px 50px rgba(15,23,42,.10);background:#fff}
@@ -4024,7 +4011,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate:hover{
 .SgceUsersPage .SgceUsersTable .ActionsInline{gap:10px!important;}
 .SgceUsersPage .SgceUsersTableCard .SgcePagerServer{margin-top:12px!important;}
 
-/* Usuarios y Roles: modal de baja y tabla compacta final */
+/* Usuarios y roles */
 .SgceUsersPage .SgceUsersTableCard .table-responsive{
   overflow-x:hidden!important;
 }
@@ -4369,7 +4356,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   .SgceReportsPage .SgceReportCard{padding:20px;}
 }
 
-/* Diseño final de avisos y comunicados */
+/* Avisos y comunicados */
 .AvisosLayout{
   align-items:stretch!important;
 }
@@ -6155,42 +6142,49 @@ button.SgceBtnVolverInicio:active,
     position:relative!important;
     display:flex!important;
     align-items:center!important;
-    justify-content:space-between!important;
+    justify-content:flex-start!important;
     gap:14px!important;
-    padding:16px 52px 16px 18px!important;
+    padding:16px 16px 16px 18px!important;
     animation:SgceInstallerAlertIn .22s ease-out both!important;
 }
 .SgceInstallerAlertBody{
     display:flex!important;
-    align-items:flex-start!important;
+    align-items:center!important;
     gap:8px!important;
     line-height:1.45!important;
+    flex:1 1 auto!important;
+    min-width:0!important;
+    padding-right:10px!important;
 }
 .SgceInstallerAlertClose{
-    position:absolute!important;
-    top:50%!important;
-    right:14px!important;
-    transform:translateY(-50%)!important;
-    width:32px!important;
-    height:32px!important;
+    position:static!important;
+    top:auto!important;
+    right:auto!important;
+    transform:none!important;
+    flex:0 0 34px!important;
+    width:34px!important;
+    height:34px!important;
+    margin-left:auto!important;
     border:0!important;
     border-radius:999px!important;
     display:grid!important;
     place-items:center!important;
-    background:rgba(255,255,255,.72)!important;
+    line-height:1!important;
+    background:rgba(255,255,255,.82)!important;
     color:var(--SgceGuinda)!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 8px 20px rgba(15,23,42,.08)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 20px rgba(15,23,42,.08)!important;
     cursor:pointer!important;
     pointer-events:auto!important;
     transition:transform .16s ease,background .16s ease,box-shadow .16s ease!important;
 }
+.SgceInstallerAlertClose i{line-height:1!important;display:block!important;}
 .SgceInstallerAlertClose:hover{
-    transform:translateY(-50%) scale(1.08)!important;
+    transform:scale(1.08)!important;
     background:#fff!important;
     box-shadow:0 10px 24px rgba(var(--SgceGuindaRGB),.18)!important;
 }
 .SgceInstallerAlertClose:active{
-    transform:translateY(-50%) scale(.94)!important;
+    transform:scale(.94)!important;
 }
 .SgceAlertLeaving{
     animation:SgceInstallerAlertOut .18s ease-in both!important;
@@ -6301,12 +6295,7 @@ button.SgceBtnVolverInicio:active,
   border-color:rgba(var(--SgceGuindaRGB),.12)!important;
 }
 
-/* ============================================================
-   SGCE v1.0 - Diseño unificado de módulos administrativos
-   Aplica el mismo lenguaje visual de Configuración y Reportes:
-   tarjetas blancas, línea superior institucional, iconos compactos,
-   sombras suaves y tablas limpias.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 .SgceModuleWrap .card-custom,
 .SgceModuleWrap .Card,
 .SgceModuleWrap .SgceCard,
@@ -6596,12 +6585,7 @@ button.SgceBtnVolverInicio:active,
   }
 }
 
-/* ============================================================
-   SGCE v1.0.4 - Homologación definitiva del tema institucional
-   Todo módulo administrativo usa el mismo estilo visual de
-   Configuración y Centro de Reportes: tarjeta blanca, línea
-   superior institucional, iconos de bloque y acciones temáticas.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 .SgceModuleWrap .card-custom,
 .SgceModuleWrap .Card,
 .SgceModuleWrap .SgceCard,
@@ -6915,11 +6899,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate{
 }
 
 
-/* ============================================================
-   SGCE v1.0.5 - Ajuste definitivo de tarjetas, encabezados e iconos
-   Corrige iconos salidos del contenedor y elimina estilos heredados
-   con padding/posicionamiento irregular en módulos administrativos.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .SgceModuleWrap .card-custom,
 html body .SgceModuleWrap .Card,
 html body .SgceModuleWrap .SgceCard,
@@ -7245,11 +7225,7 @@ html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
   }
 }
 
-/* ============================================================
-   SGCE v1.0.6 - Corrección visual de iconos en Centro de Reportes
-   Los iconos de las tarjetas de reportes usan el mismo estilo
-   institucional que Configuración y los módulos administrativos.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 .SgceReportsPage .SgceReportIcon{
   color:#fff!important;
   background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
@@ -7263,7 +7239,7 @@ html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
 }
 
 
-/* Ajuste final Avisos: botones sin verde fijo, todos obedecen color institucional */
+/* Avisos: acciones con color institucional */
 html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
 html body.AvisosBody .AvisosForm button.BtnAvisoPublish,
 html body.AvisosBody .AvisosSubmit.BtnAvisoPublish,
@@ -7445,12 +7421,7 @@ html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmAc
 }
 
 
-/* ============================================================
-   SGCE v1.1.2 - Expediente metálico fijo
-   El botón Abrir Expediente no depende del color institucional.
-   Mantiene el mismo ámbar/naranja metálico usado en Alumnos para
-   distinguirlo como acción especial de consulta.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 :root{
   --SgceExpedienteOscuro:#7C2D12;
   --SgceExpediente:#C2410C;
@@ -7494,12 +7465,7 @@ html body #TableExpedientes .ActionBtn.BtnExpedienteOpen span{
   z-index:1!important;
 }
 
-/* ============================================================
-   SGCE v1.1.4 - Chips de turno institucionales
-   El turno en Expedientes ya no usa fondo negro fijo. Ahora
-   copia el lenguaje visual de los chips del sistema: texto del
-   color institucional y fondo suave del mismo color.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .SgceModuleWrap #TableExpedientes .ExpedientesTurnBadge,
 html body .SgceModuleWrap .ExpedientesTurnBadge{
   background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
@@ -7517,12 +7483,7 @@ html body .SgceModuleWrap .ExpedientesGroupBadge{
 }
 
 
-/* ============================================================
-   SGCE v1.1.5 - Chips institucionales en tabla de Grupos
-   El valor del grupo y turno dentro de Grupos Existentes usa el
-   mismo lenguaje visual que Expedientes: fondo suave, texto del
-   color institucional y borde sutil. No usa colores Bootstrap fijos.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge,
 html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
   display:inline-flex!important;
@@ -7552,11 +7513,7 @@ html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
 }
 
 
-/* ============================================================
-   SGCE v1.1.6 - Asignaciones con color institucional completo
-   La materia deja de usar rojo fijo y el grupo asignado se muestra
-   con chips institucionales sin iconos de sol/luna.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,
 html body #TableAsig .AsignacionMateriaTexto{
   display:inline-flex!important;
@@ -7614,11 +7571,7 @@ html body #TableAsig .GrupoTextoSimple i{
   display:none!important;
 }
 
-/* ============================================================
-   SGCE v1.1.7 - Modales destructivas fijas
-   Las confirmaciones de eliminar, baja y desactivar NO dependen
-   del color institucional. Siempre usan rojo/tinto metálico.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .modal .DeleteModalContent{
   border:0!important;
   border-radius:30px!important;
@@ -7698,11 +7651,7 @@ html body .SgceUserDisableModal .BtnConfirmDelete span{
   color:#fff!important;
 }
 
-/* ============================================================
-   SGCE v1.1.8 - Modales de actualización en azul metálico
-   Las ventanas de editar/actualizar NO dependen del color
-   institucional. Mantienen azul metálico para distinguir edición.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 :root{
   --SgceUpdateAzulProfundo:#0B2F6B;
   --SgceUpdateAzulOscuro:#1D4ED8;
@@ -7818,14 +7767,7 @@ html body .ActionBtn.BtnAvisoEdit span{
   color:#fff!important;
 }
 
-/* ============================================================
-   SGCE v1.1.9 - Homologación metálica de botones
-   Todos los botones operativos usan brillo metálico y presión.
-   - Primarios/guardar/cargar: color institucional.
-   - Modificar/actualizar: azul metálico fijo.
-   - Eliminar/desactivar: rojo/tinto metálico fijo.
-   - Expediente: ámbar metálico fijo.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 :root{
   --SgceMetalHighlight:rgba(255,255,255,.42);
   --SgceMetalEdge:rgba(255,255,255,.26);
@@ -8014,7 +7956,7 @@ html body button.btn-guinda,
 html body .btn.btn-guinda,
 html body button.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),
 html body .btn.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),
-html body button[type="submit"]:not(.btn-close):not(.BtnCancelDelete):not(.BtnCancelEdit):not(.BtnConfirmDelete):not(.BtnSaveEdit):not(.BtnConfirmActivar):not(.BtnAvisoModalActivate):not(.ActionDelete):not(.BtnDisable):not(.BtnStudentDelete):not(.BtnAsignacionDelete):not(.BtnTeacherDelete):not(.BtnGroupDelete){
+html body button[type="submit"]:not(.btn-close):not(.BtnCancelDelete):not(.BtnCancelEdit):not(.BtnConfirmDelete):not(.BtnSaveEdit):not(.BtnUserSave):not(.BtnConfirmActivar):not(.BtnAvisoModalActivate):not(.ActionDelete):not(.BtnDisable):not(.BtnStudentDelete):not(.BtnAsignacionDelete):not(.BtnTeacherDelete):not(.BtnGroupDelete){
   background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro, var(--SgceGuinda)) 100%)!important;
   color:#fff!important;
   border:0!important;
@@ -8027,6 +7969,8 @@ html body .ActionBtn.BtnGroupEdit,
 html body .ActionBtn.BtnStudentEdit,
 html body .ActionBtn.BtnAsignacionEdit,
 html body .ActionBtn.BtnAvisoEdit,
+html body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnUserSave,
+html body .SgceUsersPage .SgceUsersTable button.BtnSmall.BtnUserSave[type="submit"],
 html body .modal button.btn-primary,
 html body .modal .btn.btn-primary,
 html body .modal button.btn-success,
@@ -8112,13 +8056,7 @@ html body .modal .BtnCancelEdit:hover{
   box-shadow:0 15px 28px rgba(15,23,42,.16),inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 
-/* ============================================================
-   SGCE v1.2.0 - Corrección de botones primarios metálicos
-   Evita que botones de guardar/cargar/consultar queden blancos por
-   herencia o estado deshabilitado. Los botones primarios siempre
-   conservan color institucional metálico; si están deshabilitados se
-   muestran atenuados, pero nunca blancos con texto invisible.
-   ============================================================ */
+/* SGCE - estilos de interfaz */
 html body .SgceModuleWrap button.BtnPrimary,
 html body .SgceModuleWrap a.BtnPrimary,
 html body .SgceModuleWrap .BtnGuinda,
@@ -8302,4 +8240,631 @@ html body .SgceModuleWrap .SgceConfigSave:disabled{
     line-height:1.05!important;
   }
   .ConsultaPublicaBody .ConsultaHeroCompact p{font-size:.92rem!important;}
+}
+
+/* ============================================================
+   MÓDULO DE PLANEACIONES DOCENTES
+   ============================================================ */
+.PlaneacionesStatsGrid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:16px;margin-bottom:18px}
+.PlaneacionStatCard{position:relative;overflow:hidden;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.92);border-top:4px solid var(--SgceGuinda);border-radius:22px;padding:18px 18px;box-shadow:0 18px 38px rgba(15,23,42,.08);display:flex;align-items:center;gap:14px;min-height:96px}
+.PlaneacionStatCard span{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)}
+.PlaneacionStatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#111827;line-height:1}
+.PlaneacionStatCard small{display:block;font-weight:800;text-transform:uppercase;color:#64748B;font-size:.72rem;margin-top:5px}
+.PlaneacionesMateriaGrid{display:grid;grid-template-columns:1fr;gap:22px}
+.PlaneacionMateriaCard{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(248,250,252,.95));border:1px solid rgba(226,232,240,.92);border-top:4px solid var(--SgceGuinda);border-radius:24px;padding:24px;box-shadow:0 22px 46px rgba(15,23,42,.09)}
+.PlaneacionMateriaHeader{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(226,232,240,.95)}
+.PlaneacionMateriaIcon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 15px 30px rgba(var(--SgceGuindaRGB),.24);font-size:1.05rem}
+.PlaneacionMateriaHeader h2{margin:0;color:var(--SgceGuindaProfundo);font-size:1.25rem;font-weight:900;text-transform:uppercase;letter-spacing:.25px}
+.PlaneacionMateriaHeader p{margin:3px 0 0;color:#64748B;font-size:.84rem;font-weight:800}
+.PlaneacionesEntregaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.PlaneacionEntregaItem{border:1px solid rgba(226,232,240,.95);border-radius:20px;background:#fff;padding:16px;box-shadow:0 14px 28px rgba(15,23,42,.06);position:relative;overflow:hidden}
+.PlaneacionEntregaItem::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--SgceGuinda)}
+.PlaneacionEntregaTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.PlaneacionEntregaTop strong{display:block;font-size:.96rem;font-weight:900;color:#111827;text-transform:uppercase}
+.PlaneacionEntregaTop small{display:block;font-size:.72rem;font-weight:900;color:#64748B;text-transform:uppercase;margin-top:2px}
+.PlaneacionEntregaTop span{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.20)}
+.PlaneacionEntregaItem.EstadoPendiente::before{background:#94A3B8}.PlaneacionEntregaItem.EstadoPendiente .PlaneacionEntregaTop span{background:linear-gradient(135deg,#CBD5E1,#64748B)}
+.PlaneacionEntregaItem.EstadoSubida::before{background:#2563EB}.PlaneacionEntregaItem.EstadoSubida .PlaneacionEntregaTop span{background:linear-gradient(135deg,#60A5FA,#2563EB)}
+.PlaneacionEntregaItem.EstadoAprobada::before{background:#059669}.PlaneacionEntregaItem.EstadoAprobada .PlaneacionEntregaTop span{background:linear-gradient(135deg,#34D399,#059669)}
+.PlaneacionEntregaItem.EstadoDevuelta::before{background:#BE123C}.PlaneacionEntregaItem.EstadoDevuelta .PlaneacionEntregaTop span{background:linear-gradient(135deg,#FB7185,#BE123C)}
+.PlaneacionArchivoInfo{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:800;color:#334155;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:9px 10px;margin-bottom:8px;word-break:break-word}
+.PlaneacionFecha{font-size:.72rem;font-weight:800;color:#64748B;margin-bottom:8px}
+.PlaneacionNota{font-size:.78rem;font-weight:700;color:#7F1D1D;background:#FFF1F2;border:1px solid #FECDD3;border-radius:14px;padding:10px;margin-bottom:10px}
+.PlaneacionPendienteTexto{font-size:.82rem;font-weight:800;color:#64748B;background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;padding:10px;margin-bottom:12px}
+.PlaneacionUploadForm{display:grid;gap:10px;margin-top:12px}
+.PlaneacionUploadBtn{width:100%;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0}
+.BtnPlaneacionDownload{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border-radius:999px;padding:9px 14px;font-size:.78rem;font-weight:900;color:#fff!important;background:linear-gradient(135deg,#F59E0B,#EA580C);box-shadow:0 12px 26px rgba(234,88,12,.24);transition:.18s ease;margin-bottom:8px}
+.BtnPlaneacionDownload:hover{filter:brightness(.98);transform:translateY(-1px);color:#fff!important}
+.PlaneacionEstadoBadge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:7px 10px;font-size:.72rem;font-weight:900;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.PlaneacionEstadoBadge.EstadoPendiente{background:#F1F5F9;color:#475569;border-color:#CBD5E1}.PlaneacionEstadoBadge.EstadoSubida{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}.PlaneacionEstadoBadge.EstadoAprobada{background:#ECFDF5;color:#047857;border-color:#A7F3D0}.PlaneacionEstadoBadge.EstadoDevuelta{background:#FFF1F2;color:#BE123C;border-color:#FECDD3}
+.SgceChipInstitucional{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:6px 10px;font-size:.73rem;font-weight:900;color:var(--SgceGuindaProfundo);background:rgba(var(--SgceGuindaRGB),.10);border:1px solid rgba(var(--SgceGuindaRGB),.22);white-space:nowrap}
+.BtnPlaneacionesDocente{background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda))!important;color:#fff!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.24)!important;border:0!important}
+.MaestroHeroLink{text-decoration:none;color:#fff!important}
+.MaestroHeroLink:hover{color:#fff!important;filter:brightness(1.04)}
+@media (max-width:992px){.PlaneacionesStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:576px){.PlaneacionesStatsGrid{grid-template-columns:1fr}.PlaneacionMateriaCard{padding:18px}.PlaneacionesEntregaGrid{grid-template-columns:1fr}}
+.BtnUpdateMetal{border:0;border-radius:999px;padding:10px 18px;font-size:.82rem;font-weight:900;color:#fff!important;background:linear-gradient(135deg,#60A5FA,#2563EB 52%,#1D4ED8);box-shadow:0 16px 32px rgba(37,99,235,.28);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.18s ease;text-decoration:none}
+.BtnUpdateMetal:hover{color:#fff!important;filter:brightness(.98);transform:translateY(-1px)}
+.BtnUpdateMetal:active{transform:scale(.98)}
+
+
+/* Ajustes de interfaz */
+
+.StatCard,.StatMini,.MetricCard,.ExpedienteMetricCard,.PlaneacionStatCard,.DashboardStatsGrid .StatCard,.StatsGrid .StatCard,.SgceUsersStats .StatCard,.ConsultaMetricCard{
+  border-top:4px solid var(--SgceGuinda)!important;
+}
+.PlaneacionVersionChip{margin-left:6px!important;font-size:.72rem!important;}
+.PlaneacionesStatsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
+.PlaneacionesMateriaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;}
+.PlaneacionMateriaCard,.PlaneacionEntregaItem{min-width:0!important;}
+.PlaneacionMateriaHeader,.PlaneacionEntregaTop{display:flex;align-items:center;gap:12px;}
+.PlaneacionArchivoInfo span{word-break:break-word;overflow-wrap:anywhere;}
+.SgceTablePro{min-width:780px;}
+.SgceTablePro td,.SgceTablePro th{vertical-align:middle!important;}
+
+@media (max-width: 992px){
+  .SgcePageWrap,.SgceModuleWrap{width:100%!important;max-width:100%!important;padding-left:16px!important;padding-right:16px!important;}
+  .SgceHero,.Top{padding:22px!important;border-radius:24px!important;gap:16px!important;}
+  .SgceHeroInfo,.TopLeft{gap:14px!important;}
+  .SgceHero h1,.Top h1{font-size:clamp(1.7rem,5vw,2.35rem)!important;line-height:1.05!important;}
+  .SgceHero p,.Top p{font-size:.95rem!important;line-height:1.35!important;}
+  .SgceHeroActions{gap:10px!important;flex-wrap:wrap!important;justify-content:flex-start!important;}
+  .DashboardTopSplit{grid-template-columns:1fr!important;}
+  .DashboardModuleGrid{grid-template-columns:repeat(3,minmax(92px,1fr))!important;gap:12px!important;}
+  .DashboardModuleCard{width:100%!important;min-height:86px!important;}
+  .PlaneacionesStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .PlaneacionesMateriaGrid{grid-template-columns:1fr!important;}
+}
+@media (max-width: 768px){
+  body{overflow-x:hidden!important;}
+  .container-fluid{padding-left:12px!important;padding-right:12px!important;}
+  .SgceHero,.Top{padding:18px!important;border-radius:22px!important;align-items:flex-start!important;}
+  .SgceHero,.SgceHeroInfo,.TopLeft{flex-direction:column!important;}
+  .SgceHeroIcon,.IconBox{width:48px!important;height:48px!important;border-radius:16px!important;}
+  .SgceHero h1,.Top h1{font-size:1.85rem!important;}
+  .SgceBtnVolverInicio,.SgceHeroBtn,.BtnPrimary,.ActionBtn,.BtnPlaneacionDownload{min-height:42px!important;padding:10px 14px!important;font-size:.82rem!important;white-space:normal!important;}
+  .DashboardModuleGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .DashboardStatsGrid,.StatsGrid,.ExpedienteMetricGrid{grid-template-columns:1fr!important;}
+  .PlaneacionesStatsGrid{grid-template-columns:1fr!important;}
+  .PlaneacionEntregaTop{align-items:flex-start!important;}
+  .PlaneacionUploadForm{gap:10px!important;}
+  .table-responsive{border-radius:18px!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;}
+  .SgceConfigCard,.SgcePanel,.DashboardPanelCard,.DashboardStatsCard{border-radius:22px!important;padding:18px!important;}
+  .SgceConfigHead{align-items:flex-start!important;gap:12px!important;}
+  .SgceConfigHead h2{font-size:1.05rem!important;}
+  .row.g-3>[class*="col-"]{min-width:0!important;}
+  .modal-dialog{margin:12px!important;}
+  .modal-content{border-radius:24px!important;}
+  .modal-footer{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;}
+}
+@media (max-width: 480px){
+  .SgcePageWrap,.SgceModuleWrap{padding-left:10px!important;padding-right:10px!important;}
+  .SgceHero h1,.Top h1{font-size:1.55rem!important;}
+  .DashboardModuleGrid{grid-template-columns:1fr 1fr!important;}
+  .DashboardModuleCard span{font-size:.72rem!important;}
+  .PlaneacionStatCard{padding:14px!important;min-height:82px!important;}
+  .PlaneacionStatCard span{width:40px!important;height:40px!important;}
+  .PlaneacionStatCard strong{font-size:1.25rem!important;}
+  .SgceTablePro{min-width:680px;}
+  .SgceInstallerAlert{align-items:center!important;}
+}
+
+
+html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios,
+html body .SgceModuleWrap .DashboardModuleCard.DashboardModuleAnuncios,
+html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios{
+  background:linear-gradient(135deg,#0B2F6B 0%,#1D4ED8 40%,#2563EB 72%,#38BDF8 100%)!important;
+  box-shadow:0 15px 32px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios:hover,
+html body .SgceModuleWrap .DashboardModuleCard.DashboardModuleAnuncios:hover,
+html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios:hover{
+  box-shadow:0 20px 40px rgba(37,99,235,.42),inset 0 1px 0 rgba(255,255,255,.32)!important;
+  filter:saturate(1.08) brightness(1.03)!important;
+}
+html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios i{
+  background:rgba(255,255,255,.20)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+
+
+/* Asignaciones: materia y grupo compactos */
+html body .SgceModuleWrap #TableAsig{
+  table-layout:auto!important;
+}
+html body .SgceModuleWrap #TableAsig th:nth-child(1),
+html body .SgceModuleWrap #TableAsig td:nth-child(1){
+  min-width:190px!important;
+}
+html body .SgceModuleWrap #TableAsig th:nth-child(2),
+html body .SgceModuleWrap #TableAsig td:nth-child(2){
+  min-width:150px!important;
+  width:150px!important;
+}
+html body .SgceModuleWrap #TableAsig th:nth-child(3),
+html body .SgceModuleWrap #TableAsig td:nth-child(3){
+  min-width:142px!important;
+  width:142px!important;
+  white-space:nowrap!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,
+html body #TableAsig .AsignacionMateriaTexto{
+  display:inline-block!important;
+  max-width:150px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:.78rem!important;
+  line-height:1.15!important;
+  vertical-align:middle!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoTd,
+html body #TableAsig .AsignacionGrupoTd{
+  white-space:nowrap!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoBadgeFull,
+html body #TableAsig .AsignacionGrupoBadgeFull{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:26px!important;
+  max-width:142px!important;
+  padding:5px 11px!important;
+  border-radius:999px!important;
+  font-size:.68rem!important;
+  font-weight:950!important;
+  line-height:1!important;
+  letter-spacing:.005em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;
+  box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;
+  text-shadow:none!important;
+  text-transform:uppercase!important;
+}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,
+html body #TableAsig .AsignacionGrupoChips{
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+}
+@media(max-width:1100px){
+  html body .SgceModuleWrap #TableAsig th:nth-child(1),
+  html body .SgceModuleWrap #TableAsig td:nth-child(1){min-width:170px!important}
+  html body .SgceModuleWrap #TableAsig th:nth-child(2),
+  html body .SgceModuleWrap #TableAsig td:nth-child(2){min-width:132px!important;width:132px!important}
+  html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto{max-width:132px!important;font-size:.74rem!important}
+  html body .SgceModuleWrap #TableAsig th:nth-child(3),
+  html body .SgceModuleWrap #TableAsig td:nth-child(3){min-width:126px!important;width:126px!important}
+  html body .SgceModuleWrap #TableAsig .AsignacionGrupoBadgeFull{max-width:126px!important;font-size:.64rem!important;padding-inline:9px!important}
+}
+
+.PlaneacionReviewModal{--ReviewMain:#2563EB;--ReviewAlt:#60A5FA;--ReviewDeep:#1E3A8A;--ReviewSoft:#EFF6FF;--ReviewBorder:#BFDBFE;--ReviewGlow:rgba(37,99,235,.26);border:0!important;border-radius:30px!important;overflow:hidden;box-shadow:0 34px 95px rgba(15,23,42,.34)!important;position:relative;background:linear-gradient(145deg,#fff,#f8fafc)!important}
+.PlaneacionReviewModal::before{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:linear-gradient(90deg,var(--ReviewAlt),var(--ReviewMain),var(--ReviewDeep));z-index:2}
+.PlaneacionReviewModal.EstadoAprobada{--ReviewMain:#059669;--ReviewAlt:#34D399;--ReviewDeep:#065F46;--ReviewSoft:#ECFDF5;--ReviewBorder:#A7F3D0;--ReviewGlow:rgba(5,150,105,.26)}
+.PlaneacionReviewModal.EstadoDevuelta{--ReviewMain:#BE123C;--ReviewAlt:#FB7185;--ReviewDeep:#7F1D1D;--ReviewSoft:#FFF1F2;--ReviewBorder:#FECDD3;--ReviewGlow:rgba(190,18,60,.28)}
+.PlaneacionReviewModal.EstadoSubida,.PlaneacionReviewModal.EstadoPendiente{--ReviewMain:#2563EB;--ReviewAlt:#60A5FA;--ReviewDeep:#1E3A8A;--ReviewSoft:#EFF6FF;--ReviewBorder:#BFDBFE;--ReviewGlow:rgba(37,99,235,.26)}
+.PlaneacionReviewHeader{border:0!important;padding:26px 28px 22px!important;background:linear-gradient(135deg,var(--ReviewMain),var(--ReviewDeep))!important;color:#fff!important;position:relative;overflow:hidden}
+.PlaneacionReviewHeader::after{content:"";position:absolute;width:230px;height:230px;border-radius:999px;background:rgba(255,255,255,.14);right:-90px;top:-105px;filter:blur(.2px)}
+.PlaneacionReviewIcon{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;background:rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 18px 38px rgba(0,0,0,.15);font-size:1.55rem;flex:0 0 auto;position:relative;z-index:1}
+.PlaneacionReviewTitle{position:relative;z-index:1;min-width:0}.PlaneacionReviewKicker{display:inline-flex;margin-bottom:4px;font-size:.72rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase;opacity:.82}.PlaneacionReviewTitle h5{font-size:1.42rem;font-weight:900;margin:0;text-transform:none}.PlaneacionReviewTitle small{display:block;margin-top:4px;font-weight:700;opacity:.88;white-space:normal}.PlaneacionReviewClose{filter:invert(1) grayscale(1) brightness(2);opacity:.9;position:relative;z-index:3;background-color:rgba(255,255,255,.16);border-radius:999px;padding:12px!important}
+.PlaneacionReviewBody{padding:24px 28px!important;background:linear-gradient(180deg,#fff,#f8fafc)}
+.PlaneacionReviewPreview{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding:16px 18px;border-radius:22px;background:var(--ReviewSoft);border:1px solid var(--ReviewBorder);box-shadow:0 16px 32px var(--ReviewGlow)}
+.PlaneacionReviewPreviewIcon{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ReviewAlt),var(--ReviewMain));color:#fff;font-size:1.2rem;box-shadow:0 14px 28px var(--ReviewGlow);flex:0 0 auto}.PlaneacionReviewPreview strong{display:block;color:var(--ReviewDeep);font-weight:900;font-size:1rem}.PlaneacionReviewPreview p{margin:3px 0 0;color:#334155;font-weight:700;font-size:.86rem;line-height:1.35}
+.PlaneacionReviewModal .FormControl:focus{border-color:var(--ReviewMain)!important;box-shadow:0 0 0 .2rem var(--ReviewGlow)!important}.PlaneacionReviewSelect{font-weight:900;text-transform:uppercase}.PlaneacionReviewNote{min-height:138px;resize:vertical}.PlaneacionReviewInfoBox{height:100%;display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:14px 16px;color:#172033;font-size:.82rem;font-weight:700;box-shadow:0 14px 30px rgba(15,23,42,.06)}.PlaneacionReviewInfoBox i{color:var(--ReviewMain);font-size:1.15rem;margin-top:2px}.PlaneacionReviewInfoBox b{color:var(--ReviewDeep)}.PlaneacionReviewInfoBox span{color:#64748b;font-size:.76rem;font-weight:800}
+.PlaneacionReviewHint{display:flex;align-items:center;gap:8px;margin-top:9px;color:#64748b;font-size:.78rem;font-weight:800}.PlaneacionReviewHint i{color:var(--ReviewMain)}
+.PlaneacionReviewFooter{border-top:1px solid rgba(226,232,240,.95)!important;background:linear-gradient(180deg,#fff,#f8fafc)!important;padding:18px 28px 24px!important;gap:12px}.PlaneacionReviewCancel,.PlaneacionReviewSave{border:0;border-radius:999px;padding:12px 20px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;transition:.18s ease}.PlaneacionReviewCancel{background:#f1f5f9;color:#334155}.PlaneacionReviewCancel:hover{background:#e2e8f0;color:#172033}.PlaneacionReviewSave{background:linear-gradient(135deg,var(--ReviewAlt),var(--ReviewMain),var(--ReviewDeep));color:#fff;box-shadow:0 18px 36px var(--ReviewGlow)}.PlaneacionReviewSave:hover{filter:brightness(.98);transform:translateY(-1px);color:#fff}.PlaneacionReviewSave:active,.PlaneacionReviewCancel:active{transform:scale(.98)}
+@media (max-width:768px){.modal-dialog.modal-lg{max-width:calc(100% - 18px)!important;margin:.75rem auto!important}.PlaneacionReviewHeader{padding:24px 20px 18px!important;align-items:flex-start!important}.PlaneacionReviewIcon{width:54px;height:54px;border-radius:18px}.PlaneacionReviewTitle h5{font-size:1.18rem}.PlaneacionReviewBody{padding:20px!important}.PlaneacionReviewPreview{padding:14px}.PlaneacionReviewFooter{padding:16px 20px 20px!important;flex-direction:column-reverse}.PlaneacionReviewCancel,.PlaneacionReviewSave{width:100%}}
+
+
+/* Bitácora compacta */
+html body .SgceModuleWrap .SgceBitacoraCard{
+  padding:22px!important;
+}
+html body .SgceModuleWrap .SgceBitacoraHead{
+  gap:16px!important;
+  margin-bottom:14px!important;
+}
+html body .SgceModuleWrap .SgceBitacoraIcon{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  border-radius:15px!important;
+  font-size:.98rem!important;
+}
+html body .SgceModuleWrap .SgceBitacoraTitle h4{
+  font-size:1.18rem!important;
+  margin-bottom:3px!important;
+  line-height:1.08!important;
+}
+html body .SgceModuleWrap .SgceBitacoraTitle p{
+  font-size:.82rem!important;
+  line-height:1.28!important;
+  max-width:680px!important;
+}
+html body .SgceModuleWrap .SgceInfoBanner{
+  padding:10px 13px!important;
+  border-radius:15px!important;
+  font-size:.78rem!important;
+  line-height:1.25!important;
+  margin-bottom:16px!important;
+}
+html body .SgceModuleWrap #TableBitacora{
+  table-layout:fixed!important;
+  width:100%!important;
+  font-size:.76rem!important;
+  margin-bottom:0!important;
+}
+html body .SgceModuleWrap #TableBitacora thead th{
+  font-size:.58rem!important;
+  letter-spacing:.045em!important;
+  padding:.42rem .34rem!important;
+  white-space:nowrap!important;
+}
+html body .SgceModuleWrap #TableBitacora tbody td{
+  padding:.42rem .34rem!important;
+  font-size:.76rem!important;
+  line-height:1.18!important;
+}
+html body .SgceModuleWrap #TableBitacora .SgceBitColFecha{width:12.5%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColUsuario{width:12%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColRol{width:7%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColAccion{width:17%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColTabla{width:11%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColRegistro{width:6%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColDetalle{width:23.5%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColIp{width:11%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellFecha,
+html body .SgceModuleWrap #TableBitacora .SgceBitCellUsuario,
+html body .SgceModuleWrap #TableBitacora .SgceBitCellTabla,
+html body .SgceModuleWrap #TableBitacora .SgceBitCellIp{
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellRegistro{
+  white-space:nowrap!important;
+}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellDetalle{
+  font-size:.73rem!important;
+  color:#0F172A!important;
+  max-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  display:table-cell!important;
+}
+html body .SgceModuleWrap #TableBitacora .badge,
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeRol,
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeAccion{
+  display:inline-block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  padding:.28rem .46rem!important;
+  border-radius:999px!important;
+  font-size:.62rem!important;
+  line-height:1.1!important;
+  letter-spacing:.01em!important;
+  vertical-align:middle!important;
+}
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeRol{
+  font-size:.58rem!important;
+  padding:.25rem .42rem!important;
+}
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeAccion{
+  font-size:.57rem!important;
+}
+html body .SgceModuleWrap #PagerBitacora{
+  margin-top:12px!important;
+}
+@media(max-width:992px){
+  html body .SgceModuleWrap #TableBitacora{min-width:980px!important;}
+  html body .SgceModuleWrap .SgceBitacoraCard{padding:18px!important;}
+}
+@media(max-width:640px){
+  html body .SgceModuleWrap .SgceBitacoraTitle h4{font-size:1.05rem!important;}
+  html body .SgceModuleWrap .SgceBitacoraTitle p{font-size:.78rem!important;}
+  html body .SgceModuleWrap .SgceInfoBanner{font-size:.74rem!important;}
+}
+
+
+/* Consulta pública: botón de regreso inteligente */
+.ConsultaPublicaBody .ConsultaHeroActions{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  gap:10px!important;
+  flex:0 0 auto!important;
+}
+.ConsultaPublicaBody .ConsultaBackBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-height:40px!important;
+  padding:10px 16px!important;
+  border-radius:999px!important;
+  background:linear-gradient(145deg,#FFFFFF 0%,#F3F6FB 100%)!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(255,255,255,.70)!important;
+  box-shadow:0 14px 28px rgba(0,0,0,.13),inset 0 1px 0 rgba(255,255,255,.90)!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.28px!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease!important;
+}
+.ConsultaPublicaBody .ConsultaBackBtn:hover{
+  transform:translateY(-1px)!important;
+  filter:brightness(1.02)!important;
+  box-shadow:0 18px 34px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+.ConsultaPublicaBody .ConsultaBackBtn i{font-size:.88rem!important;}
+@media(max-width:900px){
+  .ConsultaPublicaBody .ConsultaHeroActions{
+    order:-1!important;
+    align-items:flex-start!important;
+    width:100%!important;
+    flex-direction:row!important;
+    flex-wrap:wrap!important;
+    justify-content:space-between!important;
+  }
+}
+@media(max-width:560px){
+  .ConsultaPublicaBody .ConsultaHeroActions{gap:8px!important;}
+  .ConsultaPublicaBody .ConsultaBackBtn,
+  .ConsultaPublicaBody .ConsultaHeroCompact .ConsultaBadge{
+    width:100%!important;
+    justify-content:center!important;
+  }
+}
+
+/* =========================================================
+   SGCE 2026 FINAL: aviso docente sin materias + modal amber
+   ========================================================= */
+.MaestroEmptyNotice{
+  display:flex!important;
+  align-items:center!important;
+  gap:18px!important;
+  padding:22px 22px 22px 24px!important;
+}
+.MaestroEmptyContent{
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.MaestroEmptyClose{
+  position:static!important;
+  top:auto!important;
+  right:auto!important;
+  transform:none!important;
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  margin-left:auto!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  line-height:1!important;
+  z-index:6!important;
+}
+.MaestroEmptyClose i{
+  display:block!important;
+  line-height:1!important;
+  pointer-events:none!important;
+}
+.MaestroEmptyClose:hover{
+  transform:scale(1.07) rotate(90deg)!important;
+}
+.MaestroEmptyClose:active{
+  transform:scale(.94) rotate(90deg)!important;
+}
+@media(max-width:620px){
+  .MaestroEmptyNotice{
+    align-items:flex-start!important;
+    padding:20px!important;
+    gap:14px!important;
+  }
+  .MaestroEmptyClose{
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+  }
+}
+.SgceConfirmBackdropHelper .modal-backdrop.show{
+  opacity:.48!important;
+}
+.SgceConfirmDialog{
+  max-width:500px!important;
+  padding:0 14px!important;
+}
+.SgceConfirmContent{
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:28px!important;
+  background:linear-gradient(145deg,#FFF7ED,#FFFBEB 42%,#FFFFFF)!important;
+  box-shadow:0 30px 80px rgba(15,23,42,.28),0 0 0 1px rgba(251,191,36,.22)!important;
+}
+.SgceConfirmHeader{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:28px 28px 22px!important;
+  text-align:center!important;
+  color:#FFFFFF!important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.42),transparent 34%),
+    linear-gradient(135deg,#92400E,#F59E0B 48%,#B45309)!important;
+}
+.SgceConfirmHeader::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.30) 44%,transparent 62%);
+  transform:translateX(-100%);
+  animation:SgceAmberShine 3.6s ease-in-out infinite;
+  pointer-events:none;
+}
+.SgceConfirmIcon{
+  position:relative!important;
+  z-index:1!important;
+  width:70px!important;
+  height:70px!important;
+  margin:0 auto 14px!important;
+  border-radius:24px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:1.85rem!important;
+  color:#78350F!important;
+  background:linear-gradient(145deg,#FFFFFF,#FEF3C7)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 38px rgba(120,53,15,.25)!important;
+}
+.SgceConfirmHeader h4{
+  position:relative!important;
+  z-index:1!important;
+  margin:0!important;
+  color:#FFFFFF!important;
+  font-size:1.32rem!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+  text-transform:uppercase!important;
+}
+.SgceConfirmHeader p{
+  position:relative!important;
+  z-index:1!important;
+  margin:6px 0 0!important;
+  color:rgba(255,255,255,.86)!important;
+  font-size:.78rem!important;
+  font-weight:800!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+}
+.SgceConfirmBody{
+  padding:26px 28px 28px!important;
+  text-align:center!important;
+}
+.SgceConfirmMessage{
+  margin:0 0 16px!important;
+  color:#1F2937!important;
+  font-size:1.02rem!important;
+  font-weight:850!important;
+  line-height:1.45!important;
+  text-transform:uppercase!important;
+}
+.SgceConfirmDetail{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  margin:0 0 22px!important;
+  padding:14px 15px!important;
+  border-radius:18px!important;
+  color:#78350F!important;
+  background:linear-gradient(135deg,rgba(254,243,199,.96),rgba(255,247,237,.94))!important;
+  border:1px solid rgba(245,158,11,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  text-align:left!important;
+  font-size:.88rem!important;
+  font-weight:650!important;
+  line-height:1.45!important;
+}
+.SgceConfirmDetail i{
+  margin-top:2px!important;
+  color:#D97706!important;
+}
+.SgceConfirmActions{
+  display:grid!important;
+  grid-template-columns:1fr 1.25fr!important;
+  gap:12px!important;
+}
+.SgceConfirmCancel,
+.SgceConfirmAccept{
+  min-height:46px!important;
+  border-radius:999px!important;
+  border:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  padding:11px 16px!important;
+  font-size:.82rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease!important;
+}
+.SgceConfirmCancel{
+  color:#475569!important;
+  background:linear-gradient(135deg,#FFFFFF,#F8FAFC)!important;
+  box-shadow:inset 0 0 0 1px rgba(148,163,184,.36),0 10px 22px rgba(15,23,42,.08)!important;
+}
+.SgceConfirmAccept{
+  color:#FFFFFF!important;
+  background:linear-gradient(135deg,#B45309,#F59E0B 54%,#92400E)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 16px 34px rgba(180,83,9,.34)!important;
+}
+.SgceConfirmCancel:hover,
+.SgceConfirmAccept:hover{
+  transform:translateY(-2px)!important;
+  filter:saturate(1.04)!important;
+}
+.SgceConfirmCancel:active,
+.SgceConfirmAccept:active{
+  transform:scale(.98)!important;
+}
+.SgceConfirmAccept:disabled{
+  opacity:.72!important;
+  pointer-events:none!important;
+}
+@keyframes SgceAmberShine{
+  0%,58%{transform:translateX(-115%);opacity:0;}
+  68%{opacity:.95;}
+  100%{transform:translateX(115%);opacity:0;}
+}
+@media(max-width:520px){
+  .SgceConfirmHeader{padding:24px 20px 20px!important;}
+  .SgceConfirmBody{padding:22px 20px 24px!important;}
+  .SgceConfirmActions{grid-template-columns:1fr!important;}
+  .SgceConfirmCancel{order:2;}
+  .SgceConfirmAccept{order:1;}
+}
+
+
+/* =========================================================
+   SGCE 2026 FINAL - AJUSTE GENERAL DE NOTIFICACIONES
+   Mantiene la tachita alineada y usable en alertas Bootstrap y avisos propios.
+   ========================================================= */
+.alert.alert-dismissible{
+  position:relative!important;
+  padding-right:58px!important;
+}
+.alert.alert-dismissible .btn-close{
+  position:absolute!important;
+  top:50%!important;
+  right:16px!important;
+  transform:translateY(-50%)!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:999px!important;
+  background-color:rgba(255,255,255,.72)!important;
+  background-size:12px 12px!important;
+  opacity:.72!important;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.08),0 8px 18px rgba(15,23,42,.08)!important;
+}
+.alert.alert-dismissible .btn-close:hover{
+  opacity:1!important;
+  transform:translateY(-50%) scale(1.06)!important;
+}
+.MaestroEmptyStateOculto{
+  opacity:0!important;
+  transform:translateY(-8px)!important;
+  transition:opacity .22s ease, transform .22s ease!important;
 }

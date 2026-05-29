@@ -7,9 +7,24 @@ if (!$UserSession || !SgcePuedeConfigurarSistema($UserSession)) { header('Locati
 RequerirCsrfPost();
 
 function HConfig($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
+function ConfigMayusculas($Texto) {
+    $Texto = (string)$Texto;
+    if (function_exists('mb_strtoupper')) { return mb_strtoupper($Texto, 'UTF-8'); }
+    $Texto = strtr($Texto, [
+        'á'=>'Á','é'=>'É','í'=>'Í','ó'=>'Ó','ú'=>'Ú','ü'=>'Ü','ñ'=>'Ñ',
+        'à'=>'À','è'=>'È','ì'=>'Ì','ò'=>'Ò','ù'=>'Ù','ä'=>'Ä','ë'=>'Ë','ï'=>'Ï','ö'=>'Ö'
+    ]);
+    return strtoupper($Texto);
+}
+
+function ConfigLongitud($Texto) {
+    $Texto = (string)$Texto;
+    return function_exists('mb_strlen') ? mb_strlen($Texto, 'UTF-8') : strlen($Texto);
+}
+
 function ConfigNormalizar($Texto, $Mayusculas = true) {
     $Texto = trim(preg_replace('/\s+/u', ' ', (string)$Texto));
-    return $Mayusculas ? mb_strtoupper($Texto, 'UTF-8') : $Texto;
+    return $Mayusculas ? ConfigMayusculas($Texto) : $Texto;
 }
 function ConfigFechaValida($Fecha) {
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$Fecha)) { return false; }
@@ -34,8 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $PeriodoUno = ConfigNormalizar($_POST['PeriodoUno'] ?? '', true);
         $PeriodoDos = ConfigNormalizar($_POST['PeriodoDos'] ?? '', true);
         $PeriodoTres = ConfigNormalizar($_POST['PeriodoTres'] ?? '', true);
+        $PlaneacionesCantidad = max(1, min(12, (int)($_POST['PlaneacionesCantidad'] ?? 1)));
 
-        if ($NombreEscuela === '' || mb_strlen($NombreEscuela, 'UTF-8') < 3) { throw new Exception('Escribe el nombre oficial de la escuela.'); }
+        if ($NombreEscuela === '' || ConfigLongitud($NombreEscuela) < 3) { throw new Exception('Escribe el nombre oficial de la escuela.'); }
         if ($ClaveCentroTrabajo !== '' && !preg_match('/^[A-Z0-9-]{3,30}$/', $ClaveCentroTrabajo)) { throw new Exception('La CCT / clave solo debe usar letras, números o guion.'); }
         if ($DirectorNombre !== '' && !preg_match('/^[A-ZÁÉÍÓÚÜÑ .\'-]{3,120}$/u', $DirectorNombre)) { throw new Exception('El nombre del director solo debe contener letras y espacios.'); }
         if ($TelefonoEscuela !== '' && !preg_match('/^\d{7,15}$/', $TelefonoEscuela)) { throw new Exception('El teléfono debe contener solo números, mínimo 7 y máximo 15 dígitos.'); }
@@ -46,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($PeriodoUno === '' || $PeriodoDos === '' || $PeriodoTres === '') { throw new Exception('Los tres periodos son obligatorios.'); }
         if (count(array_unique([$PeriodoUno, $PeriodoDos, $PeriodoTres])) !== 3) { throw new Exception('Los periodos no pueden repetirse.'); }
+        if ($PlaneacionesCantidad < 1 || $PlaneacionesCantidad > 12) { throw new Exception('La cantidad de planeaciones debe estar entre 1 y 12.'); }
 
         SgceCrearTablaConfiguracionSiNoExiste($Pdo);
         CrearTablaBitacoraSiNoExiste($Pdo);
@@ -60,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'LemaInstitucional' => $LemaInstitucional,
             'ColorInstitucional' => $ColorInstitucional,
             'SistemaNombre' => 'SGCE',
+            'PlaneacionesCantidad' => (string)$PlaneacionesCantidad,
         ]);
 
         $CicloActivo = SgceCicloActivo($Pdo);
@@ -117,6 +135,7 @@ if (!empty($CicloActivo['Id'])) {
 $PeriodoUno = $Periodos[1] ?? 'PRIMER PARCIAL';
 $PeriodoDos = $Periodos[2] ?? 'SEGUNDO PARCIAL';
 $PeriodoTres = $Periodos[3] ?? 'TERCER PARCIAL';
+$PlaneacionesCantidad = SgceCantidadPlaneaciones($Pdo);
 $Mensaje = $_SESSION['MensajeConfiguracion'] ?? '';
 $MensajeTipo = $_SESSION['MensajeConfiguracionTipo'] ?? 'success';
 unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
@@ -131,7 +150,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body>
@@ -190,12 +209,13 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
         <section class="SgceConfigCard">
             <div class="SgceConfigHead">
                 <span><i class="fa-solid fa-list-check"></i></span>
-                <div><h2>Periodos</h2><p>Los tres parciales disponibles para capturar calificaciones.</p></div>
+                <div><h2>Periodos y planeaciones</h2><p>Parciales disponibles y cantidad de planeaciones que se entregan por materia.</p></div>
             </div>
             <div class="row g-3">
                 <div class="col-12"><label class="SgceFieldLabel">Periodo 1</label><input class="form-control FormControl InputUpper" name="PeriodoUno" value="<?= HConfig($PeriodoUno) ?>" required></div>
                 <div class="col-12"><label class="SgceFieldLabel">Periodo 2</label><input class="form-control FormControl InputUpper" name="PeriodoDos" value="<?= HConfig($PeriodoDos) ?>" required></div>
                 <div class="col-12"><label class="SgceFieldLabel">Periodo 3</label><input class="form-control FormControl InputUpper" name="PeriodoTres" value="<?= HConfig($PeriodoTres) ?>" required></div>
+                <div class="col-12"><label class="SgceFieldLabel">Planeaciones por ciclo</label><input class="form-control FormControl InputDigits" name="PlaneacionesCantidad" value="<?= HConfig($PlaneacionesCantidad) ?>" required min="1" max="12" maxlength="2" inputmode="numeric"><small class="text-muted fw-semibold">Define cuántas planeaciones debe entregar cada docente por materia en el ciclo activo.</small></div>
             </div>
         </section>
 
@@ -209,7 +229,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
     </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.InputUpper').forEach(function(Input){Input.addEventListener('input',function(){var Pos=Input.selectionStart;Input.value=Input.value.toUpperCase();try{Input.setSelectionRange(Pos,Pos);}catch(Error){} });});document.querySelectorAll('.InputDigits').forEach(function(Input){Input.addEventListener('input',function(){Input.value=Input.value.replace(/\D/g,'').slice(0,15);});});var Color=document.getElementById('ColorInstitucional');var Texto=document.getElementById('ColorInstitucionalTexto');if(Color&&Texto){var Actualizar=function(){var Valor=window.SgceAplicarTemaColor?window.SgceAplicarTemaColor(Color.value):Color.value.toUpperCase();Texto.textContent=Valor;};Color.addEventListener('input',Actualizar);Actualizar();}});
 </script>

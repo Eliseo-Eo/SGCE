@@ -32,7 +32,7 @@ function ColumnasInsertablesDatos($Pdo, $Tabla) {
 }
 
 function ValorSqlDatos($Pdo, $Tabla, $Columna, $Valor) {
-    if ($Tabla === 'Usuarios' && $Columna === 'SessionToken') {
+    if ($Tabla === 'Usuarios' && in_array($Columna, ['SessionToken','SessionTokenExpira'], true)) {
         return 'NULL';
     }
     if ($Valor === null) {
@@ -61,6 +61,7 @@ $TablasPreferidas = [
     'Calificaciones',
     'Asistencias',
     'Avisos',
+    'Planeaciones',
     'BitacoraMovimientos',
     'IntentosSeguridad'
 ];
@@ -78,7 +79,7 @@ foreach ($TablasExistentes as $Tabla) {
     }
 }
 
-$NombreArchivo = 'Datos_ControlEscolar_' . date('Ymd_His') . '.sql';
+$NombreArchivo = 'Datos_SGCE_' . date('Ymd_His') . '.sql';
 header('Content-Type: application/sql; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
 header('Pragma: no-cache');
@@ -88,7 +89,7 @@ header('X-Content-Type-Options: nosniff');
 echo "-- ============================================================\n";
 echo "-- RESPALDO SGCE SOLO DATOS\n";
 echo "-- GENERADO: " . date('Y-m-d H:i:s') . "\n";
-echo "-- USO: RestaurarBD.php permite fusionar o reemplazar datos con este archivo.\n";
+echo "-- RestaurarBD.php permite fusionar o reemplazar datos con este archivo.\n";
 echo "-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n";
 echo "-- ============================================================\n\n";
 echo "-- SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION\n";
@@ -118,8 +119,9 @@ foreach ($Tablas as $Tabla) {
         $UpdateParts = [];
         foreach ($Columnas as $Columna) {
             if (in_array($Columna, $Pk, true)) { continue; }
-            if ($Tabla === 'Usuarios' && $Columna === 'SessionToken') {
-                $UpdateParts[] = '`SessionToken`=NULL';
+            if ($Tabla === 'Usuarios' && in_array($Columna, ['SessionToken','SessionTokenExpira'], true)) {
+                $ColSql = '`' . str_replace('`','``',$Columna) . '`';
+                $UpdateParts[] = $ColSql . '=NULL';
                 continue;
             }
             $ColSql = '`' . str_replace('`','``',$Columna) . '`';

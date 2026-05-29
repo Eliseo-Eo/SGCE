@@ -1,19 +1,91 @@
-SGCE - Versión Final de Producción 1.0
-
-Características principales:
-- Instalación limpia desde cero.
-- Verificación visual de servidor antes de instalar.
-- Configuración institucional y color global.
-- Importación CSV y Excel .xlsx.
-- Reportes PDF reales generados desde servidor.
-- Respaldos manuales y automáticos por cron.
-- Control de errores con mensajes simples y logs técnicos.
-- Manual de usuario y manual técnico incluidos.
-
-Archivos nuevos o relevantes:
-- includes/SGCE_ErrorHandler.php
-- includes/SGCE_Pdf.php
-- cron/backup_diario.php
-- cron/backup_semanal.php
-- docs/MANUAL_USUARIO_SGCE.pdf
-- docs/MANUAL_TECNICO_INSTALACION_SGCE.pdf
+.htaccess
+Admin.php
+Asistencia.php
+AvisosAdmin.php
+Calificar.php
+ConfiguracionAdmin.php
+ConsultaPadre.php
+DescargarPlaneacion.php
+ExportarAlumno.php
+ExportarAsistencia.php
+ExportarCalificaciones.php
+ExportarDatosBD.php
+HistorialAlumno.php
+INFORME_CALIDAD_FINAL_2026.md
+Importar.php
+Instalar.php
+Logout.php
+MANIFEST.txt
+Maestro.php
+PRODUCCION_CHECKLIST.md
+PeriodosAdmin.php
+Planeaciones.php
+PlaneacionesAdmin.php
+README.md
+ReportesAdmin.php
+RespaldoBD.php
+RestaurarBD.php
+UsuariosAdmin.php
+VERSION_FINAL_2026.md
+assets/css/sgce-base.css
+assets/js/Admin.js
+assets/js/Asistencia.js
+assets/js/AvisosAdmin.js
+assets/js/Calificar.js
+assets/js/ConsultaPadre.js
+assets/js/Instalar.js
+assets/js/UsuariosAdmin.js
+assets/js/index.js
+assets/js/sgce-shared.js
+config/.htaccess
+config/Conexion.php
+config/database.local.example.php
+config/database.php
+cron/.htaccess
+cron/backup_diario.php
+cron/backup_semanal.php
+docs/MANUAL_TECNICO_INSTALACION_SGCE.docx
+docs/MANUAL_TECNICO_INSTALACION_SGCE.md
+docs/MANUAL_TECNICO_INSTALACION_SGCE.pdf
+docs/MANUAL_USUARIO_SGCE.docx
+docs/MANUAL_USUARIO_SGCE.md
+docs/MANUAL_USUARIO_SGCE.pdf
+favicon.ico
+favicon.png
+includes/.htaccess
+includes/SGCE_ErrorHandler.php
+includes/SGCE_Helpers.php
+includes/SGCE_Pdf.php
+index.php
+install/.htaccess
+install/SGCE.sql
+modules/.htaccess
+modules/Admin.php
+modules/Asistencia.php
+modules/AvisosAdmin.php
+modules/Calificar.php
+modules/ConfiguracionAdmin.php
+modules/DescargarPlaneacion.php
+modules/HistorialAlumno.php
+modules/Importar.php
+modules/Maestro.php
+modules/PeriodosAdmin.php
+modules/Planeaciones.php
+modules/PlaneacionesAdmin.php
+modules/RestaurarBD.php
+modules/UsuariosAdmin.php
+public/.htaccess
+public/ConsultaPadre.php
+public/Logout.php
+public/index.php
+reports/.htaccess
+reports/ExportarAlumno.php
+reports/ExportarAsistencia.php
+reports/ExportarCalificaciones.php
+reports/ExportarDatosBD.php
+reports/ReportesAdmin.php
+reports/RespaldoBD.php
+storage/.htaccess
+storage/backups/.htaccess
+storage/logs/.htaccess
+storage/planeaciones/.htaccess

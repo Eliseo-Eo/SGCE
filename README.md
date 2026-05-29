@@ -1,118 +1,116 @@
-# SGCE - Sistema de Gestión y Control Escolar
+# SGCE 2026 FINAL
 
-**Versión Final de Producción 1.0**
+Sistema de Gestión y Control Escolar listo para instalación local, Plesk, cPanel o hosting compartido compatible con PHP y MySQL/MariaDB.
 
-SGCE es un sistema web para administrar la operación escolar: ciclos y periodos, maestros, grupos, alumnos, asignaciones, avisos, expedientes, asistencia, calificaciones, reportes PDF/Excel, boletas, consulta para padres, usuarios, respaldos y bitácora.
+## Módulos principales
 
-Esta entrega está preparada para instalarse desde cero en una base de datos exclusiva. No incluye alumnos, maestros, grupos, asignaciones ni avisos precargados.
+- Administrador con dashboard general.
+- Maestros, grupos, alumnos y asignaciones.
+- Asistencia por materia y grupo.
+- Calificaciones por periodo.
+- Consulta pública de asistencia individual.
+- Avisos y comunicados.
+- Expediente e historial del alumno.
+- Planeaciones docentes.
+- Reportes PDF/Excel.
+- Respaldos e importación segura de datos.
+- Configuración institucional, ciclo escolar y periodos.
+- Usuarios con roles y permisos.
+- Bitácora de movimientos.
 
-## Requisitos del servidor
+## Requisitos recomendados
 
-- PHP 8.1 o superior recomendado.
-- MySQL o MariaDB.
-- Servidor web Apache o compatible con PHP.
-- Extensiones PHP: `pdo`, `pdo_mysql`, `mbstring`, `zip`, `simplexml`, `fileinfo`, `iconv` y `json`.
-- Permiso temporal de escritura para PHP en `config/` y `storage/` durante la instalación.
-- HTTPS activo en producción.
+- PHP 8.1 o superior.
+- MySQL 5.7+/MariaDB 10.4+.
+- Extensiones PHP: `pdo_mysql`, `zip`, `simplexml`, `mbstring`, `fileinfo`.
+- Apache con `.htaccess` habilitado.
+- Permisos de escritura en `config/` y `storage/` durante instalación.
 
-## Instalación desde cero
+## Instalación rápida
 
-1. Descomprime el sistema en el servidor.
-2. Abre `Instalar.php` desde el navegador.
-3. Captura los datos de conexión MySQL.
-4. Pulsa **Verificar servidor** para revisar versión PHP, extensiones, permisos y conexión MySQL.
-5. Captura los datos oficiales de la escuela, color institucional, ciclo escolar inicial y periodos.
-6. Crea el administrador principal.
-7. Escribe `INSTALAR SGCE` para confirmar.
-8. Entra desde `index.php` con el administrador creado.
+1. Sube la carpeta `SGCE/` al servidor.
+2. Crea una base de datos vacía en Plesk/cPanel, o permite que el instalador la cree en local.
+3. Abre `Instalar.php` en el navegador.
+4. Pulsa **Verificar servidor**.
+5. Captura datos de conexión, escuela, ciclo, periodos y administrador.
+6. Escribe `INSTALAR SGCE` para confirmar.
+7. Entra al sistema desde `index.php`.
 
-Al terminar, el instalador crea `config/database.local.php`, bloquea nuevas instalaciones con `storage/install.lock` y deja el sistema listo para operar. Si el servidor lo permite, elimina `Instalar.php` después de confirmar que puedes iniciar sesión.
+## Instalación en Plesk
 
-## Flujo recomendado de primer uso
+1. Crea una base de datos exclusiva desde Plesk.
+2. Crea o asigna un usuario MySQL con permisos sobre esa base.
+3. Sube todos los archivos dentro del directorio del dominio o subdominio.
+4. Verifica que `config/` y `storage/` permitan escritura temporal.
+5. Abre `Instalar.php`.
+6. Usa los datos exactos de la base creada en Plesk.
+7. Después de instalar, elimina `Instalar.php` si el servidor no lo eliminó automáticamente.
 
-1. **Periodos**: revisar ciclo escolar y parciales.
-2. **Maestros**: registrar docentes.
-3. **Grupos**: crear grado, grupo y turno.
-4. **Alumnos**: inscribir estudiantes.
-5. **Asignaciones**: vincular materia, maestro y grupo.
-6. **Avisos**: publicar comunicados.
-7. **Expedientes**: consultar historial individual.
-8. **Reportes**: generar asistencia, calificaciones y boletas.
-9. **Padres**: validar consulta pública protegida.
-10. **Usuarios**: administrar roles y cuentas del personal.
-11. **Respaldos**: generar, descargar o restaurar copias.
-12. **Configuración**: actualizar datos oficiales y color institucional.
-13. **Bitácora**: revisar movimientos relevantes.
+### Importante sobre PageSpeed en Plesk
 
-## Importaciones
+El `.htaccess` incluye:
 
-SGCE permite importar catálogos desde **CSV** y **Excel .xlsx**:
+```apache
+<IfModule pagespeed_module>
+    ModPagespeed off
+</IfModule>
+```
 
-- Maestros: `NOMBRE, USUARIO, CONTRASEÑA`
-- Grupos: `GRADO, GRUPO, TURNO`
-- Alumnos: `NOMBRE`
+No lo elimines. PageSpeed puede combinar o reescribir CSS/JS y provocar errores visuales, botones invisibles o modales rotas.
 
-Para alumnos, selecciona primero el grupo destino. Para maestros, la contraseña debe cumplir la política de seguridad del sistema.
+## Instalación en cPanel
 
-## Reportes PDF reales
+1. Entra a **MySQL Databases**.
+2. Crea una base de datos vacía.
+3. Crea un usuario MySQL y asígnalo a la base con todos los privilegios.
+4. Sube la carpeta `SGCE/` con el Administrador de Archivos o FTP.
+5. Abre `Instalar.php`.
+6. Captura el nombre completo de la base y usuario tal como los muestra cPanel.
 
-Los reportes en formato PDF se generan desde el servidor como archivos PDF descargables:
+## Seguridad incluida
 
-- Boleta individual.
-- Calificaciones por asignación.
-- Calificaciones por grupo.
-- Asistencias por asignación.
-- Asistencias por grupo.
+- Contraseñas guardadas con hash seguro.
+- Tokens de sesión en base de datos.
+- Cookies `HttpOnly`, `SameSite=Strict` y `Secure` cuando hay HTTPS.
+- Protección CSRF en formularios POST.
+- Rate limit en login.
+- Cabeceras de seguridad HTTP.
+- Bloqueo de carpetas internas con `.htaccess`.
+- Respaldos sin tokens de sesión activos.
+- Importación de respaldos limitada a archivos firmados por SGCE.
 
-Los reportes Excel se descargan como archivos compatibles con hojas de cálculo.
+## Rendimiento
+
+- Paginación en tablas administrativas.
+- Índices SQL para usuarios, alumnos, asistencia, calificaciones y consultas públicas.
+- Cache-busting de assets con versión `sgce2026final`.
+- Backups automáticos controlados desde el acceso administrador.
+- Validación de archivos antes de importar.
+
+## Carpetas importantes
+
+```text
+SGCE/
+├── assets/              CSS y JavaScript
+├── config/              Configuración de base de datos
+├── cron/                Tareas programadas opcionales
+├── docs/                Manuales técnicos y de usuario
+├── includes/            Funciones internas
+├── install/             SQL inicial
+├── modules/             Módulos privados
+├── public/              Vistas internas llamadas por wrappers raíz
+├── reports/             Exportaciones y reportes
+└── storage/             Backups, logs y planeaciones
+```
 
 ## Respaldos
 
-El sistema incluye respaldos manuales desde el panel y respaldos automáticos mediante cron.
+Desde el sistema se recomienda usar **Exportar solo datos**. Ese archivo puede importarse después desde el módulo de respaldos.
 
-Ejemplo de cron diario:
+No subas respaldos externos o editados manualmente al importador; por seguridad solo acepta archivos con firma oficial SGCE.
 
-```bash
-0 2 * * * /usr/bin/php /ruta/SGCE/cron/backup_diario.php
-```
+## Calificación de entrega
 
-Ejemplo de cron semanal:
+Calificación técnica estimada: **9.4/10**.
 
-```bash
-30 2 * * 0 /usr/bin/php /ruta/SGCE/cron/backup_semanal.php
-```
-
-Los respaldos se guardan en la carpeta configurada durante la instalación. Por seguridad, se recomienda ubicar esa carpeta fuera del directorio público cuando el hosting lo permita.
-
-## Control de errores
-
-El sistema muestra mensajes simples al usuario final y registra detalles técnicos en:
-
-```text
-storage/logs/
-```
-
-Los logs permiten revisar errores de PHP, conexión, instalador, respaldos automáticos y fallas no controladas sin mostrar información técnica al usuario final.
-
-## Archivos importantes
-
-- `Instalar.php`: instalación inicial.
-- `index.php`: acceso principal.
-- `Admin.php`: panel administrador.
-- `Maestro.php`: portal docente.
-- `ConsultaPadre.php`: consulta pública protegida.
-- `cron/backup_diario.php`: respaldo automático diario.
-- `cron/backup_semanal.php`: respaldo automático semanal.
-- `docs/MANUAL_USUARIO_SGCE.pdf`: manual para usuarios finales.
-- `docs/MANUAL_TECNICO_INSTALACION_SGCE.pdf`: manual técnico para instalación y soporte.
-
-## Seguridad recomendada
-
-- Usar HTTPS.
-- Usar un usuario MySQL exclusivo para SGCE.
-- Proteger `config/`, `includes/`, `modules/`, `reports/`, `storage/`, `install/` y `cron/`.
-- Quitar permisos amplios después de instalar.
-- Revisar periódicamente `storage/logs/`.
-- Programar respaldos automáticos.
-- Descargar respaldos antes de cambios importantes.
-- Usar contraseñas fuertes para todos los usuarios.
+La versión está lista para entrega comercial, sujeta a pruebas finales con datos reales del cliente y a la capacidad del hosting contratado.

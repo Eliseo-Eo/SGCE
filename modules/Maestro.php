@@ -33,11 +33,23 @@ $Stmt = $Pdo->prepare("
 $Stmt->execute([$UserSession['Id']]);
 $MisClases = $Stmt->fetchAll();
 $TotalClases = count($MisClases);
+SgceCrearTablaPlaneacionesSiNoExiste($Pdo);
+$CantidadPlaneacionesDocente = SgceCantidadPlaneaciones($Pdo);
+$CicloActivoDocente = SgceCicloActivo($Pdo);
+$CicloDocenteId = (int)($CicloActivoDocente['Id'] ?? 0);
+$MateriasPlaneacionDocente = SgceMateriasDocente($Pdo, (int)$UserSession['Id']);
+$TotalPlaneacionesRequeridas = count($MateriasPlaneacionDocente) * $CantidadPlaneacionesDocente;
+$TotalPlaneacionesSubidas = 0;
+if ($CicloDocenteId > 0) {
+    $StmtPlaneacionesDocente = $Pdo->prepare('SELECT COUNT(*) FROM Planeaciones WHERE CicloId = ? AND MaestroId = ?');
+    $StmtPlaneacionesDocente->execute([$CicloDocenteId, (int)$UserSession['Id']]);
+    $TotalPlaneacionesSubidas = (int)$StmtPlaneacionesDocente->fetchColumn();
+}
 $StmtStatsMaestro = $Pdo->prepare("SELECT COUNT(*) FROM Asistencias Asi JOIN Asignaciones A ON Asi.AsignacionId = A.Id WHERE A.MaestroId = ? AND Asi.FechaDia = CURDATE()");
 $StmtStatsMaestro->execute([$UserSession['Id']]);
 $AsistenciasHoyMaestro = (int)$StmtStatsMaestro->fetchColumn();
 
-// Cargo avisos activos dirigidos a maestros o a todo el sistema.
+// Avisos activos dirigidos al portal docente.
 $StmtAvisosMaestro = $Pdo->query("SELECT Titulo, Mensaje, FechaCreacion FROM Avisos WHERE Activo = 1 AND Publico IN ('TODOS','MAESTROS') ORDER BY FechaCreacion DESC LIMIT 3");
 $AvisosMaestro = $StmtAvisosMaestro ? $StmtAvisosMaestro->fetchAll() : [];
 $ConfigSistema = SgceObtenerConfiguracion($Pdo);
@@ -49,6 +61,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -61,7 +74,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 
@@ -89,7 +102,12 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                 <?= $AsistenciasHoyMaestro ?> asistencias hoy
             </span>
 
-            <a href="Logout.php" class="SgceHeroBtn SgceHeroLogout" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <a href="Planeaciones.php" class="MaestroHeroStat MaestroHeroLink">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <?= $TotalPlaneacionesSubidas ?>/<?= $TotalPlaneacionesRequeridas ?> planeaciones
+            </a>
+
+            <a href="Logout.php" class="SgceHeroBtn SgceHeroLogout" title="Cerrar sesión" aria-label="Cerrar sesión" data-sgce-confirm="logout" data-sgce-confirm-title="CERRAR SESIÓN" data-sgce-confirm-subtitle="SALIDA DEL SISTEMA" data-sgce-confirm-message="¿REALMENTE DESEAS CERRAR SESIÓN?" data-sgce-confirm-detail="Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para entrar al sistema." data-sgce-confirm-button="SÍ, CERRAR SESIÓN" data-sgce-confirm-loading="CERRANDO SESIÓN..." data-sgce-confirm-icon="fa-right-from-bracket">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Cerrar sesión</span>
             </a>
@@ -137,10 +155,6 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
             <div class="MaestroEmptyState">
                 <div class="MaestroEmptyNotice" role="status" aria-live="polite">
 
-                    <button type="button" class="MaestroEmptyClose" aria-label="Cerrar aviso" data-maestro-empty-close="true">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-
                     <div class="MaestroEmptyIcon">
                         <i class="fa-solid fa-circle-info"></i>
                     </div>
@@ -150,6 +164,10 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                         <h5>Sin materias asignadas</h5>
                         <p>Actualmente no tienes materias vinculadas. Cuando administración te asigne un grupo, aparecerá aquí automáticamente.</p>
                     </div>
+
+                    <button type="button" class="MaestroEmptyClose" aria-label="Cerrar aviso" data-maestro-empty-close="true">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
 
                 </div>
             </div>
@@ -219,6 +237,14 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
                                     <i class="fa-solid fa-user-check"></i>
                                     Asistencia
+
+                                </a>
+
+                                <a href="Planeaciones.php?Materia=<?= urlencode($Clase['MateriaNombre']) ?>"
+                                   class="btn BotonAccion BtnPlaneacionesDocente">
+
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    Planeación
 
                                 </a>
 
@@ -305,27 +331,8 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
 
 
-<!-- ============================================================
-     NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
-     ------------------------------------------------------------
-     Bloque utilizado para homologar notificaciones visuales del sistema.
-     Cualquier alerta puede cerrarse manualmente con la tachita y,
-     si el usuario no la cierra, desaparece sola después de unos segundos.
-     ============================================================ -->
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('[data-maestro-empty-close="true"]').forEach(function(Boton){
-        Boton.addEventListener('click', function(Evento){
-            Evento.preventDefault();
-            var Aviso = Boton.closest('.MaestroEmptyState');
-            if (Aviso) {
-                Aviso.classList.add('MaestroEmptyStateOculto');
-                window.setTimeout(function(){ Aviso.remove(); }, 260);
-            }
-        });
-    });
-});
-</script>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
 </body>
 </html>

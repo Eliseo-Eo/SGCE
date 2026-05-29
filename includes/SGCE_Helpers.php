@@ -101,10 +101,26 @@ function SgcePasswordNecesitaRehash($Hash) {
     return is_string($Hash) && password_needs_rehash($Hash, PASSWORD_DEFAULT);
 }
 
+
+function SgceCadenaMayusculas($Texto) {
+    $Texto = (string)$Texto;
+    if (function_exists('mb_strtoupper')) { return mb_strtoupper($Texto, 'UTF-8'); }
+    $Texto = strtr($Texto, [
+        'á'=>'Á','é'=>'É','í'=>'Í','ó'=>'Ó','ú'=>'Ú','ü'=>'Ü','ñ'=>'Ñ',
+        'à'=>'À','è'=>'È','ì'=>'Ì','ò'=>'Ò','ù'=>'Ù','ä'=>'Ä','ë'=>'Ë','ï'=>'Ï','ö'=>'Ö'
+    ]);
+    return strtoupper($Texto);
+}
+
+function SgceLongitudTexto($Texto) {
+    $Texto = (string)$Texto;
+    return function_exists('mb_strlen') ? mb_strlen($Texto, 'UTF-8') : strlen($Texto);
+}
+
 function SgceNormalizarMayusculas($Valor) {
     $Valor = trim((string)$Valor);
     $Valor = preg_replace('/\s+/u', ' ', $Valor);
-    return mb_strtoupper($Valor, 'UTF-8');
+    return SgceCadenaMayusculas($Valor);
 }
 
 function SgceNormalizarNombre($Valor) {
@@ -128,7 +144,7 @@ function SgceNormalizarTurno($Valor) {
 }
 
 function SgceNormalizarTextoUsuarios($Valor) {
-    return trim(preg_replace('/\s+/u', ' ', (string)$Valor));
+    return SgceNormalizarMayusculas($Valor);
 }
 
 
@@ -152,6 +168,7 @@ function SgceConfiguracionDefault() {
         'LemaInstitucional' => '',
         'ColorInstitucional' => '#97051E',
         'SistemaNombre' => 'SGCE',
+        'PlaneacionesCantidad' => '1',
     ];
 }
 
@@ -171,7 +188,6 @@ function SgceObtenerConfiguracion($Pdo) {
 }
 
 function SgceGuardarConfiguracion($Pdo, $Datos) {
-    // Evita ejecutar DDL dentro de una transacción activa, porque MySQL puede hacer commit implícito.
     if (!$Pdo->inTransaction()) { SgceCrearTablaConfiguracionSiNoExiste($Pdo); }
     $Permitidas = array_keys(SgceConfiguracionDefault());
     $Stmt = $Pdo->prepare('INSERT INTO ConfiguracionSistema (Clave, Valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE Valor = VALUES(Valor), FechaActualizacion = CURRENT_TIMESTAMP');
@@ -249,12 +265,12 @@ function SgceTieneRol($UserSession, $Roles) {
 
 function SgcePermisosPorRol() {
     return [
-        'admin' => ['admin', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'configuracion', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar'],
-        'director' => ['periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'asistencia', 'asistencia_editar', 'asistencia_historica'],
-        'secretario' => ['catalogos', 'avisos', 'reportes'],
-        'coordinador' => ['avisos', 'reportes', 'asistencia', 'asistencia_editar', 'asistencia_historica'],
+        'admin' => ['admin', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'configuracion', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'],
+        'director' => ['periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'planeaciones'],
+        'secretario' => ['catalogos', 'avisos', 'reportes', 'planeaciones'],
+        'coordinador' => ['avisos', 'reportes', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'planeaciones'],
         'prefecto' => ['reportes', 'asistencia', 'asistencia_editar', 'asistencia_historica'],
-        'maestro' => ['docente', 'asistencia', 'calificaciones'],
+        'maestro' => ['docente', 'asistencia', 'calificaciones', 'planeaciones'],
     ];
 }
 
@@ -272,6 +288,7 @@ function SgcePuedeRespaldos($UserSession) { return SgceTienePermiso($UserSession
 function SgcePuedeBitacora($UserSession) { return SgceTienePermiso($UserSession, 'bitacora'); }
 function SgcePuedeImportarCatalogos($UserSession) { return SgceTienePermiso($UserSession, 'importar') || SgceTieneRol($UserSession, ['admin']); }
 function SgcePuedeConfigurarSistema($UserSession) { return SgceTienePermiso($UserSession, 'configuracion') || SgceTieneRol($UserSession, ['admin']); }
+function SgcePuedeGestionarPlaneaciones($UserSession) { return SgceTieneRol($UserSession, ['admin', 'director', 'secretario', 'coordinador']); }
 function SgcePuedeCorregirAsistenciaHistorica($UserSession) { return SgceTienePermiso($UserSession, 'asistencia_historica'); }
 
 function SgceTabAdminPermitida($Tab) {
@@ -455,6 +472,126 @@ function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $
             ObtenerIpCliente(),
         ]);
     } catch (Exception $E) {}
+}
+
+
+function SgceCantidadPlaneaciones($Pdo) {
+    $Config = SgceObtenerConfiguracion($Pdo);
+    $Cantidad = (int)($Config['PlaneacionesCantidad'] ?? 1);
+    return max(1, min(12, $Cantidad));
+}
+
+function SgceCrearTablaPlaneacionesSiNoExiste($Pdo) {
+    $Pdo->exec("CREATE TABLE IF NOT EXISTS Planeaciones (
+        Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        CicloId INT UNSIGNED NOT NULL,
+        MaestroId INT UNSIGNED NOT NULL,
+        MateriaNombre VARCHAR(140) NOT NULL,
+        Numero INT UNSIGNED NOT NULL,
+        VersionArchivo INT UNSIGNED NOT NULL DEFAULT 1,
+        Titulo VARCHAR(180) DEFAULT NULL,
+        ArchivoOriginal VARCHAR(255) NOT NULL,
+        ArchivoGuardado VARCHAR(255) NOT NULL,
+        MimeType VARCHAR(120) DEFAULT NULL,
+        TamanoBytes BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        Estado ENUM('SUBIDA','APROBADA','DEVUELTA') NOT NULL DEFAULT 'SUBIDA',
+        NotaRevision TEXT DEFAULT NULL,
+        RevisadoPor INT UNSIGNED DEFAULT NULL,
+        FechaRevision DATETIME DEFAULT NULL,
+        FechaSubida TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY unico_planeacion_docente_materia_numero (CicloId, MaestroId, MateriaNombre, Numero),
+        INDEX idx_planeaciones_maestro_ciclo (MaestroId, CicloId, MateriaNombre, Numero),
+        INDEX idx_planeaciones_estado (Estado, FechaActualizacion),
+        INDEX idx_planeaciones_numero (Numero),
+        CONSTRAINT fk_planeaciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+        CONSTRAINT fk_planeaciones_maestro FOREIGN KEY (MaestroId) REFERENCES Usuarios(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+        CONSTRAINT fk_planeaciones_revisor FOREIGN KEY (RevisadoPor) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+}
+
+function SgceNormalizarMateriaPlaneacion($Texto) {
+    $Texto = trim(preg_replace('/\s+/u', ' ', (string)$Texto));
+    return SgceCadenaMayusculas($Texto);
+}
+
+function SgceCarpetaPlaneaciones() {
+    $Dir = defined('SGCE_PLANEACIONES_DIR') ? SGCE_PLANEACIONES_DIR : dirname(__DIR__) . '/storage/planeaciones';
+    if (!is_dir($Dir)) { @mkdir($Dir, 0775, true); }
+    return $Dir;
+}
+
+function SgcePrepararCarpetaDocentePlaneaciones($MaestroId, $Username) {
+    $Base = SgceCarpetaPlaneaciones();
+    $Dir = $Base . '/M' . (int)$MaestroId . '_' . SgceNombreArchivoSeguro($Username);
+    if (!is_dir($Dir)) { @mkdir($Dir, 0775, true); }
+    return $Dir;
+}
+
+function SgceNombreArchivoSeguro($Texto) {
+    $Texto = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string)$Texto);
+    $Texto = preg_replace('/[^A-Za-z0-9_\-\.]+/', '_', (string)$Texto);
+    $Texto = trim($Texto, '._-');
+    return $Texto !== '' ? $Texto : 'archivo';
+}
+
+function SgceEstadosPlaneacion() {
+    return [
+        'PENDIENTE' => 'PENDIENTE',
+        'SUBIDA' => 'SUBIDA',
+        'APROBADA' => 'APROBADA',
+        'DEVUELTA' => 'DEVUELTA',
+    ];
+}
+
+function SgceExtensionesPlaneacionPermitidas() {
+    return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+}
+
+function SgceValidarArchivoPlaneacion($Archivo) {
+    if (!isset($Archivo['error']) || $Archivo['error'] !== UPLOAD_ERR_OK) { return 'Selecciona un archivo válido.'; }
+    $Max = 25 * 1024 * 1024;
+    if ((int)($Archivo['size'] ?? 0) <= 0 || (int)$Archivo['size'] > $Max) { return 'El archivo no debe superar 25 MB.'; }
+    $Nombre = (string)($Archivo['name'] ?? '');
+    $Ext = strtolower(pathinfo($Nombre, PATHINFO_EXTENSION));
+    if (!in_array($Ext, SgceExtensionesPlaneacionPermitidas(), true)) { return 'Formato no permitido. Usa PDF, Word, Excel o PowerPoint.'; }
+    return true;
+}
+
+
+function SgceNombrePlaneacionEstandar($CicloNombre, $MaestroNombre, $MateriaNombre, $Numero, $Extension = '', $VersionArchivo = 1) {
+    $Ciclo = substr(SgceNombreArchivoSeguro((string)$CicloNombre), 0, 16);
+    $Materia = substr(SgceNombreArchivoSeguro((string)$MateriaNombre), 0, 30);
+    $Maestro = substr(SgceNombreArchivoSeguro((string)$MaestroNombre), 0, 30);
+    $NumeroTxt = 'P' . str_pad((string)max(1, (int)$Numero), 2, '0', STR_PAD_LEFT);
+    $Version = max(1, (int)$VersionArchivo);
+    $VersionTxt = $Version > 1 ? '_V' . str_pad((string)$Version, 2, '0', STR_PAD_LEFT) : '';
+    $Base = trim($Ciclo . '_' . $NumeroTxt . $VersionTxt . '_' . $Materia . '_' . $Maestro, '_');
+    $Base = preg_replace('/_+/', '_', $Base);
+    $Extension = strtolower(trim((string)$Extension, '. '));
+    if ($Extension !== '' && preg_match('/^[a-z0-9]{2,8}$/', $Extension)) {
+        return $Base . '.' . $Extension;
+    }
+    return $Base;
+}
+
+function SgceNombrePlaneacionInterno($CicloNombre, $MaestroNombre, $MateriaNombre, $Numero, $Extension = '', $VersionArchivo = 1) {
+    $Base = pathinfo(SgceNombrePlaneacionEstandar($CicloNombre, $MaestroNombre, $MateriaNombre, $Numero, $Extension, $VersionArchivo), PATHINFO_FILENAME);
+    $Extension = strtolower(trim((string)$Extension, '. '));
+    $Sufijo = date('Ymd_His') . '_' . bin2hex(random_bytes(3));
+    return $Base . '_' . $Sufijo . ($Extension !== '' ? '.' . $Extension : '');
+}
+
+function SgceMateriasDocente($Pdo, $MaestroId) {
+    $Stmt = $Pdo->prepare("SELECT A.MateriaNombre,
+        GROUP_CONCAT(CONCAT(G.Grado, ' ', G.Grupo, ' - ', G.Turno) ORDER BY G.Turno, G.Grado, G.Grupo SEPARATOR ', ') AS Grupos
+        FROM Asignaciones A
+        INNER JOIN Grupos G ON G.Id = A.GrupoId
+        WHERE A.MaestroId = ? AND A.Activo = 1 AND G.Activo = 1
+        GROUP BY A.MateriaNombre
+        ORDER BY A.MateriaNombre ASC");
+    $Stmt->execute([(int)$MaestroId]);
+    return $Stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function SgceColumnasInsertablesBackup($Pdo, $Tabla) {

@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var FechaInicio = Form.querySelector('input[name="FechaInicio"]');
             var FechaFin = Form.querySelector('input[name="FechaFin"]');
             var ColorInstitucional = Form.querySelector('input[name="ColorInstitucional"]');
+            var PlaneacionesCantidad = Form.querySelector('input[name="PlaneacionesCantidad"]');
 
 
             if (NombreEscuela && NombreEscuela.value.trim().length < 3) {
@@ -164,6 +165,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 MostrarMensaje(Form, 'La fecha de inicio del ciclo escolar debe ser menor que la fecha de fin.');
                 FechaInicio.focus();
                 return;
+            }
+
+            if (PlaneacionesCantidad) {
+                var Cantidad = parseInt(PlaneacionesCantidad.value || '0', 10);
+                if (!Cantidad || Cantidad < 1 || Cantidad > 12) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'La cantidad de planeaciones debe estar entre 1 y 12.');
+                    PlaneacionesCantidad.focus();
+                    return;
+                }
             }
 
             if (!Confirmacion || Confirmacion.value.trim() !== 'INSTALAR SGCE') {

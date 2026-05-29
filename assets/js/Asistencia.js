@@ -84,12 +84,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     // ============================================================
-    // HOMOLOGAR TEXTOS POR DEFECTO EN MAYÚSCULAS
+    // Normalización visual de textos
     // ------------------------------------------------------------
-    // Aquí dejo en mayúsculas los placeholders y el texto visible de
-    // las opciones de los select. No modifico los valores internos de
-    // los option para no romper validaciones como Matutino/Vespertino.
-    // Tampoco toco passwords ni archivos.
+    // Normaliza textos visibles sin modificar valores internos de formularios.
     // ============================================================
     document.querySelectorAll('input:not([type="password"]):not([type="file"]):not([type="hidden"]), textarea').forEach(function(Control){
         if (Control.placeholder) {

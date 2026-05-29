@@ -82,15 +82,28 @@ function ValidarArchivoImportacionSubido($Archivo) {
     return '';
 }
 
+function DetectarDelimitadorCsv($RutaArchivo) {
+    $Linea = (string)@file_get_contents($RutaArchivo, false, null, 0, 4096);
+    $Conteos = [
+        ',' => substr_count($Linea, ','),
+        ';' => substr_count($Linea, ';'),
+        "	" => substr_count($Linea, "	"),
+    ];
+    arsort($Conteos);
+    $Delimitador = (string)array_key_first($Conteos);
+    return ($Conteos[$Delimitador] ?? 0) > 0 ? $Delimitador : ',';
+}
+
 function LeerFilasCsv($RutaArchivo) {
     $Handle = fopen($RutaArchivo, 'r');
     if (!$Handle) {
         throw new RuntimeException('No se pudo leer el archivo CSV.');
     }
 
+    $Delimitador = DetectarDelimitadorCsv($RutaArchivo);
     BomStrip($Handle);
     $Filas = [];
-    while (($Data = fgetcsv($Handle, 4000, ',')) !== false) {
+    while (($Data = fgetcsv($Handle, 8000, $Delimitador)) !== false) {
         $Filas[] = $Data;
     }
     fclose($Handle);
@@ -513,6 +526,11 @@ if (isset($_POST['ImportarDocentes'])) {
             continue;
         }
 
+        if (!preg_match('/^[a-zA-Z0-9._@-]{3,80}$/', $User)) {
+            $Invalidos++;
+            continue;
+        }
+
         if (isset($UsuariosArchivo[$User])) {
             $Duplicados++;
             continue;
@@ -544,6 +562,7 @@ if (isset($_POST['ImportarDocentes'])) {
                 HashPasswordImportacion($HashCache, $Docente['Password']),
                 $Docente['Nombre'],
             ]);
+            SgcePrepararCarpetaDocentePlaneaciones((int)$Pdo->lastInsertId(), $Docente['Username']);
             $Insertados++;
         }
 

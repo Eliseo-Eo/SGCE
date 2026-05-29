@@ -29,7 +29,7 @@ function RedirectRestaurar($Mensaje, $Tipo = 'success') {
 function QTablaRest($Tabla) { return '`' . str_replace('`','``',$Tabla) . '`'; }
 
 function TablasSistemaRest($Pdo) {
-    $Preferidas = ['IntentosSeguridad','BitacoraMovimientos','Avisos','Asistencias','Calificaciones','PeriodosEvaluacion','CiclosEscolares','Asignaciones','Alumnos','Grupos','Usuarios','ConfiguracionSistema'];
+    $Preferidas = ['IntentosSeguridad','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','PeriodosEvaluacion','CiclosEscolares','Asignaciones','Alumnos','Grupos','Usuarios','ConfiguracionSistema'];
     $Existentes = array_map(function($R){ return $R[0]; }, $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM));
     $Tablas = [];
     foreach ($Preferidas as $Tabla) {
@@ -42,12 +42,12 @@ function TablasSistemaRest($Pdo) {
 }
 
 function VaciarTablasRest($Pdo, $IncluirUsuarios = false) {
-    // Uso DELETE en lugar de TRUNCATE porque TRUNCATE hace COMMIT implícito en MySQL
-    // y provocaba el error: There is no active transaction.
+    // DELETE mantiene el control transaccional durante la restauración.
     $Tablas = TablasSistemaRest($Pdo);
+    $ConservarEscolar = ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'PeriodosEvaluacion', 'IntentosSeguridad'];
     $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
     foreach ($Tablas as $Tabla) {
-        if (!$IncluirUsuarios && $Tabla === 'Usuarios') { continue; }
+        if (!$IncluirUsuarios && in_array($Tabla, $ConservarEscolar, true)) { continue; }
         $Pdo->exec('DELETE FROM ' . QTablaRest($Tabla));
     }
     $Pdo->exec('SET FOREIGN_KEY_CHECKS=1');
@@ -127,7 +127,7 @@ function SentenciaPermitidaRest($Sql) {
     $Limpia = ltrim($Sql);
     if (preg_match('/^SET\s+/i', $Limpia)) { return true; }
     if (preg_match('/^(INSERT|REPLACE)\s+INTO\s+`?([A-Za-z0-9_]+)`?/i', $Limpia, $M)) {
-        $TablasPermitidas = ['Usuarios','Grupos','Alumnos','Asignaciones','CiclosEscolares','PeriodosEvaluacion','Calificaciones','Asistencias','Avisos','BitacoraMovimientos','IntentosSeguridad','ConfiguracionSistema'];
+        $TablasPermitidas = ['Usuarios','Grupos','Alumnos','Asignaciones','CiclosEscolares','PeriodosEvaluacion','Calificaciones','Asistencias','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad','ConfiguracionSistema'];
         return in_array($M[2], $TablasPermitidas, true);
     }
     return false;
@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             VaciarTablasRest($Pdo, false);
             $Pdo->prepare("INSERT INTO Avisos (Titulo, Mensaje, Publico, Activo) VALUES (?, ?, 'TODOS', 1)")
-                ->execute(['SISTEMA REINICIADO', 'LOS DATOS ESCOLARES FUERON BORRADOS. PUEDES IMPORTAR UN RESPALDO DE DATOS.']);
+                ->execute(['SISTEMA REINICIADO', 'LOS DATOS ESCOLARES FUERON BORRADOS. PUEDES CAPTURAR NUEVOS REGISTROS O IMPORTAR UN RESPALDO DE DATOS.']);
             RegistrarBitacora($Pdo, $UserSession, 'VACIAR_DATOS_ESCOLARES', 'BASE_DE_DATOS', null, 'SE BORRARON DATOS ESCOLARES, CONSERVANDO USUARIOS');
             RedirectRestaurar('Datos escolares borrados correctamente. Los usuarios se conservaron.', 'success');
         } catch (Exception $E) {
@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             RedirectRestaurar('El archivo no tiene la firma oficial SGCE. Por seguridad solo se importan respaldos generados por este sistema.', 'danger');
         }
         if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|DROP\s+TABLE|CREATE\s+TABLE|ALTER\s+TABLE)\b/i', $Sql)) {
-            RedirectRestaurar('Este importador acepta únicamente respaldos de SOLO DATOS generados por “Exportar solo datos”. Si subiste un respaldo completo con estructura, usa ControlEscolar.sql/Instalar.php de forma manual.', 'danger');
+            RedirectRestaurar('Este importador acepta únicamente respaldos de SOLO DATOS generados por “Exportar solo datos”. Si subiste un respaldo completo con estructura, usa install/SGCE.sql o el instalador de forma manual.', 'danger');
         }
 
         try {
@@ -230,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="apple-touch-icon" href="favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="SgceRestorePage">
@@ -261,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-6">
             <div class="Card SgceRestoreCard p-4 h-100">
                 <div class="SgceRestoreCardHead"><div class="IconBox"><i class="fa-solid fa-file-import"></i></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”.</p></div></div>
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR RESPALDO" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE RESPALDO?" data-sgce-confirm-detail="Esta acción puede fusionar, reemplazar datos escolares o reemplazar todo según el modo seleccionado. Revisa el archivo SQL y el modo antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR RESPALDO" data-sgce-confirm-loading="IMPORTANDO RESPALDO..." data-sgce-confirm-icon="fa-database">
                     <?= CampoCsrf() ?>
                     <div class="mb-3">
                         <label class="fw-bold mb-2">Archivo SQL</label>
@@ -283,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-12">
             <div class="Card SgceRestoreCard SgceDangerCard p-4">
                 <div class="SgceRestoreCardHead SgceDangerHead"><div class="IconBox"><i class="fa-solid fa-triangle-exclamation"></i></div><div><h4>Borrar datos escolares</h4><p>Esto borra grupos, alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora. Conserva usuarios para que no pierdas acceso.</p></div></div>
-                <form method="POST" class="row g-3 align-items-end">
+                <form method="POST" class="row g-3 align-items-end" data-sgce-confirm="danger" data-sgce-confirm-title="CONFIRMAR BORRADO" data-sgce-confirm-subtitle="DATOS ESCOLARES" data-sgce-confirm-message="¿REALMENTE DESEAS BORRAR LOS DATOS ESCOLARES?" data-sgce-confirm-detail="Esta acción eliminará datos escolares y conservará usuarios. Debes escribir la frase solicitada para que el servidor acepte la operación." data-sgce-confirm-button="SÍ, BORRAR DATOS" data-sgce-confirm-loading="BORRANDO DATOS..." data-sgce-confirm-icon="fa-trash-can">
                     <?= CampoCsrf() ?>
                     <div class="col-lg-8">
                         <label class="fw-bold mb-2">Confirmación</label>
@@ -299,6 +299,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
 </body>
 </html>

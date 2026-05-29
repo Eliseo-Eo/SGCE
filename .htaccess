@@ -1,0 +1,44 @@
+# =====================================================
+# SGCE 2026 FINAL - CONFIGURACION PRINCIPAL
+# Compatible con Apache/cPanel/Plesk. No usa php_value para evitar error 500 en PHP-FPM.
+# =====================================================
+
+# PageSpeed debe permanecer apagado: evita que Plesk/mod_pagespeed reescriba CSS/JS.
+<IfModule pagespeed_module>
+    ModPagespeed off
+    ModPagespeedDisallow "*/assets/css/*"
+    ModPagespeedDisallow "*/assets/js/*"
+    ModPagespeedDisallow "*.css"
+    ModPagespeedDisallow "*.js"
+</IfModule>
+
+Options -Indexes -MultiViews
+ServerSignature Off
+DirectoryIndex index.php
+
+# Bloqueo de archivos sensibles aunque el servidor permita listados o descargas directas.
+<FilesMatch "^(database\.php|database\.local\.php|.*\.sql|.*\.log|composer\.(json|lock)|README.*|\.env.*|MANIFEST\.txt|PRODUCCION_CHECKLIST\.md|INFORME_.*\.md|CAMBIOS_.*\.md|VERSION_.*\.md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always unset X-Powered-By
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/x-icon "access plus 30 days"
+</IfModule>

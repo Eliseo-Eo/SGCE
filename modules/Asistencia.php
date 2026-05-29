@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 
 
@@ -510,7 +510,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
-<script src="assets/js/Asistencia.js?v=1.0.0"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/Asistencia.js?cache=sgce"></script>
 </body>
 </html>

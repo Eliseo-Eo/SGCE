@@ -1,4 +1,5 @@
 <?php
+if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UsuarioActivo = VerificarSesionCookie($Pdo);
@@ -59,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'secure' => EsHttps()
             ]);
 
-            // Registro el inicio de sesión en la bitácora para saber quién entró al sistema.
+            // Registro de inicio de sesión para auditoría.
             RegistrarBitacora($Pdo, $User, 'INICIO_SESION', 'Usuarios', $User['Id'], 'USUARIO INICIÓ SESIÓN');
 
             if ($User['Rol'] === 'maestro') {
@@ -91,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
 
     
-    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    <!-- Favicon del sistema -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -102,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 
@@ -234,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <i class="fa-solid fa-circle-exclamation me-2"></i>
 
-                    <?= $Error ?>
+                    <?= HGlobal($Error) ?>
 
                 </div>
 
@@ -314,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <a href="ConsultaPadre.php" class="BtnConsultaPadre">
                 <i class="fa-solid fa-user-shield"></i>
-                CONSULTA DE ASISTENCIA PARA PADRES
+                CONSULTA DE ASISTENCIA INDIVIDUAL
             </a>
 
             <div class="FooterLogin">
@@ -337,8 +338,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
-<script src="assets/js/index.js?v=1.0.0"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/index.js?cache=sgce"></script>
 </body>
 
 </html>

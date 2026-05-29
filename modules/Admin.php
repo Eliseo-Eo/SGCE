@@ -4,8 +4,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 /*
     Archivo: Admin.php
     Descripción: Panel principal del administrador.
-    Aquí controlo maestros, grupos, alumnos, asignaciones, exportaciones, importaciones, búsquedas y paginación.
-    También mantengo activa la pestaña donde estaba trabajando después de guardar, editar o eliminar.
+    Integra maestros, grupos, alumnos, asignaciones, exportaciones, importaciones, búsquedas y paginación.
+    Conserva la pestaña activa después de guardar, editar o eliminar registros.
 */
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
@@ -15,12 +15,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $UserSession = VerificarSesionCookie($Pdo);
-if ($UserSession && $UserSession['Rol'] === 'admin') { SgceGenerarBackupAutomatico($Pdo); }
+if ($UserSession && $UserSession['Rol'] === 'admin') {
+    try {
+        SgceGenerarBackupAutomatico($Pdo);
+    } catch (Throwable $E) {
+        if (function_exists('SgceRegistrarErrorTecnico')) { SgceRegistrarErrorTecnico('BACKUP_AUTOMATICO_ADMIN', $E); }
+    }
+}
 if (!$UserSession || $UserSession['Rol'] !== 'admin') { header('Location: index.php'); exit; }
 
 // Tab actual (para pintar activo en UI)
 // Al entrar al panel sin indicar pestaña, siempre inicio en el DASHBOARD.
-// Ya no uso la última pestaña guardada en sesión para evitar que al iniciar sesión abra Asignaciones u otra sección anterior.
+// La pestaña inicial se define explícitamente para mantener navegación predecible.
 $TabActual = SgceTabAdminPermitida($_GET['Tab'] ?? $_POST['Tab'] ?? 'inicio');
 $_SESSION['Tab'] = $TabActual;
 
@@ -142,6 +148,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             SgceRedirectAdminTab($TabPost);
         }
 
+        if (!preg_match('/^[a-zA-Z0-9._@-]{3,80}$/', $User)) {
+            $_SESSION['Mensaje'] = "El usuario del docente debe tener de 3 a 80 caracteres y solo puede usar letras, números, punto, guion, guion bajo o @.";
+            SgceRedirectAdminTab($TabPost);
+        }
+
         $ValidacionPassword = SgceValidarPasswordFuerte($Pass);
         if ($ValidacionPassword !== true) {
             $_SESSION['Mensaje'] = $ValidacionPassword;
@@ -180,6 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($Id <= 0 || $User === '' || $Nombre === '') {
             $_SESSION['Mensaje'] = "Datos Del Docente Inválidos. (Nombre solo letras)";
+            SgceRedirectAdminTab($TabPost);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9._@-]{3,80}$/', $User)) {
+            $_SESSION['Mensaje'] = "El usuario del docente debe tener de 3 a 80 caracteres y solo puede usar letras, números, punto, guion, guion bajo o @.";
             SgceRedirectAdminTab($TabPost);
         }
 
@@ -533,7 +549,7 @@ $StmtAsignacionesTabla->bindValue(2, $OffsetAsig, PDO::PARAM_INT);
 $StmtAsignacionesTabla->execute();
 $Asignaciones = $StmtAsignacionesTabla->fetchAll();
 
-// Expedientes: no cargo todos los alumnos de golpe.
+// Expedientes con consulta bajo demanda.
 // Primero se selecciona un grupo y solo entonces se consulta ese padrón.
 $ExpedienteGrupoId = intval($_GET['ExpGrupoId'] ?? 0);
 $AlumnosExpedientes = [];
@@ -586,7 +602,7 @@ $PromedioGeneral = $PromedioStmt->fetchColumn();
 $PromedioGeneral = $PromedioGeneral !== null ? $PromedioGeneral : '0.0';
 // En esta consulta calculo los alumnos con riesgo.
 // Tomo faltas, retardos y promedios del ciclo escolar activo.
-// También genero el MOTIVO para que el administrador sepa si el riesgo es por FALTAS, RETARDOS, PROMEDIO BAJO o una combinación.
+// Motivo visible del nivel de riesgo: faltas, retardos, promedio bajo o combinación de factores.
 $AlumnosRiesgo = $Pdo->query("
     SELECT
         Al.Id,
@@ -657,8 +673,7 @@ $AlumnosRiesgo = $Pdo->query("
     ORDER BY PuntajeRiesgo DESC, Faltas DESC, Retardos DESC, Promedio ASC, Al.NombreCompleto ASC
     LIMIT 10
 ")->fetchAll();
-// Cargo los últimos movimientos de la bitácora.
-// Si la tabla todavía no existe porque se actualizó sobre una base vieja, la creo automáticamente desde Conexion.php.
+// Últimos movimientos de bitácora.
 $BitacoraReciente = [];
 try {
     if (function_exists('CrearTablaBitacoraSiNoExiste')) {
@@ -683,8 +698,9 @@ try {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    <!-- Favicon del sistema -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -692,7 +708,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?v=1.0.0">
+<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 
 </head>
@@ -722,8 +738,9 @@ try {
         </div>
         <div class="SgceHeroActions">
             <?php if ($TabActual === 'inicio'): ?>
-                <a href="Logout.php" class="SgceHeroBtn SgceHeroLogout" title="Cerrar sesión" aria-label="Cerrar sesión">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Salir</span>
+                <a href="Logout.php" id="BtnCerrarSesionAdmin" class="SgceHeroBtn SgceHeroLogout" title="Cerrar sesión" aria-label="Cerrar sesión" data-sgce-confirm="logout" data-sgce-confirm-title="CERRAR SESIÓN" data-sgce-confirm-subtitle="SALIDA DEL SISTEMA" data-sgce-confirm-message="¿REALMENTE DESEAS CERRAR SESIÓN?" data-sgce-confirm-detail="Se cerrará tu sesión actual y tendrás que iniciar sesión nuevamente para entrar al sistema." data-sgce-confirm-button="SÍ, CERRAR SESIÓN" data-sgce-confirm-loading="CERRANDO SESIÓN..." data-sgce-confirm-icon="fa-right-from-bracket">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Cerrar sesión</span>
                 </a>
             <?php else: ?>
                 <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
@@ -790,10 +807,15 @@ try {
                             <span class="DashboardSectionKicker"><i class="fa-solid fa-grip"></i> Accesos rápidos</span>
                             <h2>Panel principal</h2>
                         </div>
-                        <span class="DashboardMiniBadge">13 módulos</span>
+                        <span class="DashboardMiniBadge">14 módulos</span>
                     </div>
 
                     <div class="DashboardModuleGridPro ModulosRecomendados">
+                        <a href="AvisosAdmin.php" class="DashboardModuleCard DashboardModuleAnuncios">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            <span>Anuncios</span>
+                            <small>Comunicados</small>
+                        </a>
                         <a href="PeriodosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-calendar-days"></i>
                             <span>Periodos</span>
@@ -819,11 +841,6 @@ try {
                             <span>Asignaciones</span>
                             <small>Materias</small>
                         </a>
-                        <a href="AvisosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-bullhorn"></i>
-                            <span>Avisos</span>
-                            <small>Comunicados</small>
-                        </a>
                         <a href="Admin.php?Tab=expedientes" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Expedientes</span>
@@ -834,25 +851,30 @@ try {
                             <span>Reportes</span>
                             <small>Centro</small>
                         </a>
+                        <a href="PlaneacionesAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Planeaciones</span>
+                            <small>Docentes</small>
+                        </a>
                         <a href="ConsultaPadre.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span>Padres</span>
-                            <small>Consulta</small>
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Asistencias</span>
+                            <small>Consulta individual</small>
                         </a>
                         <a href="UsuariosAdmin.php" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-users-gear"></i>
                             <span>Usuarios</span>
                             <small>Roles</small>
                         </a>
+                        <a href="ConfiguracionAdmin.php" class="DashboardModuleCard DashboardModuleWine">
+                            <i class="fa-solid fa-school-circle-check"></i>
+                            <span>Configuración</span>
+                            <small>Escuela</small>
+                        </a>
                         <a href="RestaurarBD.php" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-database"></i>
                             <span>Respaldos</span>
                             <small>Datos</small>
-                        </a>
-                        <a href="ConfiguracionAdmin.php" class="DashboardModuleCard DashboardModuleWine">
-                            <i class="fa-solid fa-school-circle-check"></i>
-                            <span>Config.</span>
-                            <small>Escuela</small>
                         </a>
                         <a href="Admin.php?Tab=bitacora" class="DashboardModuleCard DashboardModuleWine">
                             <i class="fa-solid fa-shield-halved"></i>
@@ -1017,7 +1039,7 @@ try {
                         </div>
 
                         <div class="card-body">
-                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack">
+                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR DOCENTES" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE ARCHIVO DE DOCENTES?" data-sgce-confirm-detail="Se procesará el archivo seleccionado para registrar docentes. Revisa que el formato sea NOMBRE, USUARIO, CONTRASEÑA antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR DOCENTES" data-sgce-confirm-loading="IMPORTANDO DOCENTES..." data-sgce-confirm-icon="fa-file-excel">
                     <?php echo CampoCsrf(); ?>
                                 <input type="hidden" name="ImportarDocentes">
                                 <input type="hidden" name="Tab" value="maestros">
@@ -1225,7 +1247,7 @@ try {
                         </div>
 
                         <div class="card-body">
-                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack GruposFormStack">
+                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack GruposFormStack" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR GRUPOS" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE ARCHIVO DE GRUPOS?" data-sgce-confirm-detail="Se procesará el archivo seleccionado para registrar grupos. Revisa grado, grupo y turno antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR GRUPOS" data-sgce-confirm-loading="IMPORTANDO GRUPOS..." data-sgce-confirm-icon="fa-file-excel">
                     <?php echo CampoCsrf(); ?>
                                 <input type="hidden" name="ImportarGrupos">
                                 <input type="hidden" name="Tab" value="grupos">
@@ -1572,7 +1594,7 @@ try {
                         </div>
 
                         <div class="card-body">
-                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack AlumnosFormStack">
+                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack AlumnosFormStack" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR ALUMNOS" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE ARCHIVO DE ALUMNOS?" data-sgce-confirm-detail="Se registrarán los alumnos en el grupo seleccionado. Confirma que elegiste el grupo correcto y que el archivo corresponde a ese grupo." data-sgce-confirm-button="SÍ, IMPORTAR ALUMNOS" data-sgce-confirm-loading="IMPORTANDO ALUMNOS..." data-sgce-confirm-icon="fa-users">
                     <?php echo CampoCsrf(); ?>
                                 <input type="hidden" name="ImportarAlumnos">
                                 <input type="hidden" name="Tab" value="alumnos">
@@ -1814,16 +1836,17 @@ try {
                                     <td class="searchable fw-medium"><?= htmlspecialchars($Asg['Maestro']) ?></td>
 
                                     <td class="searchable">
-                                        <span class="AsignacionMateriaTexto"><?= htmlspecialchars($Asg['MateriaNombre']) ?></span>
+                                        <span class="AsignacionMateriaTexto" title="<?= htmlspecialchars($Asg['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($Asg['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?></span>
                                     </td>
 
-                                    <td class="searchable">
-                                        <?php $TurnoAsignacion = strtoupper((string)$Asg['Turno']); ?>
-                                        <div class="AsignacionGrupoChips">
-                                            <span class="AsignacionGrupoChip AsignacionGradoChip"><?= htmlspecialchars($Asg['Grado'], ENT_QUOTES, 'UTF-8') ?></span>
-                                            <span class="AsignacionGrupoChip AsignacionGrupoChipLetra"><?= htmlspecialchars($Asg['Grupo'], ENT_QUOTES, 'UTF-8') ?></span>
-                                            <span class="AsignacionGrupoChip AsignacionTurnoChip"><?= htmlspecialchars($TurnoAsignacion, ENT_QUOTES, 'UTF-8') ?></span>
-                                        </div>
+                                    <td class="searchable AsignacionGrupoTd">
+                                        <?php
+                                            $TurnoAsignacion = strtoupper((string)$Asg['Turno']);
+                                            $GrupoAsignacionEtiqueta = trim((string)$Asg['Grado'].'°'.(string)$Asg['Grupo'].' '.$TurnoAsignacion);
+                                        ?>
+                                        <span class="AsignacionGrupoBadgeFull" title="<?= htmlspecialchars($GrupoAsignacionEtiqueta, ENT_QUOTES, 'UTF-8') ?>">
+                                            <?= htmlspecialchars($GrupoAsignacionEtiqueta, ENT_QUOTES, 'UTF-8') ?>
+                                        </span>
                                     </td>
 
                                     <!-- CALIFICACIONES -->
@@ -1990,7 +2013,17 @@ try {
                         </div>
 
                         <div class="table-responsive SgceTableWrap">
-                            <table class="table table-hover align-middle text-center" id="TableBitacora">
+                            <table class="table table-hover align-middle text-center SgceBitacoraTable" id="TableBitacora">
+                                <colgroup>
+                                    <col class="SgceBitColFecha">
+                                    <col class="SgceBitColUsuario">
+                                    <col class="SgceBitColRol">
+                                    <col class="SgceBitColAccion">
+                                    <col class="SgceBitColTabla">
+                                    <col class="SgceBitColRegistro">
+                                    <col class="SgceBitColDetalle">
+                                    <col class="SgceBitColIp">
+                                </colgroup>
                                 <thead>
                                     <tr>
                                         <th>Fecha</th>
@@ -2014,28 +2047,28 @@ try {
                                     <?php else: ?>
                                         <?php foreach($BitacoraReciente as $Mov): ?>
                                             <tr>
-                                                <td class="fw-bold searchable">
+                                                <td class="fw-bold searchable SgceBitCellFecha" title="<?= htmlspecialchars(date('d/m/Y H:i', strtotime($Mov['FechaRegistro'])), ENT_QUOTES, 'UTF-8') ?>">
                                                     <?= htmlspecialchars(date('d/m/Y H:i', strtotime($Mov['FechaRegistro'])), ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
-                                                <td class="searchable">
+                                                <td class="searchable SgceBitCellUsuario" title="<?= htmlspecialchars($Mov['NombreCompleto'] ?: 'SISTEMA', ENT_QUOTES, 'UTF-8') ?>">
                                                     <?= htmlspecialchars($Mov['NombreCompleto'] ?: 'SISTEMA', ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
                                                 <td class="searchable">
-                                                    <span class="badge bg-dark">
+                                                    <span class="badge bg-dark SgceBitBadgeRol" title="<?= htmlspecialchars(strtoupper((string)($Mov['Rol'] ?? '-')), ENT_QUOTES, 'UTF-8') ?>">
                                                         <?= htmlspecialchars(strtoupper((string)($Mov['Rol'] ?? '-')), ENT_QUOTES, 'UTF-8') ?>
                                                     </span>
                                                 </td>
                                                 <td class="searchable">
-                                                    <span class="badge bg-primary">
+                                                    <span class="badge bg-primary SgceBitBadgeAccion" title="<?= htmlspecialchars((string)$Mov['Accion'], ENT_QUOTES, 'UTF-8') ?>">
                                                         <?= htmlspecialchars((string)$Mov['Accion'], ENT_QUOTES, 'UTF-8') ?>
                                                     </span>
                                                 </td>
-                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['TablaAfectada'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['RegistroId'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-start searchable">
+                                                <td class="searchable SgceBitCellTabla" title="<?= htmlspecialchars((string)($Mov['TablaAfectada'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string)($Mov['TablaAfectada'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="searchable SgceBitCellRegistro"><?= htmlspecialchars((string)($Mov['RegistroId'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-start searchable SgceBitCellDetalle" title="<?= htmlspecialchars((string)($Mov['Detalle'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>">
                                                     <?= htmlspecialchars((string)($Mov['Detalle'] ?? '-'), ENT_QUOTES, 'UTF-8') ?>
                                                 </td>
-                                                <td class="searchable"><?= htmlspecialchars((string)($Mov['Ip'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="searchable SgceBitCellIp"><?= htmlspecialchars((string)($Mov['Ip'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -2098,7 +2131,7 @@ try {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=1.0.0"></script>
-<script src="assets/js/Admin.js?v=1.0.0"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/Admin.js?cache=sgce2026final"></script>
 </body>
 </html>
