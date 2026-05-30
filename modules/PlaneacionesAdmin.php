@@ -3,7 +3,9 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeGestionarPlaneaciones($UserSession)) { header('Location: index.php'); exit; }
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'planeaciones', 'No tienes permiso para revisar planeaciones.');
+if (SgceTieneRol($UserSession, ['maestro'])) { SgceDenegarAcceso('Los maestros solo pueden consultar sus propias planeaciones desde el portal docente.'); }
 RequerirCsrfPost();
 SgceCrearTablaPlaneacionesSiNoExiste($Pdo);
 
@@ -59,38 +61,110 @@ $Where = ["A.Activo = 1", "G.Activo = 1", "U.Rol = 'maestro'", "U.Activo = 1"];
 if ($FiltroMaestro > 0) { $Where[] = 'U.Id = ?'; $Params[] = $FiltroMaestro; }
 if ($FiltroGrupo > 0) { $Where[] = 'G.Id = ?'; $Params[] = $FiltroGrupo; }
 if ($FiltroMateria !== '') { $Where[] = 'A.MateriaNombre = ?'; $Params[] = $FiltroMateria; }
-$SqlCombos = "SELECT U.Id AS MaestroId, U.NombreCompleto, A.MateriaNombre,
+
+$SqlCombosBase = "SELECT U.Id AS MaestroId, U.NombreCompleto, A.MateriaNombre,
     GROUP_CONCAT(DISTINCT CONCAT(G.Grado, ' ', G.Grupo, ' - ', G.Turno) ORDER BY G.Turno, G.Grado, G.Grupo SEPARATOR ', ') AS Grupos
     FROM Asignaciones A
     INNER JOIN Usuarios U ON U.Id = A.MaestroId
     INNER JOIN Grupos G ON G.Id = A.GrupoId
     WHERE " . implode(' AND ', $Where) . "
-    GROUP BY U.Id, U.NombreCompleto, A.MateriaNombre
-    ORDER BY U.NombreCompleto, A.MateriaNombre";
-$StmtCombos = $Pdo->prepare($SqlCombos);
-$StmtCombos->execute($Params);
-$Combos = $StmtCombos->fetchAll();
+    GROUP BY U.Id, U.NombreCompleto, A.MateriaNombre";
 
-$Planeaciones = [];
-if ($CicloId > 0) {
-    $StmtPlan = $Pdo->prepare('SELECT P.*, U.NombreCompleto AS RevisorNombre FROM Planeaciones P LEFT JOIN Usuarios U ON U.Id = P.RevisadoPor WHERE P.CicloId = ?');
-    $StmtPlan->execute([$CicloId]);
-    foreach ($StmtPlan->fetchAll() as $P) { $Planeaciones[(int)$P['MaestroId']][$P['MateriaNombre']][(int)$P['Numero']] = $P; }
-}
+$StmtTotalCombos = $Pdo->prepare('SELECT COUNT(*) FROM (' . $SqlCombosBase . ') C');
+$StmtTotalCombos->execute($Params);
+$TotalCombos = (int)$StmtTotalCombos->fetchColumn();
+$TotalRequeridas = $TotalCombos * max(1, $CantidadPlaneaciones);
+
+$NumerosSqlPartes = [];
+for ($I = 1; $I <= max(1, $CantidadPlaneaciones); $I++) { $NumerosSqlPartes[] = 'SELECT ' . $I . ' AS Numero'; }
+$SqlNumeros = implode(' UNION ALL ', $NumerosSqlPartes);
+
+$OuterWhere = [];
+$OuterParams = [];
+if ($FiltroNumero > 0) { $OuterWhere[] = 'N.Numero = ?'; $OuterParams[] = $FiltroNumero; }
+if ($FiltroEstado !== '') { $OuterWhere[] = "COALESCE(P.Estado, 'PENDIENTE') = ?"; $OuterParams[] = $FiltroEstado; }
+$SqlOuterWhere = $OuterWhere ? (' WHERE ' . implode(' AND ', $OuterWhere)) : '';
+
+$SqlPlaneacionesBase = ' FROM (' . $SqlCombosBase . ') C
+    CROSS JOIN (' . $SqlNumeros . ') N
+    LEFT JOIN Planeaciones P ON P.CicloId = ? AND P.MaestroId = C.MaestroId AND P.MateriaNombre = C.MateriaNombre AND P.Numero = N.Numero
+    LEFT JOIN Usuarios R ON R.Id = P.RevisadoPor' . $SqlOuterWhere;
+$ParamsPlaneaciones = array_merge($Params, [$CicloId], $OuterParams);
+
+$StmtConteo = $Pdo->prepare('SELECT COUNT(*)' . $SqlPlaneacionesBase);
+$StmtConteo->execute($ParamsPlaneaciones);
+$TotalFilas = (int)$StmtConteo->fetchColumn();
+
+$StmtStats = $Pdo->prepare("SELECT
+        SUM(CASE WHEN P.Id IS NOT NULL THEN 1 ELSE 0 END) AS TotalSubidas,
+        SUM(CASE WHEN COALESCE(P.Estado, 'PENDIENTE') = 'PENDIENTE' THEN 1 ELSE 0 END) AS TotalPendientes
+    " . $SqlPlaneacionesBase);
+$StmtStats->execute($ParamsPlaneaciones);
+$StatsPlaneaciones = $StmtStats->fetch() ?: [];
+$TotalSubidas = (int)($StatsPlaneaciones['TotalSubidas'] ?? 0);
+$TotalPendientes = (int)($StatsPlaneaciones['TotalPendientes'] ?? 0);
+
+$PaginaPlaneaciones = SgcePaginaActual('PagPlan', 1);
+$PorPaginaPlaneaciones = 12;
+[$OffsetPlaneaciones, $LimitPlaneaciones] = SgceLimitOffset($PaginaPlaneaciones, $PorPaginaPlaneaciones);
+
+$SqlPlaneaciones = "SELECT
+        C.MaestroId,
+        C.NombreCompleto,
+        C.MateriaNombre,
+        C.Grupos,
+        N.Numero,
+        COALESCE(P.Estado, 'PENDIENTE') AS EstadoCalculado,
+        P.Id,
+        P.ArchivoGuardado,
+        P.ArchivoOriginal,
+        P.VersionArchivo,
+        P.FechaSubida,
+        P.FechaActualizacion,
+        P.NotaRevision,
+        P.RevisadoPor,
+        P.FechaRevision,
+        R.NombreCompleto AS RevisorNombre
+    " . $SqlPlaneacionesBase . "
+    ORDER BY C.NombreCompleto, C.MateriaNombre, N.Numero
+    LIMIT ? OFFSET ?";
+$StmtFilas = $Pdo->prepare($SqlPlaneaciones);
+$IndiceParametro = 1;
+foreach ($ParamsPlaneaciones as $Valor) { $StmtFilas->bindValue($IndiceParametro++, $Valor); }
+$StmtFilas->bindValue($IndiceParametro++, $LimitPlaneaciones, PDO::PARAM_INT);
+$StmtFilas->bindValue($IndiceParametro, $OffsetPlaneaciones, PDO::PARAM_INT);
+$StmtFilas->execute();
 
 $Filas = [];
-foreach ($Combos as $Combo) {
-    for ($Numero = 1; $Numero <= $CantidadPlaneaciones; $Numero++) {
-        if ($FiltroNumero > 0 && $Numero !== $FiltroNumero) { continue; }
-        $Registro = $Planeaciones[(int)$Combo['MaestroId']][$Combo['MateriaNombre']][$Numero] ?? null;
-        $Estado = $Registro['Estado'] ?? 'PENDIENTE';
-        if ($FiltroEstado !== '' && $FiltroEstado !== $Estado) { continue; }
-        $Filas[] = ['combo' => $Combo, 'numero' => $Numero, 'estado' => $Estado, 'registro' => $Registro];
+foreach ($StmtFilas->fetchAll() as $FilaDb) {
+    $Registro = null;
+    if (!empty($FilaDb['Id'])) {
+        $Registro = [
+            'Id' => $FilaDb['Id'],
+            'ArchivoGuardado' => $FilaDb['ArchivoGuardado'],
+            'ArchivoOriginal' => $FilaDb['ArchivoOriginal'],
+            'VersionArchivo' => $FilaDb['VersionArchivo'],
+            'FechaSubida' => $FilaDb['FechaSubida'],
+            'FechaActualizacion' => $FilaDb['FechaActualizacion'],
+            'Estado' => $FilaDb['EstadoCalculado'],
+            'NotaRevision' => $FilaDb['NotaRevision'],
+            'RevisadoPor' => $FilaDb['RevisadoPor'],
+            'FechaRevision' => $FilaDb['FechaRevision'],
+            'RevisorNombre' => $FilaDb['RevisorNombre'],
+        ];
     }
+    $Filas[] = [
+        'combo' => [
+            'MaestroId' => $FilaDb['MaestroId'],
+            'NombreCompleto' => $FilaDb['NombreCompleto'],
+            'MateriaNombre' => $FilaDb['MateriaNombre'],
+            'Grupos' => $FilaDb['Grupos'],
+        ],
+        'numero' => (int)$FilaDb['Numero'],
+        'estado' => $FilaDb['EstadoCalculado'],
+        'registro' => $Registro,
+    ];
 }
-$TotalRequeridas = count($Combos) * $CantidadPlaneaciones;
-$TotalSubidas = count(array_filter($Filas, fn($F) => ($F['registro'] ?? null) !== null));
-$TotalPendientes = count(array_filter($Filas, fn($F) => $F['estado'] === 'PENDIENTE'));
 $Mensaje = $_SESSION['MensajePlaneacionesAdmin'] ?? '';
 $MensajeTipo = $_SESSION['MensajePlaneacionesAdminTipo'] ?? 'success';
 unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdminTipo']);
@@ -105,14 +179,15 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+<link rel="stylesheet" href="assets/css/planeaciones-botones-metalicos.css?cache=sgce2026">
 </head>
 <body>
 <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
     <section class="SgceHero mb-4">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">☁️</span></div>
             <div><h1>Planeaciones</h1><p>Revisa, descarga y da seguimiento a las planeaciones docentes.</p></div>
         </div>
         <div class="SgceHeroActions"><a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></div>
@@ -126,26 +201,26 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
     <?php endif; ?>
 
     <section class="PlaneacionesStatsGrid mb-4">
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-user-tie"></i></span><div><strong><?= count($Combos) ?></strong><small>Docente-materia</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-list-ol"></i></span><div><strong><?= $CantidadPlaneaciones ?></strong><small>Entregas por materia</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-cloud-arrow-up"></i></span><div><strong><?= $TotalSubidas ?>/<?= $TotalRequeridas ?></strong><small>Subidas</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-clock"></i></span><div><strong><?= $TotalPendientes ?></strong><small>Pendientes filtradas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">👨‍🏫</span></span><div><strong><?= $TotalCombos ?></strong><small>Docente-materia</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">📝</span></span><div><strong><?= $CantidadPlaneaciones ?></strong><small>Entregas por materia</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">☁️</span></span><div><strong><?= $TotalSubidas ?>/<?= $TotalRequeridas ?></strong><small>Subidas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">⏰</span></span><div><strong><?= $TotalPendientes ?></strong><small>Pendientes filtradas</small></div></div>
     </section>
 
     <section class="SgceConfigCard p-4 mb-4">
-        <div class="SgceConfigHead"><span><i class="fa-solid fa-filter"></i></span><div><h2>Filtros de búsqueda</h2><p>Consulta por docente, materia, grupo, entrega o estado.</p></div></div>
-        <form method="get" class="row g-3 align-items-end">
+        <div class="SgceConfigHead"><span><span class="SgceColorIcon" aria-hidden="true">🔍</span></span><div><h2>Filtros de búsqueda</h2><p>Consulta por docente, materia, grupo, entrega o estado.</p></div></div>
+        <form method="get" class="row g-3 align-items-end PlaneacionesFiltroForm">
             <div class="col-md-3"><label class="SgceFieldLabel">Docente</label><select class="form-select FormControl" name="MaestroId"><option value="0">TODOS</option><?php foreach($Maestros as $M): ?><option value="<?= (int)$M['Id'] ?>" <?= $FiltroMaestro === (int)$M['Id'] ? 'selected' : '' ?>><?= HPlanAdmin($M['NombreCompleto']) ?></option><?php endforeach; ?></select></div>
             <div class="col-md-3"><label class="SgceFieldLabel">Materia</label><select class="form-select FormControl" name="Materia"><option value="">TODAS</option><?php foreach($Materias as $Mat): ?><option value="<?= HPlanAdmin($Mat) ?>" <?= $FiltroMateria === $Mat ? 'selected' : '' ?>><?= HPlanAdmin($Mat) ?></option><?php endforeach; ?></select></div>
-            <div class="col-md-2"><label class="SgceFieldLabel">Grupo</label><select class="form-select FormControl" name="GrupoId"><option value="0">TODOS</option><?php foreach($Grupos as $G): ?><option value="<?= (int)$G['Id'] ?>" <?= $FiltroGrupo === (int)$G['Id'] ? 'selected' : '' ?>><?= HPlanAdmin($G['Nombre']) ?></option><?php endforeach; ?></select></div>
-            <div class="col-md-2"><label class="SgceFieldLabel">Estado</label><select class="form-select FormControl" name="Estado"><option value="">TODOS</option><?php foreach(SgceEstadosPlaneacion() as $E): ?><option value="<?= HPlanAdmin($E) ?>" <?= $FiltroEstado === $E ? 'selected' : '' ?>><?= HPlanAdmin($E) ?></option><?php endforeach; ?></select></div>
-            <div class="col-md-1"><label class="SgceFieldLabel">No.</label><select class="form-select FormControl" name="Numero"><option value="0">TODAS</option><?php for($I=1;$I<=$CantidadPlaneaciones;$I++): ?><option value="<?= $I ?>" <?= $FiltroNumero === $I ? 'selected' : '' ?>><?= $I ?></option><?php endfor; ?></select></div>
-            <div class="col-md-1"><button class="BtnPrimary w-100" type="submit"><i class="fa-solid fa-search"></i></button></div>
+            <div class="col-md-2 PlaneacionesGrupoCol"><label class="SgceFieldLabel">Grupo</label><select class="form-select FormControl" name="GrupoId"><option value="0">TODOS</option><?php foreach($Grupos as $G): ?><option value="<?= (int)$G['Id'] ?>" <?= $FiltroGrupo === (int)$G['Id'] ? 'selected' : '' ?>><?= HPlanAdmin($G['Nombre']) ?></option><?php endforeach; ?></select></div>
+            <div class="col-md-2 PlaneacionesEstadoCol"><label class="SgceFieldLabel">Estado</label><select class="form-select FormControl" name="Estado"><option value="">TODOS</option><?php foreach(SgceEstadosPlaneacion() as $E): ?><option value="<?= HPlanAdmin($E) ?>" <?= $FiltroEstado === $E ? 'selected' : '' ?>><?= HPlanAdmin($E) ?></option><?php endforeach; ?></select></div>
+            <div class="col-md-1 PlaneacionesNumeroCol"><label class="SgceFieldLabel">No.</label><select class="form-select FormControl PlaneacionesNumeroSelect" name="Numero"><option value="0">TODAS</option><?php for($I=1;$I<=$CantidadPlaneaciones;$I++): ?><option value="<?= $I ?>" <?= $FiltroNumero === $I ? 'selected' : '' ?>><?= $I ?></option><?php endfor; ?></select></div>
+            <div class="col-md-1 PlaneacionesBuscarCol"><button id="BtnBuscarPlaneacionesVerdeMetalico" class="BtnPlaneacionesBuscarVerdeMetalico w-100" type="submit" title="Buscar" aria-label="Buscar"><span class="SgceColorIcon" aria-hidden="true">🔍</span></button></div>
         </form>
     </section>
 
     <section class="SgceConfigCard p-4">
-        <div class="SgceConfigHead"><span><i class="fa-solid fa-list-check"></i></span><div><h2>Seguimiento de planeaciones</h2><p>Descarga archivos y registra observaciones de revisión.</p></div></div>
+        <div class="SgceConfigHead"><span><span class="SgceColorIcon" aria-hidden="true">📋</span></span><div><h2>Seguimiento de planeaciones</h2><p>Descarga archivos y registra observaciones de revisión.</p></div></div>
         <div class="table-responsive">
             <table class="table align-middle SgceTablePro">
                 <thead><tr><th>Docente</th><th>Materia</th><th>Grupos</th><th>Planeación</th><th>Estado</th><th>Archivo</th><th>Acciones</th></tr></thead>
@@ -194,7 +269,7 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
                                                 <div class="col-md-7">
                                                     <div class="PlaneacionReviewInfoBox">
                                                         <i class="fa-solid fa-file-lines"></i>
-                                                        <div><b>Archivo:</b> <?= HPlanAdmin($R['NombreOriginal'] ?? 'Planeación cargada') ?><br><span>Última actualización: <?= HPlanAdmin(date('d/m/Y H:i', strtotime($R['FechaActualizacion']))) ?></span></div>
+                                                        <div><b>Archivo:</b> <?= HPlanAdmin($R['ArchivoOriginal'] ?? 'Planeación cargada') ?><br><span>Última actualización: <?= HPlanAdmin(date('d/m/Y H:i', strtotime($R['FechaActualizacion']))) ?></span></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
@@ -217,56 +292,14 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
                 </tbody>
             </table>
         </div>
-        <div class="text-muted small fw-semibold">Mostrando <?= count($Filas) ?> registro(s).</div>
+        <div class="PlaneacionesPagerWrap mt-3">
+            <?= SgceRenderPager('PagPlan', $PaginaPlaneaciones, $TotalFilas, $PorPaginaPlaneaciones, ['MaestroId' => $FiltroMaestro, 'GrupoId' => $FiltroGrupo, 'Materia' => $FiltroMateria, 'Estado' => $FiltroEstado, 'Numero' => $FiltroNumero]) ?>
+        </div>
+        <div class="text-muted small fw-semibold text-center mt-2">Mostrando <?= count($Filas) ?> de <?= $TotalFilas ?> registro(s).</div>
     </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script>
-(function(){
-    const Estados = {
-        SUBIDA: {
-            Clase: 'EstadoSubida',
-            Icono: 'fa-clock',
-            Titulo: 'Planeación en revisión',
-            Texto: 'La planeación queda marcada como pendiente de análisis o seguimiento.',
-            Placeholder: 'Puedes dejar una nota opcional de seguimiento para el docente.'
-        },
-        APROBADA: {
-            Clase: 'EstadoAprobada',
-            Icono: 'fa-circle-check',
-            Titulo: 'Planeación aprobada',
-            Texto: 'La entrega cumple con la revisión y quedará registrada como aprobada.',
-            Placeholder: 'Puedes escribir una felicitación, comentario o dejar la nota vacía.'
-        },
-        DEVUELTA: {
-            Clase: 'EstadoDevuelta',
-            Icono: 'fa-triangle-exclamation',
-            Titulo: 'Planeación devuelta para corrección',
-            Texto: 'La entrega será regresada al docente. La nota debe explicar qué corregir.',
-            Placeholder: 'Indica con claridad qué fecha, contenido, formato o evidencia debe corregirse.'
-        }
-    };
-    document.querySelectorAll('.PlaneacionReviewModal').forEach(function(Modal){
-        const Select = Modal.querySelector('.PlaneacionReviewSelect');
-        const Icon = Modal.querySelector('.PlaneacionReviewPreviewIcon i');
-        const Titulo = Modal.querySelector('.PlaneacionReviewPreviewTitle');
-        const Texto = Modal.querySelector('.PlaneacionReviewPreviewText');
-        const Nota = Modal.querySelector('.PlaneacionReviewNote');
-        const AplicarEstado = function(){
-            const Actual = Estados[Select.value] || Estados.SUBIDA;
-            Modal.classList.remove('EstadoSubida','EstadoAprobada','EstadoDevuelta','EstadoPendiente');
-            Modal.classList.add(Actual.Clase);
-            Icon.className = 'fa-solid ' + Actual.Icono;
-            Titulo.textContent = Actual.Titulo;
-            Texto.textContent = Actual.Texto;
-            Nota.placeholder = Actual.Placeholder;
-            Nota.required = Select.value === 'DEVUELTA';
-        };
-        Select.addEventListener('change', AplicarEstado);
-        AplicarEstado();
-    });
-})();
-</script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/PlaneacionesAdmin.js?cache=sgce2026"></script>
 </body>
 </html>

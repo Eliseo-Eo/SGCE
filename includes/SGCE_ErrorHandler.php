@@ -10,7 +10,10 @@ function SgcePrepararLogDir(): void {
     $Dir = SgceLogDir();
     if (!is_dir($Dir)) { @mkdir($Dir, 0775, true); }
     $Ht = $Dir . '/.htaccess';
-    if (!is_file($Ht)) { @file_put_contents($Ht, "Require all denied\nDeny from all\n"); }
+    $Contenido = "Options -Indexes\n<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order allow,deny\n    Deny from all\n</IfModule>\n";
+    if (!is_file($Ht)) { @file_put_contents($Ht, $Contenido, LOCK_EX); }
+    $Index = $Dir . '/index.html';
+    if (!is_file($Index)) { @file_put_contents($Index, "<!doctype html><meta charset=\"utf-8\"><title>SGCE</title>\n", LOCK_EX); }
 }
 
 function SgceRegistrarErrorTecnico(string $Contexto, $Error = null, array $Datos = []): string {

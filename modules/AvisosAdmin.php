@@ -1,11 +1,6 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
-/*
-    Archivo: AvisosAdmin.php
-    Descripción: Módulo administrativo para administrar avisos y comunicados.
-    Permite crear, editar, activar y desactivar avisos para maestros, padres o todo el sistema.
-    Todos los datos visibles se normalizan en mayúsculas para mantener uniforme el sistema SGCE.
-*/
+
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
@@ -15,21 +10,19 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $UserSession = VerificarSesionCookie($Pdo);
 
-if (!$UserSession || !SgcePuedeGestionarAvisos($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'avisos', 'No tienes permiso para gestionar avisos.');
 
-// =====================================================
-// FUNCIONES AUXILIARES
-// =====================================================
 
-// Sanitiza texto para imprimirlo seguro en HTML.
+
+
+
+
 function HAviso($Texto) {
     return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8');
 }
 
-// Normaliza textos de avisos a mayúsculas, respetando acentos y Ñ cuando mbstring está disponible.
+
 function MayusAviso($Valor) {
     $Valor = trim((string)$Valor);
     $Valor = preg_replace('/\s+/u', ' ', $Valor);
@@ -45,29 +38,29 @@ function MayusAviso($Valor) {
     return strtoupper($Valor);
 }
 
-// Público permitido para avisos.
+
 function PublicoAvisoValido($Publico) {
     $Publico = MayusAviso($Publico);
     return in_array($Publico, ['TODOS', 'MAESTROS', 'PADRES'], true) ? $Publico : 'TODOS';
 }
 
-// Redirección segura para evitar reenvío de formularios.
+
 function RedirectAvisos() {
     header('Location: AvisosAdmin.php');
     exit;
 }
 
-// =====================================================
-// PROCESAMIENTO DE FORMULARIOS
-// =====================================================
+
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     RequerirCsrfPost();
 
-    // ----------------------------
-    // CREAR AVISO
-    // ----------------------------
+    
+    
+    
     if (isset($_POST['CrearAviso'])) {
 
         $Titulo = MayusAviso($_POST['Titulo'] ?? '');
@@ -96,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         RedirectAvisos();
     }
 
-    // ----------------------------
-    // EDITAR AVISO
-    // ----------------------------
+    
+    
+    
     if (isset($_POST['EditarAviso'])) {
 
         $Id = intval($_POST['AvisoId'] ?? 0);
@@ -128,9 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         RedirectAvisos();
     }
 
-    // ----------------------------
-    // ACTIVAR AVISO
-    // ----------------------------
+    
+    
+    
     if (isset($_POST['ActivarAviso'])) {
 
         $Id = intval($_POST['ActivarAviso']);
@@ -151,9 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         RedirectAvisos();
     }
 
-    // ----------------------------
-    // DESACTIVAR AVISO
-    // ----------------------------
+    
+    
+    
     if (isset($_POST['DesactivarAviso'])) {
 
         $Id = intval($_POST['DesactivarAviso']);
@@ -175,9 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// =====================================================
-// CONSULTA DE AVISOS
-// =====================================================
+
+
+
 
 $PaginaAvisos = SgcePaginaActual('PagAvisos', 1);
 $PorPaginaAvisos = 7;
@@ -204,7 +197,7 @@ $Avisos = $StmtAvisos->fetchAll();
 
     <title>SGCE | Avisos</title>
 
-    <!-- FAVICON DEL SISTEMA -->
+    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -212,7 +205,7 @@ $Avisos = $StmtAvisos->fetchAll();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="AvisosBody">
@@ -221,9 +214,7 @@ $Avisos = $StmtAvisos->fetchAll();
 
     <section class="SgceHero AvisosHero">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon">
-                <i class="fa-solid fa-bullhorn"></i>
-            </div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">📣</span></div>
             <div>
                 <h1>AVISOS Y COMUNICADOS</h1>
                 <p>Publica avisos para maestros, padres o todo el sistema.</p>
@@ -246,7 +237,7 @@ $Avisos = $StmtAvisos->fetchAll();
     <section class="AvisosLayout">
         <div class="SgceCard AvisosFormCard">
             <div class="SgceCardHeaderLine">
-                <div class="SgceMiniIcon"><i class="fa-solid fa-plus"></i></div>
+                <div class="SgceMiniIcon"><span class="SgceColorIcon" aria-hidden="true">➕</span></div>
                 <div>
                     <h2>NUEVO AVISO</h2>
                     <p>Captura un comunicado y define a quién se mostrará.</p>
@@ -270,7 +261,7 @@ $Avisos = $StmtAvisos->fetchAll();
                 <label>MENSAJE</label>
                 <textarea name="Mensaje" class="form-control" rows="6" required placeholder="ESCRIBE EL COMUNICADO"></textarea>
 
-                <button class="BtnPrimary AvisosSubmit BtnAvisoPublish" type="submit">
+                <button id="BtnPublicarAvisoVerdeMetalico" class="SgceBtnVerdeMetalicoIndependiente" type="submit">
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>PUBLICAR AVISO</span>
                 </button>
@@ -279,7 +270,7 @@ $Avisos = $StmtAvisos->fetchAll();
 
         <div class="SgceCard AvisosTableCard">
             <div class="SgceCardHeaderLine AvisosTableHeader AvisosTableHeaderClean">
-                <div class="SgceMiniIcon"><i class="fa-solid fa-list-check"></i></div>
+                <div class="SgceMiniIcon"><span class="SgceColorIcon" aria-hidden="true">📋</span></div>
                 <div>
                     <h2>AVISOS REGISTRADOS</h2>
                 </div>
@@ -461,7 +452,7 @@ $Avisos = $StmtAvisos->fetchAll();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/AvisosAdmin.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/AvisosAdmin.js?cache=sgce2026"></script>
 </body>
 </html>

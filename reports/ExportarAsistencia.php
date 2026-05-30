@@ -4,14 +4,16 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 require_once dirname(__DIR__) . '/includes/SGCE_Pdf.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession) { die('Acceso denegado.'); }
+if (!$UserSession) { http_response_code(403); exit('Acceso denegado.'); }
 
 $AsignacionId = (int)($_GET['AsignacionId'] ?? 0);
 $GrupoId = (int)($_GET['GrupoId'] ?? 0);
 $Tipo = (($_GET['Tipo'] ?? 'Excel') === 'Pdf') ? 'Pdf' : 'Excel';
-$Rango = (($_GET['Rango'] ?? 'Todas') === 'Hoy') ? 'Hoy' : 'Todas';
 $FechaInicio = trim((string)($_GET['FechaInicio'] ?? ''));
 $FechaFin = trim((string)($_GET['FechaFin'] ?? ''));
+$RangoParam = (string)($_GET['Rango'] ?? '');
+
+$Rango = ($RangoParam === 'Hoy' || ($RangoParam === '' && $FechaInicio === '' && $FechaFin === '')) ? 'Hoy' : 'Todas';
 $CicloId = (int)($_GET['CicloId'] ?? 0);
 if ($CicloId > 0 && ($FechaInicio === '' || $FechaFin === '')) {
     $StmtCicloFiltro = $Pdo->prepare('SELECT FechaInicio, FechaFin FROM CiclosEscolares WHERE Id = ? AND Activo = 1 LIMIT 1');
@@ -42,14 +44,15 @@ if ($Rango !== 'Hoy' && $TieneRango) { $FiltroSql=' AND Asis.FechaDia BETWEEN ? 
 
 $Modo = $GrupoId > 0 ? 'Grupo' : 'Asignacion';
 if ($Modo === 'Grupo') {
-    if (!SgcePuedeAdministrarReportes($UserSession)) { die('No tienes permiso.'); }
-    $Stmt=$Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id=? AND Activo=1 LIMIT 1");$Stmt->execute([$GrupoId]);$Info=$Stmt->fetch(); if(!$Info){die('Grupo no encontrado.');}
+    if (!SgcePuedeAdministrarReportes($UserSession)) { http_response_code(403); exit('No tienes permiso.'); }
+    $Stmt=$Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id=? AND Activo=1 LIMIT 1");$Stmt->execute([$GrupoId]);$Info=$Stmt->fetch(); if(!$Info){ http_response_code(404); exit('Grupo no encontrado.'); }
     $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado FROM Asistencias Asis JOIN Alumnos Al ON Asis.AlumnoId=Al.Id JOIN Asignaciones Asg ON Asis.AsignacionId=Asg.Id JOIN Usuarios U ON Asg.MaestroId=U.Id WHERE Asg.GrupoId=? $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC, Asg.MateriaNombre ASC";
     $TituloArchivo='Asistencia_Grupo_'.ArchivoSeguroAsis($Info['Grado'].$Info['Grupo'].'_'.$Info['Turno']);
     $Params=array_merge([$GrupoId],$ParamsFecha); $Cols=6; $Landscape=true;
 } else {
-    $Stmt=$Pdo->prepare("SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno FROM Asignaciones A JOIN Grupos G ON A.GrupoId=G.Id WHERE A.Id=? AND A.Activo=1 LIMIT 1");$Stmt->execute([$AsignacionId]);$Info=$Stmt->fetch(); if(!$Info){die('Asignación no encontrada.');}
-    if($UserSession['Rol']==='maestro' && (int)$UserSession['Id'] !== (int)$Info['MaestroId']){die('No tienes permiso.');}
+    $Stmt=$Pdo->prepare("SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno FROM Asignaciones A JOIN Grupos G ON A.GrupoId=G.Id WHERE A.Id=? AND A.Activo=1 LIMIT 1");$Stmt->execute([$AsignacionId]);$Info=$Stmt->fetch(); if(!$Info){ http_response_code(404); exit('Asignación no encontrada.'); }
+    if(SgceTieneRol($UserSession, ['maestro'])){ if((int)$UserSession['Id'] !== (int)$Info['MaestroId']){ http_response_code(403); exit('No tienes permiso.'); } }
+    elseif(!SgcePuedeAdministrarReportes($UserSession)){ http_response_code(403); exit('No tienes permiso.'); }
     $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asis.Estado FROM Asistencias Asis JOIN Alumnos Al ON Asis.AlumnoId=Al.Id WHERE Asis.AsignacionId=? $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC";
     $TituloArchivo='Asistencia_'.ArchivoSeguroAsis($Info['MateriaNombre'].'_'.$Info['Grado'].$Info['Grupo']);
     $Params=array_merge([$AsignacionId],$ParamsFecha); $Cols=4; $Landscape=false;

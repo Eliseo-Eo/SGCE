@@ -1,11 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-/*
-    Archivo: Maestro.php
-    Descripción: Portal del docente.
-    Muestra las materias asignadas al profesor y ofrece accesos rápidos para calificar, pasar asistencia y exportar reportes.
-*/
+
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
@@ -49,7 +45,7 @@ $StmtStatsMaestro = $Pdo->prepare("SELECT COUNT(*) FROM Asistencias Asi JOIN Asi
 $StmtStatsMaestro->execute([$UserSession['Id']]);
 $AsistenciasHoyMaestro = (int)$StmtStatsMaestro->fetchColumn();
 
-// Avisos activos dirigidos al portal docente.
+
 $StmtAvisosMaestro = $Pdo->query("SELECT Titulo, Mensaje, FechaCreacion FROM Avisos WHERE Activo = 1 AND Publico IN ('TODOS','MAESTROS') ORDER BY FechaCreacion DESC LIMIT 3");
 $AvisosMaestro = $StmtAvisosMaestro ? $StmtAvisosMaestro->fetchAll() : [];
 $ConfigSistema = SgceObtenerConfiguracion($Pdo);
@@ -63,7 +59,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -74,7 +70,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 
@@ -84,7 +80,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
     <section class="SgceHero MaestroHero mb-4">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">👨‍🏫</span></div>
             <div>
                 <h1>Portal Docente</h1>
                 <p>Bienvenido profesor <?= htmlspecialchars($UserSession['NombreCompleto']) ?></p>
@@ -93,17 +89,17 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
         <div class="SgceHeroActions">
             <span class="MaestroHeroStat">
-                <i class="fa-solid fa-layer-group"></i>
+                <span class="SgceColorIcon" aria-hidden="true">👥</span>
                 <?= $TotalClases ?> <?= $TotalClases === 1 ? 'clase' : 'clases' ?>
             </span>
 
             <span class="MaestroHeroStat">
-                <i class="fa-solid fa-clipboard-check"></i>
+                <span class="SgceColorIcon" aria-hidden="true">✅</span>
                 <?= $AsistenciasHoyMaestro ?> asistencias hoy
             </span>
 
             <a href="Planeaciones.php" class="MaestroHeroStat MaestroHeroLink">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span class="SgceColorIcon" aria-hidden="true">☁️</span>
                 <?= $TotalPlaneacionesSubidas ?>/<?= $TotalPlaneacionesRequeridas ?> planeaciones
             </a>
 
@@ -121,7 +117,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
         <section class="card card-custom MaestroAvisosPanel p-4 mb-4" aria-label="Avisos importantes">
             <div class="MaestroAvisosHeader">
                 <div class="MaestroAvisosTitleBlock">
-                    <span class="MaestroAvisosIcon"><i class="fa-solid fa-bullhorn"></i></span>
+                    <span class="MaestroAvisosIcon"><span class="SgceColorIcon" aria-hidden="true">📣</span></span>
                     <div>
                         <span class="MaestroAvisosEyebrow">Comunicación escolar</span>
                         <h5>Avisos importantes</h5>
@@ -201,7 +197,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                 </div>
 
                                 <div class="MateriaIcon">
-                                    <i class="fa-solid fa-book-open"></i>
+                                    <span class="SgceEmojiIcon" aria-hidden="true">📚</span>
                                 </div>
 
                             </div>
@@ -227,7 +223,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                 <a href="Calificar.php?AsignacionId=<?= $Clase['AsignacionId'] ?>"
                                    class="btn BotonAccion BtnCalificaciones">
 
-                                    <i class="fa-solid fa-file-pen"></i>
+                                    <span class="SgceEmojiIcon" aria-hidden="true">📊</span>
                                     Calificaciones
 
                                 </a>
@@ -235,7 +231,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                 <a href="Asistencia.php?id=<?= $Clase['AsignacionId'] ?>"
                                    class="btn BotonAccion BtnAsistencia">
 
-                                    <i class="fa-solid fa-user-check"></i>
+                                    <span class="SgceEmojiIcon" aria-hidden="true">✅</span>
                                     Asistencia
 
                                 </a>
@@ -243,7 +239,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                 <a href="Planeaciones.php?Materia=<?= urlencode($Clase['MateriaNombre']) ?>"
                                    class="btn BotonAccion BtnPlaneacionesDocente">
 
-                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <span class="SgceEmojiIcon" aria-hidden="true">🗂️</span>
                                     Planeación
 
                                 </a>
@@ -255,7 +251,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                             <div class="SeccionExportar">
 
                                 <h6 class="fw-bold mb-3">
-                                    <i class="fa-solid fa-download"></i>
+                                    <span class="SgceEmojiIcon" aria-hidden="true">📤</span>
                                     Exportaciones
                                 </h6>
 
@@ -266,7 +262,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                         <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Excel"
                                            class="btn BtnExport ExportCalifExcel w-100">
 
-                                            <i class="fa-solid fa-file-excel"></i>
+                                            <span class="SgceEmojiIcon" aria-hidden="true">📗</span>
                                             Calif. Excel
 
                                         </a>
@@ -276,10 +272,10 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
                                     <div>
 
                                         <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Pdf"
-                                           target="_blank"
+                                           target="_blank" rel="noopener noreferrer"
                                            class="btn BtnExport ExportCalifPdf w-100">
 
-                                            <i class="fa-solid fa-file-pdf"></i>
+                                            <span class="SgceEmojiIcon" aria-hidden="true">📕</span>
                                             Calif. PDF
 
                                         </a>
@@ -288,10 +284,10 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
                                     <div>
 
-                                        <a href="ExportarAsistencia.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Excel"
+                                        <a href="ExportarAsistencia.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Excel&Rango=Hoy"
                                            class="btn BtnExport ExportAsisExcel w-100">
 
-                                            <i class="fa-solid fa-table"></i>
+                                            <span class="SgceEmojiIcon" aria-hidden="true">📗</span>
                                             Asist. Excel
 
                                         </a>
@@ -300,11 +296,11 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
                                     <div>
 
-                                        <a href="ExportarAsistencia.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Pdf"
-                                           target="_blank"
+                                        <a href="ExportarAsistencia.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Pdf&Rango=Hoy"
+                                           target="_blank" rel="noopener noreferrer"
                                            class="btn BtnExport ExportAsisPdf w-100">
 
-                                            <i class="fa-solid fa-file-export"></i>
+                                            <span class="SgceEmojiIcon" aria-hidden="true">📕</span>
                                             Asist. PDF
 
                                         </a>
@@ -333,6 +329,6 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
 </body>
 </html>

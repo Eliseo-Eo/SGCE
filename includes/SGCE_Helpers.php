@@ -25,10 +25,84 @@ function EnviarHeadersSeguridad() {
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
-    header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'");
+    header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'");
     if (EsHttps()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
     }
+}
+
+
+function SgceContenidoHtaccessDenegacion() {
+    return "Options -Indexes\n" .
+        "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n" .
+        "<IfModule !mod_authz_core.c>\n    Order allow,deny\n    Deny from all\n</IfModule>\n" .
+        "<FilesMatch \"\\.(php|phtml|phar|cgi|pl|py|sh|sql|log|bak|backup|old|orig|tmp|zip|tar|gz|7z|dm)$\">\n" .
+        "    <IfModule mod_authz_core.c>\n        Require all denied\n    </IfModule>\n" .
+        "    <IfModule !mod_authz_core.c>\n        Order allow,deny\n        Deny from all\n    </IfModule>\n" .
+        "</FilesMatch>\n";
+}
+
+function SgceAsegurarCarpetaProtegida($Dir) {
+    $Dir = (string)$Dir;
+    if ($Dir === '') { return false; }
+    if (!is_dir($Dir)) { @mkdir($Dir, 0755, true); }
+    if (!is_dir($Dir)) { return false; }
+    $Htaccess = rtrim($Dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.htaccess';
+    $Contenido = SgceContenidoHtaccessDenegacion();
+    if (!is_file($Htaccess) || trim((string)@file_get_contents($Htaccess)) !== trim($Contenido)) {
+        @file_put_contents($Htaccess, $Contenido, LOCK_EX);
+    }
+    $Index = rtrim($Dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
+    if (!is_file($Index)) { @file_put_contents($Index, "<!doctype html><meta charset=\"utf-8\"><title>SGCE</title>\n", LOCK_EX); }
+    @chmod($Htaccess, 0644);
+    @chmod($Index, 0644);
+    return true;
+}
+
+function SgcePrepararDirectoriosSeguros() {
+    $Raiz = dirname(__DIR__);
+    $Dirs = [
+        $Raiz . '/storage',
+        defined('SGCE_BACKUP_DIR') ? SGCE_BACKUP_DIR : $Raiz . '/storage/backups',
+        defined('SGCE_LOG_DIR') ? SGCE_LOG_DIR : $Raiz . '/storage/logs',
+        defined('SGCE_PLANEACIONES_DIR') ? SGCE_PLANEACIONES_DIR : $Raiz . '/storage/planeaciones',
+        $Raiz . '/config',
+        $Raiz . '/includes',
+        $Raiz . '/modules',
+        $Raiz . '/reports',
+        $Raiz . '/public',
+        $Raiz . '/cron',
+    ];
+    foreach (array_unique($Dirs) as $Dir) { SgceAsegurarCarpetaProtegida($Dir); }
+    if (defined('SGCE_LOG_DIR') && is_dir(SGCE_LOG_DIR) && is_writable(SGCE_LOG_DIR)) {
+        @ini_set('error_log', rtrim(SGCE_LOG_DIR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'php-runtime.log');
+    }
+}
+
+function SgceEnviarHeadersNoCacheDescarga() {
+    if (headers_sent()) { return; }
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('X-Content-Type-Options: nosniff');
+}
+
+function SgceCerrarSesionPhpCompleta() {
+    if (session_status() === PHP_SESSION_NONE) { return; }
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $Params = session_get_cookie_params();
+        setcookie(session_name(), '', [
+            'expires' => time() - 42000,
+            'path' => $Params['path'] ?? '/',
+            'domain' => $Params['domain'] ?? '',
+            'secure' => (bool)($Params['secure'] ?? EsHttps()),
+            'httponly' => true,
+            'samesite' => $Params['samesite'] ?? 'Strict',
+        ]);
+    }
+    session_destroy();
 }
 
 function HGlobal($Texto) {
@@ -62,7 +136,7 @@ function CampoCsrf() {
 
 function ImprimirCsrfScript() {
     $Token = HGlobal(ObtenerCsrfToken());
-    echo "\n<script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('form[method]').forEach(function(Form){var Metodo=(Form.getAttribute('method')||'').toLowerCase();if(Metodo==='post'&&!Form.querySelector('input[name=\\\"CsrfToken\\\"]')){var Input=document.createElement('input');Input.type='hidden';Input.name='CsrfToken';Input.value='" . $Token . "';Form.appendChild(Input);}});});</script>\n";
+    echo "\n<span data-sgce-csrf-token=\"" . $Token . "\" hidden></span>\n";
 }
 
 function ObtenerIpCliente() {
@@ -246,58 +320,103 @@ function SgceNombreEscuela($Pdo) {
 function SgceRolesSistema() {
     return [
         'admin' => 'ADMINISTRADOR',
+        'administrativo' => 'ADMINISTRATIVO',
         'maestro' => 'MAESTRO',
-        'director' => 'DIRECTOR',
-        'secretario' => 'SECRETARIO',
-        'coordinador' => 'COORDINADOR',
-        'prefecto' => 'PREFECTO',
     ];
+}
+
+function SgceNormalizarRolSistema($Rol) {
+    $Rol = strtolower(trim((string)$Rol));
+    return in_array($Rol, ['admin', 'administrativo', 'maestro'], true) ? $Rol : '';
 }
 
 function SgceValidarRolUsuario($Rol, $Roles = null) {
     $Roles = $Roles ?: SgceRolesSistema();
-    return array_key_exists((string)$Rol, $Roles);
+    return array_key_exists(SgceNormalizarRolSistema($Rol), $Roles);
+}
+
+function SgceRolSesion($UserSession) {
+    return is_array($UserSession) ? SgceNormalizarRolSistema($UserSession['Rol'] ?? '') : '';
 }
 
 function SgceTieneRol($UserSession, $Roles) {
-    return is_array($UserSession) && isset($UserSession['Rol']) && in_array($UserSession['Rol'], (array)$Roles, true);
+    $Rol = SgceRolSesion($UserSession);
+    $RolesNormalizados = array_map('SgceNormalizarRolSistema', (array)$Roles);
+    return $Rol !== '' && in_array($Rol, $RolesNormalizados, true);
 }
 
 function SgcePermisosPorRol() {
     return [
-        'admin' => ['admin', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'configuracion', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'],
-        'director' => ['periodos', 'avisos', 'reportes', 'respaldos', 'bitacora', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'planeaciones'],
-        'secretario' => ['catalogos', 'avisos', 'reportes', 'planeaciones'],
-        'coordinador' => ['avisos', 'reportes', 'asistencia', 'asistencia_editar', 'asistencia_historica', 'planeaciones'],
-        'prefecto' => ['reportes', 'asistencia', 'asistencia_editar', 'asistencia_historica'],
+        'admin' => [
+            'admin.panel', 'admin.dashboard', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes',
+            'respaldos', 'bitacora', 'configuracion', 'asistencia', 'asistencia_editar',
+            'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'
+        ],
+        'administrativo' => [
+            'admin.panel', 'admin.dashboard', 'catalogos', 'avisos', 'reportes',
+            'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'
+        ],
         'maestro' => ['docente', 'asistencia', 'calificaciones', 'planeaciones'],
     ];
 }
 
 function SgceTienePermiso($UserSession, $Permiso) {
-    if (!is_array($UserSession) || empty($UserSession['Rol'])) { return false; }
+    $Rol = SgceRolSesion($UserSession);
+    if ($Rol === '') { return false; }
     $Mapa = SgcePermisosPorRol();
-    return in_array($Permiso, $Mapa[$UserSession['Rol']] ?? [], true);
+    return in_array($Permiso, $Mapa[$Rol] ?? [], true);
+}
+
+function SgceDenegarAcceso($Mensaje = 'No tienes permiso para entrar a esta sección.') {
+    http_response_code(403);
+    $MensajeSeguro = HGlobal($Mensaje);
+    $Inicio = 'index.php';
+    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
+    exit;
+}
+
+function SgceExigirPermiso($UserSession, $Permiso, $Mensaje = 'No tienes permiso para entrar a esta sección.') {
+    if (!SgceTienePermiso($UserSession, $Permiso)) { SgceDenegarAcceso($Mensaje); }
+}
+
+function SgceExigirRol($UserSession, $Roles, $Mensaje = 'No tienes permiso para entrar a esta sección.') {
+    if (!SgceTieneRol($UserSession, $Roles)) { SgceDenegarAcceso($Mensaje); }
 }
 
 function SgcePuedeGestionarUsuarios($UserSession) { return SgceTienePermiso($UserSession, 'usuarios'); }
+function SgcePuedeGestionarCatalogos($UserSession) { return SgceTienePermiso($UserSession, 'catalogos'); }
 function SgcePuedeGestionarAvisos($UserSession) { return SgceTienePermiso($UserSession, 'avisos'); }
-function SgcePuedeAdministrarReportes($UserSession) { return SgceTienePermiso($UserSession, 'reportes') || SgceTieneRol($UserSession, ['admin']); }
+function SgcePuedeAdministrarReportes($UserSession) { return SgceTienePermiso($UserSession, 'reportes'); }
 function SgcePuedeAdministrarPeriodos($UserSession) { return SgceTienePermiso($UserSession, 'periodos'); }
 function SgcePuedeRespaldos($UserSession) { return SgceTienePermiso($UserSession, 'respaldos'); }
 function SgcePuedeBitacora($UserSession) { return SgceTienePermiso($UserSession, 'bitacora'); }
-function SgcePuedeImportarCatalogos($UserSession) { return SgceTienePermiso($UserSession, 'importar') || SgceTieneRol($UserSession, ['admin']); }
-function SgcePuedeConfigurarSistema($UserSession) { return SgceTienePermiso($UserSession, 'configuracion') || SgceTieneRol($UserSession, ['admin']); }
-function SgcePuedeGestionarPlaneaciones($UserSession) { return SgceTieneRol($UserSession, ['admin', 'director', 'secretario', 'coordinador']); }
+function SgcePuedeImportarCatalogos($UserSession) { return SgceTienePermiso($UserSession, 'importar'); }
+function SgcePuedeConfigurarSistema($UserSession) { return SgceTienePermiso($UserSession, 'configuracion'); }
+function SgcePuedeGestionarPlaneaciones($UserSession) { return SgceTienePermiso($UserSession, 'planeaciones') && !SgceTieneRol($UserSession, ['maestro']); }
 function SgcePuedeCorregirAsistenciaHistorica($UserSession) { return SgceTienePermiso($UserSession, 'asistencia_historica'); }
+function SgcePuedePanelAdmin($UserSession) { return SgceTienePermiso($UserSession, 'admin.panel'); }
 
-function SgceTabAdminPermitida($Tab) {
-    $Permitidas = ['inicio', 'maestros', 'grupos', 'alumnos', 'expedientes', 'asignaciones', 'bitacora'];
+function SgceUrlInicioPorRol($UserSession) {
+    $Rol = SgceRolSesion($UserSession);
+    if ($Rol === 'maestro') { return 'Maestro.php'; }
+    if (in_array($Rol, ['admin', 'administrativo'], true)) { return 'Admin.php?Tab=inicio'; }
+    return 'index.php';
+}
+
+function SgceTabsAdminPermitidas($UserSession = null) {
+    $Tabs = ['inicio', 'maestros', 'grupos', 'alumnos', 'expedientes', 'asignaciones'];
+    if (SgcePuedeBitacora($UserSession)) { $Tabs[] = 'bitacora'; }
+    return $Tabs;
+}
+
+function SgceTabAdminPermitida($Tab, $UserSession = null) {
+    $Tab = (string)$Tab;
+    $Permitidas = SgceTabsAdminPermitidas($UserSession);
     return in_array($Tab, $Permitidas, true) ? $Tab : 'inicio';
 }
 
-function SgceRedirectAdminTab($Tab) {
-    header('Location: Admin.php?Tab=' . urlencode(SgceTabAdminPermitida($Tab)));
+function SgceRedirectAdminTab($Tab, $UserSession = null) {
+    header('Location: Admin.php?Tab=' . urlencode(SgceTabAdminPermitida($Tab, $UserSession)));
     exit;
 }
 
@@ -386,7 +505,9 @@ function VerificarSesionCookie($Pdo) {
     if ($Token === '' || !preg_match('/^[a-f0-9]{64}$/i', $Token)) { return false; }
     $Stmt = $Pdo->prepare('SELECT Id, Username, NombreCompleto, Rol FROM Usuarios WHERE SessionToken = ? AND Activo = 1 AND SessionTokenExpira >= NOW() LIMIT 1');
     $Stmt->execute([$Token]);
-    return $Stmt->fetch() ?: false;
+    $User = $Stmt->fetch() ?: false;
+    if ($User) { $User['Rol'] = SgceNormalizarRolSistema($User['Rol'] ?? ''); }
+    return $User;
 }
 
 function CrearTablaRateLimitSiNoExiste($Pdo) {
@@ -459,7 +580,7 @@ function CrearTablaBitacoraSiNoExiste($Pdo) {
 
 function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $RegistroId = null, $Detalle = null) {
     try {
-        // Evita DDL dentro de transacciones activas para no provocar commit implícito en MySQL.
+        
         if (!$Pdo->inTransaction()) { CrearTablaBitacoraSiNoExiste($Pdo); }
         $Stmt = $Pdo->prepare('INSERT INTO BitacoraMovimientos (UsuarioId, Rol, Accion, TablaAfectada, RegistroId, Detalle, Ip) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $Stmt->execute([
@@ -548,13 +669,88 @@ function SgceExtensionesPlaneacionPermitidas() {
     return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
 }
 
+function SgceMimePlaneacionPermitido($Extension, $Mime) {
+    $Extension = strtolower(trim((string)$Extension));
+    $Mime = strtolower(trim((string)$Mime));
+    if ($Extension === '' || $Mime === '') { return false; }
+
+    $Permitidos = [
+        'pdf'  => ['application/pdf'],
+        'doc'  => ['application/msword', 'application/octet-stream'],
+        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream'],
+        'xls'  => ['application/vnd.ms-excel', 'application/msexcel', 'application/x-msexcel', 'application/octet-stream'],
+        'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream'],
+        'ppt'  => ['application/vnd.ms-powerpoint', 'application/mspowerpoint', 'application/octet-stream'],
+        'pptx' => ['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream'],
+    ];
+
+    return isset($Permitidos[$Extension]) && in_array($Mime, $Permitidos[$Extension], true);
+}
+
+
+function SgceArchivoPdfValido($Ruta) {
+    $Firma = @file_get_contents($Ruta, false, null, 0, 5);
+    return $Firma === '%PDF-';
+}
+
+function SgceArchivoOfficeBinarioValido($Ruta) {
+    $Firma = @file_get_contents($Ruta, false, null, 0, 8);
+    return $Firma === "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
+}
+
+function SgceArchivoOoxmlValido($Ruta, $Extension) {
+    if (!class_exists('ZipArchive')) { return true; }
+    $Zip = new ZipArchive();
+    if ($Zip->open($Ruta) !== true) { return false; }
+    $TieneContentTypes = $Zip->locateName('[Content_Types].xml') !== false;
+    $DirectorioEsperado = [
+        'docx' => 'word/',
+        'xlsx' => 'xl/',
+        'pptx' => 'ppt/',
+    ][strtolower((string)$Extension)] ?? '';
+    $TieneDirectorio = false;
+    if ($DirectorioEsperado !== '') {
+        for ($I = 0; $I < $Zip->numFiles; $I++) {
+            $Nombre = (string)$Zip->getNameIndex($I);
+            if (str_starts_with($Nombre, $DirectorioEsperado)) { $TieneDirectorio = true; break; }
+        }
+    }
+    $Zip->close();
+    return $TieneContentTypes && ($DirectorioEsperado === '' || $TieneDirectorio);
+}
+
+function SgceArchivoPlaneacionFirmaValida($Ruta, $Extension) {
+    $Extension = strtolower((string)$Extension);
+    if ($Extension === 'pdf') { return SgceArchivoPdfValido($Ruta); }
+    if (in_array($Extension, ['doc', 'xls', 'ppt'], true)) { return SgceArchivoOfficeBinarioValido($Ruta); }
+    if (in_array($Extension, ['docx', 'xlsx', 'pptx'], true)) { return SgceArchivoOoxmlValido($Ruta, $Extension); }
+    return false;
+}
+
 function SgceValidarArchivoPlaneacion($Archivo) {
     if (!isset($Archivo['error']) || $Archivo['error'] !== UPLOAD_ERR_OK) { return 'Selecciona un archivo válido.'; }
+    if (!is_uploaded_file($Archivo['tmp_name'] ?? '')) { return 'La carga del archivo no es válida.'; }
+
     $Max = 25 * 1024 * 1024;
     if ((int)($Archivo['size'] ?? 0) <= 0 || (int)$Archivo['size'] > $Max) { return 'El archivo no debe superar 25 MB.'; }
+
     $Nombre = (string)($Archivo['name'] ?? '');
     $Ext = strtolower(pathinfo($Nombre, PATHINFO_EXTENSION));
     if (!in_array($Ext, SgceExtensionesPlaneacionPermitidas(), true)) { return 'Formato no permitido. Usa PDF, Word, Excel o PowerPoint.'; }
+
+    if (function_exists('finfo_open')) {
+        $Finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $Mime = $Finfo ? (string)finfo_file($Finfo, $Archivo['tmp_name']) : '';
+        if ($Finfo) { finfo_close($Finfo); }
+        if (!SgceMimePlaneacionPermitido($Ext, $Mime)) {
+            return 'El tipo real del archivo no coincide con su extensión. Sube un PDF, Word, Excel o PowerPoint válido.';
+        }
+    }
+
+    if (!SgceArchivoPlaneacionFirmaValida($Archivo['tmp_name'], $Ext)) {
+        return 'La firma interna del archivo no coincide con un documento válido. Sube un PDF, Word, Excel o PowerPoint real.';
+    }
+
     return true;
 }
 
@@ -606,6 +802,7 @@ function SgceColumnasInsertablesBackup($Pdo, $Tabla) {
 }
 
 function SgceCrearRespaldoSql($Pdo, $RutaArchivo, $SoloDatos = false) {
+    SgcePrepararDirectoriosSeguros();
     $Handle = fopen($RutaArchivo, 'wb');
     if (!$Handle) { return false; }
     fwrite($Handle, "-- SGCE respaldo automático\n-- SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION\n-- Fecha: " . date('Y-m-d H:i:s') . "\nSET FOREIGN_KEY_CHECKS=0;\nSET NAMES utf8mb4;\n\n");
@@ -634,6 +831,7 @@ function SgceCrearRespaldoSql($Pdo, $RutaArchivo, $SoloDatos = false) {
     }
     fwrite($Handle, "SET FOREIGN_KEY_CHECKS=1;\n");
     fclose($Handle);
+    @chmod($RutaArchivo, 0640);
     return true;
 }
 

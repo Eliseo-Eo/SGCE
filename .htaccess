@@ -1,5 +1,5 @@
 # =====================================================
-# SGCE 2026 FINAL - CONFIGURACION PRINCIPAL
+# SGCE 2026 - CONFIGURACION PRINCIPAL SEGURA
 # Compatible con Apache/cPanel/Plesk. No usa php_value para evitar error 500 en PHP-FPM.
 # =====================================================
 
@@ -17,7 +17,7 @@ ServerSignature Off
 DirectoryIndex index.php
 
 # Bloqueo de archivos sensibles aunque el servidor permita listados o descargas directas.
-<FilesMatch "^(database\.php|database\.local\.php|.*\.sql|.*\.log|composer\.(json|lock)|README.*|\.env.*|MANIFEST\.txt|PRODUCCION_CHECKLIST\.md|INFORME_.*\.md|CAMBIOS_.*\.md|VERSION_.*\.md)$">
+<FilesMatch "(^\.|database\.php|database\.local\.php|.*\.sql|.*\.log|.*\.bak|.*\.backup|.*\.old|.*\.orig|.*\.tmp|.*\.zip|.*\.tar|.*\.gz|.*\.7z|.*~|composer\.(json|lock)|package(-lock)?\.json|.*\.md|README.*|MANIFEST\.txt|\.env.*)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -26,6 +26,7 @@ DirectoryIndex index.php
         Deny from all
     </IfModule>
 </FilesMatch>
+
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"

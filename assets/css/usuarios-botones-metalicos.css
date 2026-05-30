@@ -1,0 +1,71 @@
+
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico,
+html body .SgceUsersCreateForm button#BtnGuardarUsuarioVerdeMetalico,
+html body button#BtnGuardarUsuarioVerdeMetalico.BtnUsuarioGuardarMetalico,
+html body button#BtnGuardarUsuarioVerdeMetalico{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    min-height:46px !important;
+    height:46px !important;
+    border:0 !important;
+    border-radius:999px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:9px !important;
+    padding:10px 18px !important;
+    font-size:.88rem !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    letter-spacing:.25px !important;
+    color:#FFFFFF !important;
+    background-color:#047857 !important;
+    background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;
+    box-shadow:0 16px 34px rgba(16,185,129,.28), inset 0 1px 0 rgba(255,255,255,.20) !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.34) !important;
+    position:relative !important;
+    overflow:hidden !important;
+    isolation:isolate !important;
+    cursor:pointer !important;
+    text-decoration:none !important;
+    white-space:nowrap !important;
+    opacity:1 !important;
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico::after,
+html body button#BtnGuardarUsuarioVerdeMetalico::after{
+    content:"" !important;
+    position:absolute !important;
+    top:-42% !important;
+    left:-90% !important;
+    width:56% !important;
+    height:190% !important;
+    background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.12) 24%,rgba(255,255,255,.20) 50%,rgba(255,255,255,.10) 74%,transparent 100%) !important;
+    transform:rotate(18deg) !important;
+    transition:left .55s ease !important;
+    pointer-events:none !important;
+    z-index:0 !important;
+}
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico:hover,
+html body button#BtnGuardarUsuarioVerdeMetalico:hover{
+    transform:translateY(-1px) !important;
+    filter:saturate(1.10) brightness(1.02) !important;
+    box-shadow:0 20px 40px rgba(16,185,129,.32), inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico:hover::after,
+html body button#BtnGuardarUsuarioVerdeMetalico:hover::after{
+    left:132% !important;
+}
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico:active,
+html body button#BtnGuardarUsuarioVerdeMetalico:active{
+    transform:translateY(1px) scale(.985) !important;
+    filter:saturate(1.05) brightness(.96) !important;
+}
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico > *,
+html body button#BtnGuardarUsuarioVerdeMetalico > *,
+html body .SgceUsersPage #BtnGuardarUsuarioVerdeMetalico span,
+html body button#BtnGuardarUsuarioVerdeMetalico span{
+    color:#FFFFFF !important;
+    position:relative !important;
+    z-index:1 !important;
+}

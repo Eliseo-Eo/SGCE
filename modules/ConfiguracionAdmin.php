@@ -3,7 +3,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeConfigurarSistema($UserSession)) { header('Location: index.php'); exit; }
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'configuracion', 'Solo el administrador puede modificar la configuración del sistema.');
 RequerirCsrfPost();
 
 function HConfig($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
@@ -57,10 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($TelefonoEscuela !== '' && !preg_match('/^\d{7,15}$/', $TelefonoEscuela)) { throw new Exception('El teléfono debe contener solo números, mínimo 7 y máximo 15 dígitos.'); }
         if ($CorreoEscuela !== '' && !filter_var($CorreoEscuela, FILTER_VALIDATE_EMAIL)) { throw new Exception('El correo institucional no tiene formato válido.'); }
         if (!preg_match('/^#[0-9A-F]{6}$/', $ColorInstitucional)) { throw new Exception('El color institucional no tiene formato válido.'); }
-        if ($CicloNombre === '' || !ConfigFechaValida($FechaInicio) || !ConfigFechaValida($FechaFin) || strtotime($FechaInicio) >= strtotime($FechaFin)) {
-            throw new Exception('Revisa el ciclo escolar. Las fechas no son válidas.');
+        if ($CicloNombre === '' || ConfigLongitud($CicloNombre) > 40 || !ConfigFechaValida($FechaInicio) || !ConfigFechaValida($FechaFin) || strtotime($FechaInicio) >= strtotime($FechaFin)) {
+            throw new Exception('Revisa el ciclo escolar. Las fechas no son válidas y el nombre del ciclo no debe superar 40 caracteres.');
         }
         if ($PeriodoUno === '' || $PeriodoDos === '' || $PeriodoTres === '') { throw new Exception('Los tres periodos son obligatorios.'); }
+        foreach ([$PeriodoUno, $PeriodoDos, $PeriodoTres] as $NombrePeriodoValidar) {
+            if (ConfigLongitud($NombrePeriodoValidar) > 80) { throw new Exception('El nombre de cada periodo no debe superar 80 caracteres.'); }
+        }
         if (count(array_unique([$PeriodoUno, $PeriodoDos, $PeriodoTres])) !== 3) { throw new Exception('Los periodos no pueden repetirse.'); }
         if ($PlaneacionesCantidad < 1 || $PlaneacionesCantidad > 12) { throw new Exception('La cantidad de planeaciones debe estar entre 1 y 12.'); }
 
@@ -117,7 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['MensajeConfiguracionTipo'] = 'success';
     } catch (Exception $E) {
         if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
-        $_SESSION['MensajeConfiguracion'] = $E->getMessage();
+        $CodigoError = SgceRegistrarErrorTecnico('CONFIGURACION_ADMIN', $E);
+        $_SESSION['MensajeConfiguracion'] = 'No se pudo guardar la configuración. Código de seguimiento: ' . $CodigoError;
         $_SESSION['MensajeConfiguracionTipo'] = 'danger';
     }
     header('Location: ConfiguracionAdmin.php');
@@ -150,14 +155,15 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+<link rel="stylesheet" href="assets/css/configuracion-botones-metalicos.css?cache=sgce2026">
 </head>
 <body>
 <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
     <section class="SgceHero mb-4">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon"><i class="fa-solid fa-school-circle-check"></i></div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">🏫</span></div>
             <div>
                 <h1>CONFIGURACIÓN GENERAL</h1>
                 <p>Datos institucionales, ciclo escolar activo y periodos usados en reportes, boletas y paneles.</p>
@@ -179,7 +185,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
         <?= CampoCsrf() ?>
         <section class="SgceConfigCard SgceConfigCardWide">
             <div class="SgceConfigHead">
-                <span><i class="fa-solid fa-school"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">🏫</span></span>
                 <div><h2>Datos de la escuela</h2><p>Esta información aparece en boletas, reportes y pantallas públicas.</p></div>
             </div>
             <div class="row g-3">
@@ -196,11 +202,11 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 
         <section class="SgceConfigCard">
             <div class="SgceConfigHead">
-                <span><i class="fa-solid fa-calendar-days"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">📅</span></span>
                 <div><h2>Ciclo activo</h2><p>Rango usado para asistencias, reportes y estadísticas.</p></div>
             </div>
             <div class="row g-3">
-                <div class="col-12"><label class="SgceFieldLabel">Nombre del ciclo</label><input class="form-control FormControl InputUpper" name="CicloNombre" value="<?= HConfig($CicloActivo['Nombre'] ?? '') ?>" required></div>
+                <div class="col-12"><label class="SgceFieldLabel">Nombre del ciclo</label><input class="form-control FormControl InputUpper" name="CicloNombre" value="<?= HConfig($CicloActivo['Nombre'] ?? '') ?>" maxlength="40" required></div>
                 <div class="col-md-6"><label class="SgceFieldLabel">Fecha inicio</label><input class="form-control FormControl" type="date" name="FechaInicio" value="<?= HConfig($CicloActivo['FechaInicio'] ?? '') ?>" required></div>
                 <div class="col-md-6"><label class="SgceFieldLabel">Fecha fin</label><input class="form-control FormControl" type="date" name="FechaFin" value="<?= HConfig($CicloActivo['FechaFin'] ?? '') ?>" required></div>
             </div>
@@ -208,13 +214,13 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
 
         <section class="SgceConfigCard">
             <div class="SgceConfigHead">
-                <span><i class="fa-solid fa-list-check"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">📋</span></span>
                 <div><h2>Periodos y planeaciones</h2><p>Parciales disponibles y cantidad de planeaciones que se entregan por materia.</p></div>
             </div>
             <div class="row g-3">
-                <div class="col-12"><label class="SgceFieldLabel">Periodo 1</label><input class="form-control FormControl InputUpper" name="PeriodoUno" value="<?= HConfig($PeriodoUno) ?>" required></div>
-                <div class="col-12"><label class="SgceFieldLabel">Periodo 2</label><input class="form-control FormControl InputUpper" name="PeriodoDos" value="<?= HConfig($PeriodoDos) ?>" required></div>
-                <div class="col-12"><label class="SgceFieldLabel">Periodo 3</label><input class="form-control FormControl InputUpper" name="PeriodoTres" value="<?= HConfig($PeriodoTres) ?>" required></div>
+                <div class="col-12"><label class="SgceFieldLabel">Periodo 1</label><input class="form-control FormControl InputUpper" name="PeriodoUno" value="<?= HConfig($PeriodoUno) ?>" maxlength="80" required></div>
+                <div class="col-12"><label class="SgceFieldLabel">Periodo 2</label><input class="form-control FormControl InputUpper" name="PeriodoDos" value="<?= HConfig($PeriodoDos) ?>" maxlength="80" required></div>
+                <div class="col-12"><label class="SgceFieldLabel">Periodo 3</label><input class="form-control FormControl InputUpper" name="PeriodoTres" value="<?= HConfig($PeriodoTres) ?>" maxlength="80" required></div>
                 <div class="col-12"><label class="SgceFieldLabel">Planeaciones por ciclo</label><input class="form-control FormControl InputDigits" name="PlaneacionesCantidad" value="<?= HConfig($PlaneacionesCantidad) ?>" required min="1" max="12" maxlength="2" inputmode="numeric"><small class="text-muted fw-semibold">Define cuántas planeaciones debe entregar cada docente por materia en el ciclo activo.</small></div>
             </div>
         </section>
@@ -224,14 +230,12 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
                 <strong><i class="fa-solid fa-circle-info"></i> Cambios globales</strong>
                 <span>Al guardar se actualizan reportes, boletas, consulta pública y paneles.</span>
             </div>
-            <button type="submit" class="SgceConfigSave"><i class="fa-solid fa-floppy-disk"></i> Guardar configuración</button>
+            <button type="submit" id="BtnGuardarConfiguracionVerdeMetalico" class="SgceConfigSave BtnConfiguracionGuardarMetalico"><span class="SgceColorIcon" aria-hidden="true">💾</span> Guardar configuración</button>
         </section>
     </form>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script>
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.InputUpper').forEach(function(Input){Input.addEventListener('input',function(){var Pos=Input.selectionStart;Input.value=Input.value.toUpperCase();try{Input.setSelectionRange(Pos,Pos);}catch(Error){} });});document.querySelectorAll('.InputDigits').forEach(function(Input){Input.addEventListener('input',function(){Input.value=Input.value.replace(/\D/g,'').slice(0,15);});});var Color=document.getElementById('ColorInstitucional');var Texto=document.getElementById('ColorInstitucionalTexto');if(Color&&Texto){var Actualizar=function(){var Valor=window.SgceAplicarTemaColor?window.SgceAplicarTemaColor(Color.value):Color.value.toUpperCase();Texto.textContent=Valor;};Color.addEventListener('input',Actualizar);Actualizar();}});
-</script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/ConfiguracionAdmin.js?cache=sgce2026"></script>
 </body>
 </html>

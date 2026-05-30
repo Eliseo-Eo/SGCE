@@ -3,7 +3,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeAdministrarReportes($UserSession)) { header('Location: index.php'); exit; }
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para entrar al centro de reportes.');
 
 $Grupos = $Pdo->query("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo")->fetchAll();
 $Asignaciones = $Pdo->query("SELECT Asg.Id, Asg.MateriaNombre, G.Grado, G.Grupo, G.Turno, U.NombreCompleto AS Maestro FROM Asignaciones Asg JOIN Grupos G ON Asg.GrupoId = G.Id JOIN Usuarios U ON Asg.MaestroId = U.Id WHERE Asg.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 ORDER BY G.Turno, G.Grado, G.Grupo, Asg.MateriaNombre")->fetchAll();
@@ -33,14 +34,15 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
 <link rel="icon" href="favicon.ico">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+<link rel="stylesheet" href="assets/css/reportes-botones-metalicos.css?cache=sgce2026">
 </head>
 <body class="SgceReportsPage">
 <div class="container py-4 SgceReportsWrap">
     <div class="Top ReportHero mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div class="ReportHeroTitle">
-            <div class="IconBox"><i class="fa-solid fa-filter"></i></div>
+            <div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📊</span></div>
             <div>
                 <h2 class="fw-bold mb-1">CENTRO DE REPORTES</h2>
                 <p class="mb-0">Exporta asistencia, calificaciones y boletas del ciclo activo.</p>
@@ -52,13 +54,13 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
     <div class="SgceReportCards">
         <section class="SgceReportCard AccentRed">
             <div class="SgceReportCardHead">
-                <span class="SgceReportIcon"><i class="fa-solid fa-calendar-check"></i></span>
+                <span class="SgceReportIcon"><span class="SgceColorIcon" aria-hidden="true">📅</span></span>
                 <div>
                     <h5>Asistencias por grupo</h5>
                     <p>Reporte de asistencia por grupo y rango de fechas.</p>
                 </div>
             </div>
-            <form action="ExportarAsistencia.php" method="GET" target="_blank" class="SgceReportForm">
+            <form action="ExportarAsistencia.php" method="GET" target="_blank" rel="noopener noreferrer" class="SgceReportForm">
                 <input type="hidden" name="Rango" value="Todas">
                 <input type="hidden" name="CicloId" value="<?= (int)$CicloActivo['Id'] ?>">
                 <div class="SgceFormField Full">
@@ -82,19 +84,19 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                     <label>Formato</label>
                     <select name="Tipo" class="form-select"><option value="Pdf">PDF</option><option value="Excel">EXCEL</option></select>
                 </div>
-                <button class="SgceReportBtn BtnReportExport" type="submit"><i class="fa-solid fa-file-export"></i><span>Exportar asistencias</span></button>
+                <button id="BtnExportarAsistenciaGrupoVerdeMetalico" class="SgceReportBtn BtnReportExport BtnReporteVerdeMetalico" type="submit"><span class="SgceColorIcon" aria-hidden="true">📤</span><span>Exportar asistencias</span></button>
             </form>
         </section>
 
         <section class="SgceReportCard AccentBlue">
             <div class="SgceReportCardHead">
-                <span class="SgceReportIcon"><i class="fa-solid fa-user-check"></i></span>
+                <span class="SgceReportIcon"><span class="SgceColorIcon" aria-hidden="true">✅</span></span>
                 <div>
                     <h5>Asistencias por asignación</h5>
                     <p>Reporte de asistencia por materia, docente y grupo.</p>
                 </div>
             </div>
-            <form action="ExportarAsistencia.php" method="GET" target="_blank" class="SgceReportForm">
+            <form action="ExportarAsistencia.php" method="GET" target="_blank" rel="noopener noreferrer" class="SgceReportForm">
                 <input type="hidden" name="Rango" value="Todas">
                 <input type="hidden" name="CicloId" value="<?= (int)$CicloActivo['Id'] ?>">
                 <div class="SgceFormField Full">
@@ -118,19 +120,19 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                     <label>Formato</label>
                     <select name="Tipo" class="form-select"><option value="Pdf">PDF</option><option value="Excel">EXCEL</option></select>
                 </div>
-                <button class="SgceReportBtn BtnReportExport" type="submit"><i class="fa-solid fa-file-export"></i><span>Exportar asistencias</span></button>
+                <button id="BtnExportarAsistenciaAsignacionVerdeMetalico" class="SgceReportBtn BtnReportExport BtnReporteVerdeMetalico" type="submit"><span class="SgceColorIcon" aria-hidden="true">📤</span><span>Exportar asistencias</span></button>
             </form>
         </section>
 
         <section class="SgceReportCard AccentGreen">
             <div class="SgceReportCardHead">
-                <span class="SgceReportIcon"><i class="fa-solid fa-star"></i></span>
+                <span class="SgceReportIcon"><span class="SgceColorIcon" aria-hidden="true">⭐</span></span>
                 <div>
                     <h5>Calificaciones</h5>
                     <p>Promedios y registros por periodo, grupo, asignación o resumen general.</p>
                 </div>
             </div>
-            <form action="ExportarCalificaciones.php" method="GET" target="_blank" class="SgceReportForm">
+            <form action="ExportarCalificaciones.php" method="GET" target="_blank" rel="noopener noreferrer" class="SgceReportForm">
                 <div class="SgceFormField Full">
                     <label>Periodo</label>
                     <select name="PeriodoId" class="form-select"><?php foreach($Periodos as $P): ?><option value="<?= (int)$P['Id'] ?>"><?= HGlobal($P['CicloNombre'].' - '.$P['Nombre']) ?></option><?php endforeach; ?></select>
@@ -150,13 +152,13 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                     <select name="Tipo" class="form-select"><option value="Pdf">PDF</option><option value="Excel">EXCEL</option></select>
                 </div>
                 <p class="SgceReportHint"><i class="fa-solid fa-circle-info"></i> Si dejas grupo y asignación en general, se exporta el resumen completo del periodo.</p>
-                <button class="SgceReportBtn BtnReportExport" type="submit"><i class="fa-solid fa-star"></i><span>Exportar calificaciones</span></button>
+                <button id="BtnExportarCalificacionesVerdeMetalico" class="SgceReportBtn BtnReportExport BtnReporteVerdeMetalico" type="submit"><span class="SgceColorIcon" aria-hidden="true">⭐</span><span>Exportar calificaciones</span></button>
             </form>
         </section>
 
         <section class="SgceReportCard AccentOrange">
             <div class="SgceReportCardHead">
-                <span class="SgceReportIcon"><i class="fa-solid fa-file-lines"></i></span>
+                <span class="SgceReportIcon"><span class="SgceColorIcon" aria-hidden="true">📄</span></span>
                 <div>
                     <h5>Boleta individual</h5>
                     <p>Busca el alumno y genera su boleta del periodo seleccionado.</p>
@@ -172,9 +174,9 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                         <label>Buscar alumno</label>
                         <div class="input-group search-container"><span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span><input class="form-control" name="BuscarAlumno" value="<?= HGlobal($BuscarAlumno) ?>" placeholder="Nombre del alumno..."></div>
                     </div>
-                    <button class="SgceReportBtn BtnReportSearch" type="submit"><i class="fa-solid fa-search"></i><span>Buscar alumno</span></button>
+                    <button id="BtnBuscarAlumnoAzulMetalico" class="SgceReportBtn BtnReportSearch BtnReporteAzulMetalico" type="submit"><span class="SgceColorIcon" aria-hidden="true">🔎</span><span>Buscar alumno</span></button>
                 </form>
-                <form action="ExportarAlumno.php" method="GET" target="_blank" class="SgceReportForm SgceBoletaExportForm">
+                <form action="ExportarAlumno.php" method="GET" target="_blank" rel="noopener noreferrer" class="SgceReportForm SgceBoletaExportForm">
                     <div class="SgceReportTwoCols">
                         <div class="SgceFormField">
                             <label>Periodo</label>
@@ -189,28 +191,14 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
                         </div>
                     </div>
                     <p class="SgceReportHint"><i class="fa-solid fa-circle-info"></i> Primero busca por nombre o filtra por grupo para cargar alumnos.</p>
-                    <button class="SgceReportBtn BtnReportExport" type="submit"><i class="fa-solid fa-file-pdf"></i><span>Generar boleta</span></button>
+                    <button id="BtnGenerarBoletaRojoMetalico" class="SgceReportBtn BtnReportExport BtnReporteRojoMetalico" type="submit"><span class="SgceColorIcon" aria-hidden="true">📄</span><span>Generar boleta</span></button>
                 </form>
             </div>
         </section>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.SgceReportForm').forEach(function(Form){
-        Form.addEventListener('submit', function(Event){
-            var Inicio = Form.querySelector('input[name="FechaInicio"]');
-            var Fin = Form.querySelector('input[name="FechaFin"]');
-            if (Inicio && Fin && Inicio.value && Fin.value && Inicio.value > Fin.value) {
-                Event.preventDefault();
-                alert('La fecha de inicio no puede ser mayor que la fecha fin.');
-                Inicio.focus();
-            }
-        });
-    });
-});
-</script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/ReportesAdmin.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
 </body>
 </html>

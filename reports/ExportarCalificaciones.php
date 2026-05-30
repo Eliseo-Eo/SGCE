@@ -150,7 +150,11 @@ $Stmt = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Gru
 $Stmt->execute([$AsignacionId]);
 $Info = $Stmt->fetch();
 if (!$Info) { http_response_code(404); exit('Asignación no encontrada.'); }
-if ($UserSession['Rol'] === 'maestro' && (int)$UserSession['Id'] !== (int)$Info['MaestroId']) { http_response_code(403); exit('No tienes permiso.'); }
+if (SgceTieneRol($UserSession, ['maestro'])) {
+    if ((int)$UserSession['Id'] !== (int)$Info['MaestroId']) { http_response_code(403); exit('No tienes permiso.'); }
+} elseif (!SgcePuedeAdministrarReportes($UserSession)) {
+    http_response_code(403); exit('No tienes permiso.');
+}
 
 $StmtAlumnos = $Pdo->prepare('SELECT Al.NombreCompleto, C.Calificacion FROM Alumnos Al LEFT JOIN Calificaciones C ON C.AlumnoId = Al.Id AND C.AsignacionId = ? AND C.PeriodoId = ? WHERE Al.GrupoId = ? AND Al.Activo = 1 ORDER BY Al.NombreCompleto ASC');
 $StmtAlumnos->execute([$AsignacionId, $PeriodoId, $Info['GrupoId']]);

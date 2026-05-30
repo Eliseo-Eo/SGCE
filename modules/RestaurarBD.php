@@ -1,23 +1,52 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
-/*
-    Archivo: RestaurarBD.php
-    Descripción: Importa respaldos de datos SGCE, permite fusionar datos, reemplazar datos escolares o reemplazar todo.
-    Por seguridad, está pensado para respaldos generados desde ExportarDatosBD.php.
-*/
+
 require_once dirname(__DIR__) . '/config/Conexion.php';
 IniciarSesionSegura();
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeRespaldos($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'respaldos', 'Solo el administrador puede entrar a respaldos y restauración.');
 
 $Mensaje = $_SESSION['MensajeRestaurarBD'] ?? '';
 $TipoMensaje = $_SESSION['TipoRestaurarBD'] ?? 'info';
 unset($_SESSION['MensajeRestaurarBD'], $_SESSION['TipoRestaurarBD']);
 
 function HRest($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
+
+function InfoServidorSubidasRestaurar() {
+    $UploadTmp = trim((string)ini_get('upload_tmp_dir'));
+    $SysTmp = function_exists('sys_get_temp_dir') ? trim((string)sys_get_temp_dir()) : '';
+    $TmpDetectado = $UploadTmp !== '' ? $UploadTmp : $SysTmp;
+    $Existe = $TmpDetectado !== '' && is_dir($TmpDetectado) ? 'sí' : 'no';
+    $Escribible = $TmpDetectado !== '' && is_writable($TmpDetectado) ? 'sí' : 'no';
+
+    return 'Temporal detectado: ' . ($TmpDetectado !== '' ? $TmpDetectado : 'sin definir') .
+        ' | Existe: ' . $Existe .
+        ' | Escribible: ' . $Escribible .
+        ' | upload_tmp_dir: ' . ($UploadTmp !== '' ? $UploadTmp : 'usa temporal del sistema') .
+        ' | upload_max_filesize: ' . (string)ini_get('upload_max_filesize') .
+        ' | post_max_size: ' . (string)ini_get('post_max_size');
+}
+
+function MensajeErrorSubidaRest($CodigoError) {
+    $CodigoError = (int)$CodigoError;
+    $InfoServidor = InfoServidorSubidasRestaurar();
+    $MapaErrores = [
+        UPLOAD_ERR_INI_SIZE => 'El respaldo supera el tamaño máximo permitido por el servidor. Sube un archivo más pequeño o aumenta upload_max_filesize/post_max_size. ' . $InfoServidor,
+        UPLOAD_ERR_FORM_SIZE => 'El respaldo supera el tamaño máximo permitido por el formulario.',
+        UPLOAD_ERR_PARTIAL => 'El respaldo se subió incompleto. Intenta subirlo nuevamente.',
+        UPLOAD_ERR_NO_FILE => 'No se recibió ningún archivo SQL. Selecciona nuevamente el respaldo y vuelve a importar.',
+        UPLOAD_ERR_NO_TMP_DIR => 'El respaldo no llegó a SGCE porque PHP no tiene una carpeta temporal válida para recibir subidas. Corrige /tmp o upload_tmp_dir en el servidor. ' . $InfoServidor,
+        UPLOAD_ERR_CANT_WRITE => 'PHP recibió el respaldo, pero no pudo escribirlo en la carpeta temporal del servidor. Revisa permisos de la carpeta temporal. ' . $InfoServidor,
+        UPLOAD_ERR_EXTENSION => 'Una extensión de PHP bloqueó la subida del respaldo.',
+    ];
+
+    if ($CodigoError !== UPLOAD_ERR_OK) {
+        error_log('SGCE restaurar respaldo: error de subida código ' . $CodigoError . ' | ' . $InfoServidor);
+    }
+
+    return $MapaErrores[$CodigoError] ?? 'Error al subir el respaldo. Código de subida: ' . $CodigoError . '. ' . $InfoServidor;
+}
 
 function RedirectRestaurar($Mensaje, $Tipo = 'success') {
     $_SESSION['MensajeRestaurarBD'] = $Mensaje;
@@ -41,10 +70,12 @@ function TablasSistemaRest($Pdo) {
     return $Tablas;
 }
 
-function VaciarTablasRest($Pdo, $IncluirUsuarios = false) {
-    // DELETE mantiene el control transaccional durante la restauración.
+function VaciarTablasRest($Pdo, $IncluirUsuarios = false, $ConservarCicloPeriodo = true) {
     $Tablas = TablasSistemaRest($Pdo);
-    $ConservarEscolar = ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'PeriodosEvaluacion', 'IntentosSeguridad'];
+    $ConservarEscolar = $ConservarCicloPeriodo
+        ? ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'PeriodosEvaluacion', 'IntentosSeguridad']
+        : ['Usuarios', 'ConfiguracionSistema', 'IntentosSeguridad'];
+
     $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
     foreach ($Tablas as $Tabla) {
         if (!$IncluirUsuarios && in_array($Tabla, $ConservarEscolar, true)) { continue; }
@@ -155,32 +186,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             RedirectRestaurar('Para borrar debes escribir exactamente: BORRAR DATOS ESCOLARES', 'danger');
         }
         try {
-            VaciarTablasRest($Pdo, false);
+            VaciarTablasRest($Pdo, false, true);
             $Pdo->prepare("INSERT INTO Avisos (Titulo, Mensaje, Publico, Activo) VALUES (?, ?, 'TODOS', 1)")
                 ->execute(['SISTEMA REINICIADO', 'LOS DATOS ESCOLARES FUERON BORRADOS. PUEDES CAPTURAR NUEVOS REGISTROS O IMPORTAR UN RESPALDO DE DATOS.']);
             RegistrarBitacora($Pdo, $UserSession, 'VACIAR_DATOS_ESCOLARES', 'BASE_DE_DATOS', null, 'SE BORRARON DATOS ESCOLARES, CONSERVANDO USUARIOS');
             RedirectRestaurar('Datos escolares borrados correctamente. Los usuarios se conservaron.', 'success');
         } catch (Exception $E) {
-            RedirectRestaurar('Error al borrar datos escolares: ' . $E->getMessage(), 'danger');
+            $CodigoError = SgceRegistrarErrorTecnico('RESTAURAR_BD_VACIAR_ESCOLAR', $E);
+            RedirectRestaurar('No se pudieron borrar los datos escolares. Código de seguimiento: ' . $CodigoError, 'danger');
         }
     }
 
     if (isset($_POST['ImportarRespaldo'])) {
-        if (!isset($_FILES['ArchivoSql']) || !is_uploaded_file($_FILES['ArchivoSql']['tmp_name'])) {
-            RedirectRestaurar('Selecciona un archivo .sql válido.', 'danger');
+        $ArchivoSql = $_FILES['ArchivoSql'] ?? null;
+        if (!isset($ArchivoSql) || !is_array($ArchivoSql)) {
+            RedirectRestaurar(MensajeErrorSubidaRest(UPLOAD_ERR_NO_FILE), 'danger');
         }
-        if ((int)$_FILES['ArchivoSql']['size'] <= 0 || (int)$_FILES['ArchivoSql']['size'] > 80 * 1024 * 1024) {
+
+        $CodigoErrorSubida = (int)($ArchivoSql['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($CodigoErrorSubida !== UPLOAD_ERR_OK) {
+            RedirectRestaurar(MensajeErrorSubidaRest($CodigoErrorSubida), 'danger');
+        }
+
+        if (!is_uploaded_file($ArchivoSql['tmp_name'] ?? '')) {
+            RedirectRestaurar('No se pudo validar el archivo temporal. Selecciona nuevamente el respaldo SQL e intenta otra vez.', 'danger');
+        }
+
+        if ((int)$ArchivoSql['size'] <= 0 || (int)$ArchivoSql['size'] > 80 * 1024 * 1024) {
             RedirectRestaurar('El archivo está vacío o supera el máximo permitido de 80 MB.', 'danger');
         }
-        $Nombre = (string)($_FILES['ArchivoSql']['name'] ?? '');
+        $Nombre = (string)($ArchivoSql['name'] ?? '');
         if (strtolower(pathinfo($Nombre, PATHINFO_EXTENSION)) !== 'sql') {
             RedirectRestaurar('El archivo debe tener extensión .sql.', 'danger');
+        }
+        if (function_exists('finfo_open')) {
+            $Finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $Mime = $Finfo ? (string)finfo_file($Finfo, $ArchivoSql['tmp_name']) : '';
+            if ($Finfo) { finfo_close($Finfo); }
+            $MimesSql = ['text/plain', 'text/x-sql', 'application/sql', 'application/octet-stream'];
+            if ($Mime !== '' && !in_array($Mime, $MimesSql, true)) {
+                RedirectRestaurar('El archivo no parece ser un respaldo SQL válido.', 'danger');
+            }
         }
         $Modo = $_POST['ModoImportacion'] ?? 'fusionar';
         if (!in_array($Modo, ['fusionar','reemplazar_escolar','reemplazar_todo'], true)) {
             $Modo = 'fusionar';
         }
-        $Sql = file_get_contents($_FILES['ArchivoSql']['tmp_name']);
+        $Sql = file_get_contents($ArchivoSql['tmp_name']);
         if ($Sql === false || trim($Sql) === '') {
             RedirectRestaurar('No se pudo leer el archivo SQL.', 'danger');
         }
@@ -195,9 +247,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Pdo->beginTransaction();
 
             if ($Modo === 'reemplazar_escolar') {
-                VaciarTablasRest($Pdo, false);
+                VaciarTablasRest($Pdo, false, false);
             } elseif ($Modo === 'reemplazar_todo') {
-                VaciarTablasRest($Pdo, true);
+                VaciarTablasRest($Pdo, true, false);
             }
 
             $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
@@ -214,7 +266,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $E) {
             if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
             try { $Pdo->exec('SET FOREIGN_KEY_CHECKS=1'); } catch (Exception $Ex) {}
-            RedirectRestaurar('Error al importar respaldo: ' . $E->getMessage(), 'danger');
+            $CodigoError = SgceRegistrarErrorTecnico('RESTAURAR_BD_IMPORTAR', $E);
+            RedirectRestaurar('No se pudo importar el respaldo. Código de seguimiento: ' . $CodigoError, 'danger');
         }
     }
 }
@@ -230,14 +283,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="apple-touch-icon" href="favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+<link rel="stylesheet" href="assets/css/respaldos-botones-metalicos.css?cache=sgce2026">
 </head>
 <body class="SgceRestorePage">
 <div class="container py-4 SgceModuleWrap SgceRestoreWrap">
     <div class="Top mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <h1 class="fw-black mb-1"><i class="fa-solid fa-database me-2"></i> RESPALDOS E IMPORTACIÓN</h1>
+            <h1 class="fw-black mb-1"><span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">🗄️</span> RESPALDOS E IMPORTACIÓN</h1>
             <p class="mb-0 opacity-75">Respalda, restaura o limpia los datos del sistema desde un solo lugar.</p>
         </div>
         <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
@@ -250,9 +304,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="Card SgceRestoreCard p-4 h-100">
-                <div class="SgceRestoreCardHead"><div class="IconBox"><i class="fa-solid fa-file-export"></i></div><div><h4>Exportar respaldos</h4><p>Usa este respaldo para restaurar desde esta misma pantalla. No toca la estructura de la base de datos.</p></div></div>
+                <div class="SgceRestoreCardHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📤</span></div><div><h4>Exportar respaldos</h4><p>Usa este respaldo para restaurar desde esta misma pantalla. No toca la estructura de la base de datos.</p></div></div>
                 <div class="d-grid gap-3">
-                    <a href="ExportarDatosBD.php" class="ActionBtn ActionSuccess"><i class="fa-solid fa-download"></i> EXPORTAR SOLO DATOS</a>
+                    <a id="BtnExportarSoloDatosVerdeMetalico" href="ExportarDatosBD.php" class="ActionBtn BtnRespaldosExportarVerdeMetalico"><span class="SgceColorIcon" aria-hidden="true">📤</span> EXPORTAR SOLO DATOS</a>
                     </div>
                 <div class="SgceRestoreInfo"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> este es el respaldo correcto para volver a importar desde el sistema.</span></div>
             </div>
@@ -260,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="col-lg-6">
             <div class="Card SgceRestoreCard p-4 h-100">
-                <div class="SgceRestoreCardHead"><div class="IconBox"><i class="fa-solid fa-file-import"></i></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”.</p></div></div>
+                <div class="SgceRestoreCardHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📥</span></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”.</p></div></div>
                 <form method="POST" enctype="multipart/form-data" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR RESPALDO" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE RESPALDO?" data-sgce-confirm-detail="Esta acción puede fusionar, reemplazar datos escolares o reemplazar todo según el modo seleccionado. Revisa el archivo SQL y el modo antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR RESPALDO" data-sgce-confirm-loading="IMPORTANDO RESPALDO..." data-sgce-confirm-icon="fa-database">
                     <?= CampoCsrf() ?>
                     <div class="mb-3">
@@ -275,14 +329,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="reemplazar_todo">Borrar TODO y luego importar, incluyendo usuarios</option>
                         </select>
                     </div>
-                    <button class="ActionBtn ActionSuccess w-100 border-0" name="ImportarRespaldo" value="1" type="submit"><i class="fa-solid fa-upload"></i> IMPORTAR RESPALDO</button>
+                    <button id="BtnImportarRespaldoAzulMetalico" class="ActionBtn BtnRespaldosImportarAzulMetalico w-100 border-0" name="ImportarRespaldo" value="1" type="submit"><span class="SgceColorIcon" aria-hidden="true">📥</span> IMPORTAR RESPALDO</button>
                 </form>
             </div>
         </div>
 
         <div class="col-12">
             <div class="Card SgceRestoreCard SgceDangerCard p-4">
-                <div class="SgceRestoreCardHead SgceDangerHead"><div class="IconBox"><i class="fa-solid fa-triangle-exclamation"></i></div><div><h4>Borrar datos escolares</h4><p>Esto borra grupos, alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora. Conserva usuarios para que no pierdas acceso.</p></div></div>
+                <div class="SgceRestoreCardHead SgceDangerHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">⚠️</span></div><div><h4>Borrar datos escolares</h4><p>Esto borra grupos, alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora. Conserva usuarios para que no pierdas acceso.</p></div></div>
                 <form method="POST" class="row g-3 align-items-end" data-sgce-confirm="danger" data-sgce-confirm-title="CONFIRMAR BORRADO" data-sgce-confirm-subtitle="DATOS ESCOLARES" data-sgce-confirm-message="¿REALMENTE DESEAS BORRAR LOS DATOS ESCOLARES?" data-sgce-confirm-detail="Esta acción eliminará datos escolares y conservará usuarios. Debes escribir la frase solicitada para que el servidor acepte la operación." data-sgce-confirm-button="SÍ, BORRAR DATOS" data-sgce-confirm-loading="BORRANDO DATOS..." data-sgce-confirm-icon="fa-trash-can">
                     <?= CampoCsrf() ?>
                     <div class="col-lg-8">
@@ -290,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="Confirmar" class="form-control FormControl" placeholder="Escribe: BORRAR DATOS ESCOLARES">
                     </div>
                     <div class="col-lg-4">
-                        <button class="ActionBtn ActionDanger w-100 border-0" type="submit" name="VaciarEscolar" value="1"><i class="fa-solid fa-trash-can"></i> BORRAR DATOS</button>
+                        <button id="BtnBorrarDatosRojoFijo" class="ActionBtn BtnRespaldosBorrarRojoFijo w-100 border-0" type="submit" name="VaciarEscolar" value="1"><span class="SgceColorIcon" aria-hidden="true">🗑️</span> BORRAR DATOS</button>
                     </div>
                 </form>
             </div>
@@ -299,6 +353,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
 </body>
 </html>

@@ -1,11 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-/*
-    Archivo: Calificar.php
-    Descripción: Módulo para capturar y actualizar calificaciones por alumno.
-    Valida que el maestro solo pueda acceder a sus asignaciones y guarda notas de 0 a 10.
-*/
+
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
@@ -80,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
                 continue;
             }
 
-            // Si se deja vacío, se elimina la calificación existente.
+            
             if ($Calificacion === '') {
                 $StmtEliminar->execute([$AlumnoId, $AsignacionId, $PeriodoId]);
                 continue;
@@ -92,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
 
             $CalificacionFloat = round((float)$Calificacion, 2);
 
+            
             if ($CalificacionFloat < 5) { $CalificacionFloat = 5; }
             if ($CalificacionFloat > 10) { $CalificacionFloat = 10; }
 
@@ -171,7 +168,7 @@ if ($Calificados > 0) {
 <head>
     <meta charset="UTF-8">
     
-    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -184,7 +181,7 @@ if ($Calificados > 0) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 
 <style>
@@ -199,6 +196,34 @@ if ($Calificados > 0) {
     .StatsCard, .MainCard { border:0; border-radius:18px; box-shadow: 0 12px 32px rgba(15,23,42,.08); overflow:hidden; }
     .StatsCard .card-body { padding:16px 18px !important; min-height:78px; }
     .StatsIcon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; flex:0 0 auto; }
+    html body .SgceModuleWrap .StatsIcon.SgceStatsIconSoft {
+        width:42px !important;
+        height:42px !important;
+        min-width:42px !important;
+        margin-right:0 !important;
+        border-radius:15px !important;
+        display:grid !important;
+        place-items:center !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(15,23,42,.055) !important;
+        border:1px solid rgba(15,23,42,.045) !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.SgceStatsAlumnos {
+        background:linear-gradient(135deg, rgba(47,111,236,.095) 0%, rgba(14,165,233,.16) 100%) !important;
+        color:#2563EB !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.SgceStatsCalificados {
+        background:linear-gradient(135deg, rgba(5,150,105,.095) 0%, rgba(16,185,129,.17) 100%) !important;
+        color:#047857 !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.SgceStatsPromedio {
+        background:linear-gradient(135deg, rgba(245,158,11,.105) 0%, rgba(251,191,36,.18) 100%) !important;
+        color:#B45309 !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.SgceStatsIconSoft .SgceColorIcon {
+        font-size:1.22rem !important;
+        line-height:1 !important;
+        filter:drop-shadow(0 1px 0 rgba(255,255,255,.85)) !important;
+    }
     .StatsCard h3 { font-size:1.45rem; }
     .MainCard .card-header { background:#fff; border-bottom:1px solid var(--SgceBorde); padding:16px 18px; }
     .SgcePeriodoBox { padding:14px 16px 8px; margin:0 !important; background:#fff; border-bottom:1px solid var(--SgceBorde); }
@@ -207,12 +232,42 @@ if ($Calificados > 0) {
     table.table { table-layout:fixed; }
     table.table thead th { background:#f7f9fc; color:#64748b; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:9px 14px; border-bottom:1px solid var(--SgceBorde); }
     table.table tbody td { padding:7px 14px; border-color:#eef2f7; vertical-align:middle; }
-    .AlumnoAvatar { width:28px; height:28px; border-radius:10px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.82rem; flex:0 0 auto; }
+    .AlumnoAvatar { width:30px; height:30px; border-radius:11px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.95rem; flex:0 0 auto; }
+    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji {
+        background:linear-gradient(135deg, rgba(47,111,236,.12) 0%, rgba(14,165,233,.20) 100%) !important;
+        color:#1D4ED8 !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px rgba(47,111,236,.10) !important;
+        border:1px solid rgba(47,111,236,.14) !important;
+    }
+    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
+        color:inherit !important;
+        line-height:1 !important;
+        font-size:1rem !important;
+        filter:drop-shadow(0 1px 0 rgba(255,255,255,.75));
+    }
     .AlumnoNombre { font-size:.88rem; font-weight:800; line-height:1.15; color:var(--SgceTexto); }
     .InputNota { width:112px; height:36px; margin-left:auto; border-radius:12px; font-weight:800; }
     .SgceStickyActions { position:sticky; bottom:0; z-index:5; padding:12px 16px !important; background:rgba(248,250,252,.96) !important; backdrop-filter: blur(8px); }
     .BtnGuardar { border:0 !important; border-radius:14px; padding:11px 22px; background:linear-gradient(135deg, var(--SgceVerde), #20bf63) !important; color:#fff !important; font-weight:900; box-shadow:0 12px 24px rgba(20,148,71,.22) !important; min-width:250px; }
-    .BtnGuardar:hover { filter:brightness(.96); transform:translateY(-1px); }
+    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico {
+        background:#047857 !important;
+        background-image:linear-gradient(135deg,#064E3B 0%,#047857 48%,#059669 74%,#10B981 100%) !important;
+        color:#FFFFFF !important;
+        border:0 !important;
+        box-shadow:0 18px 36px rgba(4,120,87,.30), inset 0 1px 0 rgba(255,255,255,.26) !important;
+        text-shadow:0 1px 2px rgba(0,0,0,.30) !important;
+    }
+    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico:hover {
+        background-image:linear-gradient(135deg,#065F46 0%,#059669 48%,#10B981 78%,#34D399 100%) !important;
+        box-shadow:0 22px 42px rgba(4,120,87,.36), inset 0 1px 0 rgba(255,255,255,.30) !important;
+        transform:translateY(-1px) !important;
+        filter:saturate(1.10) brightness(1.02) !important;
+    }
+    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico span {
+        color:#FFFFFF !important;
+        position:relative !important;
+        z-index:1 !important;
+    }
     @media (max-width: 991px) { .TopBar { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
     @media (max-width: 576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .InputNota { width:95px; } .BtnGuardar { width:100%; min-width:0; } }
 </style>
@@ -229,9 +284,7 @@ if ($Calificados > 0) {
 
             <div class="d-flex align-items-center gap-3">
 
-                <div class="IconBox">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </div>
+                <div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">🎓</span></div>
 
                 <div>
                     <h2>
@@ -265,9 +318,7 @@ if ($Calificados > 0) {
 
                 <div class="card-body d-flex align-items-center gap-3 p-4">
 
-                    <div class="StatsIcon bg-primary bg-opacity-10 text-primary">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
+                    <div class="StatsIcon SgceStatsIconSoft SgceStatsAlumnos"><span class="SgceColorIcon" aria-hidden="true">👥</span></div>
 
                     <div>
                         <div class="text-muted small">
@@ -291,9 +342,7 @@ if ($Calificados > 0) {
 
                 <div class="card-body d-flex align-items-center gap-3 p-4">
 
-                    <div class="StatsIcon bg-success bg-opacity-10 text-success">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
+                    <div class="StatsIcon SgceStatsIconSoft SgceStatsCalificados"><span class="SgceColorIcon" aria-hidden="true">✅</span></div>
 
                     <div>
                         <div class="text-muted small">
@@ -317,9 +366,7 @@ if ($Calificados > 0) {
 
                 <div class="card-body d-flex align-items-center gap-3 p-4">
 
-                    <div class="StatsIcon bg-warning bg-opacity-10 text-warning">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
+                    <div class="StatsIcon SgceStatsIconSoft SgceStatsPromedio"><span class="SgceColorIcon" aria-hidden="true">📈</span></div>
 
                     <div>
                         <div class="text-muted small">
@@ -376,7 +423,7 @@ if ($Calificados > 0) {
                         <input type="hidden" name="PeriodoId" value="<?= (int)$PeriodoId ?>">
                         <div class="SgcePeriodoBox mb-3">
                             <label for="PeriodoIdSelect"><i class="fa-solid fa-calendar-days"></i> Periodo de evaluación</label>
-                            <select id="PeriodoIdSelect" class="form-select" onchange="window.location.href='Calificar.php?AsignacionId=<?= (int)$AsignacionId ?>&PeriodoId=' + encodeURIComponent(this.value)">
+                            <select id="PeriodoIdSelect" class="form-select" data-asignacion-id="<?= (int)$AsignacionId ?>">
                                 <?php foreach ($PeriodosDisponibles as $Periodo): ?>
                                     <option value="<?= (int)$Periodo['Id'] ?>" <?= (int)$Periodo['Id'] === (int)$PeriodoId ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($Periodo['CicloNombre'] . ' - ' . $Periodo['Nombre'], ENT_QUOTES, 'UTF-8') ?>
@@ -434,8 +481,8 @@ if ($Calificados > 0) {
 
                                             <div class="d-flex align-items-center gap-3">
 
-                                                <div class="AlumnoAvatar">
-                                                    <i class="fa-solid fa-user"></i>
+                                                <div class="AlumnoAvatar AlumnoAvatarEmoji">
+                                                    <span class="SgceAlumnoEmoji" aria-hidden="true">🧑‍🎓</span>
                                                 </div>
 
                                                 <div>
@@ -482,10 +529,10 @@ if ($Calificados > 0) {
 
                     <div class="SgceStickyActions border-top d-flex justify-content-end">
 
-                        <button type="submit" class="btn BtnGuardar text-white">
+                        <button type="submit" id="BtnGuardarCalificacionesVerdeMetalico" class="btn BtnGuardar BtnGuardarCalificacionesVerdeMetalico text-white">
 
-                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                            Guardar Calificaciones
+                            <span class="SgceColorIcon me-2" aria-hidden="true">💾</span>
+                            <span>Guardar Calificaciones</span>
 
                         </button>
 
@@ -505,20 +552,14 @@ if ($Calificados > 0) {
 
 
 
-<!-- ============================================================
-     NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
-     ------------------------------------------------------------
-     Bloque utilizado para homologar notificaciones visuales del sistema.
-     Cualquier alerta puede cerrarse manualmente con la tachita y,
-     si el usuario no la cierra, desaparece sola después de unos segundos.
-     ============================================================ -->
+
 
 
 
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/Calificar.js?cache=sgce"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/Calificar.js?cache=sgce2026"></script>
 </body>
 </html>

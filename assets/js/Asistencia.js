@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    // ALERTA SUCCESS AUTO HIDE
-
     const Alertas = document.querySelectorAll('.alert-success');
 
     Alertas.forEach(function(Alerta){
@@ -24,9 +22,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     });
 
-    // COLORES DINÁMICOS EN SELECT
-
     const Selects = document.querySelectorAll('.EstadoSelect');
+
+    const Contadores = {
+        A: document.getElementById('ContadorAsistencia'),
+        F: document.getElementById('ContadorFalta'),
+        R: document.getElementById('ContadorRetardo'),
+        J: document.getElementById('ContadorJustificante')
+    };
 
     function AplicarColor(Select){
 
@@ -34,36 +37,67 @@ document.addEventListener("DOMContentLoaded", function() {
             'border-success',
             'border-danger',
             'border-warning',
-            'border-primary'
+            'border-primary',
+            'SgceEstadoA',
+            'SgceEstadoF',
+            'SgceEstadoR',
+            'SgceEstadoJ'
         );
 
         switch(Select.value){
 
             case 'A':
 
-                Select.classList.add('border-success');
+                Select.classList.add('border-success', 'SgceEstadoA');
 
             break;
 
             case 'F':
 
-                Select.classList.add('border-danger');
+                Select.classList.add('border-danger', 'SgceEstadoF');
 
             break;
 
             case 'R':
 
-                Select.classList.add('border-warning');
+                Select.classList.add('border-warning', 'SgceEstadoR');
 
             break;
 
             case 'J':
 
-                Select.classList.add('border-primary');
+                Select.classList.add('border-primary', 'SgceEstadoJ');
 
             break;
 
         }
+
+    }
+
+    function ActualizarContadores(){
+
+        const Totales = {
+            A: 0,
+            F: 0,
+            R: 0,
+            J: 0
+        };
+
+        Selects.forEach(function(Select){
+
+            if (Object.prototype.hasOwnProperty.call(Totales, Select.value)) {
+                Totales[Select.value] += 1;
+            }
+
+        });
+
+        Object.keys(Totales).forEach(function(Clave){
+
+            if (Contadores[Clave]) {
+                Contadores[Clave].textContent = Totales[Clave];
+            }
+
+        });
 
     }
 
@@ -74,20 +108,13 @@ document.addEventListener("DOMContentLoaded", function() {
         Select.addEventListener('change', function(){
 
             AplicarColor(this);
+            ActualizarContadores();
 
         });
 
     });
 
-});
-
-
-
-    // ============================================================
-    // Normalización visual de textos
-    // ------------------------------------------------------------
-    // Normaliza textos visibles sin modificar valores internos de formularios.
-    // ============================================================
+    ActualizarContadores();
     document.querySelectorAll('input:not([type="password"]):not([type="file"]):not([type="hidden"]), textarea').forEach(function(Control){
         if (Control.placeholder) {
             Control.placeholder = Control.placeholder.toUpperCase();
@@ -97,3 +124,5 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('select option').forEach(function(Opcion){
         Opcion.textContent = (Opcion.textContent || '').toUpperCase();
     });
+
+});

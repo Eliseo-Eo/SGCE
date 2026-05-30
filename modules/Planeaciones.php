@@ -127,14 +127,14 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body>
 <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
     <section class="SgceHero mb-4">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">☁️</span></div>
             <div>
                 <h1>Planeaciones docentes</h1>
                 <p>Sube y consulta tus planeaciones por materia durante el ciclo activo.</p>
@@ -154,22 +154,22 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
     <?php endif; ?>
 
     <section class="PlaneacionesStatsGrid mb-4">
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-layer-group"></i></span><div><strong><?= (int)$CantidadPlaneaciones ?></strong><small>Entregas por materia</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-book-open"></i></span><div><strong><?= count($MateriasDocente) ?></strong><small>Materias activas</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-cloud-arrow-up"></i></span><div><strong><?= $TotalSubidas ?>/<?= $TotalRequeridas ?></strong><small>Planeaciones subidas</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-circle-check"></i></span><div><strong><?= $TotalAprobadas ?></strong><small>Aprobadas</small></div></div>
-        <div class="PlaneacionStatCard"><span><i class="fa-solid fa-rotate-left"></i></span><div><strong><?= $TotalDevueltas ?></strong><small>Devueltas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">📝</span></span><div><strong><?= (int)$CantidadPlaneaciones ?></strong><small>Entregas por materia</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">📚</span></span><div><strong><?= count($MateriasDocente) ?></strong><small>Materias activas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">☁️</span></span><div><strong><?= $TotalSubidas ?>/<?= $TotalRequeridas ?></strong><small>Planeaciones subidas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">✅</span></span><div><strong><?= $TotalAprobadas ?></strong><small>Aprobadas</small></div></div>
+        <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">↩️</span></span><div><strong><?= $TotalDevueltas ?></strong><small>Devueltas</small></div></div>
     </section>
 
     <?php if (empty($MateriasDocente)): ?>
-        <section class="SgceConfigCard p-4"><div class="SgceConfigHead"><span><i class="fa-solid fa-circle-info"></i></span><div><h2>Sin materias asignadas</h2><p>Cuando administración te asigne materias, aquí podrás subir tus planeaciones.</p></div></div></section>
+        <section class="SgceConfigCard p-4"><div class="SgceConfigHead"><span><span class="SgceColorIcon" aria-hidden="true">ℹ️</span></span><div><h2>Sin materias asignadas</h2><p>Cuando administración te asigne materias, aquí podrás subir tus planeaciones.</p></div></div></section>
     <?php else: ?>
         <div class="PlaneacionesMateriaGrid">
             <?php foreach ($MateriasDocente as $MateriaInfo): ?>
                 <?php $Materia = (string)$MateriaInfo['MateriaNombre']; ?>
                 <section class="PlaneacionMateriaCard" id="Materia<?= md5($Materia) ?>">
                     <div class="PlaneacionMateriaHeader">
-                        <span class="PlaneacionMateriaIcon"><i class="fa-solid fa-book"></i></span>
+                        <span class="PlaneacionMateriaIcon"><span class="SgceColorIcon" aria-hidden="true">📘</span></span>
                         <div>
                             <h2><?= HPlan($Materia) ?></h2>
                             <p><?= HPlan($MateriaInfo['Grupos'] ?? '') ?></p>
@@ -177,11 +177,20 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
                     </div>
                     <div class="PlaneacionesEntregaGrid">
                         <?php for ($Numero = 1; $Numero <= $CantidadPlaneaciones; $Numero++): ?>
-                            <?php $Registro = $Planeaciones[$Materia][$Numero] ?? null; $Estado = $Registro['Estado'] ?? 'PENDIENTE'; ?>
+                            <?php
+                                $Registro = $Planeaciones[$Materia][$Numero] ?? null;
+                                $Estado = $Registro['Estado'] ?? 'PENDIENTE';
+                                $IconoEstado = match ($Estado) {
+                                    'APROBADA' => '✅',
+                                    'DEVUELTA' => '↩️',
+                                    'SUBIDA' => '📤',
+                                    default => '⏳',
+                                };
+                            ?>
                             <article class="PlaneacionEntregaItem <?= PlaneacionEstadoClase($Estado) ?>">
                                 <div class="PlaneacionEntregaTop">
                                     <div><strong>Planeación <?= $Numero ?></strong><small><?= HPlan($Estado) ?></small></div>
-                                    <span><i class="fa-solid <?= $Estado === 'PENDIENTE' ? 'fa-clock' : ($Estado === 'APROBADA' ? 'fa-circle-check' : ($Estado === 'DEVUELTA' ? 'fa-rotate-left' : 'fa-file-arrow-up')) ?>"></i></span>
+                                    <span class="PlaneacionEstadoIcono" aria-hidden="true"><?= HPlan($IconoEstado) ?></span>
                                 </div>
                                 <?php if ($Registro): ?>
                                     <div class="PlaneacionArchivoInfo">
@@ -202,7 +211,7 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
                                     <input type="hidden" name="Numero" value="<?= $Numero ?>">
                                     <input type="text" name="Titulo" class="form-control FormControl" maxlength="180" placeholder="Título opcional" value="<?= HPlan($Registro['Titulo'] ?? '') ?>">
                                     <input type="file" name="ArchivoPlaneacion" class="form-control FormControl" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" required>
-                                    <button type="submit" name="SubirPlaneacion" value="1" class="BtnPrimary PlaneacionUploadBtn"><i class="fa-solid fa-cloud-arrow-up"></i> <?= $Registro ? 'Reemplazar archivo' : 'Subir planeación' ?></button>
+                                    <button type="submit" name="SubirPlaneacion" value="1" class="BtnPrimary PlaneacionUploadBtn"><span class="SgceColorIcon" aria-hidden="true">☁️</span> <?= $Registro ? 'Reemplazar archivo' : 'Subir planeación' ?></button>
                                 </form>
                             </article>
                         <?php endfor; ?>
@@ -213,6 +222,6 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
     <?php endif; ?>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
 </body>
 </html>

@@ -1,8 +1,3 @@
-
-// =====================================================
-// TEMA INSTITUCIONAL DINÁMICO
-// Aplica en vista previa el mismo cálculo de tonos utilizado por el servidor.
-// =====================================================
 window.SgceAjustarColorHex = function (ColorHex, Porcentaje) {
     var Color = String(ColorHex || '#97051E').replace('#', '').trim();
     if (!/^[0-9A-Fa-f]{6}$/.test(Color)) { Color = '97051E'; }
@@ -39,8 +34,6 @@ window.SgceAplicarTemaColor = function (ColorHex) {
     Raiz.style.setProperty('--SgceSombraGuinda', '0 18px 42px rgba(' + Rojo + ',' + Verde + ',' + Azul + ',.22)');
     return Valor;
 };
-
-// Funciones compartidas del sistema
 document.addEventListener('DOMContentLoaded', function() {
 
     function OcultarNotificacion(Alerta) {
@@ -146,11 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
-
-
-// =====================================================
-// EFECTOS VISUALES LIGEROS
-// =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.add('PageFadeIn');
 
@@ -172,11 +160,6 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     }
 });
-
-
-// =====================================================
-// MODALES GLOBALES
-// =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.modal').forEach(function(Modal){
         if (Modal.parentElement !== document.body) {
@@ -184,11 +167,6 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 });
-
-// =====================================================
-// SGCE 2026 FINAL - MODAL GLOBAL AMBER DE CONFIRMACIÓN
-// Confirma importaciones y cierre de sesión sin usar confirm() del navegador.
-// =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     var ModalActual = null;
     var FormularioPendiente = null;
@@ -235,6 +213,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     function ConfigurarModalDesde(Elemento) {
         var Modal = CrearModalConfirmacion();
+        var TipoConfirmacion = TextoSeguro(Elemento.dataset.sgceConfirm, 'normal').toLowerCase();
+        Modal.classList.toggle('SgceConfirmModalDanger', TipoConfirmacion === 'danger');
         var Icono = TextoSeguro(Elemento.dataset.sgceConfirmIcon, Elemento.dataset.sgceConfirm === 'logout' ? 'fa-right-from-bracket' : 'fa-file-import');
         var Titulo = TextoSeguro(Elemento.dataset.sgceConfirmTitle, 'CONFIRMAR ACCIÓN');
         var Subtitulo = TextoSeguro(Elemento.dataset.sgceConfirmSubtitle, Elemento.dataset.sgceConfirm === 'logout' ? 'SALIDA DEL SISTEMA' : 'IMPORTACIÓN DE DATOS');
@@ -287,6 +267,52 @@ document.addEventListener('DOMContentLoaded', function(){
         Formulario.appendChild(Campo);
     }
 
+    function FormularioConfirmacionValido(Formulario) {
+        if (!Formulario) {
+            return false;
+        }
+
+        if (typeof Formulario.checkValidity === 'function' && !Formulario.checkValidity()) {
+            if (typeof Formulario.reportValidity === 'function') {
+                Formulario.reportValidity();
+            }
+            return false;
+        }
+
+        var CamposArchivo = Formulario.querySelectorAll('input[type="file"][required]');
+        for (var I = 0; I < CamposArchivo.length; I++) {
+            var CampoArchivo = CamposArchivo[I];
+            if (!CampoArchivo.files || CampoArchivo.files.length === 0) {
+                CampoArchivo.focus();
+                if (typeof CampoArchivo.reportValidity === 'function') {
+                    CampoArchivo.reportValidity();
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function EnviarFormularioConfirmado() {
+        if (!FormularioPendiente) {
+            return;
+        }
+
+        FormularioPendiente.dataset.sgceConfirmado = '1';
+        AgregarSubmitter(FormularioPendiente, BotonSubmitPendiente);
+
+        if (ModalActual && typeof ModalActual.hide === 'function') {
+            try { ModalActual.hide(); } catch (ErrorModal) {}
+        }
+
+        if (FormularioPendiente.querySelector('input[type="file"]')) {
+            FormularioPendiente.setAttribute('enctype', 'multipart/form-data');
+            FormularioPendiente.setAttribute('method', 'POST');
+        }
+        FormularioPendiente.submit();
+    }
+
     function ConfirmarAccion() {
         var ModalElemento = document.getElementById('SgceConfirmModalGlobal');
         var BotonAceptar = ModalElemento ? ModalElemento.querySelector('#SgceConfirmAccept') : null;
@@ -296,9 +322,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
 
         if (FormularioPendiente) {
-            FormularioPendiente.dataset.sgceConfirmado = '1';
-            AgregarSubmitter(FormularioPendiente, BotonSubmitPendiente);
-            FormularioPendiente.submit();
+            EnviarFormularioConfirmado();
             return;
         }
 
@@ -313,6 +337,11 @@ document.addEventListener('DOMContentLoaded', function(){
             return;
         }
         if (Formulario.dataset.sgceConfirmado === '1') {
+            return;
+        }
+
+        if (!FormularioConfirmacionValido(Formulario)) {
+            Evento.preventDefault();
             return;
         }
 
@@ -344,12 +373,6 @@ document.addEventListener('DOMContentLoaded', function(){
         ConfirmarAccion();
     });
 });
-
-
-// =====================================================
-// SGCE 2026 FINAL - AVISOS DOCENTE
-// Cierra correctamente el aviso cuando el docente no tiene materias asignadas.
-// =====================================================
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('[data-maestro-empty-close="true"]').forEach(function(Boton){
         if (Boton.dataset.sgceMaestroCloseReady === '1') { return; }
@@ -362,5 +385,20 @@ document.addEventListener('DOMContentLoaded', function(){
                 window.setTimeout(function(){ Aviso.remove(); }, 260);
             }
         });
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    var Marcador = document.querySelector('[data-sgce-csrf-token]');
+    if (!Marcador) { return; }
+    var Token = Marcador.getAttribute('data-sgce-csrf-token') || '';
+    if (!Token) { return; }
+    document.querySelectorAll('form[method]').forEach(function (Formulario) {
+        var Metodo = (Formulario.getAttribute('method') || '').toLowerCase();
+        if (Metodo !== 'post' || Formulario.querySelector('input[name="CsrfToken"]')) { return; }
+        var Input = document.createElement('input');
+        Input.type = 'hidden';
+        Input.name = 'CsrfToken';
+        Input.value = Token;
+        Formulario.appendChild(Input);
     });
 });

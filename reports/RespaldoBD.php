@@ -1,16 +1,10 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
-/*
-    Archivo: RespaldoBD.php
-    Descripción: Genera un respaldo SQL descargable de la base de datos.
-    Genera una copia completa de la base de datos desde el panel administrativo.
-*/
+
 require_once dirname(__DIR__) . '/config/Conexion.php';
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeRespaldos($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'respaldos', 'Solo el administrador puede generar respaldos de la base de datos.');
 
 RegistrarBitacora($Pdo, $UserSession, 'GENERAR_RESPALDO', 'BASE_DE_DATOS', null, 'RESPALDO SQL DESCARGADO DESDE ADMIN');
 
@@ -35,8 +29,7 @@ function ColumnasInsertablesRespaldo($Pdo, $Tabla) {
 $NombreArchivo = 'Respaldo_SGCE_' . date('Ymd_His') . '.sql';
 header('Content-Type: application/sql; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
-header('Pragma: no-cache');
-header('Expires: 0');
+SgceEnviarHeadersNoCacheDescarga();
 
 echo "-- ============================================================\n";
 echo "-- RESPALDO SGCE\n";
@@ -72,7 +65,7 @@ foreach ($Tablas as $TablaRow) {
         $Valores = [];
         foreach ($ColumnasInsertables as $NombreColumna) {
             $Valor = $Fila[$NombreColumna] ?? null;
-            if ($Tabla === 'Usuarios' && $NombreColumna === 'SessionToken') {
+            if ($Tabla === 'Usuarios' && in_array($NombreColumna, ['SessionToken','SessionTokenExpira'], true)) {
                 $Valores[] = 'NULL';
                 continue;
             }

@@ -13,7 +13,7 @@ $Stmt->execute([$Id]);
 $Row = $Stmt->fetch();
 if (!$Row) { http_response_code(404); exit('Archivo no encontrado.'); }
 
-$EsDocentePropietario = $UserSession['Rol'] === 'maestro' && (int)$UserSession['Id'] === (int)$Row['MaestroId'];
+$EsDocentePropietario = SgceTieneRol($UserSession, ['maestro']) && (int)$UserSession['Id'] === (int)$Row['MaestroId'];
 $EsGestion = SgcePuedeGestionarPlaneaciones($UserSession);
 if (!$EsDocentePropietario && !$EsGestion) { http_response_code(403); exit('No tienes permiso para descargar este archivo.'); }
 

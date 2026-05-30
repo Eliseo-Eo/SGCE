@@ -1,20 +1,13 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-/*
-    Archivo: HistorialAlumno.php
-    Descripción: Expediente individual del alumno.
-    Permite al administrador revisar calificaciones, asistencias y resumen general
-    sin cargar listas completas innecesarias.
-*/
+
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeAdministrarReportes($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para consultar expedientes de alumnos.');
 
 $AlumnoId = intval($_GET['AlumnoId'] ?? 0);
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
@@ -96,21 +89,21 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="ExpedienteAlumnoBody">
 <div class="SgcePageWrap SgceModuleWrap ExpedienteAlumnoPage">
     <header class="Top ExpedienteAlumnoHero">
         <div class="SgceHeroInfo">
-            <div class="IconBox"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📁</span></div>
             <div class="ExpedienteAlumnoTitleBlock">
                 <h2>EXPEDIENTE DEL ALUMNO</h2>
                 <p><?= H($Alumno['NombreCompleto']) ?> · <?= H($Alumno['Grado'].' '.$Alumno['Grupo'].' '.$Alumno['Turno']) ?> · <?= H($PeriodoInfo['CicloNombre']) ?></p>
             </div>
         </div>
         <div class="SgceHeroActions ExpedienteAlumnoActions">
-            <a href="ExportarAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&PeriodoId=<?= (int)$PeriodoId ?>" target="_blank" class="BtnBack BtnBoletaPdf">
+            <a href="ExportarAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&PeriodoId=<?= (int)$PeriodoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnBoletaPdf">
                 <i class="fa-solid fa-file-pdf"></i>
                 <span>BOLETA PDF</span>
             </a>
@@ -138,27 +131,27 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
 
     <section class="ExpedienteMetricGrid" aria-label="Resumen del alumno">
         <article class="ExpedienteMetricCard MetricPromedio">
-            <span class="MetricIcon"><i class="fa-solid fa-chart-line"></i></span>
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">📈</span></span>
             <small>Promedio</small>
             <strong><?= H($Promedio) ?></strong>
         </article>
         <article class="ExpedienteMetricCard MetricAsistencias">
-            <span class="MetricIcon"><i class="fa-solid fa-user-check"></i></span>
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">✅</span></span>
             <small>Asistencias</small>
             <strong><?= $Conteos['A'] ?></strong>
         </article>
         <article class="ExpedienteMetricCard MetricFaltas">
-            <span class="MetricIcon"><i class="fa-solid fa-circle-xmark"></i></span>
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">❌</span></span>
             <small>Faltas</small>
             <strong><?= $Conteos['F'] ?></strong>
         </article>
         <article class="ExpedienteMetricCard MetricRetardos">
-            <span class="MetricIcon"><i class="fa-solid fa-clock"></i></span>
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">⏱️</span></span>
             <small>Retardos</small>
             <strong><?= $Conteos['R'] ?></strong>
         </article>
         <article class="ExpedienteMetricCard MetricJustificantes">
-            <span class="MetricIcon"><i class="fa-solid fa-file-circle-check"></i></span>
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">📄</span></span>
             <small>Justificantes</small>
             <strong><?= $Conteos['J'] ?></strong>
         </article>
@@ -251,6 +244,6 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
         </article>
     </section>
 </div>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
 </body>
 </html>

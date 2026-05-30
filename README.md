@@ -1,116 +1,82 @@
-# SGCE 2026 FINAL
+# SGCE - Sistema Gestor de Control Escolar
 
-Sistema de Gestión y Control Escolar listo para instalación local, Plesk, cPanel o hosting compartido compatible con PHP y MySQL/MariaDB.
+SGCE es un sistema web para control escolar con administración de alumnos, docentes, grupos, asignaciones, asistencias, calificaciones, planeaciones, reportes, respaldos, bitácora y consulta pública para padres/alumnos.
+
+## Requisitos
+
+- PHP 8.1 o superior.
+- MySQL 5.7+ o MariaDB 10.4+.
+- Apache con `.htaccess` habilitado.
+- Extensiones PHP recomendadas: `pdo_mysql`, `zip`, `simplexml`, `mbstring`, `fileinfo`, `json` y `session`.
+- Permisos de escritura en `storage/` y, durante la instalación, en `config/`.
+
+## Instalación rápida desde cero
+
+1. Subir la carpeta `SGCE` completa al servidor.
+2. Crear una base de datos vacía y un usuario MySQL con permisos completos sobre esa base.
+3. Abrir `Instalar.php` en el navegador.
+4. Ejecutar la verificación del servidor.
+5. Capturar datos de escuela, ciclo escolar inicial y administrador.
+6. Confirmar la instalación escribiendo `INSTALAR SGCE`.
+7. Entrar desde `index.php`.
 
 ## Módulos principales
 
-- Administrador con dashboard general.
+- Login con color institucional configurable.
+- Dashboard administrador.
 - Maestros, grupos, alumnos y asignaciones.
-- Asistencia por materia y grupo.
+- Importación CSV/Excel.
+- Asistencias con contadores.
 - Calificaciones por periodo.
-- Consulta pública de asistencia individual.
-- Avisos y comunicados.
-- Expediente e historial del alumno.
 - Planeaciones docentes.
+- Avisos para todos, maestros o padres.
 - Reportes PDF/Excel.
-- Respaldos e importación segura de datos.
-- Configuración institucional, ciclo escolar y periodos.
-- Usuarios con roles y permisos.
+- Respaldos y restauración de datos SGCE.
+- Consulta pública individual de asistencias y calificaciones.
 - Bitácora de movimientos.
 
-## Requisitos recomendados
-
-- PHP 8.1 o superior.
-- MySQL 5.7+/MariaDB 10.4+.
-- Extensiones PHP: `pdo_mysql`, `zip`, `simplexml`, `mbstring`, `fileinfo`.
-- Apache con `.htaccess` habilitado.
-- Permisos de escritura en `config/` y `storage/` durante instalación.
-
-## Instalación rápida
-
-1. Sube la carpeta `SGCE/` al servidor.
-2. Crea una base de datos vacía en Plesk/cPanel, o permite que el instalador la cree en local.
-3. Abre `Instalar.php` en el navegador.
-4. Pulsa **Verificar servidor**.
-5. Captura datos de conexión, escuela, ciclo, periodos y administrador.
-6. Escribe `INSTALAR SGCE` para confirmar.
-7. Entra al sistema desde `index.php`.
-
-## Instalación en Plesk
-
-1. Crea una base de datos exclusiva desde Plesk.
-2. Crea o asigna un usuario MySQL con permisos sobre esa base.
-3. Sube todos los archivos dentro del directorio del dominio o subdominio.
-4. Verifica que `config/` y `storage/` permitan escritura temporal.
-5. Abre `Instalar.php`.
-6. Usa los datos exactos de la base creada en Plesk.
-7. Después de instalar, elimina `Instalar.php` si el servidor no lo eliminó automáticamente.
-
-### Importante sobre PageSpeed en Plesk
-
-El `.htaccess` incluye:
-
-```apache
-<IfModule pagespeed_module>
-    ModPagespeed off
-</IfModule>
-```
-
-No lo elimines. PageSpeed puede combinar o reescribir CSS/JS y provocar errores visuales, botones invisibles o modales rotas.
-
-## Instalación en cPanel
-
-1. Entra a **MySQL Databases**.
-2. Crea una base de datos vacía.
-3. Crea un usuario MySQL y asígnalo a la base con todos los privilegios.
-4. Sube la carpeta `SGCE/` con el Administrador de Archivos o FTP.
-5. Abre `Instalar.php`.
-6. Captura el nombre completo de la base y usuario tal como los muestra cPanel.
-
-## Seguridad incluida
-
-- Contraseñas guardadas con hash seguro.
-- Tokens de sesión en base de datos.
-- Cookies `HttpOnly`, `SameSite=Strict` y `Secure` cuando hay HTTPS.
-- Protección CSRF en formularios POST.
-- Rate limit en login.
-- Cabeceras de seguridad HTTP.
-- Bloqueo de carpetas internas con `.htaccess`.
-- Respaldos sin tokens de sesión activos.
-- Importación de respaldos limitada a archivos firmados por SGCE.
-
-## Rendimiento
-
-- Paginación en tablas administrativas.
-- Índices SQL para usuarios, alumnos, asistencia, calificaciones y consultas públicas.
-- Cache-busting de assets con versión `sgce2026final`.
-- Backups automáticos controlados desde el acceso administrador.
-- Validación de archivos antes de importar.
-
-## Carpetas importantes
+## Estructura general
 
 ```text
 SGCE/
-├── assets/              CSS y JavaScript
-├── config/              Configuración de base de datos
-├── cron/                Tareas programadas opcionales
-├── docs/                Manuales técnicos y de usuario
-├── includes/            Funciones internas
-├── install/             SQL inicial
-├── modules/             Módulos privados
-├── public/              Vistas internas llamadas por wrappers raíz
-├── reports/             Exportaciones y reportes
-└── storage/             Backups, logs y planeaciones
+├── assets/       # CSS, JS e imágenes
+├── config/       # Configuración de conexión
+├── docs/         # Manual técnico y manual de usuario
+├── includes/     # Funciones comunes, seguridad y PDF
+├── install/      # SQL base para instalación
+├── modules/      # Módulos internos
+├── public/       # Login y consulta pública
+├── reports/      # Exportaciones y respaldos
+├── services/     # Servicios por entidad
+├── storage/      # Backups, logs, locks y planeaciones
+└── tests/        # Pruebas estáticas por CLI
 ```
 
-## Respaldos
+## Seguridad incluida
 
-Desde el sistema se recomienda usar **Exportar solo datos**. Ese archivo puede importarse después desde el módulo de respaldos.
+- Protección por sesión y roles.
+- CSRF en formularios internos y públicos.
+- Rate limit en consulta pública.
+- `.htaccess` para bloquear SQL, ZIP, logs, README, MD, DM, MANIFEST y archivos sensibles.
+- Respaldos SGCE con validación antes de restaurar.
 
-No subas respaldos externos o editados manualmente al importador; por seguridad solo acepta archivos con firma oficial SGCE.
+## Pruebas técnicas
 
-## Calificación de entrega
+Desde terminal, en la raíz del proyecto:
 
-Calificación técnica estimada: **9.4/10**.
+```bash
+php tests/RunStaticChecks.php
+```
 
-La versión está lista para entrega comercial, sujeta a pruebas finales con datos reales del cliente y a la capacidad del hosting contratado.
+La prueba revisa sintaxis PHP/JS, rutas críticas, protección de archivos, formularios, consultas públicas, respaldos, restauración e indicadores de limpieza.
+
+## Documentación
+
+- `docs/MANUAL_TECNICO_INSTALACION_SGCE.pdf`
+- `docs/MANUAL_TECNICO_INSTALACION_SGCE.docx`
+- `docs/MANUAL_USUARIO_SGCE.pdf`
+- `docs/MANUAL_USUARIO_SGCE.docx`
+
+## Recomendación antes de producción
+
+Instalar en una base vacía, cargar datos reales de prueba, validar importaciones, asistencia, calificaciones, planeaciones, reportes, consulta pública, respaldos y funcionamiento en celular/tablet/escritorio antes de habilitarlo oficialmente.

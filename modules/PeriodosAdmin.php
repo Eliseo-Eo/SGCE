@@ -3,10 +3,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeAdministrarPeriodos($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'periodos', 'Solo el administrador puede modificar ciclos y periodos.');
 
 function HPeriodo($Texto) {
     return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8');
@@ -90,14 +88,15 @@ $Periodos = $StmtPeriodos->fetchAll();
     <link rel="icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+    <link rel="stylesheet" href="assets/css/periodos-verde-metalico.css?cache=sgce2026">
 </head>
 <body>
 <div class="SgceModuleWrap SgcePeriodosWrap">
     <div class="Top SgcePeriodosHero">
         <div class="SgceHeroInfo">
-            <div class="SgceHeroIcon"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">📅</span></div>
             <div>
                 <h1>Ciclos escolares y periodos</h1>
                 <p>Administra ciclos activos y periodos para separar calificaciones por evaluación.</p>
@@ -113,7 +112,7 @@ $Periodos = $StmtPeriodos->fetchAll();
     <section class="SgcePeriodosGrid">
         <article class="SgcePeriodCard SgcePeriodFormCard">
             <div class="SgcePeriodCardTitle">
-                <span><i class="fa-solid fa-calendar-plus"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">🗓️</span></span>
                 <div>
                     <h2>Nuevo / editar ciclo</h2>
                     <p>Registra el rango de fechas del ciclo escolar.</p>
@@ -143,13 +142,13 @@ $Periodos = $StmtPeriodos->fetchAll();
                     <strong>Activo</strong>
                 </label>
 
-                <button class="BtnPrimary w-100" type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar ciclo</button>
+                <button id="BtnGuardarCicloVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado w-100" type="submit" style="background:#047857 !important;background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;color:#FFFFFF !important;border:0 !important;box-shadow:0 18px 36px rgba(4,120,87,.30),inset 0 1px 0 rgba(255,255,255,.20) !important;text-shadow:0 1px 2px rgba(0,0,0,.34) !important;"><span class="SgceColorIcon" aria-hidden="true">💾</span> Guardar ciclo</button>
             </form>
         </article>
 
         <article class="SgcePeriodCard SgcePeriodFormCard">
             <div class="SgcePeriodCardTitle">
-                <span><i class="fa-solid fa-layer-group"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">📚</span></span>
                 <div>
                     <h2>Nuevo / editar periodo</h2>
                     <p>Define únicamente los 3 parciales oficiales del ciclo escolar.</p>
@@ -184,13 +183,13 @@ $Periodos = $StmtPeriodos->fetchAll();
                     <strong>Activo</strong>
                 </label>
 
-                <button class="BtnPrimary SgcePeriodSubmit" type="submit"><i class="fa-solid fa-plus"></i> Guardar periodo</button>
+                <button id="BtnGuardarPeriodoVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado SgcePeriodSubmit" type="submit" style="background:#047857 !important;background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;color:#FFFFFF !important;border:0 !important;box-shadow:0 18px 36px rgba(4,120,87,.30),inset 0 1px 0 rgba(255,255,255,.20) !important;text-shadow:0 1px 2px rgba(0,0,0,.34) !important;"><span class="SgceColorIcon" aria-hidden="true">➕</span> Guardar periodo</button>
             </form>
         </article>
 
         <article class="SgcePeriodCard SgcePeriodTableCard">
             <div class="SgcePeriodCardTitle">
-                <span><i class="fa-solid fa-list-check"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">📋</span></span>
                 <div>
                     <h2>Ciclos registrados</h2>
                     <p>Consulta los ciclos disponibles en el sistema.</p>
@@ -218,7 +217,7 @@ $Periodos = $StmtPeriodos->fetchAll();
 
         <article class="SgcePeriodCard SgcePeriodTableCard">
             <div class="SgcePeriodCardTitle">
-                <span><i class="fa-solid fa-table-list"></i></span>
+                <span><span class="SgceColorIcon" aria-hidden="true">📑</span></span>
                 <div>
                     <h2>Periodos registrados</h2>
                     <p>Controla el orden y estado de cada periodo.</p>

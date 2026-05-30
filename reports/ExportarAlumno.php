@@ -5,7 +5,8 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 require_once dirname(__DIR__) . '/includes/SGCE_Pdf.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeAdministrarReportes($UserSession)) { header('Location: index.php'); exit; }
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para exportar boletas administrativas.');
 
 $AlumnoId = (int)($_GET['AlumnoId'] ?? 0);
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);

@@ -14,12 +14,6 @@
 })();
 
 document.addEventListener("DOMContentLoaded", function() {
-
-
-
-    // ============================
-    // MODALES PROFESIONALES DE EDICIÓN
-    // ============================
     document.querySelectorAll('.modal[id^="EM"], .modal[id^="EG"], .modal[id^="EAl"], .modal[id^="EAsg"]').forEach(function(Modal){
         const Content = Modal.querySelector('.modal-content');
         const Body = Modal.querySelector('.modal-body');
@@ -75,10 +69,6 @@ document.addEventListener("DOMContentLoaded", function() {
             ColSave.appendChild(SubmitBtn);
         }
     });
-
-    // ============================
-    // NOMBRES MAYÚSCULAS SOLO LETRAS
-    // ============================
     function NormalizarInputNombre(El) {
         let Val = El.value || '';
         Val = Val.toUpperCase();
@@ -91,10 +81,6 @@ document.addEventListener("DOMContentLoaded", function() {
         El.addEventListener('input', function(){ NormalizarInputNombre(El); });
         El.addEventListener('blur', function(){ NormalizarInputNombre(El); });
     });
-
-    // ============================
-    // BUSCADOR + PAGINACIÓN (7 POR PÁGINA)
-    // ============================
     function SetupSearchPagination(InputId, TableId, PagerId, RowsPerPage) {
 
         const Input = document.getElementById(InputId);
@@ -188,13 +174,6 @@ document.addEventListener("DOMContentLoaded", function() {
     SetupSearchPagination('SearchExpedientes','TableExpedientes','PagerExpedientes',7);
     SetupSearchPagination('SearchAsig',     'TableAsig',     'PagerAsig',     7);
     SetupSearchPagination('SearchBitacora','TableBitacora','PagerBitacora',7);
-
-
-
-    // ============================
-    // CONFIRMACIÓN BONITA PARA ELIMINAR
-    // Reemplaza el confirm simple del navegador por un modal profesional.
-    // ============================
     let FormularioEliminarPendiente = null;
     let BotonEliminarPendiente = null;
     const ModalEliminarElemento = document.getElementById('ModalConfirmarEliminar');
@@ -249,11 +228,6 @@ document.addEventListener("DOMContentLoaded", function() {
             FormularioEliminarPendiente.submit();
         });
     }
-
-
-    // ============================
-    // PERSISTIR TAB EN URL
-    // ============================
     const TabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
     TabButtons.forEach(function(Btn){
         Btn.addEventListener('shown.bs.tab', function (Event) {
@@ -266,15 +240,6 @@ document.addEventListener("DOMContentLoaded", function() {
             history.replaceState({}, '', Url.toString());
         });
     });
-
-
-    // ============================================================
-    // Normalización visual de campos
-    // ------------------------------------------------------------
-    // Aquí hago que los textos visibles se vean en mayúsculas.
-    // Usuario y contraseña NO se convierten porque deben respetar
-    // exactamente lo que se escribe para iniciar sesión correctamente.
-    // ============================================================
     function DebeRespetarMinusculas(Control) {
         const Nombre = (Control.getAttribute('name') || '').toLowerCase();
         const Id = (Control.getAttribute('id') || '').toLowerCase();
@@ -298,6 +263,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 Control.value = (Control.value || '').toUpperCase();
             });
         }
+    });
+
+    document.querySelectorAll('.InputDigits').forEach(function(Control){
+        Control.addEventListener('input', function(){
+            Control.value = (Control.value || '').replace(/[^0-9]/g, '');
+        });
+    });
+
+    document.querySelectorAll('.InputUpperAscii').forEach(function(Control){
+        Control.addEventListener('input', function(){
+            Control.value = (Control.value || '').toUpperCase().replace(/[^A-Z]/g, '');
+        });
     });
 
     document.querySelectorAll('select option').forEach(function(Opcion){

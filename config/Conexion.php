@@ -1,12 +1,16 @@
 <?php
 
 ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');
+ini_set('expose_php', '0');
 error_reporting(E_ALL);
 
 ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
+ini_set('session.gc_maxlifetime', '86400');
 
 $Config = require __DIR__ . '/database.php';
 date_default_timezone_set($Config['timezone'] ?? 'America/Mexico_City');
@@ -39,6 +43,9 @@ try {
 }
 
 require_once dirname(__DIR__) . '/includes/SGCE_Helpers.php';
+$SgceServiceLoader = dirname(__DIR__) . '/services/SGCE_ServiceLoader.php';
+if (is_file($SgceServiceLoader)) { require_once $SgceServiceLoader; }
 
+SgcePrepararDirectoriosSeguros();
 IniciarSesionSegura();
 EnviarHeadersSeguridad();

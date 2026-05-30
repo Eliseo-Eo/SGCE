@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var Alerta = document.createElement('div');
         Alerta.className = 'alert alert-danger SgceInstallerAlert SgceInstallerClientAlert border-0 shadow-sm rounded-4 mt-4 fw-semibold';
         Alerta.setAttribute('role', 'alert');
-        Alerta.innerHTML = `<div class="SgceInstallerAlertBody"><i class="fa-solid fa-circle-xmark me-2"></i><span></span></div><button type="button" class="SgceInstallerAlertClose" aria-label="Cerrar mensaje" data-sgce-dismiss onclick="var A=this.closest('.SgceInstallerAlert,.alert');if(A){A.classList.add('SgceAlertLeaving');setTimeout(function(){A.remove();},180);}"><i class="fa-solid fa-xmark"></i></button>`;
+        Alerta.innerHTML = `<div class="SgceInstallerAlertBody"><i class="fa-solid fa-circle-xmark me-2"></i><span></span></div><button type="button" class="SgceInstallerAlertClose" aria-label="Cerrar mensaje" data-sgce-dismiss><i class="fa-solid fa-xmark"></i></button>`;
         Alerta.querySelector('span').textContent = Texto;
 
         var Contenedor = document.querySelector('.SgceModuleWrap');
@@ -96,11 +96,33 @@ document.addEventListener('DOMContentLoaded', function () {
         ActualizarColor();
     }
 
+
+
+    var FormInstaladorPassword = document.getElementById('SgceInstallerForm');
+    if (FormInstaladorPassword) {
+        var PasswordAdminLive = FormInstaladorPassword.querySelector('input[name="AdminPassword"]');
+        var PasswordAdminConfirmLive = FormInstaladorPassword.querySelector('input[name="AdminPasswordConfirm"]');
+        var ValidarPasswordConfirmLive = function () {
+            if (!PasswordAdminLive || !PasswordAdminConfirmLive) { return; }
+            if (PasswordAdminConfirmLive.value && PasswordAdminLive.value !== PasswordAdminConfirmLive.value) {
+                PasswordAdminConfirmLive.setCustomValidity('Las contraseñas no coinciden.');
+            } else {
+                PasswordAdminConfirmLive.setCustomValidity('');
+            }
+        };
+        if (PasswordAdminLive && PasswordAdminConfirmLive) {
+            PasswordAdminLive.addEventListener('input', ValidarPasswordConfirmLive);
+            PasswordAdminConfirmLive.addEventListener('input', ValidarPasswordConfirmLive);
+        }
+    }
+
     document.querySelectorAll('.SgceInstallerPage form').forEach(function (Form) {
         Form.addEventListener('submit', function (Evento) {
             var Telefono = Form.querySelector('input[name="TelefonoEscuela"]');
             var Correo = Form.querySelector('input[name="CorreoEscuela"]');
             var UsuarioAdmin = Form.querySelector('input[name="AdminUsuario"]');
+            var PasswordAdmin = Form.querySelector('input[name="AdminPassword"]');
+            var PasswordAdminConfirm = Form.querySelector('input[name="AdminPasswordConfirm"]');
             var NombreEscuela = Form.querySelector('input[name="NombreEscuela"]');
             var NombreAdmin = Form.querySelector('input[name="AdminNombre"]');
             var Cct = Form.querySelector('input[name="ClaveCentroTrabajo"]');
@@ -157,6 +179,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 Evento.preventDefault();
                 MostrarMensaje(Form, 'El usuario administrador debe tener mínimo 3 caracteres. Solo acepta letras, números, punto, guion, guion bajo o @.');
                 UsuarioAdmin.focus();
+                return;
+            }
+
+            if (PasswordAdmin && PasswordAdminConfirm && PasswordAdmin.value !== PasswordAdminConfirm.value) {
+                Evento.preventDefault();
+                MostrarMensaje(Form, 'Las contraseñas del administrador no coinciden. Revisa ambos campos e intenta nuevamente.');
+                PasswordAdminConfirm.focus();
                 return;
             }
 

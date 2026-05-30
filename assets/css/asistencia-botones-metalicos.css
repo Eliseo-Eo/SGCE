@@ -1,0 +1,84 @@
+
+#BtnCargarFechaAsistenciaVerdeMetalico,
+#BtnGuardarAsistenciaVerdeMetalico,
+html body .SgcePage #BtnCargarFechaAsistenciaVerdeMetalico,
+html body .SgcePage #BtnGuardarAsistenciaVerdeMetalico,
+html body .SgcePage .BtnAsistenciaVerdeMetalico {
+    background: linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;
+    background-image: linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    box-shadow: 0 14px 30px rgba(16, 185, 129, .28) !important;
+}
+#BtnCargarFechaAsistenciaVerdeMetalico:hover,
+#BtnGuardarAsistenciaVerdeMetalico:hover,
+html body .SgcePage #BtnCargarFechaAsistenciaVerdeMetalico:hover,
+html body .SgcePage #BtnGuardarAsistenciaVerdeMetalico:hover {
+    background: linear-gradient(135deg,#064E3B 0%,#047857 48%,#10B981 100%) !important;
+    background-image: linear-gradient(135deg,#064E3B 0%,#047857 48%,#10B981 100%) !important;
+    color: #ffffff !important;
+}
+#BtnCargarFechaAsistenciaVerdeMetalico i,
+#BtnGuardarAsistenciaVerdeMetalico i {
+    color: #ffffff !important;
+}
+
+
+
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 15px !important;
+    display: grid !important;
+    place-items: center !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(15,23,42,.055) !important;
+    border: 1px solid rgba(15,23,42,.045) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon.StatsAsistencia {
+    background: linear-gradient(135deg, rgba(5,150,105,.095) 0%, rgba(16,185,129,.17) 100%) !important;
+    color: #047857 !important;
+}
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon.StatsRetardo {
+    background: linear-gradient(135deg, rgba(245,158,11,.105) 0%, rgba(251,191,36,.18) 100%) !important;
+    color: #B45309 !important;
+}
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon.StatsFalta {
+    background: linear-gradient(135deg, rgba(220,38,38,.075) 0%, rgba(248,113,113,.145) 100%) !important;
+    color: #B91C1C !important;
+}
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon.StatsJustificante {
+    background: linear-gradient(135deg, rgba(47,111,236,.095) 0%, rgba(14,165,233,.16) 100%) !important;
+    color: #2563EB !important;
+}
+html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon .SgceColorIcon {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    color: inherit !important;
+    font-size: 1.22rem !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.85)) !important;
+}
+html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    border-radius: 11px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: linear-gradient(135deg, rgba(47,111,236,.10) 0%, rgba(14,165,233,.18) 100%) !important;
+    color: #1D4ED8 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(47,111,236,.08) !important;
+    border: 1px solid rgba(47,111,236,.13) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
+    color: inherit !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.75)) !important;
+}

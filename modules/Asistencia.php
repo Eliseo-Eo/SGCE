@@ -1,11 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-/*
-    Archivo: Asistencia.php
-    Descripción: Módulo para registrar asistencia diaria de un grupo.
-    Permite marcar asistencia, falta, retardo o justificante, evitando duplicar el pase de lista del día.
-*/
+
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
@@ -13,7 +9,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-date_default_timezone_set('America/Mexico_City');
 
 $UserSession = VerificarSesionCookie($Pdo);
 
@@ -38,7 +33,7 @@ $Mensaje = "";
 $YaSeRegistro = false;
 $EstadosPermitidos = ['A', 'F', 'R', 'J'];
 
-// VERIFICAR QUE LA ASIGNACIÓN EXISTA Y QUE EL MAESTRO TENGA PERMISO
+
 $StmtInfo = $Pdo->prepare("
     SELECT
         A.Id,
@@ -63,11 +58,11 @@ if (!$InfoClase) {
     die("Asignación no encontrada.");
 }
 
-if ($UserSession['Rol'] === 'maestro' && (int)$UserSession['Id'] !== (int)$InfoClase['MaestroId']) {
+if (SgceTieneRol($UserSession, ['maestro']) && (int)$UserSession['Id'] !== (int)$InfoClase['MaestroId']) {
     die("Acceso denegado.");
 }
 
-// VERIFICAR SI YA SE REGISTRÓ ASISTENCIA HOY
+
 $StmtCheck = $Pdo->prepare("
     SELECT COUNT(*)
     FROM Asistencias
@@ -81,7 +76,7 @@ if ((int)$StmtCheck->fetchColumn() > 0) {
     $YaSeRegistro = true;
 }
 
-// OBTENER ALUMNOS
+
 $Stmt = $Pdo->prepare("
     SELECT
         a.Id,
@@ -102,7 +97,22 @@ foreach ($StmtEstados->fetchAll() as $RowEstado) {
     $EstadosRegistrados[(int)$RowEstado['AlumnoId']] = $RowEstado['Estado'];
 }
 
-// GUARDAR ASISTENCIA
+$ResumenAsistencia = [
+    'A' => 0,
+    'F' => 0,
+    'R' => 0,
+    'J' => 0
+];
+
+foreach ($Alumnos as $AlumnoResumen) {
+    $EstadoResumen = $EstadosRegistrados[(int)$AlumnoResumen['Id']] ?? 'A';
+    if (!array_key_exists($EstadoResumen, $ResumenAsistencia)) {
+        $EstadoResumen = 'A';
+    }
+    $ResumenAsistencia[$EstadoResumen]++;
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     RequerirCsrfPost();
 
@@ -183,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
    <meta charset="UTF-8">
 
 
-    <!-- FAVICON DEL SISTEMA: ICONO QUE APARECE EN LA PESTAÑA DEL NAVEGADOR -->
+    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -196,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 
 
@@ -209,21 +219,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     .TopHeader h2 { margin:0; font-weight:800; letter-spacing:.3px; font-size:clamp(1.45rem,2.6vw,2.1rem); line-height:1.05; }
     .HeaderIcon { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; background:rgba(255,255,255,.16); font-size:1.55rem; flex:0 0 auto; }
     .BadgeGlass { display:inline-flex; align-items:center; gap:7px; padding:5px 12px; border-radius:999px; background:rgba(255,255,255,.16); color:#fff; font-weight:800; font-size:.76rem; text-transform:uppercase; }
-    .Card, .MainCard { border:0; border-radius:18px; box-shadow:0 12px 32px rgba(15,23,42,.08); overflow:hidden; background:#fff; }
+    .Card, .StatsCard, .MainCard { border:0; border-radius:18px; box-shadow:0 12px 32px rgba(15,23,42,.08); overflow:hidden; background:#fff; }
+    .StatsCard .card-body { padding:16px 18px !important; min-height:78px; }
+    .StatsIcon { width:42px; height:42px; min-width:42px; border-radius:15px; display:grid; place-items:center; flex:0 0 auto; }
+    html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon {
+        width:42px !important;
+        height:42px !important;
+        min-width:42px !important;
+        margin-right:0 !important;
+        border-radius:15px !important;
+        display:grid !important;
+        place-items:center !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(15,23,42,.055) !important;
+        border:1px solid rgba(15,23,42,.045) !important;
+        opacity:1 !important;
+        pointer-events:auto !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.StatsAsistencia {
+        background:linear-gradient(135deg, rgba(5,150,105,.095) 0%, rgba(16,185,129,.17) 100%) !important;
+        color:#047857 !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.StatsRetardo {
+        background:linear-gradient(135deg, rgba(245,158,11,.105) 0%, rgba(251,191,36,.18) 100%) !important;
+        color:#B45309 !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.StatsFalta {
+        background:linear-gradient(135deg, rgba(220,38,38,.075) 0%, rgba(248,113,113,.145) 100%) !important;
+        color:#B91C1C !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.StatsJustificante {
+        background:linear-gradient(135deg, rgba(47,111,236,.095) 0%, rgba(14,165,233,.16) 100%) !important;
+        color:#2563EB !important;
+    }
+    html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon .SgceColorIcon {
+        width:100% !important;
+        height:100% !important;
+        margin:0 !important;
+        font-size:1.22rem !important;
+        line-height:1 !important;
+        color:inherit !important;
+        filter:drop-shadow(0 1px 0 rgba(255,255,255,.85)) !important;
+    }
+    .StatsCard h3 { font-size:1.45rem; }
     .MainCard .card-header { padding:16px 18px !important; }
     .MainCard h4 { font-size:1.05rem; }
     table.table { table-layout:fixed; }
     table.table thead th { background:#f7f9fc; color:#64748b; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:9px 14px; border-bottom:1px solid var(--SgceBorde); }
     table.table tbody td { padding:7px 14px; border-color:#eef2f7; vertical-align:middle; }
-    .AlumnoAvatar { width:28px; height:28px; border-radius:10px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.82rem; flex:0 0 auto; }
+    .AlumnoAvatar { width:30px; height:30px; border-radius:11px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.92rem; flex:0 0 auto; }
+    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji {
+        width:30px !important;
+        height:30px !important;
+        min-width:30px !important;
+        border-radius:11px !important;
+        display:grid !important;
+        place-items:center !important;
+        background:linear-gradient(135deg, rgba(47,111,236,.10) 0%, rgba(14,165,233,.18) 100%) !important;
+        color:#1D4ED8 !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(47,111,236,.08) !important;
+        border:1px solid rgba(47,111,236,.13) !important;
+        opacity:1 !important;
+        pointer-events:auto !important;
+    }
+    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
+        color:inherit !important;
+        line-height:1 !important;
+        font-size:1rem !important;
+        filter:drop-shadow(0 1px 0 rgba(255,255,255,.75)) !important;
+    }
     .AlumnoNombre { font-size:.88rem; font-weight:800; line-height:1.15; color:var(--SgceTexto); }
     .EstadoSelect { width:190px; height:36px; margin-left:auto; border-radius:12px; font-weight:800; font-size:.85rem; }
+    .EstadoSelect.SgceEstadoA { background-color:rgba(16,185,129,.08) !important; border-color:rgba(5,150,105,.36) !important; color:#065F46 !important; }
+    .EstadoSelect.SgceEstadoF { background-color:rgba(248,113,113,.08) !important; border-color:rgba(220,38,38,.32) !important; color:#991B1B !important; }
+    .EstadoSelect.SgceEstadoR { background-color:rgba(251,191,36,.13) !important; border-color:rgba(217,119,6,.34) !important; color:#92400E !important; }
+    .EstadoSelect.SgceEstadoJ { background-color:rgba(59,130,246,.08) !important; border-color:rgba(37,99,235,.30) !important; color:#1E40AF !important; }
     .SgceStickyActions { position:sticky; bottom:0; z-index:5; padding:12px 16px !important; background:rgba(248,250,252,.96) !important; backdrop-filter:blur(8px); display:flex; justify-content:flex-end; }
     .BtnGuardar { border:0 !important; border-radius:14px; padding:11px 22px; background:linear-gradient(135deg, var(--SgceVerde), #20bf63) !important; color:#fff !important; font-weight:900; box-shadow:0 12px 24px rgba(20,148,71,.22) !important; min-width:250px; }
     .BtnPrimary { border:0; border-radius:14px; padding:10px 16px; background:linear-gradient(135deg,var(--SgceVino),var(--SgceVinoOscuro)); color:#fff; font-weight:800; }
     @media (max-width:991px) { .TopHeader { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
     @media (max-width:576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .EstadoSelect { width:160px; } .BtnGuardar { width:100%; min-width:0; } }
 </style>
+<link rel="stylesheet" href="assets/css/asistencia-botones-metalicos.css?cache=sgce2026">
 
 </head>
 
@@ -231,7 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
    <div class="container py-3 SgcePage SgceModuleWrap">
 
-    <!-- HEADER -->
+    
 
     <div class="TopHeader mb-4">
 
@@ -240,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             <div class="d-flex align-items-center gap-3">
 
                 <div class="HeaderIcon">
-                    <i class="fa-solid fa-clipboard-user"></i>
+                    <span class="SgceColorIcon" aria-hidden="true">📝</span>
                 </div>
 
                 <div>
@@ -257,15 +333,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
                         <span class="BadgeGlass">
 
-                            <i class="fa-solid fa-calendar-days"></i>
+                            <span aria-hidden="true">📅</span>
 
-                            <?= date('d/m/Y') ?>
+                            <?= htmlspecialchars(date('d/m/Y', strtotime($FechaConsulta)), ENT_QUOTES, 'UTF-8') ?>
 
                         </span>
 
                         <span class="BadgeGlass">
 
-                            <i class="fa-solid fa-clock"></i>
+                            <span aria-hidden="true">🕒</span>
 
                             <?= date('h:i A') ?>
 
@@ -279,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
             <div>
 
-                <a href="<?= $UserSession['Rol'] === 'maestro' ? 'Maestro.php' : 'Admin.php?Tab=inicio' ?>" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
+                <a href="<?= HGlobal(SgceUrlInicioPorRol($UserSession)) ?>" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
 
             </div>
 
@@ -296,13 +372,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                     <input type="date" name="Fecha" class="form-control" value="<?= htmlspecialchars($FechaConsulta, ENT_QUOTES, 'UTF-8') ?>">
                 </div>
                 <div class="col-md-4">
-                    <button class="BtnPrimary w-100"><i class="fa-solid fa-calendar-check me-2"></i>Cargar fecha</button>
+                    <button id="BtnCargarFechaAsistenciaVerdeMetalico" class="BtnPrimary BtnAsistenciaVerdeMetalico w-100"><i class="fa-solid fa-calendar-check me-2"></i>Cargar fecha</button>
                 </div>
             </form>
         </div>
     <?php endif; ?>
 
-    <!-- ALERTAS -->
+    
 
     <?= $Mensaje ?>
 
@@ -318,7 +394,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
     <?php endif; ?>
 
-    <!-- CARD -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-xl-3">
+            <div class="card StatsCard">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="StatsIcon SgceAsistenciaStatIcon StatsAsistencia"><span class="SgceColorIcon" aria-hidden="true">✅</span></div>
+                    <div>
+                        <div class="text-muted small">Asistencias</div>
+                        <h3 id="ContadorAsistencia" class="fw-bold mb-0"><?= (int)$ResumenAsistencia['A'] ?></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card StatsCard">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="StatsIcon SgceAsistenciaStatIcon StatsRetardo"><span class="SgceColorIcon" aria-hidden="true">⏰</span></div>
+                    <div>
+                        <div class="text-muted small">Retardos</div>
+                        <h3 id="ContadorRetardo" class="fw-bold mb-0"><?= (int)$ResumenAsistencia['R'] ?></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card StatsCard">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="StatsIcon SgceAsistenciaStatIcon StatsFalta"><span class="SgceColorIcon" aria-hidden="true">❌</span></div>
+                    <div>
+                        <div class="text-muted small">Faltas</div>
+                        <h3 id="ContadorFalta" class="fw-bold mb-0"><?= (int)$ResumenAsistencia['F'] ?></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card StatsCard">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="StatsIcon SgceAsistenciaStatIcon StatsJustificante"><span class="SgceColorIcon" aria-hidden="true">📄</span></div>
+                    <div>
+                        <div class="text-muted small">Justificantes</div>
+                        <h3 id="ContadorJustificante" class="fw-bold mb-0"><?= (int)$ResumenAsistencia['J'] ?></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    
 
     <div class="card MainCard">
 
@@ -409,9 +537,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
                                             <div class="d-flex align-items-center gap-3">
 
-                                                <div class="AlumnoAvatar">
+                                                <div class="AlumnoAvatar AlumnoAvatarEmoji">
 
-                                                    <i class="fa-solid fa-user"></i>
+                                                    <span class="SgceAlumnoEmoji" aria-hidden="true">🧑‍🎓</span>
 
                                                 </div>
 
@@ -473,9 +601,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
                     <div class="SgceStickyActions border-top">
 
-                        <button type="submit" name="guardar" class="btn BtnGuardar">
+                        <button type="submit" name="guardar" id="BtnGuardarAsistenciaVerdeMetalico" class="btn BtnGuardar BtnAsistenciaVerdeMetalico">
 
-                            <i class="fa-solid fa-floppy-disk me-2"></i>
+                            <span class="me-2" aria-hidden="true">💾</span>
 
                             <?= $YaSeRegistro ? 'Actualizar Pase De Lista' : 'Guardar Pase De Lista' ?>
 
@@ -497,20 +625,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
 
 
-<!-- ============================================================
-     NOTIFICACIONES AUTOMÁTICAS DEL SISTEMA
-     ------------------------------------------------------------
-     Bloque utilizado para homologar notificaciones visuales del sistema.
-     Cualquier alerta puede cerrarse manualmente con la tachita y,
-     si el usuario no la cierra, desaparece sola después de unos segundos.
-     ============================================================ -->
+
 
 
 
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/Asistencia.js?cache=sgce"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/Asistencia.js?cache=sgce2026"></script>
 </body>
 </html>

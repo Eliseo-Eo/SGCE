@@ -3,7 +3,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeGestionarUsuarios($UserSession)) { header('Location: index.php'); exit; }
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'usuarios', 'Solo el administrador puede gestionar usuarios y roles.');
 
 $Roles = SgceRolesSistema();
 $Mensaje = trim((string)($_GET['M'] ?? ''));
@@ -19,10 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $NombreCompleto = SgceNormalizarTextoUsuarios($_POST['NombreCompleto'] ?? '');
             $Username = trim((string)($_POST['Username'] ?? ''));
             $Password = trim((string)($_POST['Password'] ?? ''));
-            $Rol = trim((string)($_POST['Rol'] ?? ''));
+            $Rol = SgceNormalizarRolSistema($_POST['Rol'] ?? '');
 
-            if ($NombreCompleto === '' || $Username === '' || $Password === '' || !SgceValidarRolUsuario($Rol, $Roles)) {
-                throw new Exception('Completa nombre, usuario, contraseña y rol válido.');
+            if ($NombreCompleto === '' || SgceLongitudTexto($NombreCompleto) > 140 || $Username === '' || $Password === '' || !SgceValidarRolUsuario($Rol, $Roles)) {
+                throw new Exception('Completa nombre, usuario, contraseña y rol válido. El nombre no debe superar 140 caracteres.');
             }
 
             $ValidacionPassword = SgceValidarPasswordFuerte($Password);
@@ -50,11 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $NombreCompleto = SgceNormalizarTextoUsuarios($_POST['NombreCompleto'] ?? '');
             $Username = trim((string)($_POST['Username'] ?? ''));
             $Password = trim((string)($_POST['Password'] ?? ''));
-            $Rol = trim((string)($_POST['Rol'] ?? ''));
+            $Rol = SgceNormalizarRolSistema($_POST['Rol'] ?? '');
             $Activo = isset($_POST['Activo']) ? 1 : 0;
 
-            if ($Id <= 0 || $NombreCompleto === '' || $Username === '' || !SgceValidarRolUsuario($Rol, $Roles)) {
-                throw new Exception('Datos incompletos o rol inválido.');
+            if ($Id <= 0 || $NombreCompleto === '' || SgceLongitudTexto($NombreCompleto) > 140 || $Username === '' || !SgceValidarRolUsuario($Rol, $Roles)) {
+                throw new Exception('Datos incompletos o rol inválido. El nombre no debe superar 140 caracteres.');
             }
 
             if ($Password !== '') {
@@ -66,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('El usuario debe tener de 3 a 80 caracteres y solo puede usar letras, números, punto, guion, guion bajo o @.');
             }
 
-            $StmtActual = $Pdo->prepare("SELECT Id, Rol, Activo FROM Usuarios WHERE Id = ? LIMIT 1");
+            $StmtActual = $Pdo->prepare("SELECT Id, Username, Rol, Activo FROM Usuarios WHERE Id = ? LIMIT 1");
             $StmtActual->execute([$Id]);
             $Actual = $StmtActual->fetch();
             if (!$Actual) { throw new Exception('El usuario no existe.'); }
@@ -79,13 +80,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Debe existir al menos un administrador activo.');
             }
 
+            if ($Actual['Rol'] === 'maestro' && $Rol !== 'maestro') {
+                $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1");
+                $StmtAsignaciones->execute([$Id]);
+                if ((int)$StmtAsignaciones->fetchColumn() > 0) {
+                    throw new Exception('No puedes cambiar el rol de un docente con asignaciones activas. Primero desactiva o reasigna sus materias.');
+                }
+            }
+
             $StmtExiste = $Pdo->prepare("SELECT COUNT(*) FROM Usuarios WHERE Username = ? AND Id <> ?");
             $StmtExiste->execute([$Username, $Id]);
             if ((int)$StmtExiste->fetchColumn() > 0) {
                 throw new Exception('Ya existe otro usuario con ese nombre de acceso.');
             }
 
-            $SessionSql = $Activo ? '' : ', SessionToken = NULL, SessionTokenExpira = NULL';
+            $DebeCerrarSesiones = ($Password !== '')
+                || ((string)$Actual['Username'] !== $Username)
+                || ((string)$Actual['Rol'] !== $Rol)
+                || ($Activo === 0);
+            $SessionSql = $DebeCerrarSesiones ? ', SessionToken = NULL, SessionTokenExpira = NULL' : '';
             $PasswordSql = $Password !== '' ? ', Password = ?' : '';
             $Params = [$Username, $NombreCompleto, $Rol, $Activo];
             if ($Password !== '') { $Params[] = SgcePasswordHash($Password); }
@@ -110,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Debe existir al menos un administrador activo.');
             }
 
-            $Stmt = $Pdo->prepare("UPDATE Usuarios SET Activo = 0, SessionToken = NULL WHERE Id = ?");
+            $Stmt = $Pdo->prepare("UPDATE Usuarios SET Activo = 0, SessionToken = NULL, SessionTokenExpira = NULL WHERE Id = ?");
             $Stmt->execute([$Id]);
             RegistrarBitacora($Pdo, $UserSession, 'DESACTIVAR_USUARIO', 'Usuarios', $Id, 'USUARIO DESACTIVADO DESDE MÓDULO DE USUARIOS');
             header('Location: UsuariosAdmin.php?M=' . urlencode('Usuario desactivado correctamente'));
@@ -131,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$FiltroRol = trim((string)($_GET['Rol'] ?? ''));
+$FiltroRol = SgceNormalizarRolSistema($_GET['Rol'] ?? '');
 $FiltroEstado = trim((string)($_GET['Estado'] ?? 'activos'));
 $Buscar = trim((string)($_GET['Buscar'] ?? ''));
 $Pagina = SgcePaginaActual('PagUsuarios', 1);
@@ -154,7 +167,7 @@ $StmtTotal = $Pdo->prepare("SELECT COUNT(*) FROM Usuarios $WhereSql");
 $StmtTotal->execute($Params);
 $TotalUsuarios = (int)$StmtTotal->fetchColumn();
 
-$Stmt = $Pdo->prepare("SELECT Id, Username, NombreCompleto, Rol, Activo FROM Usuarios $WhereSql ORDER BY Activo DESC, FIELD(Rol,'admin','director','secretario','coordinador','prefecto','maestro'), NombreCompleto ASC LIMIT $Limit OFFSET $Offset");
+$Stmt = $Pdo->prepare("SELECT Id, Username, NombreCompleto, Rol, Activo FROM Usuarios $WhereSql ORDER BY Activo DESC, FIELD(Rol,'admin','administrativo','maestro'), NombreCompleto ASC LIMIT $Limit OFFSET $Offset");
 $Stmt->execute($Params);
 $Usuarios = $Stmt->fetchAll();
 
@@ -174,15 +187,19 @@ foreach ($Roles as $Key => $Label) {
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
+    <link rel="stylesheet" href="assets/css/usuarios-botones-metalicos.css?cache=sgce2026">
 </head>
 <body>
 <div class="MainWrap SgceModuleWrap SgceUsersPage">
     <div class="TopBar">
-        <div>
-            <h1><i class="fa-solid fa-users-gear"></i> Usuarios y Roles</h1>
-            <p>Alta, edición y control de acceso para administradores, maestros y personal escolar.</p>
+        <div class="SgceHeroInfo">
+            <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">👥</span></div>
+            <div>
+                <h1>Usuarios y Roles</h1>
+                <p>Alta, edición y control de acceso para administradores, maestros y personal escolar.</p>
+            </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
             <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
@@ -202,21 +219,21 @@ foreach ($Roles as $Key => $Label) {
     </div>
 
     <div class="CardPanel SgceUsersCreateCard">
-        <h2><i class="fa-solid fa-user-plus"></i> Nuevo usuario</h2>
+        <h2><span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">👤</span> Nuevo usuario</h2>
         <form method="POST" class="row g-3 SgceUsersCreateForm">
             <?= CampoCsrf() ?>
             <input type="hidden" name="Accion" value="CrearUsuario">
             <div class="col-lg-4">
                 <label class="form-label">Nombre completo</label>
-                <input type="text" name="NombreCompleto" class="form-control UpperInput" required placeholder="NOMBRE COMPLETO">
+                <input type="text" name="NombreCompleto" class="form-control UpperInput" maxlength="140" required placeholder="NOMBRE COMPLETO">
             </div>
             <div class="col-lg-2">
                 <label class="form-label">Usuario</label>
-                <input type="text" name="Username" class="form-control" required placeholder="usuario">
+                <input type="text" name="Username" class="form-control" maxlength="80" required placeholder="usuario">
             </div>
             <div class="col-lg-2">
                 <label class="form-label">Contraseña</label>
-                <input type="password" name="Password" class="form-control" required placeholder="contraseña">
+                <input type="password" name="Password" class="form-control" required placeholder="contraseña" autocomplete="new-password">
             </div>
             <div class="col-lg-2">
                 <label class="form-label">Rol</label>
@@ -227,14 +244,14 @@ foreach ($Roles as $Key => $Label) {
                 </select>
             </div>
             <div class="col-lg-2 d-flex align-items-end">
-                <button class="BtnPrimary BtnUserCreateSave w-100" type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button id="BtnGuardarUsuarioVerdeMetalico" class="BtnUserCreateSave BtnUsuarioGuardarMetalico w-100" type="submit"><span class="SgceColorIcon" aria-hidden="true">💾</span> Guardar</button>
             </div>
         </form>
     </div>
 
     <div class="CardPanel SgceUsersTableCard">
         <div class="SgceUsersTableHeader">
-            <h2 class="mb-0"><i class="fa-solid fa-list-check"></i> Usuarios registrados</h2>
+            <h2 class="mb-0"><span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">📋</span> Usuarios registrados</h2>
             <form method="GET" class="FilterBar SgceUsersFilterBar">
                 <input type="text" name="Buscar" value="<?= htmlspecialchars($Buscar) ?>" class="form-control" placeholder="Buscar nombre o usuario">
                 <select name="Rol" class="form-select">
@@ -269,13 +286,13 @@ foreach ($Roles as $Key => $Label) {
                     <?php $FormEditar = 'FormEditarUsuario' . (int)$U['Id']; ?>
                     <tr>
                         <td>
-                            <input form="<?= $FormEditar ?>" name="NombreCompleto" class="form-control form-control-sm UpperInput" value="<?= htmlspecialchars($U['NombreCompleto']) ?>" required>
+                            <input form="<?= $FormEditar ?>" name="NombreCompleto" class="form-control form-control-sm UpperInput" maxlength="140" value="<?= htmlspecialchars($U['NombreCompleto']) ?>" required>
                         </td>
                         <td>
-                            <input form="<?= $FormEditar ?>" name="Username" class="form-control form-control-sm" value="<?= htmlspecialchars($U['Username']) ?>" required>
+                            <input form="<?= $FormEditar ?>" name="Username" class="form-control form-control-sm" maxlength="80" value="<?= htmlspecialchars($U['Username']) ?>" required>
                         </td>
                         <td>
-                            <input form="<?= $FormEditar ?>" name="Password" class="form-control form-control-sm" value="" placeholder="NUEVA CONTRASEÑA OPCIONAL">
+                            <input form="<?= $FormEditar ?>" type="password" name="Password" class="form-control form-control-sm" value="" placeholder="NUEVA CONTRASEÑA OPCIONAL" autocomplete="new-password">
                         </td>
                         <td>
                             <select form="<?= $FormEditar ?>" name="Rol" class="form-select form-select-sm" <?= ((int)$U['Id'] === (int)$UserSession['Id']) ? 'disabled' : '' ?>>
@@ -375,7 +392,7 @@ foreach ($Roles as $Key => $Label) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/UsuariosAdmin.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/UsuariosAdmin.js?cache=sgce2026"></script>
 </body>
 </html>

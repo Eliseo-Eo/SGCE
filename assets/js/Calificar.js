@@ -129,14 +129,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
-
-
-
-    // ============================================================
-    // Normalización visual de textos
-    // ------------------------------------------------------------
-    // Normaliza textos visibles sin modificar valores internos de formularios.
-    // ============================================================
     document.querySelectorAll('input:not([type="password"]):not([type="file"]):not([type="hidden"]), textarea').forEach(function(Control){
         if (Control.placeholder) {
             Control.placeholder = Control.placeholder.toUpperCase();
@@ -146,3 +138,13 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('select option').forEach(function(Opcion){
         Opcion.textContent = (Opcion.textContent || '').toUpperCase();
     });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var SelectorPeriodo = document.getElementById('PeriodoIdSelect');
+    if (!SelectorPeriodo) { return; }
+    SelectorPeriodo.addEventListener('change', function () {
+        var AsignacionId = SelectorPeriodo.getAttribute('data-asignacion-id') || '';
+        window.location.href = 'Calificar.php?AsignacionId=' + encodeURIComponent(AsignacionId) + '&PeriodoId=' + encodeURIComponent(SelectorPeriodo.value);
+    });
+});

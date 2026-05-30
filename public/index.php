@@ -5,13 +5,13 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 $UsuarioActivo = VerificarSesionCookie($Pdo);
 
 if ($UsuarioActivo) {
-    if ($UsuarioActivo['Rol'] === 'maestro') {
+    if (SgceTieneRol($UsuarioActivo, ['maestro'])) {
         header('Location: Maestro.php');
         exit;
     }
 
-    if (in_array($UsuarioActivo['Rol'], ['admin','director','secretario','coordinador','prefecto'], true)) {
-        header('Location: ' . ($UsuarioActivo['Rol'] === 'admin' ? 'Admin.php?Tab=inicio' : 'ReportesAdmin.php'));
+    if (SgceTieneRol($UsuarioActivo, ['admin','administrativo'])) {
+        header('Location: Admin.php?Tab=inicio');
         exit;
     }
 }
@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             RateLimitLimpiar($Pdo, 'login', $Username);
 
+            
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
+
             $Token = bin2hex(random_bytes(32));
 
             $Stmt = $Pdo->prepare("
@@ -60,15 +65,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'secure' => EsHttps()
             ]);
 
-            // Registro de inicio de sesión para auditoría.
+            
             RegistrarBitacora($Pdo, $User, 'INICIO_SESION', 'Usuarios', $User['Id'], 'USUARIO INICIÓ SESIÓN');
 
-            if ($User['Rol'] === 'maestro') {
+            $RolDestino = SgceNormalizarRolSistema($User['Rol'] ?? '');
+            if ($RolDestino === 'maestro') {
                 header('Location: Maestro.php');
-            } elseif ($User['Rol'] === 'admin') {
+            } elseif (in_array($RolDestino, ['admin', 'administrativo'], true)) {
                 header('Location: Admin.php?Tab=inicio');
             } else {
-                header('Location: ReportesAdmin.php');
+                header('Location: Logout.php');
             }
 
             exit;
@@ -92,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
 
     
-    <!-- Favicon del sistema -->
+    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -103,11 +109,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 
-<body>
+<body class="LoginPage">
 
 <div class="Overlay"></div>
 
@@ -115,12 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="GridLogin">
 
-        <!-- PANEL IZQUIERDO -->
+        
 
         <div class="PanelIzquierdo">
 
             <div class="LogoSistema">
-                <i class="fa-solid fa-school"></i>
+                <span class="SgceColorIcon" aria-hidden="true">🏫</span>
             </div>
 
             <h1 class="TituloSistema">
@@ -144,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="CardCaracteristica">
 
                     <div class="IconoCaracteristica">
-                        <i class="fa-solid fa-chart-line"></i>
+                        <span class="SgceColorIcon" aria-hidden="true">🎓</span>
                     </div>
 
                     <div class="TituloCaracteristica">
@@ -160,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="CardCaracteristica">
 
                     <div class="IconoCaracteristica">
-                        <i class="fa-solid fa-user-check"></i>
+                        <span class="SgceColorIcon" aria-hidden="true">📅</span>
                     </div>
 
                     <div class="TituloCaracteristica">
@@ -176,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="CardCaracteristica">
 
                     <div class="IconoCaracteristica">
-                        <i class="fa-solid fa-file-pdf"></i>
+                        <span class="SgceColorIcon" aria-hidden="true">📄</span>
                     </div>
 
                     <div class="TituloCaracteristica">
@@ -192,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="CardCaracteristica">
 
                     <div class="IconoCaracteristica">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="SgceColorIcon" aria-hidden="true">🛡️</span>
                     </div>
 
                     <div class="TituloCaracteristica">
@@ -209,14 +215,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         </div>
 
-        <!-- LOGIN -->
+        
 
         <div class="PanelDerecho">
 
             <div class="LoginHeader">
 
                 <div class="LoginIcon">
-                    <i class="fa-solid fa-user-graduate"></i>
+                    <span class="SgceColorIcon" aria-hidden="true">🎓</span>
                 </div>
 
                 <h2 class="TituloLogin">
@@ -253,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="input-group InputGroupCustom">
 
                         <span class="InputIcon">
-                            <i class="fa-solid fa-user"></i>
+                            <span class="SgceColorIcon" aria-hidden="true">👤</span>
                         </span>
 
                         <input
@@ -277,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="input-group InputGroupCustom">
 
                         <span class="InputIcon">
-                            <i class="fa-solid fa-lock"></i>
+                            <span class="SgceColorIcon" aria-hidden="true">🔒</span>
                         </span>
 
                         <input
@@ -305,7 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <button type="submit" class="btn BtnLogin w-100">
 
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>
+                    <span class="SgceColorIcon me-2" aria-hidden="true">➡️</span>
 
                     ACCEDER AL SISTEMA
 
@@ -313,14 +319,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             </form>
 
-            <a href="ConsultaPadre.php" class="BtnConsultaPadre">
-                <i class="fa-solid fa-user-shield"></i>
-                CONSULTA DE ASISTENCIA INDIVIDUAL
-            </a>
+            <div class="BtnConsultaPublicaGrid">
+                <a href="ConsultaPadre.php" class="BtnConsultaPadre BtnConsultaAsistencia">
+                    <span class="SgceColorIcon" aria-hidden="true">📅</span>
+                    <span>ASISTENCIAS</span>
+                </a>
+                <a href="ConsultaCalificaciones.php" class="BtnConsultaPadre BtnConsultaCalificaciones">
+                    <span class="SgceColorIcon" aria-hidden="true">⭐</span>
+                    <span>CALIFICACIONES</span>
+                </a>
+            </div>
 
             <div class="FooterLogin">
 
-                <i class="fa-solid fa-code"></i>
+                <span class="SgceColorIcon" aria-hidden="true">💻</span>
 
                 Plataforma Escolar Profesional · <?= HGlobal($NombreEscuelaLogin) ?>
 
@@ -338,8 +350,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/index.js?cache=sgce"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/index.js?cache=sgce2026"></script>
 </body>
 
 </html>

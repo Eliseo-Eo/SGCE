@@ -1,4 +1,6 @@
 
+
+
 :root{
   --SgceGuinda:#97051E;
   --SgceGuindaRGB:151,5,30;
@@ -175,7 +177,10 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
 .BtnGuinda:hover,.ReporteBtn:hover,.BtnExport:hover,button[type="submit"]:not(.btn-close):hover{filter:brightness(.96);transform:translateY(-1px)}
 .table{margin-bottom:0}.table thead th{background:#F8FAFC!important;color:#667085!important;text-transform:uppercase;font-size:.75rem;letter-spacing:.3px;border:0!important}.table td{vertical-align:middle;border-color:#EEF2F7!important}
 .table-responsive{border-radius:18px;overflow:hidden}.BadgeGlass,.InfoBadge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.15);color:#fff;font-weight:800;font-size:.86rem}.SmallText{font-size:.92rem;color:#6B7280}.DangerZone{border:2px dashed var(--SgceRojo)!important;background:#FEF2F2!important}.alert{border-radius:18px;border:0;box-shadow:0 10px 24px rgba(15,23,42,.07)}
-/* Dashboard */
+
+
+
+
 .DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18);position:relative;overflow:hidden;transition:.22s ease}.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)}.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}.DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important}.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.StatCard,.StatMini{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #EEF2F7;border-radius:18px;padding:14px 16px;min-height:72px;box-shadow:0 8px 20px rgba(15,23,42,.04)}.StatIcon,.StatIconBox{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#F8FAFC}.StatLabel,.StatCard small{font-size:.74rem;font-weight:900;text-transform:uppercase;color:#667085}.StatValue,.StatCard strong{display:block;font-size:1.55rem;font-weight:900;color:#1F2937;line-height:1}.RiskCard{padding:18px!important}.RiskCard .table-responsive{min-height:80px}
 @media(max-width:1200px){.DashboardTopSplit{grid-template-columns:1fr}.DashboardModuleGrid{grid-template-columns:repeat(4,110px)}}
 @media(max-width:720px){.SgcePageWrap{padding:16px 12px 24px}.SgceHero,.Top,.TopBar,.TopHeader{border-radius:20px;padding:20px;align-items:flex-start;flex-direction:column}.SgceHeroInfo{align-items:flex-start}.SgceHeroIcon,.HeaderIcon,.IconBox,.HeroIcon{width:50px;height:50px;min-width:50px}.SgceHeroActions{width:100%;justify-content:flex-start}.SgceHeroBtn:not(.SgceHeroLogout){width:100%}.DashboardModuleGrid{grid-template-columns:repeat(3,100px);gap:10px}.DashboardModuleCard{width:100px;height:76px}.DashboardStatsGrid,.StatsGrid{grid-template-columns:1fr}}
@@ -188,7 +193,7 @@ button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;lett
 .HeroCard p{color:rgba(255,255,255,.82)!important}
 .HeroCard .HeroIcon{background:rgba(255,255,255,.14)!important;color:#fff!important}
 
-/* Login institucional */
+
 .Overlay{
   position:fixed;
   inset:0;
@@ -1017,7 +1022,10 @@ button.btn-guinda{
   .search-container.w-50,.search-container.w-25{width:100%!important;}
 }
 
-/* Respaldos e importación */
+
+
+
+
 .SgceRestorePage{
   background:
     radial-gradient(circle at top left,rgba(var(--SgceGuindaRGB),.08),transparent 30%),
@@ -1139,7 +1147,7 @@ button.btn-guinda{
   .SgceRestoreCardHead{align-items:center!important}
 }
 
-/* Bitácora */
+
 .SgceBitacoraCard{
   border:0!important;
   border-radius:24px!important;
@@ -1295,7 +1303,7 @@ button.btn-guinda{
   .SgceCountPill{width:100%!important;}
 }
 
-/* Consulta pública de padres */
+
 .ConsultaPublicaBody{
   background:
     radial-gradient(circle at 12% 10%, rgba(var(--SgceGuindaRGB),.10), transparent 30%),
@@ -1503,7 +1511,7 @@ button.btn-guinda{
   .ConsultaHeroIcon{width:60px;height:60px;min-width:60px;font-size:28px}
 }
 
-/* Avisos y comunicados */
+
 .AvisosBody{
   background:radial-gradient(circle at top left,rgba(var(--SgceGuindaRGB),.08),transparent 32%),linear-gradient(135deg,#F9FAFB 0%,#EEF3F9 100%)!important;
 }
@@ -1663,7 +1671,7 @@ button.btn-guinda{
   .AccionesAviso{flex-wrap:wrap!important;justify-content:flex-start!important}
 }
 
-/* Ciclos escolares y periodos */
+
 .SgcePeriodosWrap{
   width:min(1360px, calc(100% - 36px));
   margin:24px auto 34px;
@@ -1865,7 +1873,7 @@ button.btn-guinda{
 }
 
 
-/* Usuarios y Roles */
+
 .SgceUsersPage{
   max-width:1360px;
 }
@@ -2070,7 +2078,7 @@ button.btn-guinda{
 }
 
 
-/* Usuarios y Roles: tabla, switch y acciones */
+
 .SgceUsersTableCard{
   overflow:hidden;
 }
@@ -2232,7 +2240,7 @@ button.btn-guinda{
 }
 
 
-/* Usuarios y Roles: colores de acciones */
+
 .SgceUsersPage .BtnUserCreateSave,
 .SgceUsersPage form .BtnUserCreateSave,
 body .SgceUsersPage .BtnPrimary.BtnUserCreateSave{
@@ -2248,7 +2256,7 @@ body .SgceUsersPage .BtnPrimary.BtnUserCreateSave:hover{
 }
 
 
-/* Avisos y comunicados: acciones homologadas con Usuarios y Roles */
+
 .AvisosSubmit.BtnAvisoPublish,
 body .AvisosBody .BtnPrimary.AvisosSubmit.BtnAvisoPublish{
   background:linear-gradient(135deg,#047857,#10B981)!important;
@@ -2326,7 +2334,7 @@ body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 
 
-/* Botones de avisos homologados */
+
 html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
 html body.AvisosBody .AvisosForm button.BtnAvisoPublish,
 html body.AvisosBody .AvisosSubmit.BtnAvisoPublish{
@@ -2384,13 +2392,13 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 
 
-/* Instalador */
+
 .SgceInstallerPage{min-height:100vh;background:linear-gradient(135deg,#f7f8fc 0%,#eef2f7 100%)}
 .SgceInstallerHero{background:linear-gradient(135deg,#7b1e2b,#4f111a);box-shadow:0 18px 45px rgba(90,20,30,.24)}
 .SgceInstallerCard{border-radius:28px;border:1px solid rgba(120,30,42,.12);box-shadow:0 20px 50px rgba(15,23,42,.10);background:#fff}
 .SgceInstallerTitle{display:flex;gap:18px;align-items:center;margin-bottom:20px}.SgceInstallerTitle span{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#7b1e2b,#b3263e);color:#fff;display:grid;place-items:center;font-size:1.55rem;box-shadow:0 15px 32px rgba(123,30,43,.25)}.SgceInstallerTitle h2{margin:0;font-weight:900;color:#172033}.SgceInstallerTitle p{margin:4px 0 0;color:#64748b;font-weight:600}.SgceInstallerWarning{display:flex;gap:14px;align-items:flex-start;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:20px;padding:16px 18px;margin-bottom:22px}.SgceInstallerWarning i{font-size:1.25rem;margin-top:2px}.SgceInstallerBtn{border-radius:18px;padding:14px 22px;font-weight:900;display:inline-flex;gap:10px;align-items:center}.SgceModalContent{border:0;border-radius:28px;overflow:hidden;box-shadow:0 28px 80px rgba(15,23,42,.28)}.SgceModalHead{display:flex;align-items:center;gap:16px;padding:24px;background:linear-gradient(135deg,#2457c5,#1d4ed8);color:#fff}.SgceModalHead.Danger{background:linear-gradient(135deg,#7b1e2b,#b3263e)}.SgceModalHead h5{margin:0;font-weight:900}.SgceModalHead p{margin:4px 0 0;opacity:.84;font-weight:600}.SgceModalIcon{width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.45rem}.SgceModalInfoBox{display:flex;gap:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:18px;padding:14px 16px;font-weight:650}.BtnModalCancel,.BtnModalDanger{border:0;border-radius:16px;padding:12px 18px;font-weight:900;display:inline-flex;align-items:center;gap:9px}.BtnModalCancel{background:#f1f5f9;color:#334155}.BtnModalDanger{background:linear-gradient(135deg,#7b1e2b,#b3263e);color:#fff;box-shadow:0 12px 26px rgba(123,30,43,.24)}
 
-/* Maestros: formulario lateral vertical y botones homologados */
+
 .MaestrosSideCard{
   padding:0!important;
   border-left:0!important;
@@ -2499,7 +2507,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   color:#fff!important;
 }
 
-/* Maestros: tabla simétrica y acciones con acabado brillante */
+
 .MaestrosLayoutRow{
   align-items:stretch!important;
   --bs-gutter-x:1.4rem!important;
@@ -2638,7 +2646,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   .MaestrosTableCard .table-responsive{min-height:240px!important}
 }
 
-/* Grupos: diseño simétrico, importación y acciones homologadas con Maestros */
+
 .GruposLayoutRow{
   align-items:stretch!important;
   --bs-gutter-x:1.4rem!important;
@@ -2832,7 +2840,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   .GruposTableCard{min-height:420px!important;height:auto!important}
 }
 
-/* Alumnos: diseño simétrico homologado con Maestros y Grupos */
+
 .AlumnosLayoutRow{
   align-items:stretch!important;
   --bs-gutter-x:1.4rem!important;
@@ -3077,7 +3085,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   #TableAlumnos .AlumnosActions{flex-wrap:wrap!important}
 }
 
-/* ========================= DASHBOARD PRO FINAL ========================= */
+
 .DashboardTopPro{
     display:grid;
     grid-template-columns:minmax(430px,45%) minmax(520px,55%);
@@ -3355,7 +3363,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 @media(max-width:430px){.DashboardModuleGridPro{grid-template-columns:repeat(2,1fr)}}
 
-/* Asignaciones: formulario simétrico, tabla compacta y acciones homologadas */
+
 .AsignacionesTableCard{
   min-height:700px!important;
   max-height:none!important;
@@ -3563,7 +3571,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 
 
-/* Asignaciones: paginador visible y tarjeta balanceada */
+
 #asignaciones .AsignacionesTableCard{
   min-height:700px!important;
   max-height:none!important;
@@ -3625,7 +3633,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 #asignaciones .BtnAsignacionDelete i,
 #asignaciones .BtnAsignacionDelete span{position:relative;z-index:1;}
 
-/* Expedientes: diseño simétrico y acciones homologadas */
+
 .ExpedientesCard{
   min-height:568px!important;
   display:flex!important;
@@ -3900,7 +3908,10 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 
 
-/* Usuarios y Roles: paginación de 7 registros y acciones homologadas */
+
+
+
+
 .SgceUsersPage .BtnUserCreateSave,
 .SgceUsersPage form .BtnUserCreateSave,
 body .SgceUsersPage .BtnPrimary.BtnUserCreateSave{
@@ -4011,7 +4022,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate:hover{
 .SgceUsersPage .SgceUsersTable .ActionsInline{gap:10px!important;}
 .SgceUsersPage .SgceUsersTableCard .SgcePagerServer{margin-top:12px!important;}
 
-/* Usuarios y roles */
+
 .SgceUsersPage .SgceUsersTableCard .table-responsive{
   overflow-x:hidden!important;
 }
@@ -4118,7 +4129,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   .SgceUsersPage .UsuariosTable{min-width:980px!important;}
 }
 
-/* Centro de reportes: diseño simétrico y limpio */
+
 .SgceReportsPage .SgceReportsWrap{
   max-width:1280px;
 }
@@ -4356,7 +4367,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   .SgceReportsPage .SgceReportCard{padding:20px;}
 }
 
-/* Avisos y comunicados */
+
 .AvisosLayout{
   align-items:stretch!important;
 }
@@ -4429,7 +4440,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn{
   .AvisosTableResponsive{min-height:280px!important;max-height:none!important;}
 }
 
-/* Avisos: ancho uniforme para activar/desactivar */
+
 html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoDeactivate,
 html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoActivate,
 html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate,
@@ -4451,7 +4462,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   }
 }
 
-/* Expediente individual: contenedor y diseño simétrico */
+
 .ExpedienteAlumnoBody{
   min-height:100vh;
 }
@@ -4740,17 +4751,20 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   .ExpedienteAlumnoPanel{min-height:320px;}
 }
 @media(max-width:768px){
+
   .ExpedienteAlumnoFilterForm{grid-template-columns:1fr;}
   .ExpedienteMetricGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .ExpedienteAlumnoActions{width:100%;justify-content:flex-start;}
   .ExpedienteAlumnoActions .BtnBack{width:100%;min-width:0;}
   .ExpedienteAlumnoTitleBlock p{white-space:normal;}
 }
+
+
 @media(max-width:460px){
   .ExpedienteMetricGrid{grid-template-columns:1fr;}
 }
 
-/* Portal docente: diseño profesional y simétrico */
+
 .MaestroHero{
   align-items:center;
 }
@@ -5031,7 +5045,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   }
 }
 
-/* Portal docente: tarjetas compactas responsivas para muchos grupos/materias */
+
 .MaestroClasesGrid{
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:18px!important;
@@ -5161,10 +5175,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   .MaestroExportGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
 }
 
-/* =========================================================
-   BOTON UNICO: VOLVER AL INICIO
-   Estilo global para navegación consistente en el sistema.
-   ========================================================= */
+
 a.SgceBtnVolverInicio,
 button.SgceBtnVolverInicio,
 .SgceHeroActions a.SgceBtnVolverInicio,
@@ -5358,9 +5369,7 @@ button.SgceBtnVolverInicio:active,
 }
 
 
-/* =========================================================
-   PORTAL DOCENTE: aviso profesional cuando no hay materias
-   ========================================================= */
+
 .MaestroEmptyState{
   grid-column:1 / -1!important;
   width:100%!important;
@@ -5493,10 +5502,7 @@ button.SgceBtnVolverInicio:active,
   .MaestroEmptyContent p{font-size:.88rem!important;}
 }
 
-/* =========================================================
-   PORTAL DOCENTE: avisos importantes profesionales
-   Mantiene el tamaño original, pero mejora el acabado visual.
-   ========================================================= */
+
 .MaestroAvisosPanel{
   position:relative!important;
   overflow:hidden!important;
@@ -5633,9 +5639,7 @@ button.SgceBtnVolverInicio:active,
   line-height:1.45!important;
 }
 
-/* =========================================================
-   PORTAL DOCENTE: notificación azul pro + cerrado funcional
-   ========================================================= */
+
 .MaestroEmptyState{
   transition:opacity .22s ease, transform .22s ease, max-height .26s ease, margin .26s ease!important;
 }
@@ -5681,9 +5685,7 @@ button.SgceBtnVolverInicio:active,
   transform:scale(.94) rotate(90deg)!important;
 }
 
-/* =========================================================
-   CONSULTA PADRES: avisos profesionales y acabado general
-   ========================================================= */
+
 .ConsultaPublicaBody .ConsultaPadresAvisosPanel{
   position:relative!important;
   overflow:hidden!important;
@@ -5882,11 +5884,7 @@ button.SgceBtnVolverInicio:active,
   .ConsultaPublicaBody .ConsultaPadresAvisoItem{padding:15px!important;}
 }
 
-/* =========================================================
-   PORTAL DOCENTE: avisos con diseño igual a consulta padres
-   - 1 aviso = tarjeta amplia a todo el contenedor
-   - varios avisos = acomodo automático responsivo
-   ========================================================= */
+
 .MaestroAvisosPanel{
   position:relative!important;
   overflow:hidden!important;
@@ -6050,9 +6048,7 @@ button.SgceBtnVolverInicio:active,
   .MaestroAvisoItem{padding:15px!important;}
 }
 
-/* ============================================================
-   SGCE - Instalador y configuración institucional
-   ============================================================ */
+
 .SgceInstallerSectionTitle{
     margin:18px 0 4px;
     padding:10px 14px;
@@ -6135,9 +6131,7 @@ button.SgceBtnVolverInicio:active,
 @media(max-width:992px){.SgceConfigGrid{grid-template-columns:1fr}.SgceConfigCardWide{grid-row:auto}.SgceConfigActions{flex-direction:column;align-items:stretch}.SgceConfigSave{width:100%;}}
 .ConsultaSchoolName{margin:10px 0 2px;color:rgba(255,255,255,.94);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
 
-/* ============================================================
-   SGCE - Instalador y mensajes
-   ============================================================ */
+
 .SgceInstallerAlert{
     position:relative!important;
     display:flex!important;
@@ -6206,7 +6200,10 @@ button.SgceBtnVolverInicio:active,
 }
 
 
-/* Selector de color institucional */
+
+
+
+
 .SgceColorControl{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid #E2E8F0;border-radius:15px;padding:6px 12px;min-height:46px;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
 .SgceColorControl input[type="color"]{width:58px!important;height:34px!important;min-height:34px!important;padding:0!important;border:0!important;border-radius:12px!important;background:transparent!important;cursor:pointer;box-shadow:none!important}
 .SgceColorControl input[type="color"]::-webkit-color-swatch-wrapper{padding:0;border-radius:12px}
@@ -6215,11 +6212,7 @@ button.SgceBtnVolverInicio:active,
 .SgceColorControl span{font-weight:900;color:var(--SgceGuindaOscuro);letter-spacing:.04em}
 
 
-/* ============================================================
-   SGCE - Tema institucional consistente
-   Este bloque consolida el color elegido en Configuración para
-   paneles, reportes, iconos de dashboard, avisos y botones.
-   ============================================================ */
+
 .DashboardModuleBlue,
 .DashboardModuleWine,
 .DashboardModuleGridPro .DashboardModuleCard{
@@ -6295,7 +6288,7 @@ button.SgceBtnVolverInicio:active,
   border-color:rgba(var(--SgceGuindaRGB),.12)!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 .SgceModuleWrap .card-custom,
 .SgceModuleWrap .Card,
 .SgceModuleWrap .SgceCard,
@@ -6585,7 +6578,7 @@ button.SgceBtnVolverInicio:active,
   }
 }
 
-/* SGCE - estilos de interfaz */
+
 .SgceModuleWrap .card-custom,
 .SgceModuleWrap .Card,
 .SgceModuleWrap .SgceCard,
@@ -6689,7 +6682,7 @@ button.SgceBtnVolverInicio:active,
   z-index:2!important;
 }
 
-/* Encabezados de tarjeta e iconos: sin azul, verde ni naranja fijos. */
+
 .SgceModuleWrap .card-header-custom,
 .SgceModuleWrap .MaestrosCardTitle,
 .SgceModuleWrap .SgceCardHeaderLine,
@@ -6763,7 +6756,7 @@ button.SgceBtnVolverInicio:active,
   color:#fff!important;
 }
 
-/* Tablas: contenedor y encabezado con el mismo lenguaje de Reportes/Configuración. */
+
 .SgceModuleWrap .table-responsive,
 .ConsultaPublicaBody .table-responsive{
   border:1px solid rgba(148,163,184,.18)!important;
@@ -6787,7 +6780,7 @@ button.SgceBtnVolverInicio:active,
   border-color:#EEF2F7!important;
 }
 
-/* Botones principales: todos obedecen el color institucional. */
+
 .SgceModuleWrap .BtnPrimary,
 .SgceModuleWrap .BtnGuinda,
 .SgceModuleWrap .BtnSave,
@@ -6829,7 +6822,7 @@ button.SgceBtnVolverInicio:active,
   box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.30)!important;
 }
 
-/* Indicadores y accesos rápidos sin colores heredados. */
+
 .SgceReportsPage .AccentRed,
 .SgceReportsPage .AccentBlue,
 .SgceReportsPage .AccentGreen,
@@ -6859,7 +6852,7 @@ button.SgceBtnVolverInicio:active,
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22)!important;
 }
 
-/* Limpieza de colores fijos en avisos, alumnos, docentes y asignaciones. */
+
 html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoEdit,
 html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate,
 html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate{
@@ -6899,7 +6892,7 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate{
 }
 
 
-/* SGCE - estilos de interfaz */
+
 html body .SgceModuleWrap .card-custom,
 html body .SgceModuleWrap .Card,
 html body .SgceModuleWrap .SgceCard,
@@ -7225,7 +7218,7 @@ html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
   }
 }
 
-/* SGCE - estilos de interfaz */
+
 .SgceReportsPage .SgceReportIcon{
   color:#fff!important;
   background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
@@ -7239,7 +7232,7 @@ html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
 }
 
 
-/* Avisos: acciones con color institucional */
+
 html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
 html body.AvisosBody .AvisosForm button.BtnAvisoPublish,
 html body.AvisosBody .AvisosSubmit.BtnAvisoPublish,
@@ -7266,7 +7259,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate:hover{
 }
 
 
-/* SGCE - Avisos: encabezado de tabla limpio sin texto redundante */
+
 .AvisosTableHeaderClean{
   min-height:56px;
   align-items:center!important;
@@ -7278,11 +7271,10 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate:hover{
   display:none!important;
 }
 
-/* ============================================================
-   SGCE - Dashboard con color institucional uniforme
-   Unifica títulos, subtítulos, badges y secciones del panel principal
-   para evitar mezcla de rojo fijo con el color seleccionado por la escuela.
-   ============================================================ */
+
+
+
+
 .SgceModuleWrap .DashboardSectionKicker,
 .SgceModuleWrap .DashboardRiskKicker,
 .SgceModuleWrap .DashboardSectionKicker i,
@@ -7320,12 +7312,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate:hover{
   color:#fff!important;
 }
 
-/* ============================================================
-   SGCE - Botones destructivos fijos
-   Los botones de eliminar, baja o desactivar NO toman el color
-   institucional. Mantienen un rojo/tinto metálico de advertencia
-   para que el usuario identifique acciones peligrosas.
-   ============================================================ */
+
 :root{
   --SgceDanger:#A0001D;
   --SgceDangerOscuro:#670013;
@@ -7421,7 +7408,7 @@ html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmAc
 }
 
 
-/* SGCE - estilos de interfaz */
+
 :root{
   --SgceExpedienteOscuro:#7C2D12;
   --SgceExpediente:#C2410C;
@@ -7465,7 +7452,7 @@ html body #TableExpedientes .ActionBtn.BtnExpedienteOpen span{
   z-index:1!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 html body .SgceModuleWrap #TableExpedientes .ExpedientesTurnBadge,
 html body .SgceModuleWrap .ExpedientesTurnBadge{
   background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;
@@ -7483,7 +7470,7 @@ html body .SgceModuleWrap .ExpedientesGroupBadge{
 }
 
 
-/* SGCE - estilos de interfaz */
+
 html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge,
 html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
   display:inline-flex!important;
@@ -7513,7 +7500,7 @@ html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{
 }
 
 
-/* SGCE - estilos de interfaz */
+
 html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,
 html body #TableAsig .AsignacionMateriaTexto{
   display:inline-flex!important;
@@ -7571,7 +7558,7 @@ html body #TableAsig .GrupoTextoSimple i{
   display:none!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 html body .modal .DeleteModalContent{
   border:0!important;
   border-radius:30px!important;
@@ -7651,7 +7638,7 @@ html body .SgceUserDisableModal .BtnConfirmDelete span{
   color:#fff!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 :root{
   --SgceUpdateAzulProfundo:#0B2F6B;
   --SgceUpdateAzulOscuro:#1D4ED8;
@@ -7723,7 +7710,7 @@ html body .modal .BtnCancelEdit:hover{
   transform:translateY(-1px)!important;
   box-shadow:0 14px 28px rgba(100,116,139,.22)!important;
 }
-/* Botones de abrir modal de edición: azul metálico fijo. */
+
 html body .ActionBtn.ActionEdit,
 html body .ActionBtn.BtnTeacherEdit,
 html body .ActionBtn.BtnGroupEdit,
@@ -7767,7 +7754,7 @@ html body .ActionBtn.BtnAvisoEdit span{
   color:#fff!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 :root{
   --SgceMetalHighlight:rgba(255,255,255,.42);
   --SgceMetalEdge:rgba(255,255,255,.26);
@@ -7932,7 +7919,7 @@ html body .SgceConfigSave > *{
   position:relative!important;
   z-index:1!important;
 }
-/* Botones primarios de alta/guardar/cargar/consultar: institucional metálico. */
+
 html body .BtnPrimary,
 html body .BtnGuinda,
 html body .BtnFilter,
@@ -7962,7 +7949,7 @@ html body button[type="submit"]:not(.btn-close):not(.BtnCancelDelete):not(.BtnCa
   border:0!important;
   box-shadow:0 15px 32px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
-/* Modificar/editar siempre azul metálico. */
+
 html body .ActionBtn.ActionEdit,
 html body .ActionBtn.BtnTeacherEdit,
 html body .ActionBtn.BtnGroupEdit,
@@ -7982,7 +7969,7 @@ html body .modal button.BtnSaveEdit[type="submit"]{
   border:0!important;
   box-shadow:0 15px 32px rgba(var(--SgceUpdateAzulRGB),.34),inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
-/* Eliminar/desactivar siempre rojo/tinto metálico. */
+
 html body .ActionBtn.ActionDelete,
 html body .ActionBtn.BtnTeacherDelete,
 html body .ActionBtn.BtnGroupDelete,
@@ -8003,7 +7990,7 @@ html body .modal .BtnConfirmarBajaUsuario{
   border:0!important;
   box-shadow:0 15px 32px rgba(var(--SgceDangerRGB),.34),inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
-/* Reactivar/activar: metálico, pero integrado al color institucional para evitar verdes fijos. */
+
 html body .ActionBtn.BtnAvisoActivate,
 html body .ActionBtn.BtnReactivate,
 html body .BtnConfirmActivar,
@@ -8015,7 +8002,7 @@ html body .modal .BtnAvisoModalActivate{
   border:0!important;
   box-shadow:0 15px 32px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
-/* Expediente conserva ámbar metálico fijo como acción especial. */
+
 html body .ActionBtn.BtnStudentFile,
 html body .ActionBtn.BtnExpedienteOpen,
 html body .BtnExpedienteOpen,
@@ -8036,7 +8023,7 @@ html body .BtnSmall i,
 html body .BtnSmall span{
   color:inherit!important;
 }
-/* Botones blancos de navegación/cancelar conservan estilo claro metálico. */
+
 html body .SgceBtnVolverInicio,
 html body .BtnCancelDelete,
 html body .BtnCancelEdit,
@@ -8056,7 +8043,7 @@ html body .modal .BtnCancelEdit:hover{
   box-shadow:0 15px 28px rgba(15,23,42,.16),inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 
-/* SGCE - estilos de interfaz */
+
 html body .SgceModuleWrap button.BtnPrimary,
 html body .SgceModuleWrap a.BtnPrimary,
 html body .SgceModuleWrap .BtnGuinda,
@@ -8137,7 +8124,7 @@ html body .SgceModuleWrap .SgceConfigSave:disabled{
   box-shadow:0 10px 22px rgba(var(--SgceGuindaRGB),.20),inset 0 1px 0 rgba(255,255,255,.20)!important;
 }
 
-/* Instalador: verificación visual del servidor */
+
 .SgceInstallerCheckPanel{
   margin:18px 0 22px;
   padding:18px;
@@ -8155,7 +8142,7 @@ html body .SgceModuleWrap .SgceConfigSave:disabled{
 .SgceInstallerCheckItem i{margin-top:2px;font-size:1rem}.SgceInstallerCheckItem strong{margin:0;color:#0F172A;text-transform:none}.SgceInstallerCheckItem p{margin:3px 0 0;font-size:.82rem;line-height:1.35}.SgceInstallerCheckOK i{color:#16A34A}.SgceInstallerCheckWARNING i{color:#D97706}.SgceInstallerCheckERROR i{color:#DC2626}
 
 
-/* Consulta pública: encabezado compacto */
+
 .ConsultaPublicaBody .ConsultaHero.ConsultaHeroCompact{
   display:flex!important;
   align-items:center!important;
@@ -8242,9 +8229,7 @@ html body .SgceModuleWrap .SgceConfigSave:disabled{
   .ConsultaPublicaBody .ConsultaHeroCompact p{font-size:.92rem!important;}
 }
 
-/* ============================================================
-   MÓDULO DE PLANEACIONES DOCENTES
-   ============================================================ */
+
 .PlaneacionesStatsGrid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:16px;margin-bottom:18px}
 .PlaneacionStatCard{position:relative;overflow:hidden;background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.92);border-top:4px solid var(--SgceGuinda);border-radius:22px;padding:18px 18px;box-shadow:0 18px 38px rgba(15,23,42,.08);display:flex;align-items:center;gap:14px;min-height:96px}
 .PlaneacionStatCard span{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)}
@@ -8288,7 +8273,7 @@ html body .SgceModuleWrap .SgceConfigSave:disabled{
 .BtnUpdateMetal:active{transform:scale(.98)}
 
 
-/* Ajustes de interfaz */
+
 
 .StatCard,.StatMini,.MetricCard,.ExpedienteMetricCard,.PlaneacionStatCard,.DashboardStatsGrid .StatCard,.StatsGrid .StatCard,.SgceUsersStats .StatCard,.ConsultaMetricCard{
   border-top:4px solid var(--SgceGuinda)!important;
@@ -8369,7 +8354,7 @@ html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios i
 }
 
 
-/* Asignaciones: materia y grupo compactos */
+
 html body .SgceModuleWrap #TableAsig{
   table-layout:auto!important;
 }
@@ -8460,7 +8445,7 @@ html body #TableAsig .AsignacionGrupoChips{
 @media (max-width:768px){.modal-dialog.modal-lg{max-width:calc(100% - 18px)!important;margin:.75rem auto!important}.PlaneacionReviewHeader{padding:24px 20px 18px!important;align-items:flex-start!important}.PlaneacionReviewIcon{width:54px;height:54px;border-radius:18px}.PlaneacionReviewTitle h5{font-size:1.18rem}.PlaneacionReviewBody{padding:20px!important}.PlaneacionReviewPreview{padding:14px}.PlaneacionReviewFooter{padding:16px 20px 20px!important;flex-direction:column-reverse}.PlaneacionReviewCancel,.PlaneacionReviewSave{width:100%}}
 
 
-/* Bitácora compacta */
+
 html body .SgceModuleWrap .SgceBitacoraCard{
   padding:22px!important;
 }
@@ -8572,7 +8557,7 @@ html body .SgceModuleWrap #PagerBitacora{
 }
 
 
-/* Consulta pública: botón de regreso inteligente */
+
 .ConsultaPublicaBody .ConsultaHeroActions{
   display:flex!important;
   flex-direction:column!important;
@@ -8626,9 +8611,7 @@ html body .SgceModuleWrap #PagerBitacora{
   }
 }
 
-/* =========================================================
-   SGCE 2026 FINAL: aviso docente sin materias + modal amber
-   ========================================================= */
+
 .MaestroEmptyNotice{
   display:flex!important;
   align-items:center!important;
@@ -8690,8 +8673,8 @@ html body .SgceModuleWrap #PagerBitacora{
   overflow:hidden!important;
   border:0!important;
   border-radius:28px!important;
-  background:linear-gradient(145deg,#FFF7ED,#FFFBEB 42%,#FFFFFF)!important;
-  box-shadow:0 30px 80px rgba(15,23,42,.28),0 0 0 1px rgba(251,191,36,.22)!important;
+  background:linear-gradient(145deg,#ECFDF5,#F0FDF4 42%,#FFFFFF)!important;
+  box-shadow:0 30px 80px rgba(15,23,42,.28),0 0 0 1px rgba(16,185,129,.22)!important;
 }
 .SgceConfirmHeader{
   position:relative!important;
@@ -8700,16 +8683,16 @@ html body .SgceModuleWrap #PagerBitacora{
   text-align:center!important;
   color:#FFFFFF!important;
   background:
-    radial-gradient(circle at 12% 0%,rgba(255,255,255,.42),transparent 34%),
-    linear-gradient(135deg,#92400E,#F59E0B 48%,#B45309)!important;
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.28),transparent 34%),
+    linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%)!important;
 }
 .SgceConfirmHeader::before{
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.30) 44%,transparent 62%);
+  background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.22) 44%,transparent 62%);
   transform:translateX(-100%);
-  animation:SgceAmberShine 3.6s ease-in-out infinite;
+  animation:SgceConfirmShine 3.6s ease-in-out infinite;
   pointer-events:none;
 }
 .SgceConfirmIcon{
@@ -8722,9 +8705,9 @@ html body .SgceModuleWrap #PagerBitacora{
   display:grid!important;
   place-items:center!important;
   font-size:1.85rem!important;
-  color:#78350F!important;
-  background:linear-gradient(145deg,#FFFFFF,#FEF3C7)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 38px rgba(120,53,15,.25)!important;
+  color:#065F46!important;
+  background:linear-gradient(145deg,#FFFFFF,#D1FAE5)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 38px rgba(4,120,87,.26)!important;
 }
 .SgceConfirmHeader h4{
   position:relative!important;
@@ -8740,7 +8723,7 @@ html body .SgceModuleWrap #PagerBitacora{
   position:relative!important;
   z-index:1!important;
   margin:6px 0 0!important;
-  color:rgba(255,255,255,.86)!important;
+  color:rgba(255,255,255,.88)!important;
   font-size:.78rem!important;
   font-weight:800!important;
   letter-spacing:.08em!important;
@@ -8765,9 +8748,9 @@ html body .SgceModuleWrap #PagerBitacora{
   margin:0 0 22px!important;
   padding:14px 15px!important;
   border-radius:18px!important;
-  color:#78350F!important;
-  background:linear-gradient(135deg,rgba(254,243,199,.96),rgba(255,247,237,.94))!important;
-  border:1px solid rgba(245,158,11,.26)!important;
+  color:#064E3B!important;
+  background:linear-gradient(135deg,rgba(209,250,229,.96),rgba(236,253,245,.94))!important;
+  border:1px solid rgba(16,185,129,.26)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
   text-align:left!important;
   font-size:.88rem!important;
@@ -8776,7 +8759,7 @@ html body .SgceModuleWrap #PagerBitacora{
 }
 .SgceConfirmDetail i{
   margin-top:2px!important;
-  color:#D97706!important;
+  color:#047857!important;
 }
 .SgceConfirmActions{
   display:grid!important;
@@ -8806,8 +8789,9 @@ html body .SgceModuleWrap #PagerBitacora{
 }
 .SgceConfirmAccept{
   color:#FFFFFF!important;
-  background:linear-gradient(135deg,#B45309,#F59E0B 54%,#92400E)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 16px 34px rgba(180,83,9,.34)!important;
+  background:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 16px 34px rgba(4,120,87,.34)!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.34)!important;
 }
 .SgceConfirmCancel:hover,
 .SgceConfirmAccept:hover{
@@ -8822,7 +8806,33 @@ html body .SgceModuleWrap #PagerBitacora{
   opacity:.72!important;
   pointer-events:none!important;
 }
-@keyframes SgceAmberShine{
+.SgceConfirmModalDanger .SgceConfirmContent{
+  background:linear-gradient(145deg,#FFF1F2,#FFF7F7 42%,#FFFFFF)!important;
+  box-shadow:0 30px 80px rgba(15,23,42,.28),0 0 0 1px rgba(220,38,38,.18)!important;
+}
+.SgceConfirmModalDanger .SgceConfirmHeader{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.24),transparent 34%),
+    linear-gradient(135deg,#7F1D1D 0%,#BE123C 54%,#E11D48 100%)!important;
+}
+.SgceConfirmModalDanger .SgceConfirmIcon{
+  color:#7F1D1D!important;
+  background:linear-gradient(145deg,#FFFFFF,#FFE4E6)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 18px 38px rgba(127,29,29,.25)!important;
+}
+.SgceConfirmModalDanger .SgceConfirmDetail{
+  color:#7F1D1D!important;
+  background:linear-gradient(135deg,rgba(255,228,230,.96),rgba(255,241,242,.94))!important;
+  border-color:rgba(225,29,72,.24)!important;
+}
+.SgceConfirmModalDanger .SgceConfirmDetail i{
+  color:#BE123C!important;
+}
+.SgceConfirmModalDanger .SgceConfirmAccept{
+  background:linear-gradient(135deg,#7F1D1D 0%,#BE123C 56%,#E11D48 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 16px 34px rgba(190,18,60,.34)!important;
+}
+@keyframes SgceConfirmShine{
   0%,58%{transform:translateX(-115%);opacity:0;}
   68%{opacity:.95;}
   100%{transform:translateX(115%);opacity:0;}
@@ -8836,10 +8846,8 @@ html body .SgceModuleWrap #PagerBitacora{
 }
 
 
-/* =========================================================
-   SGCE 2026 FINAL - AJUSTE GENERAL DE NOTIFICACIONES
-   Mantiene la tachita alineada y usable en alertas Bootstrap y avisos propios.
-   ========================================================= */
+
+
 .alert.alert-dismissible{
   position:relative!important;
   padding-right:58px!important;
@@ -8868,3 +8876,1189 @@ html body .SgceModuleWrap #PagerBitacora{
   transform:translateY(-8px)!important;
   transition:opacity .22s ease, transform .22s ease!important;
 }
+
+
+
+.BtnConsultaPublicaGrid{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.BtnConsultaPublicaGrid .BtnConsultaPadre{
+  margin-top:0!important;
+  min-height:54px;
+  border-radius:18px!important;
+  padding:10px 12px;
+  line-height:1.1;
+  text-align:center;
+  flex-direction:column;
+  font-size:.78rem;
+  letter-spacing:.02em;
+}
+.BtnConsultaPublicaGrid .BtnConsultaPadre i{font-size:1.05rem;}
+.BtnConsultaPublicaGrid .BtnConsultaAsistencia{
+  border-color:#2563EB!important;
+  color:#2563EB!important;
+  background:linear-gradient(145deg,#FFFFFF,#EFF6FF)!important;
+}
+.BtnConsultaPublicaGrid .BtnConsultaAsistencia:hover{
+  background:linear-gradient(135deg,#1D4ED8,#38BDF8)!important;
+  color:#FFFFFF!important;
+}
+.BtnConsultaPublicaGrid .BtnConsultaCalificaciones{
+  border-color:var(--SgceGuinda)!important;
+  color:var(--SgceGuindaOscuro)!important;
+  background:linear-gradient(145deg,#FFFFFF,#FFF7ED)!important;
+}
+.BtnConsultaPublicaGrid .BtnConsultaCalificaciones:hover{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#FFFFFF!important;
+  box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.24)!important;
+}
+.ConsultaHeroMain,
+.ConsultaHeroActions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.ConsultaHeroActions{
+  margin-left:auto;
+  flex-direction:column;
+  align-items:flex-end;
+}
+.ConsultaQuickRanges{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:12px;
+}
+.ConsultaQuickRanges button{
+  border:1px solid rgba(var(--SgceGuindaRGB),.18);
+  border-radius:999px;
+  background:#FFF;
+  color:var(--SgceGuindaOscuro);
+  font-size:.78rem;
+  font-weight:900;
+  padding:9px 8px;
+  transition:.18s ease;
+}
+.ConsultaQuickRanges button:hover{
+  transform:translateY(-1px);
+  background:var(--SgceGuindaSuave);
+  border-color:rgba(var(--SgceGuindaRGB),.32);
+}
+.ConsultaPublicActions form{margin:0;}
+.BtnPdfPublico{
+  background:linear-gradient(135deg,#7F1D1D,#DC2626)!important;
+  box-shadow:0 16px 30px rgba(220,38,38,.22)!important;
+}
+.ConsultaDetalleTable{
+  border:1px solid rgba(148,163,184,.22);
+  border-radius:20px;
+  overflow:hidden;
+  background:#fff;
+}
+.ConsultaDetalleHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  background:#F8FAFC;
+  border-bottom:1px solid #E5E7EB;
+}
+.ConsultaDetalleHeader h4{
+  margin:0;
+  font-size:1rem;
+  font-weight:900;
+  color:var(--SgceGuindaOscuro)!important;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ConsultaDetalleHeader span{
+  display:inline-flex;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:.75rem;
+  font-weight:900;
+  color:var(--SgceGuindaOscuro);
+  background:var(--SgceGuindaSuave);
+  white-space:nowrap;
+}
+.ConsultaDetalleTable .table th{
+  background:#F8FAFC;
+  color:#64748B;
+  text-transform:uppercase;
+  font-size:.72rem;
+  letter-spacing:.04em;
+}
+.ConsultaDetalleTable .table td,
+.ConsultaDetalleTable .table th{
+  padding:12px 14px;
+  border-color:#EEF2F7;
+}
+.ConsultaGridCalificaciones{
+  grid-template-columns:minmax(360px,.72fr) minmax(0,1.28fr);
+}
+.ResultadoCalificacionesCard{
+  justify-content:flex-start!important;
+}
+.ConsultaCalificacionesTable th,
+.ConsultaCalificacionesTable td{
+  vertical-align:middle!important;
+}
+.PromedioBadge{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+}
+@media(max-width:720px){
+  .BtnConsultaPublicaGrid{grid-template-columns:1fr;}
+  .ConsultaQuickRanges{grid-template-columns:1fr;}
+  .ConsultaHeroMain{align-items:flex-start;}
+  .ConsultaHeroActions{align-items:flex-start;margin-left:0;width:100%;}
+}
+
+
+.SgceHpField {
+    position: absolute !important;
+    left: -10000px !important;
+    top: auto !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+.SgceColorIcon{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+  font-weight:400!important;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol",system-ui,sans-serif!important;
+  color:inherit!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.28));
+}
+.SgceHeroIcon .SgceColorIcon,
+.HeaderIcon .SgceColorIcon,
+.IconBox .SgceColorIcon,
+.HeroIcon .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  font-size:1.72rem!important;
+}
+.DashboardModuleGridPro .DashboardModuleCard>.SgceColorIcon,
+.DashboardModuleCard>.SgceColorIcon{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  margin:0 0 6px!important;
+  border-radius:13px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  font-size:1.42rem!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+.DashboardKpiIcon .SgceColorIcon,
+.DashboardTodayIcon .SgceColorIcon,
+.DashboardRiskEmptyIcon .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  font-size:1.32rem!important;
+}
+.DashboardRiskEmptyIcon .SgceColorIcon{font-size:1.7rem!important;}
+.card-header-custom .SgceColorIcon.SgceTitleIcon,
+.SgceTitleIcon{
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  margin-right:8px!important;
+  border-radius:12px!important;
+  background:rgba(var(--SgceGuindaRGB),.10)!important;
+  color:var(--SgceGuinda)!important;
+  font-size:1.25rem!important;
+  vertical-align:middle!important;
+}
+.SgceMiniIcon .SgceColorIcon,
+.ExpedientesTitleIcon .SgceColorIcon,
+.SgceBitacoraIcon .SgceColorIcon,
+.MaestroAvisosIcon .SgceColorIcon,
+.ConsultaHeroIcon .SgceColorIcon,
+.EstadoIcon .SgceColorIcon,
+.MetricIcon .SgceColorIcon,
+.StatsIcon .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  font-size:1.28rem!important;
+}
+.ConsultaHeroIcon .SgceColorIcon{font-size:1.85rem!important;}
+.EstadoIcon .SgceColorIcon{font-size:1.55rem!important;}
+.MetricIcon .SgceColorIcon,
+.StatsIcon .SgceColorIcon{font-size:1.2rem!important;}
+.ActionBtn .SgceColorIcon,
+.BtnPrimary .SgceColorIcon,
+button .SgceColorIcon,
+a .SgceColorIcon{
+  text-transform:none!important;
+  flex:0 0 auto!important;
+}
+
+
+.SgcePeriodCardTitle>span .SgceColorIcon,
+.SgceConfigHead>span .SgceColorIcon,
+.SgceReportIcon .SgceColorIcon,
+.PlaneacionStatCard>span .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  font-size:1.35rem!important;
+}
+.SgcePeriodCardTitle>span .SgceColorIcon{font-size:1.42rem!important;}
+.SgceReportIcon .SgceColorIcon{font-size:1.35rem!important;}
+.PlaneacionStatCard>span .SgceColorIcon{font-size:1.28rem!important;}
+.SgceConfigHead>span .SgceColorIcon{font-size:1.38rem!important;}
+.SgceInlineTitle{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  color:var(--SgceGuindaOscuro)!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  letter-spacing:.02em!important;
+}
+.SgceInlineTitle .SgceTitleIcon{
+  margin-right:0!important;
+  flex:0 0 32px!important;
+}
+.SgceUsersCreateCard h2 .SgceTitleIcon,
+.SgceUsersTableHeader h2 .SgceTitleIcon,
+.ConsultaPublicaBody .ConsultaCard h4 .SgceTitleIcon,
+.SgceRestorePage h1 .SgceTitleIcon{
+  margin-right:10px!important;
+}
+.SgceRestorePage h1 .SgceTitleIcon{
+  background:rgba(255,255,255,.16)!important;
+  color:#fff!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:17px!important;
+  font-size:1.55rem!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+.SgceReportBtn .SgceColorIcon,
+.BtnPrincipal .SgceColorIcon,
+.SgceConfigSave .SgceColorIcon{
+  font-size:1.05rem!important;
+  margin-right:4px!important;
+}
+
+
+
+html body .SgceModuleWrap .MaestrosTableTop h6.SgceInlineTitle::before,
+html body .SgceModuleWrap .GruposTableTop h6.SgceInlineTitle::before,
+html body .SgceModuleWrap .AlumnosTableTop h6.SgceInlineTitle::before{
+  content:none!important;
+  display:none!important;
+  flex:0 0 0!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+html body .SgceModuleWrap .MaestrosTableTop h6.SgceInlineTitle .SgceTitleIcon,
+html body .SgceModuleWrap .GruposTableTop h6.SgceInlineTitle .SgceTitleIcon,
+html body .SgceModuleWrap .AlumnosTableTop h6.SgceInlineTitle .SgceTitleIcon{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  margin:0!important;
+  border-radius:16px!important;
+  background:rgba(var(--SgceGuindaRGB),.10)!important;
+  box-shadow:0 10px 20px rgba(var(--SgceGuindaRGB),.12), inset 0 1px 0 rgba(255,255,255,.42)!important;
+  font-size:1.45rem!important;
+}
+
+
+.LogoSistema .SgceColorIcon,
+.LoginIcon .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  color:#fff!important;
+  font-size:1.9rem!important;
+}
+.IconoCaracteristica .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  color:#fff!important;
+  font-size:1.35rem!important;
+}
+.InputIcon .SgceColorIcon{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  color:#64748B!important;
+  font-size:1.08rem!important;
+}
+.BtnLogin .SgceColorIcon,
+.BtnConsultaPadre .SgceColorIcon,
+.FooterLogin .SgceColorIcon{
+  margin-right:8px!important;
+}
+.BtnConsultaPadre .SgceColorIcon{
+  font-size:1.05rem!important;
+}
+.FooterLogin .SgceColorIcon{
+  font-size:.95rem!important;
+}
+
+
+html body .SgceModuleWrap .search-container.input-group,
+html body .SgceModuleWrap .input-group.search-container,
+html body .ConsultaPublicaBody .search-container.input-group,
+html body .ConsultaPublicaBody .input-group.search-container{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  gap:0!important;
+  min-height:48px!important;
+  border:2px solid #E2E8F0!important;
+  border-radius:18px!important;
+  background:linear-gradient(145deg,#FFFFFF,#F8FAFC)!important;
+  box-shadow:0 13px 28px rgba(15,23,42,.06)!important;
+  overflow:hidden!important;
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+}
+html body .SgceModuleWrap .search-container.input-group:focus-within,
+html body .SgceModuleWrap .input-group.search-container:focus-within,
+html body .ConsultaPublicaBody .search-container.input-group:focus-within,
+html body .ConsultaPublicaBody .input-group.search-container:focus-within{
+  border-color:rgba(var(--SgceGuindaRGB),.45)!important;
+  box-shadow:0 0 0 .22rem rgba(var(--SgceGuindaRGB),.10),0 16px 32px rgba(15,23,42,.08)!important;
+  transform:translateY(-1px)!important;
+}
+html body .SgceModuleWrap .search-container .input-group-text,
+html body .SgceModuleWrap .input-group.search-container .input-group-text,
+html body .ConsultaPublicaBody .search-container .input-group-text,
+html body .ConsultaPublicaBody .input-group.search-container .input-group-text{
+  width:52px!important;
+  min-width:52px!important;
+  height:48px!important;
+  min-height:48px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--SgceGuinda)!important;
+  box-shadow:none!important;
+}
+html body .SgceModuleWrap .search-container .input-group-text i,
+html body .SgceModuleWrap .input-group.search-container .input-group-text i,
+html body .ConsultaPublicaBody .search-container .input-group-text i,
+html body .ConsultaPublicaBody .input-group.search-container .input-group-text i{
+  color:var(--SgceGuinda)!important;
+  font-size:1rem!important;
+}
+html body .SgceModuleWrap .search-container .form-control,
+html body .SgceModuleWrap .input-group.search-container .form-control,
+html body .ConsultaPublicaBody .search-container .form-control,
+html body .ConsultaPublicaBody .input-group.search-container .form-control{
+  height:48px!important;
+  min-height:48px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#0F172A!important;
+  font-weight:700!important;
+  padding-left:0!important;
+}
+html body .SgceModuleWrap .search-container .form-control::placeholder,
+html body .SgceModuleWrap .input-group.search-container .form-control::placeholder,
+html body .ConsultaPublicaBody .search-container .form-control::placeholder,
+html body .ConsultaPublicaBody .input-group.search-container .form-control::placeholder{
+  color:#64748B!important;
+  font-weight:800!important;
+  text-transform:uppercase!important;
+  letter-spacing:.01em!important;
+}
+
+
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard{
+  min-height:auto!important;
+}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard{
+  padding:0 0 6px!important;
+  margin:0!important;
+  min-height:0!important;
+}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard h6{
+  margin:0!important;
+  min-height:44px!important;
+}
+html body .SgceModuleWrap #asignaciones .AsignacionesCardBody{
+  padding-top:10px!important;
+}
+html body .SgceModuleWrap #asignaciones .AsignacionForm{
+  margin-top:0!important;
+  margin-bottom:18px!important;
+  padding-top:0!important;
+  padding-bottom:16px!important;
+}
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard .d-flex.justify-content-between.align-items-center{
+  padding-top:14px!important;
+}
+
+
+.PlaneacionesPagerWrap .SgcePagerServer{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+}
+.PlaneacionesPagerWrap .pagination{
+  margin-bottom:6px!important;
+}
+.PlaneacionesPagerWrap .page-link{
+  min-width:34px!important;
+  min-height:34px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-weight:900!important;
+}
+
+
+html body.SgceInstallerPage .SgceInstallerAlert{
+  padding-right:68px!important;
+}
+html body.SgceInstallerPage .SgceInstallerAlertBody{
+  padding-right:18px!important;
+}
+html body.SgceInstallerPage .SgceInstallerAlertClose{
+  position:absolute!important;
+  top:50%!important;
+  right:18px!important;
+  transform:translateY(-50%)!important;
+  margin-left:0!important;
+  z-index:4!important;
+}
+html body.SgceInstallerPage .SgceInstallerAlertClose:hover{
+  transform:translateY(-50%) scale(1.08)!important;
+}
+html body.SgceInstallerPage .SgceInstallerAlertClose:active{
+  transform:translateY(-50%) scale(.94)!important;
+}
+@media(max-width:576px){
+  html body.SgceInstallerPage .SgceInstallerAlert{
+    padding-right:58px!important;
+  }
+  html body.SgceInstallerPage .SgceInstallerAlertClose{
+    right:12px!important;
+  }
+}
+
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish{
+  background:linear-gradient(135deg,#064E3B 0%,#047857 34%,#10B981 68%,#6EE7B7 100%)!important;
+  background-color:#059669!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 16px 34px rgba(16,185,129,.34),inset 0 1px 0 rgba(255,255,255,.34)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.18)!important;
+}
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover,
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish:hover{
+  filter:saturate(1.12) brightness(1.04)!important;
+  box-shadow:0 22px 42px rgba(16,185,129,.42),inset 0 1px 0 rgba(255,255,255,.38)!important;
+}
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish::after,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish::after,
+html body.AvisosBody button.BtnPrimary.AvisosSubmit.BtnAvisoPublish::after{
+  background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.10) 24%,rgba(255,255,255,.40) 50%,rgba(255,255,255,.10) 74%,transparent 100%)!important;
+}
+
+
+
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde,
+html body.AvisosBody button[type="submit"].BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde,
+html body.AvisosBody button.BtnAvisoPublish.BtnMetalicoVerde{
+  background:linear-gradient(135deg,#052E26 0%,#065F46 26%,#059669 52%,#10B981 76%,#A7F3D0 100%)!important;
+  background-color:#059669!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 18px 36px rgba(5,150,105,.38),inset 0 1px 0 rgba(255,255,255,.42)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.20)!important;
+}
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde:hover,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde:hover,
+html body.AvisosBody button[type="submit"].BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde:hover,
+html body.AvisosBody button.BtnAvisoPublish.BtnMetalicoVerde:hover{
+  background:linear-gradient(135deg,#064E3B 0%,#047857 25%,#10B981 58%,#6EE7B7 100%)!important;
+  filter:saturate(1.08) brightness(1.04)!important;
+  box-shadow:0 22px 44px rgba(5,150,105,.48),inset 0 1px 0 rgba(255,255,255,.46)!important;
+}
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde i,
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde span{
+  color:#FFFFFF!important;
+}
+html body.AvisosBody .SgceModuleWrap .AvisosForm button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde::after,
+html body.AvisosBody .SgceModuleWrap button.BtnPrimary.AvisosSubmit.BtnAvisoPublish.BtnMetalicoVerde::after,
+html body.AvisosBody button.BtnAvisoPublish.BtnMetalicoVerde::after{
+  background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.12) 24%,rgba(255,255,255,.46) 50%,rgba(255,255,255,.13) 74%,transparent 100%)!important;
+}
+
+
+
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo,
+button.BtnAvisoVerdeMetalicoFijo {
+    width: 100% !important;
+    min-height: 52px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 13px 22px !important;
+    font-weight: 900 !important;
+    letter-spacing: .25px !important;
+    text-transform: uppercase !important;
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #042F2E 0%, #065F46 23%, #059669 52%, #10B981 76%, #A7F3D0 100%) !important;
+    background-color: #059669 !important;
+    box-shadow: 0 18px 36px rgba(5, 150, 105, .40), inset 0 1px 0 rgba(255,255,255,.46) !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,.22) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    cursor: pointer !important;
+    transition: transform .22s ease, box-shadow .22s ease, filter .22s ease !important;
+}
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo::after,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo::after,
+button.BtnAvisoVerdeMetalicoFijo::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.10) 25%, rgba(255,255,255,.45) 50%, rgba(255,255,255,.12) 74%, transparent 100%) !important;
+    transform: translateX(-115%) !important;
+    transition: transform .7s ease !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+}
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo:hover,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo:hover,
+button.BtnAvisoVerdeMetalicoFijo:hover {
+    transform: translateY(-2px) !important;
+    filter: saturate(1.08) brightness(1.05) !important;
+    background: linear-gradient(135deg, #064E3B 0%, #047857 25%, #10B981 58%, #6EE7B7 100%) !important;
+    box-shadow: 0 22px 44px rgba(5, 150, 105, .50), inset 0 1px 0 rgba(255,255,255,.50) !important;
+}
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo:hover::after,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo:hover::after,
+button.BtnAvisoVerdeMetalicoFijo:hover::after {
+    transform: translateX(115%) !important;
+}
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo i,
+html body.AvisosBody .AvisosForm button.BtnAvisoVerdeMetalicoFijo span,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo i,
+html body .AvisosForm button.BtnAvisoVerdeMetalicoFijo span,
+button.BtnAvisoVerdeMetalicoFijo i,
+button.BtnAvisoVerdeMetalicoFijo span {
+    position: relative !important;
+    z-index: 1 !important;
+    color: #FFFFFF !important;
+}
+
+
+
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"],
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button#BtnPublicarAvisoVerdeMetalico,
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button.SgceBtnVerdeMetalicoIndependiente,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnPrimary.AvisosSubmit.BtnAvisoPublish,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoVerdeMetalicoFijo,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  width:100%!important;
+  min-height:52px!important;
+  border:0!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:13px 22px!important;
+  font-weight:900!important;
+  letter-spacing:.25px!important;
+  text-transform:uppercase!important;
+  color:#FFFFFF!important;
+  background-color:#047857!important;
+  background-image:linear-gradient(135deg,#022C22 0%,#064E3B 20%,#047857 42%,#10B981 68%,#A7F3D0 100%)!important;
+  box-shadow:0 18px 36px rgba(4,120,87,.42),inset 0 1px 0 rgba(255,255,255,.46)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.22)!important;
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  cursor:pointer!important;
+  transition:transform .22s ease,box-shadow .22s ease,filter .22s ease!important;
+}
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"]::after,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente::after,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoVerdeMetalicoFijo::after,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoPublish::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.10) 25%,rgba(255,255,255,.46) 50%,rgba(255,255,255,.12) 74%,transparent 100%)!important;
+  transform:translateX(-115%)!important;
+  transition:transform .7s ease!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"]:hover,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente:hover,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoVerdeMetalicoFijo:hover,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoPublish:hover{
+  transform:translateY(-2px)!important;
+  filter:saturate(1.08) brightness(1.05)!important;
+  background-color:#059669!important;
+  background-image:linear-gradient(135deg,#064E3B 0%,#047857 26%,#10B981 62%,#6EE7B7 100%)!important;
+  box-shadow:0 22px 44px rgba(4,120,87,.50),inset 0 1px 0 rgba(255,255,255,.50)!important;
+}
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"]:hover::after,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente:hover::after,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoVerdeMetalicoFijo:hover::after,
+html body.AvisosBody .AvisosForm button[type="submit"].BtnAvisoPublish:hover::after{
+  transform:translateX(115%)!important;
+}
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"] i,
+html body.AvisosBody main.SgcePageWrap.SgceModuleWrap.AvisosWrap form.AvisosForm button[type="submit"] span,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente i,
+html body.AvisosBody .AvisosForm button[type="submit"].SgceBtnVerdeMetalicoIndependiente span{
+  position:relative!important;
+  z-index:1!important;
+  color:#FFFFFF!important;
+}
+
+
+
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico,
+button.BtnPeriodoVerdeMetalico {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    min-height: 52px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 13px 22px !important;
+    font-weight: 900 !important;
+    letter-spacing: .25px !important;
+    text-transform: none !important;
+    color: #FFFFFF !important;
+    background-color: #047857 !important;
+    background-image: linear-gradient(135deg,#022C22 0%,#064E3B 22%,#047857 45%,#10B981 72%,#A7F3D0 100%) !important;
+    box-shadow: 0 18px 36px rgba(4,120,87,.42), inset 0 1px 0 rgba(255,255,255,.46) !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,.22) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    cursor: pointer !important;
+    transition: transform .22s ease, box-shadow .22s ease, filter .22s ease !important;
+}
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico::after,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico::after,
+button.BtnPeriodoVerdeMetalico::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(115deg,transparent 0%,rgba(255,255,255,.10) 25%,rgba(255,255,255,.46) 50%,rgba(255,255,255,.12) 74%,transparent 100%) !important;
+    transform: translateX(-115%) !important;
+    transition: transform .7s ease !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+}
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico:hover,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico:hover,
+button.BtnPeriodoVerdeMetalico:hover {
+    transform: translateY(-2px) !important;
+    filter: saturate(1.08) brightness(1.05) !important;
+    background-color: #059669 !important;
+    background-image: linear-gradient(135deg,#064E3B 0%,#047857 27%,#10B981 64%,#6EE7B7 100%) !important;
+    box-shadow: 0 22px 44px rgba(4,120,87,.50), inset 0 1px 0 rgba(255,255,255,.50) !important;
+}
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico:hover::after,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico:hover::after,
+button.BtnPeriodoVerdeMetalico:hover::after {
+    transform: translateX(115%) !important;
+}
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico i,
+html body .SgcePeriodosWrap .SgcePeriodForm button.BtnPeriodoVerdeMetalico span,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico i,
+html body .SgcePeriodosWrap button.BtnPeriodoVerdeMetalico span,
+button.BtnPeriodoVerdeMetalico i,
+button.BtnPeriodoVerdeMetalico span {
+    position: relative !important;
+    z-index: 1 !important;
+    color: #FFFFFF !important;
+}
+
+
+
+html body.SgceInstallerPage .SgceInstallerHero{
+  padding:18px 26px!important;
+  min-height:auto!important;
+}
+html body.SgceInstallerPage .SgceInstallerHero .TopLeft{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:16px!important;
+  flex-direction:row!important;
+  width:100%!important;
+}
+html body.SgceInstallerPage .SgceInstallerHero .IconBox{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  border-radius:16px!important;
+  font-size:1.35rem!important;
+  margin:0!important;
+}
+html body.SgceInstallerPage .SgceInstallerHero h1{
+  font-size:clamp(1.55rem,2.3vw,2.05rem)!important;
+  line-height:1!important;
+  margin:0!important;
+}
+html body.SgceInstallerPage .SgceInstallerHero p{
+  margin-top:5px!important;
+  line-height:1.25!important;
+}
+html body.SgceInstallerPage .SgceInstallerTitle{
+  gap:14px!important;
+  margin-bottom:18px!important;
+}
+html body.SgceInstallerPage .SgceInstallerTitle > span{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  border-radius:16px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(var(--SgceGuindaRGB),.10))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.10)!important;
+  box-shadow:0 10px 22px rgba(var(--SgceGuindaRGB),.10)!important;
+  font-size:1.25rem!important;
+}
+html body.SgceInstallerPage input[name="AdminPasswordConfirm"]:invalid:not(:placeholder-shown){
+  border-color:#DC2626!important;
+  box-shadow:0 0 0 .2rem rgba(220,38,38,.12)!important;
+}
+@media(max-width:768px){
+  html body.SgceInstallerPage .SgceInstallerHero{
+    padding:16px 18px!important;
+  }
+  html body.SgceInstallerPage .SgceInstallerHero .TopLeft{
+    flex-direction:row!important;
+    align-items:center!important;
+  }
+  html body.SgceInstallerPage .SgceInstallerHero .IconBox{
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+  }
+  html body.SgceInstallerPage .SgceInstallerHero h1{
+    font-size:1.5rem!important;
+  }
+}
+
+
+
+.SgceModuleWrap .MaestroAccionesGrid .BtnCalificaciones{
+  background:linear-gradient(135deg,#065F46 0%,#059669 42%,#10B981 100%)!important;
+  box-shadow:0 14px 28px rgba(16,185,129,.28)!important;
+}
+.SgceModuleWrap .MaestroAccionesGrid .BtnAsistencia{
+  background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 48%,#60A5FA 100%)!important;
+  box-shadow:0 14px 28px rgba(37,99,235,.28)!important;
+}
+.SgceModuleWrap .MaestroAccionesGrid .BtnPlaneacionesDocente{
+  background:linear-gradient(135deg,#B45309 0%,#F59E0B 52%,#FBBF24 100%)!important;
+  box-shadow:0 14px 28px rgba(245,158,11,.30)!important;
+}
+.SgceModuleWrap .MaestroAccionesGrid .BtnCalificaciones:hover,
+.SgceModuleWrap .MaestroAccionesGrid .BtnAsistencia:hover,
+.SgceModuleWrap .MaestroAccionesGrid .BtnPlaneacionesDocente:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.08) brightness(1.02)!important;
+}
+.SgceModuleWrap .MaestroExportGrid .ExportCalifExcel,
+.SgceModuleWrap .MaestroExportGrid .ExportAsisExcel{
+  background:linear-gradient(135deg,#065F46 0%,#059669 45%,#22C55E 100%)!important;
+  box-shadow:0 12px 24px rgba(34,197,94,.24)!important;
+}
+.SgceModuleWrap .MaestroExportGrid .ExportCalifPdf,
+.SgceModuleWrap .MaestroExportGrid .ExportAsisPdf{
+  background:linear-gradient(135deg,#7F1D1D 0%,#DC2626 52%,#EF4444 100%)!important;
+  box-shadow:0 12px 24px rgba(220,38,38,.25)!important;
+}
+.SgceModuleWrap .MaestroExportGrid .ExportCalifExcel:hover,
+.SgceModuleWrap .MaestroExportGrid .ExportAsisExcel:hover,
+.SgceModuleWrap .MaestroExportGrid .ExportCalifPdf:hover,
+.SgceModuleWrap .MaestroExportGrid .ExportAsisPdf:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.08) brightness(1.02)!important;
+}
+.SgceModuleWrap .MateriaIcon .SgceEmojiIcon{
+  font-size:1.45rem!important;
+  line-height:1!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.22))!important;
+}
+.SgceModuleWrap .BotonAccion .SgceEmojiIcon{
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  border-radius:9px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:rgba(255,255,255,.20)!important;
+  font-size:.92rem!important;
+  line-height:1!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+.SgceModuleWrap .SeccionExportar h6 .SgceEmojiIcon{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-right:6px!important;
+  font-size:.98rem!important;
+  line-height:1!important;
+}
+.SgceModuleWrap .MaestroExportGrid .BtnExport .SgceEmojiIcon{
+  display:inline-grid!important;
+  place-items:center!important;
+  font-size:.88rem!important;
+  line-height:1!important;
+  min-width:16px!important;
+}
+
+
+
+html body .PlaneacionesStatsGrid .PlaneacionStatCard > span:first-child{
+  border:1px solid rgba(148,163,184,.22)!important;
+  box-shadow:0 12px 24px rgba(15,23,42,.07)!important;
+  color:#334155!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard > span:first-child .SgceColorIcon,
+html body .PlaneacionMateriaIcon .SgceColorIcon{
+  width:auto!important;
+  height:auto!important;
+  min-width:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:inherit!important;
+  display:inline!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(1) > span:first-child{
+  background:linear-gradient(135deg,#FFF7ED,#FFEDD5)!important;
+  border-color:#FED7AA!important;
+  color:#EA580C!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(2) > span:first-child{
+  background:linear-gradient(135deg,#EEF2FF,#E0E7FF)!important;
+  border-color:#C7D2FE!important;
+  color:#4F46E5!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(3) > span:first-child{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(4) > span:first-child{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;
+  border-color:#A7F3D0!important;
+  color:#059669!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(5) > span:first-child{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border-color:#FECDD3!important;
+  color:#BE123C!important;
+}
+html body .PlaneacionMateriaHeader .PlaneacionMateriaIcon{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border:1px solid #BFDBFE!important;
+  color:#2563EB!important;
+  box-shadow:0 14px 28px rgba(37,99,235,.12)!important;
+}
+html body .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  width:42px!important;
+  height:42px!important;
+  border-radius:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #CBD5E1!important;
+  background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;
+  color:#475569!important;
+  box-shadow:0 12px 24px rgba(15,23,42,.06)!important;
+  font-size:1.05rem!important;
+}
+html body .PlaneacionEntregaItem.EstadoPendiente .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;
+  border-color:#CBD5E1!important;
+  color:#64748B!important;
+}
+html body .PlaneacionEntregaItem.EstadoSubida .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+html body .PlaneacionEntregaItem.EstadoAprobada .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;
+  border-color:#A7F3D0!important;
+  color:#059669!important;
+}
+html body .PlaneacionEntregaItem.EstadoDevuelta .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border-color:#FECDD3!important;
+  color:#BE123C!important;
+}
+html body .PlaneacionUploadForm .PlaneacionUploadBtn,
+html body .PlaneacionUploadForm .PlaneacionUploadBtn.BtnPrimary{
+  background:linear-gradient(135deg,#38BDF8 0%,#2563EB 52%,#1D4ED8 100%)!important;
+  color:#fff!important;
+  border:0!important;
+  border-radius:999px!important;
+  box-shadow:0 16px 34px rgba(37,99,235,.26), inset 0 1px 0 rgba(255,255,255,.20)!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+}
+html body .PlaneacionUploadForm .PlaneacionUploadBtn:hover,
+html body .PlaneacionUploadForm .PlaneacionUploadBtn.BtnPrimary:hover{
+  filter:saturate(1.06) brightness(1.03)!important;
+  transform:translateY(-1px)!important;
+  box-shadow:0 20px 40px rgba(37,99,235,.32), inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+html body .PlaneacionUploadForm .PlaneacionUploadBtn .SgceColorIcon{
+  width:24px!important;
+  height:24px!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+
+
+html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+html body .SgceModuleWrap .SgceRestoreCardHead .IconBox,
+html body .SgceModuleWrap .SgceBitacoraIcon,
+html body .SgceModuleWrap .ExpedientesTitleIcon,
+html body .SgceModuleWrap .SgceConfigHead > span{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  border-radius:17px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;
+  color:#334155!important;
+  border:1px solid #E2E8F0!important;
+  box-shadow:0 12px 24px rgba(15,23,42,.06)!important;
+}
+html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon .SgceColorIcon,
+html body .SgceModuleWrap .SgceRestoreCardHead .IconBox .SgceColorIcon,
+html body .SgceModuleWrap .SgceBitacoraIcon .SgceColorIcon,
+html body .SgceModuleWrap .ExpedientesTitleIcon .SgceColorIcon,
+html body .SgceModuleWrap .SgceConfigHead > span .SgceColorIcon{
+  width:auto!important;
+  height:auto!important;
+  min-width:0!important;
+  margin:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  box-shadow:none!important;
+  display:inline!important;
+  font-size:1.35rem!important;
+  line-height:1!important;
+}
+
+
+html body.AvisosBody .AvisosFormCard .SgceCardHeaderLine .SgceMiniIcon{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;
+  border-color:#A7F3D0!important;
+  color:#047857!important;
+}
+html body.AvisosBody .AvisosTableCard .SgceCardHeaderLine .SgceMiniIcon{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+
+
+html body .SgceModuleWrap .ExpedientesTitleIcon{
+  background:linear-gradient(135deg,#FFFBEB,#FEF3C7)!important;
+  border-color:#FDE68A!important;
+  color:#D97706!important;
+}
+html body .SgceModuleWrap .SgceBitacoraIcon{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+
+
+html body .SgceModuleWrap .SgceConfigGrid .SgceConfigCard:nth-of-type(1) .SgceConfigHead > span{
+  background:linear-gradient(135deg,#FFFBEB,#FEF3C7)!important;
+  border-color:#FDE68A!important;
+  color:#D97706!important;
+}
+html body .SgceModuleWrap .SgceConfigGrid .SgceConfigCard:nth-of-type(2) .SgceConfigHead > span{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border-color:#FECDD3!important;
+  color:#BE123C!important;
+}
+html body .SgceModuleWrap .SgceConfigGrid .SgceConfigCard:nth-of-type(3) .SgceConfigHead > span{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+
+
+html body.SgceRestorePage .SgceRestoreWrap .row > .col-lg-6:nth-of-type(1) .SgceRestoreCardHead .IconBox{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;
+  border-color:#A7F3D0!important;
+  color:#047857!important;
+}
+html body.SgceRestorePage .SgceRestoreWrap .row > .col-lg-6:nth-of-type(2) .SgceRestoreCardHead .IconBox{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+html body.SgceRestorePage .SgceRestoreWrap .SgceDangerCard .SgceRestoreCardHead .IconBox,
+html body.SgceRestorePage .SgceRestoreWrap .SgceDangerHead .IconBox{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border-color:#FECDD3!important;
+  color:#BE123C!important;
+}
+
+
+html body .PlaneacionesStatsGrid .PlaneacionStatCard > span:first-child,
+html body .PlaneacionMateriaHeader .PlaneacionMateriaIcon,
+html body .PlaneacionEntregaTop > span.PlaneacionEstadoIcono{
+  box-shadow:0 12px 24px rgba(15,23,42,.06)!important;
+}
+html body .PlaneacionesStatsGrid .PlaneacionStatCard > span:first-child .SgceColorIcon,
+html body .PlaneacionMateriaHeader .PlaneacionMateriaIcon .SgceColorIcon{
+  background:transparent!important;
+  box-shadow:none!important;
+  color:inherit!important;
+}
+
+
+html body.LoginPage{
+  min-height:100vh!important;
+  background:
+    radial-gradient(circle at 12% 10%,rgba(255,255,255,.18),transparent 24%),
+    radial-gradient(circle at 88% 16%,rgba(255,255,255,.12),transparent 28%),
+    linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 42%,var(--SgceGuinda) 100%)!important;
+}
+html body.LoginPage .Overlay{
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.20),transparent 27%),
+    radial-gradient(circle at 82% 22%,rgba(var(--SgceGuindaRGB),.30),transparent 32%),
+    linear-gradient(135deg,rgba(var(--SgceGuindaRGB),.22),rgba(var(--SgceGuindaRGB),.06))!important;
+}
+html body.LoginPage .GridLogin{
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 30px 78px rgba(var(--SgceGuindaRGB),.26),0 18px 40px rgba(15,23,42,.18)!important;
+}
+html body.LoginPage .PanelIzquierdo{
+  background:
+    radial-gradient(circle at 22% 12%,rgba(255,255,255,.18),transparent 28%),
+    radial-gradient(circle at 86% 84%,rgba(255,255,255,.10),transparent 26%),
+    linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 48%,var(--SgceGuinda) 100%)!important;
+}
+html body.LoginPage .LogoSistema,
+html body.LoginPage .LoginIcon{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  box-shadow:0 16px 34px rgba(var(--SgceGuindaRGB),.28),inset 0 1px 0 rgba(255,255,255,.26)!important;
+}
+html body.LoginPage .CardCaracteristica,
+html body.LoginPage .IconoCaracteristica{
+  background:rgba(255,255,255,.14)!important;
+  border-color:rgba(255,255,255,.18)!important;
+}
+html body.LoginPage .InputGroupCustom:focus-within{
+  border-color:rgba(var(--SgceGuindaRGB),.58)!important;
+  box-shadow:0 0 0 5px rgba(var(--SgceGuindaRGB),.10)!important;
+}
+html body.LoginPage .BtnVerPassword{
+  color:var(--SgceGuindaOscuro)!important;
+}
+html body.LoginPage .BtnVerPassword:hover{
+  color:var(--SgceGuinda)!important;
+  background:rgba(var(--SgceGuindaRGB),.07)!important;
+}
+html body.LoginPage .BtnLogin,
+html body.LoginPage button.BtnLogin[type="submit"]{
+  background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 42%,var(--SgceGuinda) 72%,var(--SgceGuindaClaro) 100%)!important;
+  background-color:var(--SgceGuinda)!important;
+  border:0!important;
+  color:#fff!important;
+  box-shadow:0 18px 36px rgba(var(--SgceGuindaRGB),.34),inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+html body.LoginPage .BtnLogin:hover,
+html body.LoginPage button.BtnLogin[type="submit"]:hover{
+  box-shadow:0 22px 44px rgba(var(--SgceGuindaRGB),.42),inset 0 1px 0 rgba(255,255,255,.34)!important;
+}
+html body.LoginPage .BtnConsultaPadre{
+  border:2px solid rgba(var(--SgceGuindaRGB),.62)!important;
+  background:rgba(var(--SgceGuindaRGB),.05)!important;
+  color:var(--SgceGuindaOscuro)!important;
+  box-shadow:0 10px 22px rgba(var(--SgceGuindaRGB),.10),inset 0 1px 0 rgba(255,255,255,.70)!important;
+}
+html body.LoginPage .BtnConsultaPadre:hover{
+  background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;
+  color:#fff!important;
+  border-color:var(--SgceGuinda)!important;
+  box-shadow:0 16px 34px rgba(var(--SgceGuindaRGB),.26),inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+html body.LoginPage .FooterLogin{
+  color:rgba(var(--SgceGuindaRGB),.80)!important;
+}
+html body.LoginPage .AlertError{
+  background:#FEF2F2!important;
+  color:#991B1B!important;
+  border-left:4px solid #DC2626!important;
+}
+
+

@@ -1,16 +1,10 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
-/*
-    Archivo: ExportarDatosBD.php
-    Descripción: Genera respaldo SOLO DE DATOS del sistema SGCE.
-    Este archivo no borra ni crea tablas; está pensado para restaurarse desde RestaurarBD.php.
-*/
+
 require_once dirname(__DIR__) . '/config/Conexion.php';
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || !SgcePuedeRespaldos($UserSession)) {
-    header('Location: index.php');
-    exit;
-}
+if (!$UserSession) { header('Location: index.php'); exit; }
+SgceExigirPermiso($UserSession, 'respaldos', 'Solo el administrador puede descargar respaldos de la base de datos.');
 
 RegistrarBitacora($Pdo, $UserSession, 'GENERAR_RESPALDO_DATOS', 'BASE_DE_DATOS', null, 'RESPALDO SOLO DATOS DESCARGADO');
 
@@ -82,8 +76,7 @@ foreach ($TablasExistentes as $Tabla) {
 $NombreArchivo = 'Datos_SGCE_' . date('Ymd_His') . '.sql';
 header('Content-Type: application/sql; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
-header('Pragma: no-cache');
-header('Expires: 0');
+SgceEnviarHeadersNoCacheDescarga();
 header('X-Content-Type-Options: nosniff');
 
 echo "-- ============================================================\n";
