@@ -90,11 +90,153 @@ $Stmt = $Pdo->prepare("
 $Stmt->execute([(int)$InfoClase['GrupoId']]);
 $Alumnos = $Stmt->fetchAll();
 
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
+    RequerirCsrfPost();
+
+    $UrlError = 'Asistencia.php?' . http_build_query([
+        'id' => $AsignacionId,
+        'Fecha' => $FechaConsulta,
+        'Error' => 1
+    ]);
+
+    if (!isset($_POST['estado']) || !is_array($_POST['estado'])) {
+        header('Location: ' . $UrlError);
+        exit;
+    }
+
+    $Momento = $FechaConsulta . ' ' . date('H:i:s');
+
+    try {
+        $Pdo->beginTransaction();
+
+        $StmtExiste = $Pdo->prepare("
+            SELECT Id
+            FROM Asistencias
+            WHERE AsignacionId = ?
+            AND AlumnoId = ?
+            AND FechaDia = ?
+            ORDER BY Id ASC
+            LIMIT 1
+        ");
+
+        $StmtActualizar = $Pdo->prepare("
+            UPDATE Asistencias
+            SET Estado = ?, Fecha = ?
+            WHERE AsignacionId = ?
+            AND AlumnoId = ?
+            AND FechaDia = ?
+        ");
+
+        $StmtInsertar = $Pdo->prepare("
+            INSERT INTO Asistencias (AsignacionId, AlumnoId, Fecha, Estado)
+            VALUES (?, ?, ?, ?)
+        ");
+
+        foreach ($Alumnos as $Alumno) {
+            $AlumnoId = (int)$Alumno['Id'];
+            $Estado = $_POST['estado'][$AlumnoId] ?? 'A';
+
+            if (!in_array($Estado, $EstadosPermitidos, true)) {
+                $Estado = 'A';
+            }
+
+            $StmtExiste->execute([
+                $AsignacionId,
+                $AlumnoId,
+                $FechaConsulta
+            ]);
+
+            $AsistenciaId = (int)$StmtExiste->fetchColumn();
+
+            if ($AsistenciaId > 0) {
+                $StmtActualizar->execute([
+                    $Estado,
+                    $Momento,
+                    $AsignacionId,
+                    $AlumnoId,
+                    $FechaConsulta
+                ]);
+            } else {
+                $StmtInsertar->execute([
+                    $AsignacionId,
+                    $AlumnoId,
+                    $Momento,
+                    $Estado
+                ]);
+            }
+        }
+
+        $StmtLimpiarDuplicados = $Pdo->prepare("
+            DELETE AsiDuplicada
+            FROM Asistencias AsiDuplicada
+            INNER JOIN Asistencias AsiBase
+                ON AsiBase.AsignacionId = AsiDuplicada.AsignacionId
+                AND AsiBase.AlumnoId = AsiDuplicada.AlumnoId
+                AND AsiBase.FechaDia = AsiDuplicada.FechaDia
+                AND AsiBase.Id < AsiDuplicada.Id
+            WHERE AsiDuplicada.AsignacionId = ?
+            AND AsiDuplicada.FechaDia = ?
+        ");
+        $StmtLimpiarDuplicados->execute([$AsignacionId, $FechaConsulta]);
+
+        $Pdo->commit();
+
+        $AccionBitacora = $YaSeRegistro ? 'EDITAR_ASISTENCIA' : 'REGISTRAR_ASISTENCIA';
+        $DetalleBitacora = $YaSeRegistro ? 'PASE DE LISTA ACTUALIZADO: ' . $FechaConsulta : 'PASE DE LISTA REGISTRADO: ' . $FechaConsulta;
+        RegistrarBitacora($Pdo, $UserSession, $AccionBitacora, 'Asistencias', $AsignacionId, $DetalleBitacora);
+
+        header('Location: Asistencia.php?' . http_build_query([
+            'id' => $AsignacionId,
+            'Fecha' => $FechaConsulta,
+            'Success' => 1
+        ]));
+        exit;
+
+    } catch (Exception $E) {
+        if ($Pdo->inTransaction()) {
+            $Pdo->rollBack();
+        }
+
+        header('Location: ' . $UrlError);
+        exit;
+    }
+}
+
+if (isset($_GET['Success'])) {
+    $Mensaje = '
+        <div class="alert alert-success border-0 shadow-sm mb-4">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            Asistencia guardada/actualizada correctamente.
+        </div>
+    ';
+}
+
+if (isset($_GET['Error'])) {
+    $Mensaje = '
+        <div class="alert alert-danger border-0 shadow-sm mb-4">
+            <i class="fa-solid fa-circle-xmark me-2"></i>
+            Error al guardar la asistencia. Recarga la página e intenta nuevamente.
+        </div>
+    ';
+}
+
 $EstadosRegistrados = [];
-$StmtEstados = $Pdo->prepare("SELECT AlumnoId, Estado FROM Asistencias WHERE AsignacionId = ? AND FechaDia = ?");
+$StmtEstados = $Pdo->prepare("
+    SELECT AlumnoId, Estado
+    FROM Asistencias
+    WHERE AsignacionId = ?
+    AND FechaDia = ?
+    ORDER BY Id ASC
+");
 $StmtEstados->execute([$AsignacionId, $FechaConsulta]);
 foreach ($StmtEstados->fetchAll() as $RowEstado) {
-    $EstadosRegistrados[(int)$RowEstado['AlumnoId']] = $RowEstado['Estado'];
+    $EstadoGuardado = $RowEstado['Estado'];
+    if (!in_array($EstadoGuardado, $EstadosPermitidos, true)) {
+        $EstadoGuardado = 'A';
+    }
+    $EstadosRegistrados[(int)$RowEstado['AlumnoId']] = $EstadoGuardado;
 }
 
 $ResumenAsistencia = [
@@ -110,78 +252,6 @@ foreach ($Alumnos as $AlumnoResumen) {
         $EstadoResumen = 'A';
     }
     $ResumenAsistencia[$EstadoResumen]++;
-}
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
-    RequerirCsrfPost();
-
-    if (!isset($_POST['estado']) || !is_array($_POST['estado'])) {
-        $Mensaje = '
-            <div class="alert alert-danger border-0 shadow-sm mb-4">
-                <i class="fa-solid fa-circle-xmark me-2"></i>
-                No se recibieron datos de asistencia.
-            </div>
-        ';
-    } else {
-
-        $Momento = $FechaConsulta . ' ' . date('H:i:s');
-
-        try {
-            $Pdo->beginTransaction();
-
-            $StmtInsert = $Pdo->prepare("
-                INSERT INTO Asistencias (AsignacionId, AlumnoId, Fecha, Estado)
-                VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE Estado = VALUES(Estado), Fecha = VALUES(Fecha)
-            ");
-
-            foreach ($Alumnos as $Alumno) {
-
-                $AlumnoId = (int)$Alumno['Id'];
-                $Estado = $_POST['estado'][$AlumnoId] ?? 'A';
-
-                if (!in_array($Estado, $EstadosPermitidos, true)) {
-                    $Estado = 'A';
-                }
-
-                $StmtInsert->execute([
-                    $AsignacionId,
-                    $AlumnoId,
-                    $Momento,
-                    $Estado
-                ]);
-            }
-
-            $Pdo->commit();
-
-            $AccionBitacora = $YaSeRegistro ? 'EDITAR_ASISTENCIA' : 'REGISTRAR_ASISTENCIA';
-            $DetalleBitacora = $YaSeRegistro ? 'PASE DE LISTA ACTUALIZADO: ' . $FechaConsulta : 'PASE DE LISTA REGISTRADO: ' . $FechaConsulta;
-            RegistrarBitacora($Pdo, $UserSession, $AccionBitacora, 'Asistencias', $AsignacionId, $DetalleBitacora);
-
-            $YaSeRegistro = true;
-
-            $Mensaje = '
-                <div class="alert alert-success border-0 shadow-sm mb-4">
-                    <i class="fa-solid fa-circle-check me-2"></i>
-                    Asistencia guardada/actualizada correctamente.
-                </div>
-            ';
-
-        } catch (Exception $E) {
-
-            if ($Pdo->inTransaction()) {
-                $Pdo->rollBack();
-            }
-
-            $Mensaje = '
-                <div class="alert alert-danger border-0 shadow-sm mb-4">
-                    <i class="fa-solid fa-circle-xmark me-2"></i>
-                    Error al guardar la asistencia.
-                </div>
-            ';
-        }
-    }
 }
 
 ?>
@@ -206,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 
 
@@ -299,7 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     @media (max-width:991px) { .TopHeader { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
     @media (max-width:576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .EstadoSelect { width:160px; } .BtnGuardar { width:100%; min-width:0; } }
 </style>
-<link rel="stylesheet" href="assets/css/asistencia-botones-metalicos.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/asistencia-botones-metalicos.css?cache=sgce2026final">
 
 </head>
 
@@ -632,7 +702,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
-<script src="assets/js/Asistencia.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/Asistencia.js?cache=sgce2026final"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ SgcePublicoEnviarHeaders();
 
 $ConfigSistema = SgceObtenerConfiguracion($Pdo);
 $NombreEscuelaConsulta = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
+$UrlInicioProyecto = SgcePublicoUrlRaizProyecto();
 $Hoy = date('Y-m-d');
 $Resultado = null;
 $Error = '';
@@ -122,9 +123,9 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
     <?= SgceEstilosTema($Pdo) ?>
-    <link rel="stylesheet" href="assets/css/consulta-publica-botones-metalicos.css?cache=sgce2026">
+    <link rel="stylesheet" href="assets/css/consulta-publica-botones-metalicos.css?cache=sgce2026final">
 </head>
 <body class="ConsultaPublicaBody">
 
@@ -140,8 +141,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
             </div>
         </div>
         <div class="ConsultaHeroActions">
-            <span class="ConsultaBadge"><i class="fa-solid fa-lock"></i> Consulta protegida</span>
-            <a href="index.php" class="SgceBtnVolverInicio" title="Regresar atrás" aria-label="Regresar atrás" id="SgceConsultaBack"><i class="fa-solid fa-house"></i><span>Regresar atrás</span></a>
+            <a href="<?= HCP($UrlInicioProyecto) ?>" class="SgceBtnVolverInicio" title="Regresar al inicio" aria-label="Regresar al inicio" id="SgceConsultaBack"><i class="fa-solid fa-house"></i><span>Regresar al inicio</span></a>
         </div>
     </section>
 
@@ -312,7 +312,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
-<script src="assets/js/ConsultaPadre.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/ConsultaPadre.js?cache=sgce2026final"></script>
 </body>
 </html>

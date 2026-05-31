@@ -15,13 +15,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/maestros-botones-metalicos.css?cache=sgce2026">
-<link rel="stylesheet" href="assets/css/grupos-alumnos-botones-metalicos.css?cache=sgce2026">
-<link rel="stylesheet" href="assets/css/asignaciones-botones-metalicos.css?cache=sgce2026">
-<link rel="stylesheet" href="assets/css/expedientes-botones-metalicos.css?cache=sgce2026">
-<link rel="stylesheet" href="assets/css/dashboard-colores-suaves.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/maestros-botones-metalicos.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/grupos-alumnos-botones-metalicos.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/asignaciones-botones-metalicos.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/expedientes-botones-metalicos.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/dashboard-colores-suaves.css?cache=sgce2026final">
 
 </head>
 <body>
@@ -311,26 +311,26 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
         
 
         <div class="tab-pane fade <?= $TabActual==='maestros'?'show active':'' ?>" id="maestros">
-            <div class="row MaestrosLayoutRow">
+            <div class="row MaestrosLayoutRow GruposLayoutRow">
 
-                <div class="col-xl-3 col-lg-4 MaestrosSideCol">
+                <div class="col-xl-3 col-lg-4 MaestrosSideCol GruposSideCol">
 
-                    <div class="card card-custom MaestrosSideCard MaestrosRegisterCard mb-3">
-                        <div class="card-header-custom MaestrosCardTitle">
+                    <div class="card card-custom MaestrosSideCard GruposSideCard MaestrosRegisterCard GruposRegisterCard mb-3">
+                        <div class="card-header-custom MaestrosCardTitle GruposCardTitle">
                             <span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">👨‍🏫</span> Registrar Maestro
                         </div>
 
                         <div class="card-body">
-                            <form method="POST" class="MaestrosFormStack">
+                            <form method="POST" class="MaestrosFormStack GruposFormStack">
                     <?php echo CampoCsrf(); ?>
                                 <input type="hidden" name="AltaMaestro">
                                 <input type="hidden" name="Tab" value="maestros">
 
-                                <div class="MaestrosFieldGroup">
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
                                     <label>Nombre completo</label>
                                     <input type="text"
                                            name="Nombre"
-                                           class="form-control form-control-sm SoloLetrasMayus MaestrosInput"
+                                           class="form-control form-control-sm SoloLetrasMayus MaestrosInput GruposInput"
                                            placeholder="NOMBRE COMPLETO"
                                            maxlength="140"
                                            required
@@ -339,14 +339,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                            autocomplete="off">
                                 </div>
 
-                                <div class="MaestrosFieldGroup">
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
                                     <label>Usuario</label>
-                                    <input type="text" name="User" class="form-control form-control-sm TextoLibre MaestrosInput" placeholder="USUARIO" maxlength="80" required autocomplete="off">
+                                    <input type="text" name="User" class="form-control form-control-sm TextoLibre MaestrosInput GruposInput" placeholder="USUARIO" maxlength="80" required autocomplete="off">
                                 </div>
 
-                                <div class="MaestrosFieldGroup">
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
                                     <label>Contraseña</label>
-                                    <input type="password" name="Pass" class="form-control form-control-sm TextoLibre MaestrosInput" placeholder="CONTRASEÑA" required autocomplete="off">
+                                    <input type="password" name="Pass" class="form-control form-control-sm TextoLibre MaestrosInput GruposInput" placeholder="CONTRASEÑA" required autocomplete="off">
                                 </div>
 
                                 <button type="submit" id="BtnGuardarMaestroVerdeMetalico" class="BtnMaestroGuardarMetalico w-100">
@@ -356,24 +356,24 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                         </div>
                     </div>
 
-                    <div class="card card-custom MaestrosSideCard MaestrosImportCard">
-                        <div class="card-header-custom MaestrosCardTitle MaestrosImportTitle">
+                    <div class="card card-custom MaestrosSideCard GruposSideCard MaestrosImportCard GruposImportCard">
+                        <div class="card-header-custom MaestrosCardTitle MaestrosImportTitle GruposCardTitle GruposImportTitle">
                             <span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">📊</span> Importar CSV / Excel
                         </div>
 
                         <div class="card-body">
-                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR DOCENTES" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE ARCHIVO DE DOCENTES?" data-sgce-confirm-detail="Se procesará el archivo seleccionado para registrar docentes. Revisa que el formato sea NOMBRE, USUARIO, CONTRASEÑA antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR DOCENTES" data-sgce-confirm-loading="IMPORTANDO DOCENTES..." data-sgce-confirm-icon="fa-file-excel">
+                            <form action="Importar.php" method="POST" enctype="multipart/form-data" class="MaestrosFormStack GruposFormStack" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR DOCENTES" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE ARCHIVO DE DOCENTES?" data-sgce-confirm-detail="Se procesará el archivo seleccionado para registrar docentes. Revisa que el formato sea NOMBRE, USUARIO, CONTRASEÑA antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR DOCENTES" data-sgce-confirm-loading="IMPORTANDO DOCENTES..." data-sgce-confirm-icon="fa-file-excel">
                     <?php echo CampoCsrf(); ?>
                                 <input type="hidden" name="ImportarDocentes" value="1">
                                 <input type="hidden" name="Tab" value="maestros">
 
-                                <p class="MaestrosHelpText">
+                                <p class="MaestrosHelpText GruposHelpText">
                                     FORMATO CSV O EXCEL: <code>NOMBRE, USUARIO, CONTRASEÑA</code>
                                 </p>
 
-                                <div class="MaestrosFieldGroup">
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
                                     <label>Archivo CSV o Excel</label>
-                                    <input type="file" name="CsvDocentes" class="form-control form-control-sm MaestrosInput MaestrosFileInput" accept=".csv,.xlsx" required>
+                                    <input type="file" name="CsvDocentes" class="form-control form-control-sm MaestrosInput MaestrosFileInput GruposInput" accept=".csv,.xlsx" required>
                                 </div>
 
                                 <button type="submit" id="BtnImportarMaestroAzulMetalico" class="BtnMaestroImportarMetalico w-100">
@@ -385,11 +385,11 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                 </div>
 
-                <div class="col-xl-9 col-lg-8 MaestrosTableCol">
+                <div class="col-xl-9 col-lg-8 MaestrosTableCol GruposTableCol">
 
-                    <div class="card card-custom p-3 MaestrosTableCard">
+                    <div class="card card-custom p-3 MaestrosTableCard GruposTableCard">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3 MaestrosTableTop">
+                        <div class="d-flex justify-content-between align-items-center mb-3 MaestrosTableTop GruposTableTop">
                             <h6 class="mb-0 text-muted SgceInlineTitle"><span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">👨‍🏫</span><span>Docentes Registrados</span></h6>
 
                             <div class="input-group input-group-sm search-container w-50">
@@ -1443,7 +1443,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
-<script src="assets/js/Admin.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/Admin.js?cache=sgce2026final"></script>
 </body>
 </html>

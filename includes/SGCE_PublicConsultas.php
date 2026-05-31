@@ -3,6 +3,16 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 
+
+function SgcePublicoUrlRaizProyecto(): string {
+    $Script = (string)($_SERVER['SCRIPT_NAME'] ?? '/');
+    $Dir = str_replace('\\', '/', dirname($Script));
+    if ($Dir === '.' || $Dir === '/' || $Dir === '\\') { return '/'; }
+    if (basename($Dir) === 'public') { $Dir = dirname($Dir); }
+    $Dir = '/' . trim($Dir, '/');
+    return $Dir === '/' ? '/' : $Dir . '/';
+}
+
 function SgcePublicoNormalizarGrupo($Valor) {
     $Valor = SgceNormalizarMayusculas($Valor);
     return ($Valor !== '' && preg_match('/^[A-ZÁÉÍÓÚÜÑ0-9\-]+$/u', $Valor)) ? $Valor : '';

@@ -2787,3 +2787,404 @@ html body.LoginPage .AlertError{
   border-left:4px solid #DC2626!important;
 }
 
+
+
+html body{
+  --SgceSombra:0 10px 26px rgba(15,23,42,.055);
+  --SgceSombraGuinda:0 12px 26px rgba(var(--SgceGuindaRGB),.14);
+}
+html body .SgceHero,
+html body .Top,
+html body .TopBar,
+html body .TopHeader,
+html body .ConsultaHero,
+html body .ReportHero{
+  box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.14)!important;
+}
+html body .Card,
+html body .SgceCard,
+html body .DashboardPanelCard,
+html body .DashboardStatsCard,
+html body .DashboardModuleCard,
+html body .SgceModuleWrap .SgceCard,
+html body .ConsultaPublicaBody .ConsultaCard,
+html body .ConsultaPublicaBody .ResultadoCard,
+html body .ConsultaAvisosCard,
+html body .MetricCard,
+html body .StatCard,
+html body .StatMini,
+html body .PlaneacionMateriaCard,
+html body .PlaneacionStatCard,
+html body .SgceRestoreCard,
+html body .AvisosFormCard,
+html body .AvisosTableCard{
+  box-shadow:0 10px 24px rgba(15,23,42,.055)!important;
+}
+html body .DashboardModuleCard:hover,
+html body .SgceCard:hover,
+html body .ConsultaPublicaBody .ConsultaCard:hover,
+html body .ConsultaPublicaBody .ResultadoCard:hover{
+  box-shadow:0 14px 30px rgba(15,23,42,.075)!important;
+}
+html body .SgceHeroBtn,
+html body .BtnBack,
+html body .SgceBtnInicio,
+html body .SgceBtnVolverInicio,
+html body .BtnPrincipal,
+html body .BtnPrimary,
+html body .ActionBtn,
+html body .BtnConsultaPublicaVerdeMetalico,
+html body .BtnConsultaPadre,
+html body .ConsultaQuickRanges button{
+  box-shadow:0 7px 16px rgba(15,23,42,.07)!important;
+}
+html body .SgceHeroBtn:hover,
+html body .BtnBack:hover,
+html body .SgceBtnInicio:hover,
+html body .SgceBtnVolverInicio:hover,
+html body .BtnPrincipal:hover,
+html body .BtnPrimary:hover,
+html body .ActionBtn:hover,
+html body .BtnConsultaPublicaVerdeMetalico:hover,
+html body .BtnConsultaPadre:hover,
+html body .ConsultaQuickRanges button:hover{
+  box-shadow:0 10px 22px rgba(15,23,42,.09)!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact .ConsultaHeroText{
+  min-width:0;
+}
+.ConsultaHeroMeta{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.ConsultaSecurityNote{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  max-width:100%;
+  border:1px solid rgba(255,255,255,.26);
+  border-radius:999px;
+  padding:7px 12px;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.25px;
+  text-transform:uppercase;
+  box-shadow:none!important;
+}
+.ConsultaSecurityNote i{font-size:.86rem;color:#fff!important;}
+.ConsultaPublicaBody .ConsultaHeroActions{
+  justify-content:center!important;
+  gap:10px!important;
+}
+.ConsultaPublicaBody .ConsultaHeroActions .SgceBtnVolverInicio{
+  min-width:176px!important;
+}
+.ConsultaPublicaBody .ConsultaHeroCompact .ConsultaBadge{
+  display:none!important;
+}
+.ConsultaPublicaBody .ConsultaQuickRanges button{
+  box-shadow:0 5px 12px rgba(15,23,42,.045)!important;
+}
+.ConsultaPublicaBody .BtnConsultaPublicaVerdeMetalico,
+.ConsultaPublicaBody .BtnPrincipal{
+  box-shadow:0 8px 18px rgba(15,23,42,.08)!important;
+}
+@media(max-width:768px){
+  .ConsultaSecurityNote{font-size:.72rem;padding:6px 10px;}
+  .ConsultaPublicaBody .ConsultaHeroActions{width:100%!important;align-items:stretch!important;}
+  .ConsultaPublicaBody .ConsultaHeroActions .SgceBtnVolverInicio{width:100%!important;min-width:0!important;}
+}
+
+@media (min-width: 1101px) {
+  html body .SgceModuleWrap #asignaciones .AsignacionesTableCard {
+    min-height: 455px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  html body .SgceModuleWrap #asignaciones .AsignacionesTableWrap {
+    flex: 0 0 auto !important;
+    min-height: 205px !important;
+    height: 205px !important;
+    max-height: 205px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  html body .SgceModuleWrap #asignaciones .SgcePagerServer {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    margin-top: 8px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 0 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body .SgceModuleWrap #asignaciones .SgcePagerServer .pagination {
+    justify-content: flex-start !important;
+    margin-bottom: 4px !important;
+  }
+}
+
+
+
+@media (min-width: 1101px) {
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones > .AsignacionesTableCard.card-custom {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 16px 18px 18px !important;
+    overflow: hidden !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesHeaderCard {
+    padding: 0 0 8px !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesHeaderCard h6 {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesCardBody {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12px 20px 10px !important;
+    overflow: visible !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm {
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    padding-top: 0 !important;
+    padding-bottom: 12px !important;
+    align-items: end !important;
+    --bs-gutter-y: .55rem !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm label {
+    margin-bottom: 5px !important;
+    line-height: 1.1 !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm .form-control,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm .form-select,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm .BtnAsignacionVincularMetalico {
+    min-height: 42px !important;
+    height: 42px !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableCard .d-flex.justify-content-between.align-items-center {
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    padding-top: 9px !important;
+    min-height: 0 !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableCard .d-flex.justify-content-between.align-items-center h6 {
+    margin: 0 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableCard .search-container {
+    min-height: 40px !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableCard .search-container .form-control,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableCard .search-container .input-group-text {
+    min-height: 40px !important;
+    height: 40px !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableWrap {
+    display: block !important;
+    flex: none !important;
+    min-height: 165px !important;
+    height: 165px !important;
+    max-height: 165px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig thead th {
+    height: 36px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig tbody td {
+    height: 46px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePagerServer {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 6px 0 0 !important;
+    padding: 0 !important;
+    line-height: 1.15 !important;
+    font-size: .82rem !important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePagerServer .pagination {
+    justify-content: flex-start !important;
+    margin-bottom: 3px !important;
+  }
+}
+
+
+@media (min-width: 1101px) {
+  html body .SgceModuleWrap.SgceUsersPage .SgceUsersTableCard {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 460px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  html body .SgceModuleWrap.SgceUsersPage .SgceUsersTableHeader {
+    flex: 0 0 auto !important;
+  }
+
+  html body .SgceModuleWrap.SgceUsersPage .SgceUsersTableCard .table-responsive {
+    flex: 1 1 auto !important;
+    min-height: 255px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  html body .SgceModuleWrap.SgceUsersPage .SgceUsersTableCard .SgcePagerServer {
+    flex: 0 0 auto !important;
+    margin-top: 12px !important;
+  }
+}
+
+
+@media (min-width: 993px){
+  html body .SgceModuleWrap .SgceConfigGrid.SgceConfigGridRedisenada{
+    display:grid !important;
+    grid-template-columns:1.15fr .85fr !important;
+    gap:18px !important;
+    align-items:start !important;
+  }
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigLeftCol,
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigRightCol{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:18px !important;
+    min-width:0 !important;
+  }
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigCardWide{
+    grid-row:auto !important;
+  }
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigActionsInline{
+    grid-column:auto !important;
+    min-height:92px !important;
+    padding:18px 22px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:18px !important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#F8FBFF 48%,#EEF7FF 100%) !important;
+  }
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigActionsInline .SgceConfigSave{
+    flex:0 0 auto !important;
+  }
+}
+@media (max-width: 992px){
+  html body .SgceModuleWrap .SgceConfigGrid.SgceConfigGridRedisenada{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:18px !important;
+  }
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigLeftCol,
+  html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigRightCol{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:18px !important;
+  }
+}
+html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigSchoolCard .SgceConfigHead > span{
+  background:linear-gradient(135deg,#FFFBEB,#FEF3C7)!important;
+  border-color:#FDE68A!important;
+  color:#D97706!important;
+}
+html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigCycleCard .SgceConfigHead > span{
+  background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;
+  border-color:#FECDD3!important;
+  color:#BE123C!important;
+}
+html body .SgceModuleWrap .SgceConfigGridRedisenada .SgceConfigPeriodsCard .SgceConfigHead > span{
+  background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+  border-color:#BFDBFE!important;
+  color:#2563EB!important;
+}
+
+
+@media (min-width: 993px){
+  html body .SgceModuleWrap .SgceBitacoraCard{
+    min-height: 75.9vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  html body .SgceModuleWrap .SgceBitacoraCard .SgceBitacoraHead,
+  html body .SgceModuleWrap .SgceBitacoraCard .SgceInfoBanner{
+    flex: 0 0 auto !important;
+  }
+
+  html body .SgceModuleWrap .SgceBitacoraCard .SgceTableWrap{
+    flex: 1 1 auto !important;
+    min-height: 454px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    border: 1px solid #E7ECF3 !important;
+    border-radius: 18px !important;
+    background: #FFFFFF !important;
+  }
+
+  html body .SgceModuleWrap .SgceBitacoraCard #TableBitacora{
+    margin-bottom: 0 !important;
+  }
+
+  html body .SgceModuleWrap .SgceBitacoraCard #PagerBitacora{
+    flex: 0 0 auto !important;
+    margin-top: auto !important;
+    padding-top: 14px !important;
+  }
+}
+
+@media (max-width: 992px){
+  html body .SgceModuleWrap .SgceBitacoraCard{
+    min-height: auto !important;
+  }
+  html body .SgceModuleWrap .SgceBitacoraCard .SgceTableWrap{
+    min-height: 320px !important;
+  }
+}
+

@@ -338,10 +338,14 @@ function UsuariosExistentesPorUsername($Pdo, $Usernames) {
     $Existentes = [];
     foreach (array_chunk($Usernames, 250) as $Chunk) {
         $Placeholders = implode(',', array_fill(0, count($Chunk), '?'));
-        $Stmt = $Pdo->prepare("SELECT Username FROM Usuarios WHERE Username IN ($Placeholders)");
+        $Stmt = $Pdo->prepare("SELECT Id, Username, Rol, Activo FROM Usuarios WHERE Username IN ($Placeholders)");
         $Stmt->execute($Chunk);
-        foreach ($Stmt->fetchAll(PDO::FETCH_COLUMN) as $Username) {
-            $Existentes[(string)$Username] = true;
+        foreach ($Stmt->fetchAll() as $Usuario) {
+            $Existentes[(string)$Usuario['Username']] = [
+                'Id' => (int)$Usuario['Id'],
+                'Rol' => (string)$Usuario['Rol'],
+                'Activo' => (int)$Usuario['Activo'],
+            ];
         }
     }
 
@@ -387,6 +391,7 @@ if (isset($_POST['ImportarAlumnos'])) {
     }
 
     $Insertados = 0;
+    $Reactivados = 0;
     $Duplicados = 0;
     $Invalidos = 0;
     $Saltados = 0;
@@ -398,7 +403,8 @@ if (isset($_POST['ImportarAlumnos'])) {
         RedirectAdminImportar('alumnos', 'El grupo seleccionado no existe.', true);
     }
 
-    $Check = $Pdo->prepare("SELECT COUNT(*) FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ?");
+    $Check = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
+    $StmtReactivar = $Pdo->prepare("UPDATE Alumnos SET Activo = 1 WHERE Id = ?");
     $Stmt = $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, GrupoId) VALUES (?, ?)");
 
     try {
@@ -416,8 +422,15 @@ if (isset($_POST['ImportarAlumnos'])) {
             }
 
             $Check->execute([$Nombre, $GrupoId]);
-            if ((int)$Check->fetchColumn() > 0) {
-                $Duplicados++;
+            $AlumnoExistente = $Check->fetch();
+            if ($AlumnoExistente) {
+                if ((int)$AlumnoExistente['Activo'] === 1) {
+                    $Duplicados++;
+                    continue;
+                }
+
+                $StmtReactivar->execute([(int)$AlumnoExistente['Id']]);
+                $Reactivados++;
                 continue;
             }
 
@@ -435,6 +448,7 @@ if (isset($_POST['ImportarAlumnos'])) {
     }
 
     $Mensaje = "Se importaron $Insertados alumnos correctamente.";
+    if ($Reactivados > 0) { $Mensaje .= " ($Reactivados alumnos reactivados)"; }
     if ($Duplicados > 0) { $Mensaje .= " ($Duplicados duplicados omitidos)"; }
     if ($Invalidos > 0) { $Mensaje .= " ($Invalidos registros inválidos omitidos)"; }
     if ($Saltados > 0) { $Mensaje .= " ($Saltados encabezados omitidos)"; }
@@ -460,11 +474,13 @@ if (isset($_POST['ImportarGrupos'])) {
     }
 
     $Insertados = 0;
+    $Reactivados = 0;
     $Duplicados = 0;
     $Invalidos = 0;
     $Saltados = 0;
 
-    $Check = $Pdo->prepare("SELECT COUNT(*) FROM Grupos WHERE Grado = ? AND Grupo = ? AND Turno = ?");
+    $Check = $Pdo->prepare("SELECT Id, Activo FROM Grupos WHERE Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1");
+    $StmtReactivar = $Pdo->prepare("UPDATE Grupos SET Activo = 1 WHERE Id = ?");
     $Stmt = $Pdo->prepare("INSERT INTO Grupos (Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, 1)");
 
     try {
@@ -500,8 +516,15 @@ if (isset($_POST['ImportarGrupos'])) {
             }
 
             $Check->execute([$Grado, $Grupo, $Turno]);
-            if ((int)$Check->fetchColumn() > 0) {
-                $Duplicados++;
+            $GrupoExistente = $Check->fetch();
+            if ($GrupoExistente) {
+                if ((int)$GrupoExistente['Activo'] === 1) {
+                    $Duplicados++;
+                    continue;
+                }
+
+                $StmtReactivar->execute([(int)$GrupoExistente['Id']]);
+                $Reactivados++;
                 continue;
             }
 
@@ -519,6 +542,7 @@ if (isset($_POST['ImportarGrupos'])) {
     }
 
     $Mensaje = "Se importaron $Insertados grupos correctamente.";
+    if ($Reactivados > 0) { $Mensaje .= " ($Reactivados grupos reactivados)"; }
     if ($Duplicados > 0) { $Mensaje .= " ($Duplicados duplicados omitidos)"; }
     if ($Invalidos > 0) { $Mensaje .= " ($Invalidos registros inválidos omitidos)"; }
     if ($Saltados > 0) { $Mensaje .= " ($Saltados encabezados omitidos)"; }
@@ -544,6 +568,7 @@ if (isset($_POST['ImportarDocentes'])) {
     }
 
     $Insertados = 0;
+    $Reactivados = 0;
     $Duplicados = 0;
     $Invalidos = 0;
     $Saltados = 0;
@@ -588,20 +613,35 @@ if (isset($_POST['ImportarDocentes'])) {
 
     try {
         $Existentes = UsuariosExistentesPorUsername($Pdo, array_column($Pendientes, 'Username'));
+        $StmtReactivar = $Pdo->prepare("UPDATE Usuarios SET Password = ?, NombreCompleto = ?, Rol = 'maestro', Activo = 1, SessionToken = NULL, SessionTokenExpira = NULL WHERE Id = ? AND Rol = 'maestro'");
         $Stmt = $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo) VALUES (?, ?, ?, 'maestro', 1)");
         $HashCache = [];
 
         $Pdo->beginTransaction();
 
         foreach ($Pendientes as $Docente) {
-            if (isset($Existentes[$Docente['Username']])) {
-                $Duplicados++;
+            $UsuarioExistente = $Existentes[$Docente['Username']] ?? null;
+            $PasswordHash = HashPasswordImportacion($HashCache, $Docente['Password']);
+
+            if ($UsuarioExistente) {
+                if ((string)$UsuarioExistente['Rol'] !== 'maestro' || (int)$UsuarioExistente['Activo'] === 1) {
+                    $Duplicados++;
+                    continue;
+                }
+
+                $StmtReactivar->execute([
+                    $PasswordHash,
+                    $Docente['Nombre'],
+                    (int)$UsuarioExistente['Id'],
+                ]);
+                SgcePrepararCarpetaDocentePlaneaciones((int)$UsuarioExistente['Id'], $Docente['Username']);
+                $Reactivados++;
                 continue;
             }
 
             $Stmt->execute([
                 $Docente['Username'],
-                HashPasswordImportacion($HashCache, $Docente['Password']),
+                $PasswordHash,
                 $Docente['Nombre'],
             ]);
             SgcePrepararCarpetaDocentePlaneaciones((int)$Pdo->lastInsertId(), $Docente['Username']);
@@ -618,6 +658,7 @@ if (isset($_POST['ImportarDocentes'])) {
     }
 
     $Mensaje = "Se importaron $Insertados docentes correctamente.";
+    if ($Reactivados > 0) { $Mensaje .= " ($Reactivados docentes reactivados)"; }
     if ($Duplicados > 0) { $Mensaje .= " ($Duplicados usuarios duplicados omitidos)"; }
     if ($Invalidos > 0) { $Mensaje .= " ($Invalidos registros inválidos omitidos)"; }
     if ($Saltados > 0) { $Mensaje .= " ($Saltados encabezados omitidos)"; }

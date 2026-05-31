@@ -1,9 +1,4 @@
-# =====================================================
-# SGCE 2026 - CONFIGURACION PRINCIPAL SEGURA
-# Compatible con Apache/cPanel/Plesk. No usa php_value para evitar error 500 en PHP-FPM.
-# =====================================================
 
-# PageSpeed debe permanecer apagado: evita que Plesk/mod_pagespeed reescriba CSS/JS.
 <IfModule pagespeed_module>
     ModPagespeed off
     ModPagespeedDisallow "*/assets/css/*"
@@ -16,8 +11,7 @@ Options -Indexes -MultiViews
 ServerSignature Off
 DirectoryIndex index.php
 
-# Bloqueo de archivos sensibles aunque el servidor permita listados o descargas directas.
-<FilesMatch "(^\.|database\.php|database\.local\.php|.*\.sql|.*\.log|.*\.bak|.*\.backup|.*\.old|.*\.orig|.*\.tmp|.*\.zip|.*\.tar|.*\.gz|.*\.7z|.*~|composer\.(json|lock)|package(-lock)?\.json|.*\.md|README.*|MANIFEST\.txt|\.env.*)$">
+<FilesMatch "(^\.|database\.php|database\.local\.php|.*\.sql|.*\.log|.*\.bak|.*\.backup|.*\.old|.*\.orig|.*\.tmp|.*\.zip|.*\.tar|.*\.gz|.*\.7z|.*~|composer\.(json|lock)|package(-lock)?\.json|.*\.md|.*\.dm|README.*|MANIFEST\.txt|\.env.*)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

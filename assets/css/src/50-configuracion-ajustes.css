@@ -967,6 +967,12 @@ html body .SgceModuleWrap .GruposTableCard .table-responsive,
 html body .SgceModuleWrap .AlumnosTableCard .table-responsive{
   min-height:360px!important;
 }
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard{
+  min-height:616px!important;
+}
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{
+  min-height:396px!important;
+}
 @media(max-width:992px){
   html body .SgceModuleWrap .MaestrosTableTop,
   html body .SgceModuleWrap .GruposTableTop,
@@ -1068,3 +1074,99 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate:hover{
   display:none!important;
 }
 
+
+
+@media (min-width:1101px){
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosLayoutRow{
+    align-items:stretch!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosSideCol,
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCol{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosSideCol{
+    align-self:stretch!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    gap:16px!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosRegisterCard,
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosImportCard{
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:hidden!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosRegisterCard{
+    flex:0 0 auto!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosImportCard{
+    flex:1 1 auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosSideCard .card-body{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosImportCard .card-body,
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosImportCard form{
+    flex:1 1 auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .BtnMaestroImportarMetalico{
+    margin-top:auto!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCol{
+    min-height:76.5vh!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard{
+    min-height:76.5vh!important;
+    height:76.5vh!important;
+    max-height:none!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard .SgcePagerServer{
+    margin-top:auto!important;
+    padding-top:14px!important;
+  }
+}
+
+@media (min-width:1101px){
+  html body .SgcePageWrap.SgceModuleWrap #expedientes .ExpedientesCard{
+    min-height:72.5vh!important;
+    height:auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #expedientes .ExpedientesCardBody{
+    min-height:72.5vh!important;
+    height:auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #expedientes .ExpedientesEmptyState{
+    flex:1 1 auto!important;
+    min-height:410px!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #expedientes .ExpedientesTableWrap{
+    flex:1 1 auto!important;
+    min-height:410px!important;
+    height:auto!important;
+    overflow-x:auto!important;
+    overflow-y:auto!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #expedientes .ExpedientesPager{
+    margin-top:auto!important;
+  }
+}

@@ -19,8 +19,8 @@
   --SgceLinea:#E7ECF3;
   --SgceCard:#FFFFFF;
   --SgceRadio:24px;
-  --SgceSombra:0 14px 38px rgba(15,23,42,.08);
-  --SgceSombraGuinda:0 18px 42px rgba(var(--SgceGuindaRGB),.22);
+  --SgceSombra:0 10px 26px rgba(15,23,42,.055);
+  --SgceSombraGuinda:0 12px 26px rgba(var(--SgceGuindaRGB),.14);
 }
 *{box-sizing:border-box}
 html{min-height:100%}

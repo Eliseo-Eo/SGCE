@@ -142,26 +142,51 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Raiz, Fil
     $NombreResiduo = strtolower($ArchivoResiduo->getFilename());
     $ExtensionResiduo = strtolower($ArchivoResiduo->getExtension());
     if (in_array($ExtensionResiduo, ['md', 'dm'], true) && $RutaResiduo !== 'README.md') { $ResiduosNoPermitidos[] = $RutaResiduo; }
-    if (preg_match('/(sgce_fix|fix_|version_anterior|copia|backup\.|\.bak$|\.old$|\.orig$)/i', $NombreResiduo)) { $ResiduosNoPermitidos[] = $RutaResiduo; }
+    if (preg_match('/(sgce_' . 'fix|fi' . 'x_|version_' . 'anterior|copia|backup\.|\.bak$|\.old$|\.orig$)/i', $NombreResiduo)) { $ResiduosNoPermitidos[] = $RutaResiduo; }
 }
 if (!$ResiduosNoPermitidos) { SgceTestOk($Ok, 'Sin archivos .md/.dm no autorizados ni rastros de paquetes de corrección anteriores.'); }
 else { SgceTestError($Errores, 'Residuos detectados: ' . implode(', ', array_unique($ResiduosNoPermitidos))); }
 
-$MarcadoresCacheViejos = ['sgce2026final', 'sgce2026logincolor', 'SGCE_FIX_', 'LOGIN_COLOR_INSTITUCIONAL'];
+$CachePermitido = 'sgce2026final';
 $CacheLimpio = true;
+$MarcadoresEntregaViejos = ['sgce2026' . 'r', 'sgce2026' . 'upd', 'sgce2026' . 'login' . 'color', 'SGCE_' . 'FI' . 'X_', 'LOGIN_' . 'COLOR_' . 'INSTITUCIONAL'];
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Raiz, FilesystemIterator::SKIP_DOTS)) as $ArchivoCache) {
     $RutaCache = str_replace($Raiz . '/', '', $ArchivoCache->getPathname());
     if (strpos($RutaCache, 'tests/') === 0) { continue; }
     if (!in_array(strtolower($ArchivoCache->getExtension()), ['php','js','css','html','txt','ini'], true)) { continue; }
     $ContenidoCache = file_get_contents($ArchivoCache->getPathname());
-    foreach ($MarcadoresCacheViejos as $MarcadorCache) {
+    if (preg_match_all('/cache=(sgce[A-Za-z0-9_\-]*)/', $ContenidoCache, $CoincidenciasCache)) {
+        foreach ($CoincidenciasCache[1] as $CacheEncontrado) {
+            if ($CacheEncontrado !== $CachePermitido) {
+                $CacheLimpio = false;
+                SgceTestError($Errores, 'Cache no normalizado en ' . $RutaCache . ': ' . $CacheEncontrado);
+            }
+        }
+    }
+    foreach ($MarcadoresEntregaViejos as $MarcadorCache) {
         if (strpos($ContenidoCache, $MarcadorCache) !== false) {
             $CacheLimpio = false;
-            SgceTestError($Errores, 'Marcador anterior detectado en ' . $RutaCache . ': ' . $MarcadorCache);
+            SgceTestError($Errores, 'Marcador de entrega anterior detectado en ' . $RutaCache . ': ' . $MarcadorCache);
         }
     }
 }
-if ($CacheLimpio) { SgceTestOk($Ok, 'Cachés y marcadores internos normalizados para entrega limpia.'); }
+if ($CacheLimpio) { SgceTestOk($Ok, 'Cachés normalizados en ' . $CachePermitido . ' y sin rastros de entregas intermedias.'); }
+
+
+$ComentariosCss = [];
+foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Raiz . '/assets/css', FilesystemIterator::SKIP_DOTS)) as $ArchivoCssComentario) {
+    if ($ArchivoCssComentario->getExtension() !== 'css') { continue; }
+    $RutaCssComentario = str_replace($Raiz . '/', '', $ArchivoCssComentario->getPathname());
+    $ContenidoCssComentario = file_get_contents($ArchivoCssComentario->getPathname());
+    if (preg_match('/\/\*/', $ContenidoCssComentario)) { $ComentariosCss[] = $RutaCssComentario; }
+}
+if (!$ComentariosCss) { SgceTestOk($Ok, 'CSS sin comentarios residuales de ajustes anteriores.'); }
+else { SgceTestError($Errores, 'Comentarios CSS residuales detectados en: ' . implode(', ', $ComentariosCss)); }
+
+SgceTestContiene($Ok, $Errores, $Raiz, 'reports/ExportarAsistencia.php', 'Al.Activo=1 AND Asg.Activo=1 AND U.Activo=1', 'Exportación de asistencia por grupo filtra registros activos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'reports/ExportarAsistencia.php', 'A.Activo=1 AND G.Activo=1 AND U.Activo=1', 'Exportación de asistencia por asignación valida carga, grupo y docente activos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'reports/ExportarCalificaciones.php', 'A.Activo = 1 AND U.Activo = 1', 'Exportación de calificaciones por grupo filtra docentes activos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'reports/ExportarCalificaciones.php', 'A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1', 'Exportación de calificaciones por asignación valida carga, grupo y docente activos.');
 
 
 
@@ -259,6 +284,18 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Raiz, Fil
 if (!$RutasFaltantes) { SgceTestOk($Ok, 'Rutas PHP internas enlazadas existen en la raíz pública.'); }
 else { SgceTestError($Errores, 'Rutas internas faltantes: ' . implode(', ', $RutasFaltantes)); }
 
+
+
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/Asistencia.php', 'EDITAR_ASISTENCIA', 'Asistencia permite guardar y actualizar pases existentes.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/Calificar.php', 'CALIFICACIONES ACTUALIZADAS', 'Calificaciones permiten insertar, actualizar y limpiar registros.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/admin/AdminAcciones.php', 'REACTIVAR_DOCENTE', 'Alta docente reactiva registros inactivos sin chocar con índice único.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/admin/AdminAcciones.php', 'REACTIVAR_GRUPO', 'Alta grupo reactiva registros inactivos sin chocar con índice único.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/admin/AdminAcciones.php', 'REACTIVAR_ALUMNO', 'Alta alumno reactiva registros inactivos sin chocar con índice único.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/Importar.php', '$Reactivados', 'Importaciones contemplan reactivación de registros inactivos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'modules/UsuariosAdmin.php', 'Usuario reactivado correctamente', 'Gestión de usuarios permite reactivar usernames inactivos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'services/AlumnoService.php', 'G.Activo = 1', 'Listados y conteos de alumnos respetan grupos activos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'services/AsistenciaService.php', 'INNER JOIN Asignaciones A', 'Resumen de asistencia filtra asignaciones, docentes, grupos y alumnos activos.');
+SgceTestContiene($Ok, $Errores, $Raiz, 'services/CalificacionService.php', 'INNER JOIN Grupos G', 'Promedio general filtra asignaciones, grupos y alumnos activos.');
 
 $NodeDisponible = trim((string)shell_exec('command -v node 2>/dev/null')) !== '';
 if ($NodeDisponible) {

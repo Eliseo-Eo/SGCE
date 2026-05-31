@@ -15,7 +15,7 @@ $BuscarAlumno = trim((string)($_GET['BuscarAlumno'] ?? ''));
 $GrupoAlumno = (int)($_GET['GrupoAlumno'] ?? 0);
 $Alumnos = [];
 if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
-    $Where = ['Al.Activo = 1'];
+    $Where = ['Al.Activo = 1', 'G.Activo = 1'];
     $Params = [];
     if ($GrupoAlumno > 0) { $Where[] = 'Al.GrupoId = ?'; $Params[] = $GrupoAlumno; }
     if ($BuscarAlumno !== '') { $Where[] = 'Al.NombreCompleto LIKE ?'; $Params[] = '%' . SgceNormalizarMayusculas($BuscarAlumno) . '%'; }
@@ -34,9 +34,9 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
 <link rel="icon" href="favicon.ico">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/reportes-botones-metalicos.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/reportes-botones-metalicos.css?cache=sgce2026final">
 </head>
 <body class="SgceReportsPage">
 <div class="container py-4 SgceReportsWrap">
@@ -198,7 +198,7 @@ if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
     </div>
 </div>
 
-<script src="assets/js/ReportesAdmin.js?cache=sgce2026"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
+<script src="assets/js/ReportesAdmin.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
 </body>
 </html>

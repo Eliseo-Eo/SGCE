@@ -137,6 +137,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
 
+            $StmtUsuarioExistente = $Pdo->prepare("SELECT Id, Rol, Activo FROM Usuarios WHERE Username = ? LIMIT 1");
+            $StmtUsuarioExistente->execute([$User]);
+            $UsuarioExistente = $StmtUsuarioExistente->fetch();
+
+            if ($UsuarioExistente) {
+                $UsuarioIdExistente = (int)$UsuarioExistente['Id'];
+
+                if ((string)$UsuarioExistente['Rol'] !== 'maestro') {
+                    $_SESSION['Mensaje'] = "Ese usuario ya existe con otro rol. Usa otro username.";
+                    SgceRedirectAdminTab($TabPost, $UserSession);
+                }
+
+                if ((int)$UsuarioExistente['Activo'] === 1) {
+                    $_SESSION['Mensaje'] = "Ese docente ya está activo. Usa otro username.";
+                    SgceRedirectAdminTab($TabPost, $UserSession);
+                }
+
+                $Pdo->prepare("
+                    UPDATE Usuarios
+                    SET NombreCompleto = ?, Password = ?, Activo = 1, SessionToken = NULL, SessionTokenExpira = NULL
+                    WHERE Id = ? AND Rol = 'maestro'
+                ")->execute([$Nombre, SgcePasswordHash($Pass), $UsuarioIdExistente]);
+
+                RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_DOCENTE', 'Usuarios', $UsuarioIdExistente, 'DOCENTE REACTIVADO DESDE ADMIN');
+                $_SESSION['Mensaje'] = "Docente Reactivado";
+                SgceRedirectAdminTab($TabPost, $UserSession);
+            }
+
             $Pdo->prepare("
                 INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol)
                 VALUES (?, ?, ?, 'maestro')
@@ -232,6 +260,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
 
+            $StmtGrupoExistente = $Pdo->prepare("SELECT Id, Activo FROM Grupos WHERE Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1");
+            $StmtGrupoExistente->execute([$Grado, $Grupo, $Turno]);
+            $GrupoExistente = $StmtGrupoExistente->fetch();
+
+            if ($GrupoExistente) {
+                $GrupoIdExistente = (int)$GrupoExistente['Id'];
+
+                if ((int)$GrupoExistente['Activo'] === 1) {
+                    $_SESSION['Mensaje'] = "Ese grupo ya está activo.";
+                    SgceRedirectAdminTab($TabPost, $UserSession);
+                }
+
+                $Pdo->prepare("UPDATE Grupos SET Activo = 1 WHERE Id = ?")->execute([$GrupoIdExistente]);
+                RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_GRUPO', 'Grupos', $GrupoIdExistente, 'GRUPO REACTIVADO DESDE ADMIN');
+                $_SESSION['Mensaje'] = "Grupo Reactivado";
+                SgceRedirectAdminTab($TabPost, $UserSession);
+            }
+
             $Pdo->prepare("
                 INSERT INTO Grupos (Grado, Grupo, Turno)
                 VALUES (?, ?, ?)
@@ -302,6 +348,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
+
+            $StmtAlumnoExistente = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
+            $StmtAlumnoExistente->execute([$Nombre, $GrupoId]);
+            $AlumnoExistente = $StmtAlumnoExistente->fetch();
+
+            if ($AlumnoExistente) {
+                $AlumnoIdExistente = (int)$AlumnoExistente['Id'];
+
+                if ((int)$AlumnoExistente['Activo'] === 1) {
+                    $_SESSION['Mensaje'] = "Ese alumno ya está activo en el grupo seleccionado.";
+                    SgceRedirectAdminTab($TabPost, $UserSession);
+                }
+
+                $Pdo->prepare("UPDATE Alumnos SET Activo = 1 WHERE Id = ?")->execute([$AlumnoIdExistente]);
+                RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_ALUMNO', 'Alumnos', $AlumnoIdExistente, 'ALUMNO REACTIVADO DESDE ADMIN');
+                $_SESSION['Mensaje'] = "Alumno Reactivado";
+                SgceRedirectAdminTab($TabPost, $UserSession);
+            }
 
             $Pdo->prepare("
                 INSERT INTO Alumnos (NombreCompleto, GrupoId)

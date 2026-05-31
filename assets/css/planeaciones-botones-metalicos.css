@@ -109,3 +109,48 @@
         width: 100% !important;
     }
 }
+
+
+
+@media (min-width: 1101px) {
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard {
+        min-height: 420px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .SgceConfigHead {
+        flex: 0 0 auto !important;
+        margin-bottom: 14px !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap {
+        flex: 1 1 auto !important;
+        min-height: 235px !important;
+        display: block !important;
+        background: #fff !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .SgceTablePro {
+        margin-bottom: 0 !important;
+        width: 100% !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .PlaneacionesEmptyRow td {
+        height: 175px !important;
+        vertical-align: middle !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .PlaneacionesPagerWrap {
+        margin-top: 12px !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard > .text-muted.small {
+        margin-top: 8px !important;
+    }
+}
+
+@media (max-width: 1100px) {
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard,
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap {
+        min-height: 0 !important;
+        height: auto !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .PlaneacionesEmptyRow td {
+        height: auto !important;
+    }
+}

@@ -3,7 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 function SgceCalificacionPromedioGeneralCiclo(PDO $Pdo, int $CicloId): string {
     if ($CicloId <= 0) { return '0.0'; }
-    $Stmt = $Pdo->prepare("SELECT ROUND(AVG(C.Calificacion), 1) FROM Calificaciones C INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId WHERE P.CicloId = ? AND P.Activo = 1");
+    $Stmt = $Pdo->prepare("\n        SELECT ROUND(AVG(C.Calificacion), 1)\n        FROM Calificaciones C\n        INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.Activo = 1\n        INNER JOIN Asignaciones A ON A.Id = C.AsignacionId AND A.Activo = 1\n        INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.Activo = 1\n        INNER JOIN Alumnos Al ON Al.Id = C.AlumnoId AND Al.Activo = 1\n        WHERE P.CicloId = ?\n    ");
     $Stmt->execute([$CicloId]);
     $Promedio = $Stmt->fetchColumn();
     return $Promedio !== null ? (string)$Promedio : '0.0';

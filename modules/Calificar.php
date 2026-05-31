@@ -12,7 +12,7 @@ if (!$UserSession || $UserSession['Rol'] !== 'maestro') {
     exit;
 }
 
-$AsignacionId = intval($_GET['AsignacionId'] ?? 0);
+$AsignacionId = intval($_GET['AsignacionId'] ?? ($_POST['AsignacionId'] ?? 0));
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? ($_POST['PeriodoId'] ?? 0));
 $PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
 
@@ -34,10 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
 
     RequerirCsrfPost();
 
+    $UrlError = 'Calificar.php?' . http_build_query([
+        'AsignacionId' => $AsignacionId,
+        'PeriodoId' => $PeriodoId,
+        'Error' => 1
+    ]);
+
     $Notas = $_POST['Notas'] ?? [];
 
     if (!is_array($Notas)) {
-        header("Location: Calificar.php?AsignacionId=$AsignacionId&PeriodoId=$PeriodoId&Error=1");
+        header('Location: ' . $UrlError);
         exit;
     }
 
@@ -45,12 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
     $StmtAlumnosValidos->execute([$InfoClase['GrupoId']]);
     $AlumnosValidos = array_flip(array_map('intval', $StmtAlumnosValidos->fetchAll(PDO::FETCH_COLUMN)));
 
-    $StmtGuardar = $Pdo->prepare("
-        INSERT INTO Calificaciones
-        (AlumnoId, AsignacionId, PeriodoId, Calificacion)
+    $StmtBuscarCalificacion = $Pdo->prepare("
+        SELECT Id
+        FROM Calificaciones
+        WHERE AlumnoId = ?
+        AND AsignacionId = ?
+        AND PeriodoId = ?
+        ORDER BY Id DESC
+        LIMIT 1
+    ");
+
+    $StmtActualizarCalificacion = $Pdo->prepare("
+        UPDATE Calificaciones
+        SET Calificacion = ?
+        WHERE Id = ?
+    ");
+
+    $StmtInsertarCalificacion = $Pdo->prepare("
+        INSERT INTO Calificaciones (AlumnoId, AsignacionId, PeriodoId, Calificacion)
         VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-        Calificacion = VALUES(Calificacion)
     ");
 
     $StmtEliminar = $Pdo->prepare("
@@ -76,7 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
                 continue;
             }
 
-            
             if ($Calificacion === '') {
                 $StmtEliminar->execute([$AlumnoId, $AsignacionId, $PeriodoId]);
                 continue;
@@ -88,17 +106,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
 
             $CalificacionFloat = round((float)$Calificacion, 2);
 
-            
             if ($CalificacionFloat < 5) { $CalificacionFloat = 5; }
             if ($CalificacionFloat > 10) { $CalificacionFloat = 10; }
 
-            $StmtGuardar->execute([
+            $StmtBuscarCalificacion->execute([
                 $AlumnoId,
                 $AsignacionId,
-                $PeriodoId,
-                $CalificacionFloat
+                $PeriodoId
             ]);
+
+            $CalificacionId = (int)$StmtBuscarCalificacion->fetchColumn();
+
+            if ($CalificacionId > 0) {
+                $StmtActualizarCalificacion->execute([
+                    $CalificacionFloat,
+                    $CalificacionId
+                ]);
+            } else {
+                $StmtInsertarCalificacion->execute([
+                    $AlumnoId,
+                    $AsignacionId,
+                    $PeriodoId,
+                    $CalificacionFloat
+                ]);
+            }
         }
+
+        $StmtLimpiarDuplicados = $Pdo->prepare("
+            DELETE CalDuplicada
+            FROM Calificaciones CalDuplicada
+            INNER JOIN Calificaciones CalBase
+                ON CalBase.AlumnoId = CalDuplicada.AlumnoId
+                AND CalBase.AsignacionId = CalDuplicada.AsignacionId
+                AND CalBase.PeriodoId = CalDuplicada.PeriodoId
+                AND CalBase.Id > CalDuplicada.Id
+            WHERE CalDuplicada.AsignacionId = ?
+            AND CalDuplicada.PeriodoId = ?
+        ");
+        $StmtLimpiarDuplicados->execute([$AsignacionId, $PeriodoId]);
 
         $Pdo->commit();
 
@@ -110,11 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
             $Pdo->rollBack();
         }
 
-        header("Location: Calificar.php?AsignacionId=$AsignacionId&PeriodoId=$PeriodoId&Error=1");
+        header('Location: ' . $UrlError);
         exit;
     }
 
-    header("Location: Calificar.php?AsignacionId=$AsignacionId&PeriodoId=$PeriodoId&Success=1");
+    header('Location: Calificar.php?' . http_build_query([
+        'AsignacionId' => $AsignacionId,
+        'PeriodoId' => $PeriodoId,
+        'Success' => 1
+    ]));
     exit;
 }
 
@@ -124,10 +173,15 @@ $Stmt = $Pdo->prepare("
         Al.NombreCompleto,
         C.Calificacion
     FROM Alumnos Al
+    LEFT JOIN (
+        SELECT AlumnoId, MAX(Id) AS UltimaCalificacionId
+        FROM Calificaciones
+        WHERE AsignacionId = ?
+        AND PeriodoId = ?
+        GROUP BY AlumnoId
+    ) CU ON CU.AlumnoId = Al.Id
     LEFT JOIN Calificaciones C
-        ON C.AlumnoId = Al.Id
-        AND C.AsignacionId = ?
-        AND C.PeriodoId = ?
+        ON C.Id = CU.UltimaCalificacionId
     WHERE Al.GrupoId = ?
     AND Al.Activo = 1
     ORDER BY Al.NombreCompleto ASC
@@ -181,7 +235,7 @@ if ($Calificados > 0) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
 
 <style>
@@ -420,6 +474,7 @@ if ($Calificados > 0) {
         <div class="card-body p-0">
 
             <form method="POST" id="FormCalificaciones">
+                        <input type="hidden" name="AsignacionId" value="<?= (int)$AsignacionId ?>">
                         <input type="hidden" name="PeriodoId" value="<?= (int)$PeriodoId ?>">
                         <div class="SgcePeriodoBox mb-3">
                             <label for="PeriodoIdSelect"><i class="fa-solid fa-calendar-days"></i> Periodo de evaluación</label>
@@ -559,7 +614,7 @@ if ($Calificados > 0) {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
-<script src="assets/js/Calificar.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/Calificar.js?cache=sgce2026final"></script>
 </body>
 </html>

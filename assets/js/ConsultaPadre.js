@@ -7,19 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    var BotonRegresar = document.getElementById('SgceConsultaBack');
-    if (BotonRegresar) {
-        BotonRegresar.addEventListener('click', function (Evento) {
-            try {
-                if (!document.referrer || window.history.length <= 1) { return; }
-                var Referencia = new URL(document.referrer);
-                if (Referencia.origin === window.location.origin) {
-                    Evento.preventDefault();
-                    window.history.back();
-                }
-            } catch (Error) {}
-        });
-    }
 
     var FechaInicio = document.querySelector('input[name="FechaInicio"]');
     var FechaFin = document.querySelector('input[name="FechaFin"]');

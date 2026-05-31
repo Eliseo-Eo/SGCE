@@ -1505,7 +1505,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   flex:1 1 auto!important;
 }
 .MaestrosTableCard{
-  min-height:568px!important;
+  min-height:625px!important;
   height:100%!important;
   display:flex!important;
   flex-direction:column!important;
@@ -1513,7 +1513,7 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
 }
 .MaestrosTableCard .table-responsive{
   flex:1 1 auto!important;
-  min-height:395px!important;
+  min-height:435px!important;
 }
 .MaestrosTableCard .SgcePagerServer{
   margin-top:auto!important;
@@ -1612,8 +1612,8 @@ html body .modal .BtnConfirmDelete.BtnAvisoModalActivate{
   box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;
 }
 @media(max-width:1199px){
-  .MaestrosTableCard{min-height:540px!important}
-  .MaestrosTableCard .table-responsive{min-height:360px!important}
+  .MaestrosTableCard{min-height:595px!important}
+  .MaestrosTableCard .table-responsive{min-height:395px!important}
 }
 @media(max-width:991px){
   .MaestrosLayoutRow{gap:18px!important}

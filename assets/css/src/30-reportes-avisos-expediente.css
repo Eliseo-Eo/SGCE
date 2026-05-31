@@ -459,10 +459,11 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
 
 .AvisosLayout{
   align-items:stretch!important;
+  margin-top:0!important;
 }
 .AvisosFormCard,
 .AvisosTableCard{
-  min-height:560px!important;
+  min-height:700px!important;
 }
 .AvisosTableCard{
   display:flex!important;
@@ -470,8 +471,8 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
 }
 .AvisosTableResponsive{
   flex:1 1 auto!important;
-  min-height:360px!important;
-  max-height:410px!important;
+  min-height:560px!important;
+  max-height:none!important;
   overflow:auto!important;
   background:#FFFFFF!important;
 }
@@ -486,7 +487,7 @@ body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnReactivate{
   padding-top:8px!important;
 }
 .AvisosForm textarea.form-control{
-  min-height:160px!important;
+  min-height:300px!important;
   resize:vertical!important;
 }
 html body.AvisosBody .AccionesAviso button.ActionBtn.BtnAvisoEdit,
@@ -848,3 +849,43 @@ html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoActivate{
   .ExpedienteAlumnoTitleBlock p{white-space:normal;}
 }
 
+
+
+
+
+html body.AvisosBody .AvisosHero{margin-bottom:22px!important;}
+html body.AvisosBody .AvisosLayout{
+  align-items:stretch!important;
+  margin-top:0!important;
+}
+@media(min-width:1101px){
+  html body.AvisosBody .AvisosFormCard,
+  html body.AvisosBody .AvisosTableCard{
+    min-height:770px!important;
+    height:770px!important;
+  }
+  html body.AvisosBody .AvisosFormCard,
+  html body.AvisosBody .AvisosTableCard{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body.AvisosBody .AvisosForm{
+    flex:1 1 auto!important;
+  }
+  html body.AvisosBody .AvisosForm textarea.form-control{
+    min-height:300px!important;
+  }
+  html body.AvisosBody .AvisosTableResponsive{
+    flex:1 1 auto!important;
+    min-height:560px!important;
+    max-height:none!important;
+  }
+}
+@media(max-width:1100px){
+  html body.AvisosBody .AvisosHero{margin-bottom:22px!important;}
+  html body.AvisosBody .AvisosFormCard,
+  html body.AvisosBody .AvisosTableCard{
+    min-height:auto!important;
+    height:auto!important;
+  }
+}

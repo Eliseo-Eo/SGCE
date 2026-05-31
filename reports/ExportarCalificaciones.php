@@ -91,7 +91,7 @@ if ($Modo === 'Grupo') {
     $Grupo = $StmtGrupo->fetch();
     if (!$Grupo) { http_response_code(404); exit('Grupo no encontrado.'); }
 
-    $StmtAsignaciones = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.GrupoId = ? AND A.Activo = 1 ORDER BY A.MateriaNombre ASC');
+    $StmtAsignaciones = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.GrupoId = ? AND A.Activo = 1 AND U.Activo = 1 ORDER BY A.MateriaNombre ASC');
     $StmtAsignaciones->execute([$GrupoId]);
     $Asignaciones = $StmtAsignaciones->fetchAll();
 
@@ -146,7 +146,7 @@ if ($Modo === 'Grupo') {
     exit;
 }
 
-$Stmt = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.Activo = 1 LIMIT 1');
+$Stmt = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 LIMIT 1');
 $Stmt->execute([$AsignacionId]);
 $Info = $Stmt->fetch();
 if (!$Info) { http_response_code(404); exit('Asignación no encontrada.'); }

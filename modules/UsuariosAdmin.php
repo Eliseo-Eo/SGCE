@@ -33,10 +33,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('El usuario debe tener de 3 a 80 caracteres y solo puede usar letras, números, punto, guion, guion bajo o @.');
             }
 
-            $StmtExiste = $Pdo->prepare("SELECT COUNT(*) FROM Usuarios WHERE Username = ?");
+            $StmtExiste = $Pdo->prepare("SELECT Id, Rol, Activo FROM Usuarios WHERE Username = ? LIMIT 1");
             $StmtExiste->execute([$Username]);
-            if ((int)$StmtExiste->fetchColumn() > 0) {
-                throw new Exception('Ya existe un usuario con ese nombre de acceso.');
+            $UsuarioExistente = $StmtExiste->fetch();
+
+            if ($UsuarioExistente) {
+                $UsuarioExistenteId = (int)$UsuarioExistente['Id'];
+
+                if ((int)$UsuarioExistente['Activo'] === 1) {
+                    throw new Exception('Ya existe un usuario activo con ese nombre de acceso.');
+                }
+
+                if ((string)$UsuarioExistente['Rol'] === 'maestro' && $Rol !== 'maestro') {
+                    $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1");
+                    $StmtAsignaciones->execute([$UsuarioExistenteId]);
+                    if ((int)$StmtAsignaciones->fetchColumn() > 0) {
+                        throw new Exception('Ese username pertenece a un docente inactivo con asignaciones. Reactívalo como maestro o reasigna primero sus materias.');
+                    }
+                }
+
+                $Stmt = $Pdo->prepare("
+                    UPDATE Usuarios
+                    SET Password = ?, NombreCompleto = ?, Rol = ?, Activo = 1, SessionToken = NULL, SessionTokenExpira = NULL
+                    WHERE Id = ?
+                " );
+                $Stmt->execute([SgcePasswordHash($Password), $NombreCompleto, $Rol, $UsuarioExistenteId]);
+                RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_USUARIO', 'Usuarios', $UsuarioExistenteId, 'USUARIO REACTIVADO CON ROL: ' . strtoupper($Rol));
+                header('Location: UsuariosAdmin.php?M=' . urlencode('Usuario reactivado correctamente'));
+                exit;
             }
 
             $Stmt = $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo, SessionToken) VALUES (?, ?, ?, ?, 1, NULL)");
@@ -187,9 +211,9 @@ foreach ($Roles as $Key => $Label) {
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026">
+    <link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
 <?= SgceEstilosTema($Pdo) ?>
-    <link rel="stylesheet" href="assets/css/usuarios-botones-metalicos.css?cache=sgce2026">
+    <link rel="stylesheet" href="assets/css/usuarios-botones-metalicos.css?cache=sgce2026final">
 </head>
 <body>
 <div class="MainWrap SgceModuleWrap SgceUsersPage">
@@ -392,7 +416,7 @@ foreach ($Roles as $Key => $Label) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026"></script>
-<script src="assets/js/UsuariosAdmin.js?cache=sgce2026"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/UsuariosAdmin.js?cache=sgce2026final"></script>
 </body>
 </html>
