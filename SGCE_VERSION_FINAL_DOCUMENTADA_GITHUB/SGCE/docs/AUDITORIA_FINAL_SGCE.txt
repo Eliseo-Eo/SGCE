@@ -1,0 +1,14 @@
+SGCE FINAL AUDIT
+[OK] PHP lint OK: 73/73
+[OK] Funciones sin duplicados: 282
+[OK] Rutas require/include locales OK
+[OK] Referencias locales href/src/action OK
+[OK] Sin favicon duplicado en raíz
+[OK] README, manuales y docs GitHub OK
+[OK] Sin marcadores de depuración reales
+[OK] Sin residuos .bak/.old/.tmp/.dm
+[OK] Archivos finales: 148
+[OK] PDF manual técnico: 56387 bytes
+[OK] PDF manual usuario: 52266 bytes
+[OK] PDF revisión funciones: 63052 bytes
+SUMMARY {"ok": 12, "warnings": 0, "errors": 0}

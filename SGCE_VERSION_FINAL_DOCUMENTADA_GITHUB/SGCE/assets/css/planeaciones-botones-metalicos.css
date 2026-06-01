@@ -1,0 +1,156 @@
+
+#BtnBuscarPlaneacionesVerdeMetalico,
+.BtnPlaneacionesBuscarVerdeMetalico {
+    min-height: 46px !important;
+    height: 46px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;
+    box-shadow: 0 18px 34px rgba(16, 185, 129, 0.26), inset 0 1px 0 rgba(255,255,255,.20) !important;
+    text-decoration: none !important;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+#BtnBuscarPlaneacionesVerdeMetalico:hover,
+.BtnPlaneacionesBuscarVerdeMetalico:hover {
+    transform: translateY(-1px) !important;
+    filter: brightness(1.03) !important;
+    box-shadow: 0 22px 40px rgba(16, 185, 129, 0.32), inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+#BtnBuscarPlaneacionesVerdeMetalico .SgceColorIcon,
+.BtnPlaneacionesBuscarVerdeMetalico .SgceColorIcon {
+    filter: none !important;
+    line-height: 1 !important;
+}
+.PlaneacionesNumeroCol {
+    min-width: 118px !important;
+}
+.PlaneacionesNumeroSelect {
+    min-width: 104px !important;
+    padding-left: 14px !important;
+    padding-right: 34px !important;
+}
+@media (max-width: 767.98px) {
+    .PlaneacionesNumeroCol,
+    .PlaneacionesBuscarCol {
+        min-width: 100% !important;
+    }
+    .PlaneacionesNumeroSelect {
+        min-width: 100% !important;
+    }
+}
+
+
+
+.PlaneacionesFiltroForm {
+    display: grid !important;
+    grid-template-columns: minmax(210px, 1.25fr) minmax(210px, 1.25fr) minmax(138px, .72fr) minmax(138px, .72fr) 118px 78px !important;
+    gap: 14px !important;
+    align-items: end !important;
+}
+.PlaneacionesFiltroForm > [class*="col-"] {
+    width: auto !important;
+    max-width: none !important;
+    flex: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.PlaneacionesGrupoCol,
+.PlaneacionesEstadoCol {
+    min-width: 0 !important;
+}
+.PlaneacionesGrupoCol .FormControl,
+.PlaneacionesEstadoCol .FormControl {
+    min-width: 0 !important;
+    padding-left: 13px !important;
+    padding-right: 32px !important;
+}
+.PlaneacionesNumeroCol {
+    min-width: 0 !important;
+}
+.PlaneacionesNumeroSelect {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding-left: 13px !important;
+    padding-right: 30px !important;
+}
+.PlaneacionesBuscarCol {
+    min-width: 0 !important;
+}
+#BtnBuscarPlaneacionesVerdeMetalico,
+.BtnPlaneacionesBuscarVerdeMetalico {
+    width: 78px !important;
+    min-width: 78px !important;
+}
+@media (max-width: 1199.98px) {
+    .PlaneacionesFiltroForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    .PlaneacionesBuscarCol,
+    #BtnBuscarPlaneacionesVerdeMetalico,
+    .BtnPlaneacionesBuscarVerdeMetalico {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+@media (max-width: 767.98px) {
+    .PlaneacionesFiltroForm {
+        grid-template-columns: 1fr !important;
+    }
+    .PlaneacionesNumeroCol,
+    .PlaneacionesBuscarCol,
+    .PlaneacionesNumeroSelect {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+}
+
+
+
+@media (min-width: 1101px) {
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard {
+        min-height: 420px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .SgceConfigHead {
+        flex: 0 0 auto !important;
+        margin-bottom: 14px !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap {
+        flex: 1 1 auto !important;
+        min-height: 235px !important;
+        display: block !important;
+        background: #fff !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .SgceTablePro {
+        margin-bottom: 0 !important;
+        width: 100% !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .PlaneacionesEmptyRow td {
+        height: 175px !important;
+        vertical-align: middle !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .PlaneacionesPagerWrap {
+        margin-top: 12px !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard > .text-muted.small {
+        margin-top: 8px !important;
+    }
+}
+
+@media (max-width: 1100px) {
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard,
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap {
+        min-height: 0 !important;
+        height: auto !important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoTableWrap .PlaneacionesEmptyRow td {
+        height: auto !important;
+    }
+}

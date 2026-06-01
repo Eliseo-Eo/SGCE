@@ -1,0 +1,132 @@
+
+
+html body.SgceReportsPage .SgceReportBtn,
+html body.SgceReportsPage button.SgceReportBtn,
+html body.SgceReportsPage .BtnReporteVerdeMetalico,
+html body.SgceReportsPage .BtnReporteAzulMetalico,
+html body.SgceReportsPage .BtnReporteRojoMetalico{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  min-height:46px!important;
+  height:46px!important;
+  border:0!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+  padding:10px 18px!important;
+  font-size:.88rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  letter-spacing:.15px!important;
+  white-space:nowrap!important;
+  text-decoration:none!important;
+  color:#FFFFFF!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.28)!important;
+  cursor:pointer!important;
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  opacity:1!important;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease!important;
+}
+
+html body.SgceReportsPage #BtnExportarAsistenciaGrupoVerdeMetalico,
+html body.SgceReportsPage #BtnExportarAsistenciaAsignacionVerdeMetalico,
+html body.SgceReportsPage #BtnExportarCalificacionesVerdeMetalico,
+html body.SgceReportsPage .BtnReporteVerdeMetalico{
+  background-color:#047857!important;
+  background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 11px 22px rgba(4,120,87,.22), inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+html body.SgceReportsPage #BtnBuscarAlumnoAzulMetalico,
+html body.SgceReportsPage .BtnReporteAzulMetalico{
+  background-color:#2563EB!important;
+  background-image:linear-gradient(135deg,#1E3A8A 0%,#1D4ED8 55%,#2563EB 100%)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 11px 22px rgba(37,99,235,.22), inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+html body.SgceReportsPage #BtnGenerarBoletaRojoMetalico,
+html body.SgceReportsPage .BtnReporteRojoMetalico{
+  background-color:#B91C1C!important;
+  background-image:linear-gradient(135deg,#450A0A 0%,#7F1D1D 34%,#B91C1C 68%,#DC2626 100%)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 11px 22px rgba(220,38,38,.22), inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+html body.SgceReportsPage .SgceReportBtn::after,
+html body.SgceReportsPage .BtnReporteVerdeMetalico::after,
+html body.SgceReportsPage .BtnReporteAzulMetalico::after,
+html body.SgceReportsPage .BtnReporteRojoMetalico::after{
+  content:""!important;
+  position:absolute!important;
+  top:-42%!important;
+  left:-92%!important;
+  width:44%!important;
+  height:190%!important;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.08) 28%,rgba(255,255,255,.16) 52%,rgba(255,255,255,.07) 74%,transparent 100%)!important;
+  transform:rotate(18deg)!important;
+  transition:left .55s ease!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+
+html body.SgceReportsPage .SgceReportBtn:hover::after,
+html body.SgceReportsPage .BtnReporteVerdeMetalico:hover::after,
+html body.SgceReportsPage .BtnReporteAzulMetalico:hover::after,
+html body.SgceReportsPage .BtnReporteRojoMetalico:hover::after{
+  left:132%!important;
+}
+
+html body.SgceReportsPage .SgceReportBtn > *,
+html body.SgceReportsPage .SgceReportBtn .SgceColorIcon,
+html body.SgceReportsPage .BtnReporteVerdeMetalico > *,
+html body.SgceReportsPage .BtnReporteAzulMetalico > *,
+html body.SgceReportsPage .BtnReporteRojoMetalico > *{
+  color:#FFFFFF!important;
+  position:relative!important;
+  z-index:1!important;
+  line-height:1!important;
+}
+
+html body.SgceReportsPage #BtnExportarAsistenciaGrupoVerdeMetalico:hover,
+html body.SgceReportsPage #BtnExportarAsistenciaAsignacionVerdeMetalico:hover,
+html body.SgceReportsPage #BtnExportarCalificacionesVerdeMetalico:hover,
+html body.SgceReportsPage #BtnBuscarAlumnoAzulMetalico:hover,
+html body.SgceReportsPage #BtnGenerarBoletaRojoMetalico:hover{
+  transform:translateY(-1px)!important;
+  filter:saturate(1.03) brightness(1.02)!important;
+}
+
+html body.SgceReportsPage #BtnExportarAsistenciaGrupoVerdeMetalico:focus-visible,
+html body.SgceReportsPage #BtnExportarAsistenciaAsignacionVerdeMetalico:focus-visible,
+html body.SgceReportsPage #BtnExportarCalificacionesVerdeMetalico:focus-visible,
+html body.SgceReportsPage #BtnBuscarAlumnoAzulMetalico:focus-visible,
+html body.SgceReportsPage #BtnGenerarBoletaRojoMetalico:focus-visible{
+  outline:3px solid rgba(14,165,233,.30)!important;
+  outline-offset:3px!important;
+}
+
+
+html body.SgceReportsPage .SgceReportCard .SgceReportIcon{
+  background:rgba(var(--SgceGuindaRGB),.075)!important;
+  background-image:linear-gradient(145deg,rgba(255,255,255,.96),rgba(var(--SgceGuindaRGB),.075))!important;
+  color:var(--SgceGuindaOscuro)!important;
+  border:1px solid rgba(var(--SgceGuindaRGB),.055)!important;
+  box-shadow:0 10px 20px rgba(var(--SgceGuindaRGB),.075), inset 0 1px 0 rgba(255,255,255,.62)!important;
+}
+html body.SgceReportsPage .SgceReportCard .SgceReportIcon .SgceColorIcon{
+  color:inherit!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.45))!important;
+}
+html body.SgceReportsPage .SgceReportCard::before{
+  background:linear-gradient(90deg,rgba(var(--SgceGuindaRGB),.45),rgba(var(--SgceGuindaRGB),.18),rgba(var(--SgceGuindaRGB),.055),rgba(var(--SgceGuindaRGB),.28))!important;
+  opacity:.72!important;
+}

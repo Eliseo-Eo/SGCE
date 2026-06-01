@@ -1,0 +1,50 @@
+# Configuración local generada por el instalador
+config/database.local.php
+
+# Lock de instalación
+storage/install.lock
+
+# Logs, respaldos y archivos generados en producción
+*.log
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.zip
+*.tar
+*.gz
+*.7z
+*.dm
+
+storage/backups/*
+!storage/backups/.htaccess
+!storage/backups/index.html
+
+storage/logs/*
+!storage/logs/.htaccess
+!storage/logs/index.html
+
+storage/planeaciones/*
+!storage/planeaciones/.htaccess
+!storage/planeaciones/index.html
+
+storage/tmp_uploads/*
+!storage/tmp_uploads/.htaccess
+!storage/tmp_uploads/index.html
+
+storage/locks/*
+!storage/locks/.htaccess
+!storage/locks/index.html
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Dependencias locales si se agregan después
+vendor/
+node_modules/
