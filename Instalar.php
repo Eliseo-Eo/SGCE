@@ -15,6 +15,13 @@ $SqlFile = __DIR__ . '/install/SGCE.sql';
 $LockFile = __DIR__ . '/storage/install.lock';
 $LocalConfigFile = __DIR__ . '/config/database.local.php';
 
+if (is_file($LockFile) && getenv('SGCE_ALLOW_REINSTALL') !== '1') {
+    http_response_code(403);
+    echo '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SGCE | Instalador bloqueado</title></head><body style="font-family:Arial,sans-serif;background:#f4f7fb;color:#1f2937;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0"><main style="max-width:560px;background:#fff;border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,23,42,.12);border-top:5px solid #97051E"><h1>Instalador bloqueado</h1><p>La instalación ya fue realizada. Para proteger el sistema, el instalador quedó bloqueado por install.lock.</p><p>Si necesitas reinstalar, elimina manualmente storage/install.lock o define SGCE_ALLOW_REINSTALL=1 de forma temporal.</p><a href="index.php" style="display:inline-block;margin-top:12px;background:#97051E;color:#fff;padding:12px 18px;border-radius:999px;text-decoration:none;font-weight:bold">Ir al sistema</a></main></body></html>';
+    exit;
+}
+
+
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 class InstalarMensajeUsuario extends Exception {}

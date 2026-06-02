@@ -3,52 +3,33 @@
 ```text
 SGCE/
 ├── assets/
-│   ├── css/
-│   ├── js/
-│   └── media/img/
 ├── config/
 ├── cron/
 ├── docs/
 ├── includes/
 ├── install/
 ├── modules/
-│   └── admin/
 ├── public/
 ├── reports/
+├── repositories/
 ├── services/
 ├── storage/
-│   ├── backups/
-│   ├── locks/
-│   ├── logs/
-│   ├── planeaciones/
-│   └── tmp_uploads/
-├── .gitignore
-├── .htaccess
-├── .user.ini
-├── Instalar.php
-├── index.php
-└── README.md
+└── tests/
 ```
 
-## Criterio de organizacion
+## Descripción
 
-- La raiz conserva entradas PHP publicas por compatibilidad de rutas.
-- `modules/`, `reports`, `public`, `includes`, `services` y `config` estan protegidos contra acceso directo.
-- Los archivos generados por usuarios, respaldos y logs se guardan en `storage`.
-- Los manuales, revision y auditoria se guardan en `docs`.
-- El favicon y la imagen PNG del sistema estan centralizados en `assets/media/img`.
-- Los servicios reutilizables estan en `services`; no se conservan servicios vacios o sin uso.
-
-## Entradas principales
-
-| Entrada | Destino interno |
-|---|---|
-| `index.php` | `public/index.php` |
-| `Admin.php` | `modules/Admin.php` |
-| `Maestro.php` | `modules/Maestro.php` |
-| `Asistencia.php` | `modules/Asistencia.php` |
-| `Calificar.php` | `modules/Calificar.php` |
-| `ReportesAdmin.php` | `reports/ReportesAdmin.php` |
-| `ConsultaPadre.php` | `public/ConsultaPadre.php` |
-| `ConsultaCalificaciones.php` | `public/ConsultaCalificaciones.php` |
-| `Instalar.php` | Instalador principal |
+- `assets/`: estilos, scripts e imágenes públicas.
+- `config/`: configuración de conexión.
+- `cron/`: respaldos automáticos.
+- `docs/`: manuales y revisión técnica.
+- `includes/`: funciones comunes, seguridad y utilidades.
+- `install/`: esquema SQL de instalación limpia.
+- `modules/`: módulos del administrador y docente.
+- `public/`: login y consultas públicas.
+- `reports/`: exportaciones PDF/Excel/CSV.
+- `repositories/`: consultas SQL preparadas y paginadas.
+- `services/`: lógica de negocio reutilizable.
+- `storage/`: archivos privados, respaldos, logs y planeaciones.
+- `tests/`: validación estática del paquete.
+```

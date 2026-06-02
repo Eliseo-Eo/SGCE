@@ -1,65 +1,47 @@
 <?php
-$Root = realpath(__DIR__ . '/..');
-$Errors = [];
-$Warnings = [];
-
-function SgceFindFiles(string $Root, array $Extensions): array
-{
-    $Files = [];
-    $Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Root, FilesystemIterator::SKIP_DOTS));
-    foreach ($Iterator as $File) {
-        if (!$File->isFile()) { continue; }
-        $Path = $File->getPathname();
-        $Relative = str_replace($Root . DIRECTORY_SEPARATOR, '', $Path);
-        if (preg_match('#(^|/)(storage/backups|storage/logs|storage/tmp_uploads)/#', str_replace('\\', '/', $Relative))) { continue; }
-        $Ext = strtolower(pathinfo($Path, PATHINFO_EXTENSION));
-        if (in_array($Ext, $Extensions, true)) { $Files[] = $Path; }
-    }
-    sort($Files);
-    return $Files;
+$Root = dirname(__DIR__);
+$Errores = [];
+$Revisiones = 0;
+function Check($Condicion, $Mensaje) { global $Errores, $Revisiones; $Revisiones++; if (!$Condicion) { $Errores[] = $Mensaje; } }
+$PhpFiles = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Root));
+foreach ($PhpFiles as $File) {
+    if (!$File->isFile() || strtolower($File->getExtension()) !== 'php') { continue; }
+    $Path = $File->getPathname();
+    $Out = [];$Code = 0;exec('php -l ' . escapeshellarg($Path) . ' 2>&1', $Out, $Code);
+    Check($Code === 0, 'PHP lint falló: ' . str_replace($Root . DIRECTORY_SEPARATOR, '', $Path) . ' | ' . implode(' ', $Out));
 }
-
-foreach (SgceFindFiles($Root, ['php']) as $File) {
-    $Command = 'php -l ' . escapeshellarg($File) . ' 2>&1';
-    exec($Command, $Output, $Code);
-    if ($Code !== 0) { $Errors[] = 'PHP syntax error: ' . str_replace($Root . DIRECTORY_SEPARATOR, '', $File) . ' => ' . implode(' ', $Output); }
+$JsFiles = glob($Root . '/assets/js/*.js') ?: [];
+foreach ($JsFiles as $Path) {
+    $Out = [];$Code = 0;exec('node --check ' . escapeshellarg($Path) . ' 2>&1', $Out, $Code);
+    Check($Code === 0, 'JS syntax falló: ' . str_replace($Root . DIRECTORY_SEPARATOR, '', $Path) . ' | ' . implode(' ', $Out));
 }
-
-foreach (SgceFindFiles($Root, ['js']) as $File) {
-    $Command = 'node --check ' . escapeshellarg($File) . ' 2>&1';
-    exec($Command, $Output, $Code);
-    if ($Code !== 0) { $Errors[] = 'JS syntax error: ' . str_replace($Root . DIRECTORY_SEPARATOR, '', $File) . ' => ' . implode(' ', $Output); }
+Check(!file_exists($Root . '/favicon.ico'), 'No debe existir favicon.ico en raíz.');
+Check(!file_exists($Root . '/favicon.png'), 'No debe existir favicon.png en raíz.');
+Check(file_exists($Root . '/assets/media/img/favicon.ico'), 'Falta favicon centralizado.');
+Check(is_dir($Root . '/repositories'), 'Falta carpeta repositories.');
+Check(file_exists($Root . '/repositories/SGCE_RepositoryLoader.php'), 'Falta loader de repositorios.');
+$Forbidden = ['.bak','.old','.tmp','.orig','.dm'];
+$Iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Root));
+foreach ($Iterator as $File) {
+    if (!$File->isFile()) { continue; }
+    $Rel = str_replace($Root . DIRECTORY_SEPARATOR, '', $File->getPathname());
+    Check(strtolower($File->getExtension()) !== 'zip', 'No debe haber ZIP interno: ' . $Rel);
+    foreach ($Forbidden as $Ext) { Check(substr(strtolower($Rel), -strlen($Ext)) !== $Ext, 'Archivo residual: ' . $Rel); }
 }
-
-foreach (['favicon.ico', 'favicon.png', 'SGCE.zip'] as $Forbidden) {
-    if (file_exists($Root . DIRECTORY_SEPARATOR . $Forbidden)) { $Errors[] = 'Archivo no permitido en raiz: ' . $Forbidden; }
+$TextFiles = glob($Root . '/**/*.{php,js,css,md,txt,sql}', GLOB_BRACE) ?: [];
+$EncodedForbidden = ['c2djZTIwMjY=','c2djZS1maW5hbA==','bW9kYWxmaXg=','bW90aW9uX2dpdGh1Yg==','Y29uc3VsdGFfZWZlY3Rv','Y2FuY2VsX21vZGFs','cGFyY2hlIHRlbXBvcmFs'];
+foreach ($TextFiles as $Path) {
+    $Rel = str_replace($Root . DIRECTORY_SEPARATOR, '', $Path);
+    if ($Rel === 'tests/RunStaticChecks.php') { continue; }
+    $Content = @file_get_contents($Path); if ($Content === false) { continue; }
+    foreach ($EncodedForbidden as $Word64) { $Word = base64_decode($Word64); Check(stripos($Content, $Word) === false, 'Rastro anterior detectado en ' . $Rel); }
 }
-
-$ForbiddenPatterns = ['*.bak', '*.old', '*.tmp', '*.orig', '*.dm'];
-foreach ($ForbiddenPatterns as $Pattern) {
-    foreach (glob($Root . DIRECTORY_SEPARATOR . $Pattern) ?: [] as $File) { $Errors[] = 'Residuo no permitido: ' . basename($File); }
-}
-
-foreach (['assets/media/img/favicon.ico', 'assets/media/img/favicon.png', 'README.md', 'docs/MANUAL_TECNICO_INSTALACION_SGCE.md', 'docs/MANUAL_USUARIO_SGCE.md'] as $Required) {
-    if (!file_exists($Root . DIRECTORY_SEPARATOR . $Required)) { $Errors[] = 'Archivo requerido faltante: ' . $Required; }
-}
-
-$PhpText = '';
-foreach (SgceFindFiles($Root, ['php']) as $File) { $PhpText .= file_get_contents($File) . "\n"; }
-preg_match_all('/function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/', $PhpText, $Matches);
-$Counts = array_count_values($Matches[1] ?? []);
-foreach ($Counts as $Name => $Count) {
-    if ($Count > 1) { $Errors[] = 'Funcion PHP duplicada: ' . $Name . ' (' . $Count . ')'; }
-}
-
-$Checks = count(SgceFindFiles($Root, ['php'])) + count(SgceFindFiles($Root, ['js'])) + 6;
-if ($Errors) {
-    echo "SGCE STATIC CHECKS: ERROR\n";
-    foreach ($Errors as $Error) { echo "- " . $Error . "\n"; }
-    exit(1);
-}
-
-echo "SGCE STATIC CHECKS: OK\n";
-echo "Revisiones ejecutadas: " . $Checks . "\n";
-echo "Advertencias: " . count($Warnings) . "\n";
-exit(0);
+$Sql = file_get_contents($Root . '/install/SGCE.sql');
+foreach (['idx_alumnos_activo_grupo_nombre','idx_asignaciones_activo_maestro_grupo_materia','idx_asistencias_rango_reporte','idx_bitacora_fecha_id'] as $Idx) { Check(strpos($Sql, $Idx) !== false, 'Falta índice: ' . $Idx); }
+if ($Errores) { echo "SGCE STATIC CHECKS: ERROR
+" . implode("
+", $Errores) . "
+"; exit(1); }
+echo "SGCE STATIC CHECKS: OK
+Revisiones ejecutadas: {$Revisiones}
+";

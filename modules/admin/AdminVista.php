@@ -1064,7 +1064,7 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                             </table>
                         </div>
 
-                        <?= SgceRenderPager('PagAlumnos', $PagAlumnos, $TotalAlumnosTabla, $PageSizeAdmin, ['Tab'=>'alumnos']) ?>
+                        <?= SgceRenderPager('PagAlumnos', $PagAlumnos, $TotalAlumnosTabla, $PageSizeAlumnos, ['Tab'=>'alumnos']) ?>
 
                     </div>
 
@@ -1378,7 +1378,7 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
                                 <div class="SgceCountPill">
                                     <i class="fa-solid fa-clock-rotate-left"></i>
-                                    <span><?= count($BitacoraReciente) ?> registros recientes</span>
+                                    <span><?= (int)$TotalBitacoraTabla ?> registros</span>
                                 </div>
                             </div>
                         </div>
@@ -1452,7 +1452,7 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                             </table>
                         </div>
 
-                        <div id="PagerBitacora" class="d-flex justify-content-center mt-3"></div>
+                        <?= SgceRenderPager('PagBitacora', $PagBitacora, $TotalBitacoraTabla, $PageSizeBitacora, ['Tab'=>'bitacora']) ?>
                     </div>
                 </div>
         <?php endif; ?>

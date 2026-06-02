@@ -1,16 +1,23 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-$PageSizeAdmin = 7;
-$PageSizeAsignaciones = 6;
+$PageSizeAdmin = 20;
+$PageSizeAlumnos = SgcePageSizeSeguro($_GET['PageSizeAlumnos'] ?? 50, 50, 10, 100);
+$PageSizeAsignaciones = SgcePageSizeSeguro($_GET['PageSizeAsignaciones'] ?? 50, 50, 10, 100);
+$PageSizeBitacora = SgcePageSizeSeguro($_GET['PageSizeBitacora'] ?? 50, 50, 10, 100);
 $PagMaestros = SgcePaginaActual('PagMaestros');
 $PagGrupos = SgcePaginaActual('PagGrupos');
 $PagAlumnos = SgcePaginaActual('PagAlumnos');
 $PagAsig = SgcePaginaActual('PagAsig');
+$PagBitacora = SgcePaginaActual('PagBitacora');
 [$OffsetMaestros, $LimitMaestros] = SgceLimitOffset($PagMaestros, $PageSizeAdmin);
 [$OffsetGrupos, $LimitGrupos] = SgceLimitOffset($PagGrupos, $PageSizeAdmin);
-[$OffsetAlumnos, $LimitAlumnos] = SgceLimitOffset($PagAlumnos, $PageSizeAdmin);
+[$OffsetAlumnos, $LimitAlumnos] = SgceLimitOffset($PagAlumnos, $PageSizeAlumnos);
 [$OffsetAsig, $LimitAsig] = SgceLimitOffset($PagAsig, $PageSizeAsignaciones);
+[$OffsetBitacora, $LimitBitacora] = SgceLimitOffset($PagBitacora, $PageSizeBitacora);
+$FiltroAlumnos = SgceRepoAlumnoFiltros($_GET);
+$FiltroAsignaciones = SgceRepoAsignacionFiltros($_GET);
+$FiltroBitacora = SgceRepoBitacoraFiltros($_GET);
 
 $Maestros = [];
 $Grupos = [];
@@ -32,6 +39,7 @@ $FaltasHoy = 0;
 $PromedioGeneral = '0.0';
 $AlumnosRiesgo = [];
 $BitacoraReciente = [];
+$TotalBitacoraTabla = 0;
 
 $CicloActivo = SgceCicloActivo($Pdo);
 $CicloActivoId = (int)($CicloActivo['Id'] ?? 0);
@@ -64,13 +72,13 @@ if ($TabActual === 'grupos') {
 }
 
 if ($TabActual === 'alumnos') {
-    $TotalAlumnosTabla = SgceAlumnoContarActivos($Pdo);
-    $Alumnos = SgceAlumnoListarPaginado($Pdo, $LimitAlumnos, $OffsetAlumnos);
+    $TotalAlumnosTabla = SgceAlumnoContarFiltrado($Pdo, $FiltroAlumnos);
+    $Alumnos = SgceAlumnoListarFiltrado($Pdo, $FiltroAlumnos, $LimitAlumnos, $OffsetAlumnos);
 }
 
 if ($TabActual === 'asignaciones') {
-    $TotalAsignacionesTabla = SgceAsignacionContarActivas($Pdo);
-    $Asignaciones = SgceAsignacionListarPaginadas($Pdo, $LimitAsig, $OffsetAsig);
+    $TotalAsignacionesTabla = SgceAsignacionContarFiltradas($Pdo, $FiltroAsignaciones);
+    $Asignaciones = SgceAsignacionListarFiltradas($Pdo, $FiltroAsignaciones, $LimitAsig, $OffsetAsig);
 }
 
 if ($TabActual === 'expedientes') {
@@ -104,9 +112,11 @@ if ($TabActual === 'inicio') {
 
 if ($TabActual === 'bitacora' && $PuedeVerBitacora) {
     try {
-        $BitacoraReciente = SgceReporteBitacoraReciente($Pdo, 100);
+        $TotalBitacoraTabla = SgceReporteBitacoraContar($Pdo, $FiltroBitacora);
+        $BitacoraReciente = SgceReporteBitacoraPaginada($Pdo, $FiltroBitacora, $LimitBitacora, $OffsetBitacora);
     } catch (Exception $E) {
         $BitacoraReciente = [];
+$TotalBitacoraTabla = 0;
     }
 }
 

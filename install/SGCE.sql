@@ -51,6 +51,7 @@ CREATE TABLE Alumnos (
     INDEX idx_alumnos_grupo_nombre_id (GrupoId, NombreCompleto, Id),
     INDEX idx_alumnos_busqueda_publica (GrupoId, NombreCompleto, Activo),
     INDEX idx_alumnos_nombre (NombreCompleto),
+    INDEX idx_alumnos_activo_grupo_nombre (Activo, GrupoId, NombreCompleto, Id),
     INDEX idx_alumnos_activo (Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -69,6 +70,7 @@ CREATE TABLE Asignaciones (
     INDEX idx_asignaciones_grupo (GrupoId, Activo),
     INDEX idx_asignaciones_grupo_id (GrupoId, Id, Activo),
     INDEX idx_asignaciones_grupo_materia (GrupoId, MateriaNombre, MaestroId),
+    INDEX idx_asignaciones_activo_maestro_grupo_materia (Activo, MaestroId, GrupoId, MateriaNombre, Id),
     INDEX idx_asignaciones_materia (MateriaNombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -112,6 +114,7 @@ CREATE TABLE Calificaciones (
     INDEX idx_calificaciones_periodo (PeriodoId, AsignacionId, AlumnoId),
     INDEX idx_calificaciones_alumno (AlumnoId, AsignacionId),
     INDEX idx_calificaciones_valor (Calificacion),
+    INDEX idx_calificaciones_periodo_asignacion_alumno_valor (PeriodoId, AsignacionId, AlumnoId, Calificacion),
     INDEX idx_calificaciones_periodo_alumno_valor (PeriodoId, AlumnoId, Calificacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -132,6 +135,7 @@ CREATE TABLE Asistencias (
     INDEX idx_asistencias_publica (AlumnoId, FechaDia, Estado, AsignacionId),
     INDEX idx_asistencias_estado_fecha (Estado, FechaDia),
     INDEX idx_asistencias_fecha_estado (FechaDia, Estado),
+    INDEX idx_asistencias_rango_reporte (FechaDia, AsignacionId, Estado, AlumnoId),
     INDEX idx_asistencias_fecha_alumno_estado (FechaDia, AlumnoId, Estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -142,6 +146,7 @@ CREATE TABLE Avisos (
     Publico ENUM('TODOS', 'MAESTROS', 'PADRES') NOT NULL DEFAULT 'TODOS',
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_avisos_activo_fecha (Activo, FechaCreacion),
     INDEX idx_avisos_publico_activo_fecha (Publico, Activo, FechaCreacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -187,6 +192,7 @@ CREATE TABLE BitacoraMovimientos (
     INDEX idx_bitacora_fecha (FechaRegistro),
     INDEX idx_bitacora_usuario_fecha (UsuarioId, FechaRegistro),
     INDEX idx_bitacora_accion_fecha (Accion, FechaRegistro),
+    INDEX idx_bitacora_fecha_id (FechaRegistro, Id),
     INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

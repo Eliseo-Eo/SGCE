@@ -1,63 +1,34 @@
-# Revision tecnica de funciones - SGCE
-
-## Resumen
-
-Se reviso estructura de codigo, rutas, funciones, activos, documentacion y archivos generados. Esta revision corresponde a la entrega final preparada para instalacion limpia desde cero.
-
-## Modulos revisados
-
-| Modulo | Estado |
-|---|---|
-| Inicio de sesion | Revisado |
-| Dashboard administrativo | Revisado |
-| Docentes | Revisado |
-| Grupos | Revisado |
-| Alumnos | Revisado |
-| Expedientes | Revisado |
-| Asignaciones | Revisado |
-| Asistencia | Revisado |
-| Calificaciones | Revisado |
-| Avisos | Revisado |
-| Periodos | Revisado |
-| Configuracion | Revisado |
-| Planeaciones | Revisado |
-| Reportes | Revisado |
-| Respaldos | Revisado |
-| Restauracion | Revisado |
-| Consulta publica | Revisado |
-| Cron de respaldos | Revisado |
+# Revisión técnica de funciones - SGCE
 
 ## Rendimiento
 
-- El panel administrativo no renderiza todas las pestanas a la vez.
-- Las secciones de mayor crecimiento usan paginacion y limites de consulta.
-- Bitacora se consulta por pagina desde base de datos.
-- Asistencia y calificaciones evitan recorridos innecesarios de listas completas.
-- Se agregaron y revisaron indices SQL para los datos que crecen con el uso diario.
+- Alumnos: listado paginado desde MySQL, filtros preparados e índices por estado, grupo y nombre.
+- Asignaciones: listado paginado desde MySQL con filtros por maestro, grupo y búsqueda.
+- Bitácora: consulta limitada por defecto, paginación real e índices por fecha, usuario, rol y acción.
+- Reportes: validación de rangos y protección contra consultas demasiado amplias.
+- Asistencia: índices por fecha, asignación, alumno y estado.
+- Calificaciones: índices por periodo, asignación, alumno y calificación.
+- Dashboard: carga únicamente contadores y resúmenes necesarios.
 
 ## Seguridad
 
-- Login con consulta preparada y limite de resultado.
-- Rehash automatico de contrasenas cuando PHP lo recomienda.
+- Instalador bloqueado después de instalar mediante `storage/install.lock`.
+- Login con consulta preparada, límite de intentos y rehash automático de contraseña.
+- Sesiones con cookie segura, `HttpOnly`, `SameSite=Strict` y regeneración de ID.
 - CSRF en formularios POST.
-- Control de permisos por rol.
-- Consulta publica sin listados abiertos y con control de intentos.
-- Instalador bloqueable con `install.lock`.
+- Validación estricta de archivos subidos.
+- Restauración limitada a respaldos oficiales SGCE.
+- Consulta pública con coincidencia exacta y límite de intentos.
 
-## Activos visuales
+## Estructura
 
-- CSS principal: `assets/css/sgce-base.min.css`.
-- Transiciones: `assets/css/sgce-soft-motion.css`.
-- Media institucional: `assets/media/img/`.
-- Cache de assets normalizado como `?v=sgce`.
+- `repositories/`: consultas SQL optimizadas.
+- `services/`: lógica de negocio reutilizable.
+- `modules/`: pantallas internas.
+- `reports/`: exportaciones.
+- `public/`: consultas públicas.
+- `tests/`: validación estática.
 
-## Validacion recomendada en servidor
+## Estado
 
-1. Instalar desde cero.
-2. Crear administrador.
-3. Registrar docentes, grupos, alumnos y asignaciones.
-4. Capturar asistencia y calificaciones.
-5. Subir y revisar planeaciones.
-6. Generar reportes.
-7. Probar consulta publica.
-8. Generar respaldo y restaurarlo en ambiente controlado.
+Paquete listo para instalación limpia y prueba funcional completa en servidor real.

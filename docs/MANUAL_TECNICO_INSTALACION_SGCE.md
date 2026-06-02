@@ -1,82 +1,62 @@
-# Manual tecnico e instalacion - SGCE
+# Manual técnico de instalación - SGCE
 
-## 1. Objetivo
+## Objetivo
 
-Este manual explica como instalar, configurar, respaldar y mantener SGCE en un servidor PHP/MySQL.
+Instalar SGCE desde cero en un servidor PHP/MySQL con seguridad básica, estructura limpia y rendimiento preparado para escuelas con cientos de alumnos y múltiples docentes.
 
-## 2. Requisitos del servidor
+## Requisitos del servidor
 
-- PHP 8.1 o superior recomendado.
-- MySQL 5.7/8.0 o MariaDB compatible.
-- Apache con soporte para `.htaccess`.
-- Extension `pdo_mysql` habilitada.
-- Permisos de escritura en `config/` y `storage/` durante la instalacion.
-- Navegador moderno para administracion.
+- PHP 8.1 o superior.
+- MySQL 8 o MariaDB compatible.
+- Extensiones PHP: `pdo_mysql`, `mbstring`, `zip`, `simplexml`, `fileinfo`.
+- Permisos de escritura en `storage/` y `config/`.
 
-## 3. Instalacion desde cero
-
-### 3.1 Descomprimir
+## Instalación
 
 ```bash
 cd /var/www/html
 sudo unzip SGCE_FINAL_DESDE_0.zip
-```
-
-### 3.2 Permisos
-
-```bash
 sudo chown -R www-data:www-data SGCE/storage SGCE/config
-sudo find SGCE -type d -exec chmod 755 {} \;
-sudo find SGCE -type f -exec chmod 644 {} \;
 ```
 
-### 3.3 Crear base de datos
-
-```sql
-CREATE DATABASE sgce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'sgce_user'@'localhost' IDENTIFIED BY 'Cambia_Esta_Clave_2026!';
-GRANT ALL PRIVILEGES ON sgce.* TO 'sgce_user'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-### 3.4 Ejecutar instalador
-
-Abrir en el navegador:
+Abrir en navegador:
 
 ```text
 http://tu-servidor/SGCE/Instalar.php
 ```
 
-Capturar datos de conexion, informacion institucional, ciclo activo, periodos y usuario administrador.
+Completa el asistente con datos de base de datos, escuela, ciclo y administrador.
 
-### 3.5 Bloqueo posterior
+## Bloqueo del instalador
 
-Al terminar la instalacion debe conservarse `storage/install.lock`. Ese archivo evita reinstalaciones accidentales.
+Al terminar se genera:
 
-## 4. Rendimiento
+```text
+storage/install.lock
+```
 
-SGCE incluye paginacion y limites de consulta en secciones de alto crecimiento. Para escuelas con cientos de alumnos y registros diarios se recomienda:
+Mientras exista ese archivo, `Instalar.php` queda bloqueado. Para reinstalar de forma controlada, elimina manualmente el archivo o define temporalmente `SGCE_ALLOW_REINSTALL=1`.
 
-- Mantener indices SQL creados por el instalador.
-- Evitar borrar manualmente llaves e indices.
-- Usar filtros por ciclo, grupo, periodo o fecha.
-- Realizar respaldos periodicos.
+## Seguridad incluida
 
-## 5. Seguridad operativa
+- Sesiones con `HttpOnly`, `SameSite=Strict` y regeneración de ID al iniciar sesión.
+- CSRF en formularios POST.
+- Rate limit de login y consulta pública.
+- Encabezados HTTP de seguridad.
+- Directorios internos protegidos con `.htaccess`.
+- Validación de archivos subidos por extensión, tamaño, MIME y firma interna.
+- Restauración de respaldos limitada a archivos SQL oficiales del sistema.
 
-- Usar HTTPS en produccion.
-- Cambiar claves predeterminadas.
-- Mantener permisos restrictivos en `config/` y `storage/`.
-- No publicar respaldos dentro de carpetas publicas.
-- Revisar bitacora y respaldos periodicamente.
+## Rendimiento
 
-## 6. Validacion final
+- Índices SQL para alumnos, asignaciones, asistencias, calificaciones, avisos y bitácora.
+- Paginación real desde MySQL en módulos de alto crecimiento.
+- Consultas con `LIMIT/OFFSET` y filtros preparados.
+- Reportes con validación de rangos para evitar cargas excesivas.
 
-Ejecutar:
+## Prueba previa
 
 ```bash
 cd /var/www/html/SGCE
 php tests/RunStaticChecks.php
 ```
-
-Luego probar flujo completo con datos reales: docentes, alumnos, grupos, asignaciones, asistencia, calificaciones, planeaciones, reportes, respaldos y restauracion.

@@ -1,76 +1,42 @@
 # Manual de usuario - SGCE
 
-## 1. Acceso
+## Ingreso
 
-Entrar al sistema desde la URL proporcionada por la institucion. En la pantalla principal se inicia sesion con usuario y contrasena.
+Accede al sistema desde la dirección proporcionada por la institución. Ingresa usuario y contraseña. El sistema dirige automáticamente al panel correspondiente según el rol.
 
-## 2. Roles
+## Administrador
 
-### Administrador
+Puede administrar:
 
-Puede administrar usuarios, docentes, grupos, alumnos, asignaciones, avisos, reportes, configuracion, respaldos, bitacora, periodos y planeaciones.
+- Docentes.
+- Alumnos.
+- Grupos.
+- Asignaciones.
+- Avisos.
+- Ciclos y periodos.
+- Reportes.
+- Planeaciones.
+- Usuarios.
+- Respaldos.
+- Bitácora.
 
-### Administrativo
+Los listados principales trabajan con paginación para evitar cargas lentas cuando la escuela acumula muchos registros.
 
-Puede apoyar en catalogos, avisos, reportes, asistencia, calificaciones, importaciones y planeaciones segun los permisos del sistema.
+## Docente
 
-### Maestro
+El docente puede consultar sus grupos y materias asignadas, registrar asistencia, capturar calificaciones, subir planeaciones y exportar reportes permitidos.
 
-Puede consultar sus grupos, registrar asistencia, capturar calificaciones y subir planeaciones.
+## Padres o tutores
 
-## 3. Panel principal
+La consulta pública permite revisar asistencia o calificaciones ingresando datos exactos del alumno. Por privacidad, no se muestran listas completas ni sugerencias de alumnos.
 
-El panel muestra accesos a las secciones disponibles. Cada tarjeta lleva al modulo correspondiente. El sistema usa transiciones suaves al cargar paginas para dar una navegacion mas fluida sin afectar botones ni formularios.
+## Respaldos
 
-## 4. Docentes
+Desde el módulo de respaldos se puede exportar información del sistema. La importación solo acepta respaldos oficiales generados por SGCE.
 
-Permite registrar, editar, desactivar e importar docentes desde CSV o Excel. El archivo de importacion debe incluir columnas de nombre, usuario y contrasena.
+## Recomendaciones
 
-## 5. Grupos
-
-Permite crear grupos por grado, grupo y turno. Los grupos activos se utilizan para asignar alumnos, materias, asistencia y calificaciones.
-
-## 6. Alumnos
-
-Permite registrar alumnos, asignarlos a grupo, editarlos, desactivarlos y consultar expediente.
-
-## 7. Asignaciones
-
-Relaciona docente, grupo y materia. Esta relacion es la base para que el maestro capture asistencia, calificaciones y planeaciones.
-
-## 8. Asistencia
-
-El maestro selecciona su asignacion y fecha para registrar asistencia por alumno. Estados disponibles:
-
-- A: Asistencia.
-- F: Falta.
-- R: Retardo.
-- J: Justificante.
-
-## 9. Calificaciones
-
-El maestro captura calificaciones por periodo. El sistema valida rangos permitidos y evita duplicados por alumno, asignacion y periodo.
-
-## 10. Planeaciones
-
-El docente sube planeaciones por materia y numero de entrega. Administracion puede revisar, aprobar o devolver una planeacion con observaciones.
-
-## 11. Avisos
-
-Permite publicar comunicados para todos, maestros o padres de familia.
-
-## 12. Consulta publica
-
-Padres o tutores pueden consultar informacion permitida mediante los filtros definidos por el sistema. Las consultas publicas incluyen controles de seguridad y limite de intentos.
-
-## 13. Reportes
-
-El sistema genera reportes de asistencia, calificaciones, alumnos, boletas y respaldo de datos.
-
-## 14. Respaldos
-
-El administrador puede crear respaldos de base de datos y restaurar informacion. Se recomienda hacer respaldo antes de cualquier operacion importante.
-
-## 15. Cierre de sesion
-
-Usar siempre el boton de salir para cerrar la sesion correctamente.
+- Mantener actualizados los datos de ciclos y periodos.
+- No compartir usuarios ni contraseñas.
+- Generar respaldos periódicos.
+- Usar filtros y paginación en módulos con muchos datos.

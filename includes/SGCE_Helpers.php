@@ -73,6 +73,8 @@ function SgcePrepararDirectoriosSeguros() {
         $Raiz . '/includes',
         $Raiz . '/modules',
         $Raiz . '/reports',
+        $Raiz . '/repositories',
+        $Raiz . '/services',
         $Raiz . '/public',
         $Raiz . '/cron',
     ];
@@ -424,6 +426,12 @@ function SgceRedirectAdminTab($Tab, $UserSession = null) {
     exit;
 }
 
+function SgcePageSizeSeguro($Valor, $Default = 50, $Min = 5, $Max = 100) {
+    $Valor = (int)$Valor;
+    if ($Valor <= 0) { $Valor = (int)$Default; }
+    return max((int)$Min, min((int)$Max, $Valor));
+}
+
 function SgcePaginaActual($Nombre, $Default = 1) {
     $Valor = isset($_GET[$Nombre]) ? (int)$_GET[$Nombre] : (int)$Default;
     return max(1, $Valor);
@@ -575,6 +583,7 @@ function CrearTablaBitacoraSiNoExiste($Pdo) {
         INDEX idx_bitacora_fecha (FechaRegistro),
         INDEX idx_bitacora_usuario_fecha (UsuarioId, FechaRegistro),
         INDEX idx_bitacora_accion_fecha (Accion, FechaRegistro),
+        INDEX idx_bitacora_fecha_id (FechaRegistro, Id),
         INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     $TablaBitacoraLista = true;
@@ -863,3 +872,16 @@ function SgceFirmaRespaldoValida($Sql) {
     return is_string($Sql) && preg_match('/SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION/', $Sql) === 1;
 }
 
+
+
+function SgceValidarSqlRestauracionSegura($Sql, $MaxSentencias = 250000) {
+    $Sql = (string)$Sql;
+    if (trim($Sql) === '') { return 'El respaldo SQL está vacío.'; }
+    if (!SgceFirmaRespaldoValida($Sql)) { return 'El archivo no tiene la firma oficial SGCE.'; }
+    if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|ALTER\s+DATABASE|GRANT\s+|REVOKE\s+|CREATE\s+USER|DROP\s+USER)\b/i', $Sql)) {
+        return 'El respaldo contiene instrucciones administrativas no permitidas.';
+    }
+    $AproxSentencias = substr_count($Sql, ';');
+    if ($AproxSentencias > $MaxSentencias) { return 'El respaldo supera el límite seguro de sentencias.'; }
+    return true;
+}

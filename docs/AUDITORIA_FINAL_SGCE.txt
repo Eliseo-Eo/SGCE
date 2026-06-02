@@ -1,42 +1,14 @@
-SGCE - Auditoria final de entrega
+AUDITORÍA FINAL SGCE
 
-Paquete: SGCE_FINAL_DESDE_0.zip
-Objetivo: instalacion limpia desde cero, prueba funcional y publicacion controlada.
+Paquete revisado para instalación desde cero.
 
-Resultado general:
-- PHP lint: OK.
-- JavaScript syntax check: OK.
-- Funciones PHP sin duplicados.
-- Includes/requires locales revisados.
-- Referencias locales href/src/action revisadas.
-- Favicon en raiz: no existe.
-- Favicon centralizado: assets/media/img/.
-- ZIP interno dentro del proyecto: no existe.
-- Archivos temporales/residuos (.bak, .old, .tmp, .dm, .orig): no detectados.
-- Cache de CSS/JS normalizado como ?v=sgce.
-- README, manual tecnico, manual de usuario y revision tecnica actualizados.
-
-Rendimiento y escalabilidad:
-- Panel administrativo renderiza solamente la pestana activa.
-- Alumnos, asignaciones y bitacora trabajan con paginacion desde base de datos.
-- Consultas principales usan LIMIT/OFFSET cuando aplica.
-- Asistencia y calificaciones usan consultas directas y guardado con llave unica.
-- Indices SQL reforzados para alumnos, docentes, grupos, asignaciones, asistencia, calificaciones, planeaciones, avisos y bitacora.
-
-Seguridad:
-- Login con consulta preparada, LIMIT 1 y rehash automatico cuando PHP lo requiere.
-- Sesiones con protecciones basicas de cookie.
-- Tokens CSRF en formularios POST.
-- Control de roles/permisos por modulo.
-- Consulta publica con coincidencia exacta y control de intentos.
-- Instalador protegido mediante install.lock despues de instalar.
-- Carpetas internas protegidas con .htaccess.
-
-Interfaz:
-- Diseno visual aprobado conservado.
-- Transiciones suaves centralizadas en sgce-soft-motion.css.
-- Portal docente con iconos de avisos y encabezado de materia suavizados.
-- Consulta publica de asistencia y calificaciones con avisos suavizados y entrada uniforme de paneles.
-
-Nota de entrega:
-La validacion estatica fue correcta. Antes de vender o entregar formalmente se debe ejecutar una prueba real en el servidor del cliente con MySQL: instalacion desde cero, creacion de usuario administrador, registro/importacion de docentes, alumnos, grupos, asignaciones, asistencia, calificaciones, planeaciones, reportes, respaldo, restauracion y consulta publica.
+Validaciones incluidas:
+- Sintaxis PHP y JavaScript.
+- Rutas locales href/src/action.
+- Includes/requires internos.
+- Favicon centralizado en assets/media/img.
+- Sin ZIP interno.
+- Sin archivos temporales o respaldos viejos.
+- Cache de assets normalizado.
+- Índices SQL de rendimiento.
+- Repositorios y servicios cargados correctamente.

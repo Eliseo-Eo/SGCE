@@ -1,6 +1,9 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
+$SgceRepositoryLoader = dirname(__DIR__) . '/repositories/SGCE_RepositoryLoader.php';
+if (is_file($SgceRepositoryLoader)) { require_once $SgceRepositoryLoader; }
+
 $SgceServiceFiles = [
     __DIR__ . '/AlumnoService.php',
     __DIR__ . '/MaestroService.php',

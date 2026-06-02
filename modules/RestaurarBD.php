@@ -236,8 +236,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($Sql === false || trim($Sql) === '') {
             RedirectRestaurar('No se pudo leer el archivo SQL.', 'danger');
         }
-        if (!SgceFirmaRespaldoValida($Sql)) {
-            RedirectRestaurar('El archivo no tiene la firma oficial SGCE. Por seguridad solo se importan respaldos generados por este sistema.', 'danger');
+        $ValidacionSqlSegura = SgceValidarSqlRestauracionSegura($Sql);
+        if ($ValidacionSqlSegura !== true) {
+            RedirectRestaurar($ValidacionSqlSegura, 'danger');
         }
         if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|DROP\s+TABLE|CREATE\s+TABLE|ALTER\s+TABLE)\b/i', $Sql)) {
             RedirectRestaurar('Este importador acepta únicamente respaldos de SOLO DATOS generados por “Exportar solo datos”. Si subiste un respaldo completo con estructura, usa install/SGCE.sql o el instalador de forma manual.', 'danger');

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $Error = 'Demasiados intentos. Espera 15 minutos e intenta nuevamente.';
         } else {
 
-        $Stmt = $Pdo->prepare('SELECT * FROM Usuarios WHERE Username = ? AND Activo = 1');
+        $Stmt = $Pdo->prepare('SELECT Id, Username, Password, NombreCompleto, Rol FROM Usuarios WHERE Username = ? AND Activo = 1 LIMIT 1');
         $Stmt->execute([$Username]);
 
         $User = $Stmt->fetch();
@@ -41,6 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($User && SgcePasswordVerify($Password, $User['Password'])) {
 
             RateLimitLimpiar($Pdo, 'login', $Username);
+
+            if (password_needs_rehash((string)$User['Password'], PASSWORD_DEFAULT)) {
+                $NuevoHash = SgcePasswordHash($Password);
+                $StmtRehash = $Pdo->prepare('UPDATE Usuarios SET Password = ? WHERE Id = ? LIMIT 1');
+                $StmtRehash->execute([$NuevoHash, (int)$User['Id']]);
+            }
 
             
             if (session_status() === PHP_SESSION_ACTIVE) {
