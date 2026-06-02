@@ -465,11 +465,11 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                                                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                             </button>
 
-                                            <form method="POST" class="m-0 p-0" data-confirm-delete="DOCENTE" data-confirm-message="¿DESEAS ELIMINAR ESTE DOCENTE? ESTA ACCIÓN NO SE PUEDE DESHACER.">
+                                            <form method="POST" class="m-0 p-0" data-confirm-delete="DOCENTE" data-confirm-message="¿DESEAS DESACTIVAR ESTE DOCENTE? SI TIENE ASIGNACIONES ACTIVAS EL SISTEMA LO BLOQUEARÁ HASTA HACER RELEVO/INTERINATO.">
                     <?php echo CampoCsrf(); ?>
                                                 <input type="hidden" name="Tab" value="maestros">
                                                 <button type="submit" name="DelMaestro" value="<?= $M['Id'] ?>" class="ActionBtn ActionDelete BtnTeacherDelete">
-                                                    <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
+                                                    <i class="fa-solid fa-trash-can"></i><span>Desactivar</span>
                                                 </button>
                                             </form>
                                             </div>
@@ -1167,8 +1167,8 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                         </div>
 
                         <div class="col-md-3">
-                            <label class="small fw-bold text-muted">Nombre de la Materia</label>
-                            <input type="text" name="Materia" class="form-control" placeholder="EJ: MATEMÁTICAS I" maxlength="140" required>
+                            <label class="small fw-bold text-muted">Materia estable</label>
+                            <input type="text" name="Materia" class="form-control" placeholder="EJ: ESPAÑOL" maxlength="140" required>
                         </div>
 
                         <div class="col-md-2 AsignacionButtonCol">
@@ -1178,6 +1178,11 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                             </button>
                         </div>
                     </form>
+
+                    <div class="alert alert-info border-0 rounded-4 shadow-sm small fw-semibold mb-4">
+                        <i class="fa-solid fa-shield-halved me-2"></i>
+                        La materia se conserva aunque cambie el docente. Si hay interinato, edita la asignación y cambia solo el docente; SGCE registrará el relevo sin alterar asistencias ni calificaciones.
+                    </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-4">
                         <h6 class="mb-0 fw-bold text-secondary">Cargas Académicas Activas</h6>
@@ -1285,7 +1290,7 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                                             <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                         </button>
 
-                                        <form method="POST" class="m-0 p-0" data-confirm-delete="ASIGNACIÓN" data-confirm-message="¿DESEAS ELIMINAR ESTA ASIGNACIÓN ACADÉMICA?">
+                                        <form method="POST" class="m-0 p-0" data-confirm-delete="ASIGNACIÓN" data-confirm-message="¿DESEAS DESACTIVAR ESTA ASIGNACIÓN? SI YA TIENE CALIFICACIONES O ASISTENCIAS EL SISTEMA LA PROTEGERÁ.">
                     <?php echo CampoCsrf(); ?>
                                             <input type="hidden" name="Tab" value="asignaciones">
                                             <button type="submit" name="DelAsignacion" value="<?= $Asg['Id'] ?>" class="ActionBtn ActionDelete BtnAsignacionDelete">
@@ -1342,7 +1347,13 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                             </select>
 
                             <label class="small text-muted">Materia</label>
-                            <input type="text" name="Materia" value="<?= htmlspecialchars($Asg['MateriaNombre']) ?>" class="form-control mb-3" maxlength="140" required>
+                            <input type="text" name="Materia" value="<?= htmlspecialchars($Asg['MateriaNombre']) ?>" class="form-control mb-2" maxlength="140" required>
+
+                            <label class="small text-muted">Motivo del relevo/interinato</label>
+                            <input type="text" name="MotivoRelevo" value="RELEVO DOCENTE / INTERINATO" class="form-control mb-3" maxlength="255">
+                            <div class="alert alert-warning border-0 rounded-4 small fw-semibold">
+                                Si esta asignación ya tiene calificaciones o asistencias, SGCE solo permitirá cambiar el docente. La materia y el grupo quedan protegidos para no romper el historial.
+                            </div>
 
                             <button class="btn btn-primary w-100"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
 

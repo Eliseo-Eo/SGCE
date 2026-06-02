@@ -7,6 +7,8 @@ if (!$UserSession) { header('Location: index.php'); exit; }
 SgceExigirPermiso($UserSession, 'usuarios', 'Solo el administrador puede gestionar usuarios y roles.');
 
 $Roles = SgceRolesSistema();
+$CicloActivoUsuarios = SgceCicloActivo($Pdo);
+$CicloActivoUsuariosId = (int)($CicloActivoUsuarios['Id'] ?? 0);
 $Mensaje = trim((string)($_GET['M'] ?? ''));
 $Error = '';
 
@@ -45,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ((string)$UsuarioExistente['Rol'] === 'maestro' && $Rol !== 'maestro') {
-                    $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1");
-                    $StmtAsignaciones->execute([$UsuarioExistenteId]);
+                    $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1 AND (? = 0 OR CicloId = ?)");
+                    $StmtAsignaciones->execute([$UsuarioExistenteId, $CicloActivoUsuariosId, $CicloActivoUsuariosId]);
                     if ((int)$StmtAsignaciones->fetchColumn() > 0) {
                         throw new Exception('Ese username pertenece a un docente inactivo con asignaciones. Reactívalo como maestro o reasigna primero sus materias.');
                     }
@@ -105,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($Actual['Rol'] === 'maestro' && $Rol !== 'maestro') {
-                $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1");
-                $StmtAsignaciones->execute([$Id]);
+                $StmtAsignaciones = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE MaestroId = ? AND Activo = 1 AND (? = 0 OR CicloId = ?)");
+                $StmtAsignaciones->execute([$Id, $CicloActivoUsuariosId, $CicloActivoUsuariosId]);
                 if ((int)$StmtAsignaciones->fetchColumn() > 0) {
                     throw new Exception('No puedes cambiar el rol de un docente con asignaciones activas. Primero desactiva o reasigna sus materias.');
                 }

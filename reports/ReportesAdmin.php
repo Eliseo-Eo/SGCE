@@ -6,20 +6,30 @@ $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }
 SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para entrar al centro de reportes.');
 
-$Grupos = $Pdo->query("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo")->fetchAll();
-$Asignaciones = $Pdo->query("SELECT Asg.Id, Asg.MateriaNombre, G.Grado, G.Grupo, G.Turno, U.NombreCompleto AS Maestro FROM Asignaciones Asg JOIN Grupos G ON Asg.GrupoId = G.Id JOIN Usuarios U ON Asg.MaestroId = U.Id WHERE Asg.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 ORDER BY G.Turno, G.Grado, G.Grupo, Asg.MateriaNombre")->fetchAll();
+$CicloActivo = SgceCicloActivo($Pdo) ?: ['Id'=>0,'Nombre'=>'','FechaInicio'=>'','FechaFin'=>''];
+$CicloActivoId = (int)($CicloActivo['Id'] ?? 0);
+$Grupos = [];
+$Asignaciones = [];
+if ($CicloActivoId > 0) {
+    $StmtGrupos = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY Turno, Grado, Grupo");
+    $StmtGrupos->execute([$CicloActivoId]);
+    $Grupos = $StmtGrupos->fetchAll();
+
+    $StmtAsignaciones = $Pdo->prepare("SELECT Asg.Id, Asg.MateriaNombre, G.Grado, G.Grupo, G.Turno, U.NombreCompleto AS Maestro FROM Asignaciones Asg JOIN Grupos G ON Asg.GrupoId = G.Id AND G.CicloId = Asg.CicloId JOIN Usuarios U ON Asg.MaestroId = U.Id WHERE Asg.CicloId = ? AND Asg.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 ORDER BY G.Turno, G.Grado, G.Grupo, Asg.MateriaNombre");
+    $StmtAsignaciones->execute([$CicloActivoId]);
+    $Asignaciones = $StmtAsignaciones->fetchAll();
+}
 $Periodos = SgcePeriodosDisponibles($Pdo);
-$CicloActivo = $Pdo->query("SELECT Id, Nombre, FechaInicio, FechaFin FROM CiclosEscolares WHERE Activo = 1 ORDER BY FechaInicio DESC, Id DESC LIMIT 1")->fetch() ?: ['Id'=>0,'Nombre'=>'','FechaInicio'=>'','FechaFin'=>''];
 
 $BuscarAlumno = trim((string)($_GET['BuscarAlumno'] ?? ''));
 $GrupoAlumno = (int)($_GET['GrupoAlumno'] ?? 0);
 $Alumnos = [];
-if ($BuscarAlumno !== '' || $GrupoAlumno > 0) {
-    $Where = ['Al.Activo = 1', 'G.Activo = 1'];
-    $Params = [];
-    if ($GrupoAlumno > 0) { $Where[] = 'Al.GrupoId = ?'; $Params[] = $GrupoAlumno; }
+if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
+    $Where = ['Al.Activo = 1', 'G.Activo = 1', 'AI.CicloId = ?', "AI.Estado = 'INSCRITO'"];
+    $Params = [$CicloActivoId];
+    if ($GrupoAlumno > 0) { $Where[] = 'AI.GrupoId = ?'; $Params[] = $GrupoAlumno; }
     if ($BuscarAlumno !== '') { $Where[] = 'Al.NombreCompleto LIKE ?'; $Params[] = '%' . SgceNormalizarMayusculas($BuscarAlumno) . '%'; }
-    $Sql = "SELECT Al.Id, Al.NombreCompleto, G.Grado, G.Grupo, G.Turno FROM Alumnos Al JOIN Grupos G ON Al.GrupoId = G.Id WHERE " . implode(' AND ', $Where) . " ORDER BY G.Turno, G.Grado, G.Grupo, Al.NombreCompleto LIMIT 80";
+    $Sql = "SELECT Al.Id, Al.NombreCompleto, G.Grado, G.Grupo, G.Turno FROM AlumnoInscripciones AI JOIN Alumnos Al ON Al.Id = AI.AlumnoId JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId WHERE " . implode(' AND ', $Where) . " ORDER BY G.Turno, G.Grado, G.Grupo, Al.NombreCompleto LIMIT 80";
     $Stmt = $Pdo->prepare($Sql);
     $Stmt->execute($Params);
     $Alumnos = $Stmt->fetchAll();

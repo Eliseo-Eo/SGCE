@@ -19,11 +19,12 @@ $Stmt = $Pdo->prepare("
            G.Turno, 
            A.MateriaNombre 
     FROM Asignaciones A
-    JOIN Grupos G ON A.GrupoId = G.Id
+    JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId
+    JOIN CiclosEscolares C ON C.Id = A.CicloId AND C.Activo = 1
     WHERE A.MaestroId = ?
     AND A.Activo = 1
     AND G.Activo = 1
-    ORDER BY G.Turno, G.Grado, G.Grupo ASC
+    ORDER BY G.Turno, CAST(G.Grado AS UNSIGNED), G.Grado, G.Grupo ASC
 ");
 
 $Stmt->execute([$UserSession['Id']]);
@@ -41,7 +42,7 @@ if ($CicloDocenteId > 0) {
     $StmtPlaneacionesDocente->execute([$CicloDocenteId, (int)$UserSession['Id']]);
     $TotalPlaneacionesSubidas = (int)$StmtPlaneacionesDocente->fetchColumn();
 }
-$StmtStatsMaestro = $Pdo->prepare("SELECT COUNT(*) FROM Asistencias Asi JOIN Asignaciones A ON Asi.AsignacionId = A.Id WHERE A.MaestroId = ? AND Asi.FechaDia = CURDATE()");
+$StmtStatsMaestro = $Pdo->prepare("SELECT COUNT(*) FROM Asistencias Asi JOIN Asignaciones A ON Asi.AsignacionId = A.Id AND A.CicloId = Asi.CicloId JOIN CiclosEscolares C ON C.Id = Asi.CicloId AND C.Activo = 1 WHERE A.MaestroId = ? AND Asi.FechaDia = CURDATE()");
 $StmtStatsMaestro->execute([$UserSession['Id']]);
 $AsistenciasHoyMaestro = (int)$StmtStatsMaestro->fetchColumn();
 

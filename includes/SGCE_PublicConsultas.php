@@ -29,8 +29,18 @@ function SgcePublicoTextoEstado($Estado) {
 }
 
 function SgcePublicoCatalogos(PDO $Pdo) {
-    $Grados = $Pdo->query("SELECT DISTINCT Grado FROM Grupos WHERE Activo = 1 ORDER BY CAST(Grado AS UNSIGNED), Grado ASC")->fetchAll();
-    $Grupos = $Pdo->query("SELECT DISTINCT Grupo FROM Grupos WHERE Activo = 1 ORDER BY Grupo ASC")->fetchAll();
+    $Ciclo = SgceCicloActivo($Pdo);
+    $CicloId = (int)($Ciclo['Id'] ?? 0);
+    if ($CicloId <= 0) { return [[], []]; }
+
+    $StmtGrados = $Pdo->prepare("SELECT DISTINCT Grado FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY CAST(Grado AS UNSIGNED), Grado ASC");
+    $StmtGrados->execute([$CicloId]);
+    $Grados = $StmtGrados->fetchAll();
+
+    $StmtGrupos = $Pdo->prepare("SELECT DISTINCT Grupo FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY Grupo ASC");
+    $StmtGrupos->execute([$CicloId]);
+    $Grupos = $StmtGrupos->fetchAll();
+
     return [$Grados, $Grupos];
 }
 
@@ -90,16 +100,32 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
         return null;
     }
 
-    $StmtGrupo = $Pdo->prepare("SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Grado = ? AND Grupo = ? AND Turno = ? AND Activo = 1 LIMIT 1");
-    $StmtGrupo->execute([$Grado, $Grupo, $Turno]);
+    $Ciclo = SgceCicloActivo($Pdo);
+    $CicloId = (int)($Ciclo['Id'] ?? 0);
+    if ($CicloId <= 0) {
+        $Error = 'NO HAY UN CICLO ESCOLAR ACTIVO PARA CONSULTAS PÚBLICAS.';
+        return null;
+    }
+
+    $StmtGrupo = $Pdo->prepare("SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? AND Activo = 1 LIMIT 1");
+    $StmtGrupo->execute([$CicloId, $Grado, $Grupo, $Turno]);
     $InfoGrupo = $StmtGrupo->fetch();
     if (!$InfoGrupo) {
         $Error = SgcePublicoMensajeNoEncontrado();
         return null;
     }
 
-    $StmtAlumno = $Pdo->prepare("SELECT Id, NombreCompleto, GrupoId FROM Alumnos WHERE GrupoId = ? AND NombreCompleto = ? AND Activo = 1 LIMIT 1");
-    $StmtAlumno->execute([(int)$InfoGrupo['Id'], $NombreAlumno]);
+    $StmtAlumno = $Pdo->prepare("
+        SELECT Al.Id, Al.NombreCompleto, AI.GrupoId, AI.CicloId, AI.Estado
+        FROM AlumnoInscripciones AI
+        INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1
+        WHERE AI.CicloId = ?
+          AND AI.GrupoId = ?
+          AND AI.Estado = 'INSCRITO'
+          AND Al.NombreCompleto = ?
+        LIMIT 1
+    ");
+    $StmtAlumno->execute([$CicloId, (int)$InfoGrupo['Id'], $NombreAlumno]);
     $Alumno = $StmtAlumno->fetch();
     if (!$Alumno) {
         $Error = SgcePublicoMensajeNoEncontrado();
@@ -109,6 +135,7 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
     return [
         'Alumno' => $Alumno,
         'Grupo' => $InfoGrupo,
+        'Ciclo' => $Ciclo,
         'NombreAlumno' => $NombreAlumno,
         'Grado' => $Grado,
         'GrupoLetra' => $Grupo,
@@ -148,14 +175,34 @@ function SgcePublicoValidarRangoFechas($FechaInicio, $FechaFin, &$Error = '', $M
 
 function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInicio, $FechaFin) {
     $Conteos = ['A' => 0, 'F' => 0, 'R' => 0, 'J' => 0];
+    $GrupoInfo = SgceGrupoObtenerPorId($Pdo, (int)$GrupoId);
+    $CicloId = (int)($GrupoInfo['CicloId'] ?? 0);
 
-    $StmtTotalMaterias = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE GrupoId = ? AND Activo = 1");
-    $StmtTotalMaterias->execute([(int)$GrupoId]);
-    $TotalMaterias = (int)$StmtTotalMaterias->fetchColumn();
+    $TotalMaterias = 0;
+    $Detalle = [];
+    if ($CicloId > 0) {
+        $StmtTotalMaterias = $Pdo->prepare("SELECT COUNT(*) FROM Asignaciones WHERE CicloId = ? AND GrupoId = ? AND Activo = 1");
+        $StmtTotalMaterias->execute([$CicloId, (int)$GrupoId]);
+        $TotalMaterias = (int)$StmtTotalMaterias->fetchColumn();
 
-    $StmtDetalle = $Pdo->prepare("\n        SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asis.Estado,\n               Asg.MateriaNombre, U.NombreCompleto AS Maestro\n        FROM Asistencias Asis\n        INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId\n        INNER JOIN Usuarios U ON U.Id = Asg.MaestroId\n        WHERE Asis.AlumnoId = ?\n          AND Asis.FechaDia BETWEEN ? AND ?\n          AND Asg.GrupoId = ?\n          AND Asg.Activo = 1\n        ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n        LIMIT 600\n    ");
-    $StmtDetalle->execute([(int)$AlumnoId, $FechaInicio, $FechaFin, (int)$GrupoId]);
-    $Detalle = $StmtDetalle->fetchAll();
+        $StmtDetalle = $Pdo->prepare("
+            SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asis.Estado,
+                   Asg.MateriaNombre, U.NombreCompleto AS Maestro
+            FROM Asistencias Asis
+            INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId
+            INNER JOIN Usuarios U ON U.Id = Asg.MaestroId
+            INNER JOIN AlumnoInscripciones AI ON AI.AlumnoId = Asis.AlumnoId AND AI.CicloId = Asis.CicloId AND AI.GrupoId = Asg.GrupoId
+            WHERE Asis.AlumnoId = ?
+              AND Asis.CicloId = ?
+              AND Asis.FechaDia BETWEEN ? AND ?
+              AND Asg.GrupoId = ?
+              AND Asg.Activo = 1
+            ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC
+            LIMIT 600
+        ");
+        $StmtDetalle->execute([(int)$AlumnoId, $CicloId, $FechaInicio, $FechaFin, (int)$GrupoId]);
+        $Detalle = $StmtDetalle->fetchAll();
+    }
 
     foreach ($Detalle as $Fila) {
         $Estado = (string)$Fila['Estado'];
@@ -171,7 +218,7 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
         $EstatusGeneral = 'SIN MATERIAS ASIGNADAS';
         $ClaseEstado = 'warning';
         $IconoEstado = 'fa-triangle-exclamation';
-        $Descripcion = 'EL GRUPO TODAVÍA NO TIENE MATERIAS ASIGNADAS EN EL SISTEMA.';
+        $Descripcion = 'EL GRUPO TODAVÍA NO TIENE MATERIAS ASIGNADAS EN EL CICLO ESCOLAR CONSULTADO.';
     } elseif ($RegistrosCapturados <= 0) {
         $EstatusGeneral = 'SIN REGISTROS EN EL RANGO';
         $ClaseEstado = 'secondary';
@@ -218,18 +265,35 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
 }
 
 function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
-    $Ciclo = SgceCicloActivo($Pdo);
-    $CicloId = (int)($Ciclo['Id'] ?? 0);
+    $GrupoInfo = SgceGrupoObtenerPorId($Pdo, (int)$GrupoId);
+    $CicloId = (int)($GrupoInfo['CicloId'] ?? 0);
     if ($CicloId <= 0) {
         return ['Ciclo' => null, 'Periodos' => [], 'Filas' => [], 'PromedioGeneral' => null, 'Capturadas' => 0, 'Materias' => 0];
+    }
+
+    $Ciclo = SgceCicloPorId($Pdo, $CicloId);
+    if (!$Ciclo || (int)($Ciclo['Activo'] ?? 0) !== 1) {
+        return ['Ciclo' => $Ciclo, 'Periodos' => [], 'Filas' => [], 'PromedioGeneral' => null, 'Capturadas' => 0, 'Materias' => 0];
+    }
+
+    $StmtInscrito = $Pdo->prepare("SELECT Id FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ? AND GrupoId = ? AND Estado = 'INSCRITO' LIMIT 1");
+    $StmtInscrito->execute([(int)$AlumnoId, $CicloId, (int)$GrupoId]);
+    if (!$StmtInscrito->fetchColumn()) {
+        return ['Ciclo' => $Ciclo, 'Periodos' => [], 'Filas' => [], 'PromedioGeneral' => null, 'Capturadas' => 0, 'Materias' => 0];
     }
 
     $StmtPeriodos = $Pdo->prepare("SELECT Id, Nombre, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND Activo = 1 AND Orden BETWEEN 1 AND 3 ORDER BY Orden ASC, Id ASC");
     $StmtPeriodos->execute([$CicloId]);
     $Periodos = $StmtPeriodos->fetchAll();
 
-    $StmtAsignaciones = $Pdo->prepare("\n        SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro\n        FROM Asignaciones A\n        INNER JOIN Usuarios U ON U.Id = A.MaestroId\n        WHERE A.GrupoId = ? AND A.Activo = 1 AND U.Activo = 1\n        ORDER BY A.MateriaNombre ASC\n    ");
-    $StmtAsignaciones->execute([(int)$GrupoId]);
+    $StmtAsignaciones = $Pdo->prepare("
+        SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro
+        FROM Asignaciones A
+        INNER JOIN Usuarios U ON U.Id = A.MaestroId
+        WHERE A.CicloId = ? AND A.GrupoId = ? AND A.Activo = 1 AND U.Activo = 1
+        ORDER BY A.MateriaNombre ASC
+    ");
+    $StmtAsignaciones->execute([$CicloId, (int)$GrupoId]);
     $Asignaciones = $StmtAsignaciones->fetchAll();
 
     $Matriz = [];

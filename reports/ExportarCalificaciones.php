@@ -32,7 +32,7 @@ function EstilosReporteCal($Landscape = false) { global $ColorReporte; ?>
 </style>
 <?php }
 
-$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1');
+$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.CicloId, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1');
 $StmtPeriodo->execute([$PeriodoId]);
 $Periodo = $StmtPeriodo->fetch();
 if (!$Periodo) { http_response_code(400); exit('Periodo no válido.'); }
@@ -52,15 +52,16 @@ if ($Modo === 'General') {
             COUNT(C.Calificacion) AS Capturadas,
             ROUND(AVG(C.Calificacion), 2) AS Promedio
         FROM Asignaciones A
-        INNER JOIN Grupos G ON G.Id = A.GrupoId
+        INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.CicloId = A.CicloId
         INNER JOIN Usuarios U ON U.Id = A.MaestroId
-        LEFT JOIN Alumnos Al ON Al.GrupoId = G.Id AND Al.Activo = 1
+        LEFT JOIN AlumnoInscripciones AI ON AI.CicloId = A.CicloId AND AI.GrupoId = G.Id AND AI.Estado = 'INSCRITO'
+        LEFT JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1
         LEFT JOIN Calificaciones C ON C.AsignacionId = A.Id AND C.AlumnoId = Al.Id AND C.PeriodoId = ?
-        WHERE A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1
+        WHERE A.CicloId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1
         GROUP BY A.Id, G.Grado, G.Grupo, G.Turno, A.MateriaNombre, U.NombreCompleto
         ORDER BY G.Turno, G.Grado, G.Grupo, A.MateriaNombre";
     $Stmt = $Pdo->prepare($Sql);
-    $Stmt->execute([$PeriodoId]);
+    $Stmt->execute([$PeriodoId, (int)$Periodo['CicloId']]);
     $Rows = $Stmt->fetchAll();
 
     if ($Tipo === 'Excel') { SgceCalificacionesEmitirExcel($TituloArchivo); }
@@ -86,23 +87,23 @@ if ($Modo === 'General') {
 }
 
 if ($Modo === 'Grupo') {
-    $StmtGrupo = $Pdo->prepare('SELECT Id, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND Activo = 1 LIMIT 1');
-    $StmtGrupo->execute([$GrupoId]);
+    $StmtGrupo = $Pdo->prepare('SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND CicloId = ? AND Activo = 1 LIMIT 1');
+    $StmtGrupo->execute([$GrupoId, (int)$Periodo['CicloId']]);
     $Grupo = $StmtGrupo->fetch();
     if (!$Grupo) { http_response_code(404); exit('Grupo no encontrado.'); }
 
-    $StmtAsignaciones = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.GrupoId = ? AND A.Activo = 1 AND U.Activo = 1 ORDER BY A.MateriaNombre ASC');
-    $StmtAsignaciones->execute([$GrupoId]);
+    $StmtAsignaciones = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.CicloId = ? AND A.GrupoId = ? AND A.Activo = 1 AND U.Activo = 1 ORDER BY A.MateriaNombre ASC');
+    $StmtAsignaciones->execute([(int)$Periodo['CicloId'], $GrupoId]);
     $Asignaciones = $StmtAsignaciones->fetchAll();
 
-    $StmtAlumnos = $Pdo->prepare('SELECT Id, NombreCompleto FROM Alumnos WHERE GrupoId = ? AND Activo = 1 ORDER BY NombreCompleto ASC');
-    $StmtAlumnos->execute([$GrupoId]);
+    $StmtAlumnos = $Pdo->prepare("SELECT Al.Id, Al.NombreCompleto FROM AlumnoInscripciones AI INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1 WHERE AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' ORDER BY Al.NombreCompleto ASC");
+    $StmtAlumnos->execute([(int)$Periodo['CicloId'], $GrupoId]);
     $Alumnos = $StmtAlumnos->fetchAll();
 
     $Calificaciones = [];
     if ($Asignaciones && $Alumnos) {
-        $StmtCal = $Pdo->prepare('SELECT AlumnoId, AsignacionId, Calificacion FROM Calificaciones WHERE PeriodoId = ? AND AsignacionId IN (SELECT Id FROM Asignaciones WHERE GrupoId = ? AND Activo = 1)');
-        $StmtCal->execute([$PeriodoId, $GrupoId]);
+        $StmtCal = $Pdo->prepare('SELECT AlumnoId, AsignacionId, Calificacion FROM Calificaciones WHERE PeriodoId = ? AND AsignacionId IN (SELECT Id FROM Asignaciones WHERE CicloId = ? AND GrupoId = ? AND Activo = 1)');
+        $StmtCal->execute([$PeriodoId, (int)$Periodo['CicloId'], $GrupoId]);
         foreach ($StmtCal->fetchAll() as $Row) { $Calificaciones[(int)$Row['AlumnoId']][(int)$Row['AsignacionId']] = $Row['Calificacion']; }
     }
 
@@ -146,8 +147,8 @@ if ($Modo === 'Grupo') {
     exit;
 }
 
-$Stmt = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 LIMIT 1');
-$Stmt->execute([$AsignacionId]);
+$Stmt = $Pdo->prepare('SELECT A.Id, A.CicloId, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.CicloId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 LIMIT 1');
+$Stmt->execute([$AsignacionId, (int)$Periodo['CicloId']]);
 $Info = $Stmt->fetch();
 if (!$Info) { http_response_code(404); exit('Asignación no encontrada.'); }
 if (SgceTieneRol($UserSession, ['maestro'])) {
@@ -156,8 +157,8 @@ if (SgceTieneRol($UserSession, ['maestro'])) {
     http_response_code(403); exit('No tienes permiso.');
 }
 
-$StmtAlumnos = $Pdo->prepare('SELECT Al.NombreCompleto, C.Calificacion FROM Alumnos Al LEFT JOIN Calificaciones C ON C.AlumnoId = Al.Id AND C.AsignacionId = ? AND C.PeriodoId = ? WHERE Al.GrupoId = ? AND Al.Activo = 1 ORDER BY Al.NombreCompleto ASC');
-$StmtAlumnos->execute([$AsignacionId, $PeriodoId, $Info['GrupoId']]);
+$StmtAlumnos = $Pdo->prepare("SELECT Al.NombreCompleto, C.Calificacion FROM AlumnoInscripciones AI INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1 LEFT JOIN Calificaciones C ON C.AlumnoId = Al.Id AND C.AsignacionId = ? AND C.PeriodoId = ? WHERE AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' ORDER BY Al.NombreCompleto ASC");
+$StmtAlumnos->execute([$AsignacionId, $PeriodoId, (int)$Periodo['CicloId'], $Info['GrupoId']]);
 $Alumnos = $StmtAlumnos->fetchAll();
 $TituloArchivo = 'Calificaciones_' . ArchivoSeguroCal($Info['MateriaNombre'].'_'.$Info['Grado'].$Info['Grupo']);
 if ($Tipo === 'Excel') { SgceCalificacionesEmitirExcel($TituloArchivo); }

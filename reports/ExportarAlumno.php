@@ -12,20 +12,20 @@ $AlumnoId = (int)($_GET['AlumnoId'] ?? 0);
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
 if ($AlumnoId <= 0) { http_response_code(400); exit('Alumno inválido.'); }
 
-$StmtAlumno = $Pdo->prepare("SELECT Al.Id, Al.NombreCompleto, Al.GrupoId, G.Grado, G.Grupo, G.Turno FROM Alumnos Al LEFT JOIN Grupos G ON Al.GrupoId = G.Id WHERE Al.Id = ? AND Al.Activo = 1 LIMIT 1");
-$StmtAlumno->execute([$AlumnoId]);
-$Alumno = $StmtAlumno->fetch();
-if (!$Alumno) { http_response_code(404); exit('Alumno no encontrado.'); }
-
-$StmtPeriodo = $Pdo->prepare("SELECT P.Nombre, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1");
-$StmtPeriodo->execute([$PeriodoId]);
-$Periodo = $StmtPeriodo->fetch() ?: ['Nombre' => 'PARCIAL ACTUAL', 'Ciclo' => ''];
 $PeriodoInfo = SgcePeriodoInfo($Pdo, $PeriodoId);
+if (!$PeriodoInfo) { http_response_code(400); exit('Periodo inválido.'); }
+$CicloId = (int)$PeriodoInfo['CicloId'];
 $FechaInicioCiclo = $PeriodoInfo['FechaInicio'] ?? date('Y-01-01');
 $FechaFinCiclo = $PeriodoInfo['FechaFin'] ?? date('Y-12-31');
+$Periodo = ['Nombre' => $PeriodoInfo['Nombre'] ?? 'PARCIAL ACTUAL', 'Ciclo' => $PeriodoInfo['CicloNombre'] ?? ''];
 
-$StmtCal = $Pdo->prepare("SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, C.Calificacion FROM Asignaciones Asg JOIN Usuarios U ON Asg.MaestroId = U.Id LEFT JOIN Calificaciones C ON C.AsignacionId = Asg.Id AND C.AlumnoId = ? AND C.PeriodoId = ? WHERE Asg.GrupoId = ? AND Asg.Activo = 1 ORDER BY Asg.MateriaNombre ASC");
-$StmtCal->execute([$AlumnoId, $PeriodoId, $Alumno['GrupoId'] ?? 0]);
+$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.GrupoId, AI.CicloId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
+$StmtAlumno->execute([$AlumnoId, $CicloId]);
+$Alumno = $StmtAlumno->fetch();
+if (!$Alumno) { http_response_code(404); exit('Alumno no encontrado en el ciclo seleccionado.'); }
+
+$StmtCal = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, C.Calificacion\n    FROM Asignaciones Asg\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    LEFT JOIN Calificaciones C ON C.AsignacionId = Asg.Id AND C.AlumnoId = ? AND C.PeriodoId = ?\n    WHERE Asg.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asg.Activo = 1\n    ORDER BY Asg.MateriaNombre ASC\n");
+$StmtCal->execute([$AlumnoId, $PeriodoId, $CicloId, (int)$Alumno['GrupoId']]);
 $Calificaciones = $StmtCal->fetchAll();
 
 $Promedio = null;
@@ -36,14 +36,14 @@ foreach ($Calificaciones as $Fila) {
 }
 if ($Cuenta > 0) { $Promedio = round($Suma / $Cuenta, 2); }
 
-$StmtAsis = $Pdo->prepare("SELECT Estado, COUNT(*) AS Total FROM Asistencias WHERE AlumnoId = ? AND FechaDia BETWEEN ? AND ? GROUP BY Estado");
-$StmtAsis->execute([$AlumnoId, $FechaInicioCiclo, $FechaFinCiclo]);
+$StmtAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM Asistencias Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
+$StmtAsis->execute([$AlumnoId, $CicloId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Conteos = ['A' => 0, 'F' => 0, 'R' => 0, 'J' => 0];
 foreach ($StmtAsis->fetchAll() as $Fila) {
     if (isset($Conteos[$Fila['Estado']])) { $Conteos[$Fila['Estado']] = (int)$Fila['Total']; }
 }
 
-RegistrarBitacora($Pdo, $UserSession, 'EXPORTAR_BOLETA', 'Alumnos', $AlumnoId, 'BOLETA INDIVIDUAL GENERADA');
+RegistrarBitacora($Pdo, $UserSession, 'EXPORTAR_BOLETA', 'Alumnos', $AlumnoId, 'BOLETA INDIVIDUAL GENERADA POR CICLO');
 
 $FilasPdf = [];
 foreach ($Calificaciones as $C) {

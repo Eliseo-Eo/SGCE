@@ -39,15 +39,21 @@ $StmtInfo = $Pdo->prepare("
         A.Id,
         A.MaestroId,
         A.GrupoId,
+        A.CicloId,
         A.MateriaNombre,
         G.Grado,
         G.Grupo,
-        G.Turno
+        G.Turno,
+        C.Nombre AS CicloNombre,
+        C.FechaInicio,
+        C.FechaFin
     FROM Asignaciones A
-    JOIN Grupos G ON A.GrupoId = G.Id
+    JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId
+    JOIN CiclosEscolares C ON C.Id = A.CicloId
     WHERE A.Id = ?
     AND A.Activo = 1
     AND G.Activo = 1
+    AND C.Activo = 1
     LIMIT 1
 ");
 
@@ -55,7 +61,14 @@ $StmtInfo->execute([$AsignacionId]);
 $InfoClase = $StmtInfo->fetch();
 
 if (!$InfoClase) {
-    SgceSalirConError('Asignación no encontrada.', 404);
+    SgceSalirConError('Asignación no encontrada en el ciclo activo.', 404);
+}
+
+$CicloClaseId = (int)$InfoClase['CicloId'];
+if (!empty($InfoClase['FechaInicio']) && !empty($InfoClase['FechaFin'])) {
+    if ($FechaConsulta < $InfoClase['FechaInicio'] || $FechaConsulta > $InfoClase['FechaFin']) {
+        SgceSalirConError('La fecha seleccionada no pertenece al ciclo escolar activo de esta asignación.', 400);
+    }
 }
 
 if (SgceTieneRol($UserSession, ['maestro']) && (int)$UserSession['Id'] !== (int)$InfoClase['MaestroId']) {
@@ -66,11 +79,12 @@ if (SgceTieneRol($UserSession, ['maestro']) && (int)$UserSession['Id'] !== (int)
 $StmtCheck = $Pdo->prepare("
     SELECT COUNT(*)
     FROM Asistencias
-    WHERE AsignacionId = ?
+    WHERE CicloId = ?
+    AND AsignacionId = ?
     AND FechaDia = ?
 ");
 
-$StmtCheck->execute([$AsignacionId, $FechaConsulta]);
+$StmtCheck->execute([$CicloClaseId, $AsignacionId, $FechaConsulta]);
 
 if ((int)$StmtCheck->fetchColumn() > 0) {
     $YaSeRegistro = true;
@@ -81,13 +95,16 @@ $Stmt = $Pdo->prepare("
     SELECT
         a.Id,
         a.NombreCompleto
-    FROM Alumnos a
-    WHERE a.GrupoId = ?
+    FROM AlumnoInscripciones ai
+    INNER JOIN Alumnos a ON a.Id = ai.AlumnoId
+    WHERE ai.GrupoId = ?
+    AND ai.CicloId = ?
+    AND ai.Estado = 'INSCRITO'
     AND a.Activo = 1
     ORDER BY a.NombreCompleto ASC
 ");
 
-$Stmt->execute([(int)$InfoClase['GrupoId']]);
+$Stmt->execute([(int)$InfoClase['GrupoId'], $CicloClaseId]);
 $Alumnos = $Stmt->fetchAll();
 
 
@@ -114,7 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         $StmtExiste = $Pdo->prepare("
             SELECT Id
             FROM Asistencias
-            WHERE AsignacionId = ?
+            WHERE CicloId = ?
+            AND AsignacionId = ?
             AND AlumnoId = ?
             AND FechaDia = ?
             ORDER BY Id ASC
@@ -124,14 +142,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         $StmtActualizar = $Pdo->prepare("
             UPDATE Asistencias
             SET Estado = ?, Fecha = ?
-            WHERE AsignacionId = ?
+            WHERE CicloId = ?
+            AND AsignacionId = ?
             AND AlumnoId = ?
             AND FechaDia = ?
         ");
 
         $StmtInsertar = $Pdo->prepare("
-            INSERT INTO Asistencias (AsignacionId, AlumnoId, Fecha, Estado)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO Asistencias (CicloId, AsignacionId, AlumnoId, Fecha, Estado)
+            VALUES (?, ?, ?, ?, ?)
         ");
 
         foreach ($Alumnos as $Alumno) {
@@ -143,6 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             }
 
             $StmtExiste->execute([
+                $CicloClaseId,
                 $AsignacionId,
                 $AlumnoId,
                 $FechaConsulta
@@ -154,12 +174,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                 $StmtActualizar->execute([
                     $Estado,
                     $Momento,
+                    $CicloClaseId,
                     $AsignacionId,
                     $AlumnoId,
                     $FechaConsulta
                 ]);
             } else {
                 $StmtInsertar->execute([
+                    $CicloClaseId,
                     $AsignacionId,
                     $AlumnoId,
                     $Momento,
@@ -172,14 +194,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             DELETE AsiDuplicada
             FROM Asistencias AsiDuplicada
             INNER JOIN Asistencias AsiBase
-                ON AsiBase.AsignacionId = AsiDuplicada.AsignacionId
+                ON AsiBase.CicloId = AsiDuplicada.CicloId
+                AND AsiBase.AsignacionId = AsiDuplicada.AsignacionId
                 AND AsiBase.AlumnoId = AsiDuplicada.AlumnoId
                 AND AsiBase.FechaDia = AsiDuplicada.FechaDia
                 AND AsiBase.Id < AsiDuplicada.Id
-            WHERE AsiDuplicada.AsignacionId = ?
+            WHERE AsiDuplicada.CicloId = ?
+            AND AsiDuplicada.AsignacionId = ?
             AND AsiDuplicada.FechaDia = ?
         ");
-        $StmtLimpiarDuplicados->execute([$AsignacionId, $FechaConsulta]);
+        $StmtLimpiarDuplicados->execute([$CicloClaseId, $AsignacionId, $FechaConsulta]);
 
         $Pdo->commit();
 
@@ -226,11 +250,12 @@ $EstadosRegistrados = [];
 $StmtEstados = $Pdo->prepare("
     SELECT AlumnoId, Estado
     FROM Asistencias
-    WHERE AsignacionId = ?
+    WHERE CicloId = ?
+    AND AsignacionId = ?
     AND FechaDia = ?
     ORDER BY Id ASC
 ");
-$StmtEstados->execute([$AsignacionId, $FechaConsulta]);
+$StmtEstados->execute([$CicloClaseId, $AsignacionId, $FechaConsulta]);
 foreach ($StmtEstados->fetchAll() as $RowEstado) {
     $EstadoGuardado = $RowEstado['Estado'];
     if (!in_array($EstadoGuardado, $EstadosPermitidos, true)) {

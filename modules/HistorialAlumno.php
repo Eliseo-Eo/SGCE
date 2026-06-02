@@ -24,16 +24,18 @@ function H($Texto) {
     return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8');
 }
 
-$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, G.Grado, G.Grupo, G.Turno\n    FROM Alumnos Al\n    LEFT JOIN Grupos G ON Al.GrupoId = G.Id\n    WHERE Al.Id = ?\n    AND Al.Activo = 1\n    LIMIT 1\n");
-$StmtAlumno->execute([$AlumnoId]);
+$CicloConsultaId = (int)$PeriodoInfo['CicloId'];
+
+$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.CicloId, AI.GrupoId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    INNER JOIN CiclosEscolares C ON C.Id = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
+$StmtAlumno->execute([$AlumnoId, $CicloConsultaId]);
 $Alumno = $StmtAlumno->fetch();
 
 if (!$Alumno) {
-    SgceSalirConError('Alumno no encontrado o dado de baja.', 404);
+    SgceSalirConError('El alumno no tiene inscripción registrada en el ciclo escolar seleccionado.', 404);
 }
 
-$StmtResumenAsis = $Pdo->prepare("\n    SELECT Estado, COUNT(*) AS Total\n    FROM Asistencias\n    WHERE AlumnoId = ? AND FechaDia BETWEEN ? AND ?\n    GROUP BY Estado\n");
-$StmtResumenAsis->execute([$AlumnoId, $FechaInicioCiclo, $FechaFinCiclo]);
+$StmtResumenAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM Asistencias Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
+$StmtResumenAsis->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Conteos = ['A'=>0,'F'=>0,'R'=>0,'J'=>0];
 foreach ($StmtResumenAsis->fetchAll() as $Fila) {
     if (isset($Conteos[$Fila['Estado']])) {
@@ -41,17 +43,17 @@ foreach ($StmtResumenAsis->fetchAll() as $Fila) {
     }
 }
 
-$StmtPromedio = $Pdo->prepare("SELECT ROUND(AVG(C.Calificacion), 1) FROM Calificaciones C INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId WHERE C.AlumnoId = ? AND P.CicloId = ? AND P.Orden BETWEEN 1 AND 3");
-$StmtPromedio->execute([$AlumnoId, (int)$PeriodoInfo['CicloId']]);
+$StmtPromedio = $Pdo->prepare("\n    SELECT ROUND(AVG(C.Calificacion), 1)\n    FROM Calificaciones C\n    INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId\n    INNER JOIN Asignaciones Asg ON Asg.Id = C.AsignacionId AND Asg.CicloId = P.CicloId\n    WHERE C.AlumnoId = ?\n      AND P.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND P.Orden BETWEEN 1 AND 3\n");
+$StmtPromedio->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
 $Promedio = $StmtPromedio->fetchColumn();
 $Promedio = $Promedio !== null ? $Promedio : '0.0';
 
-$StmtCalificaciones = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, P.Nombre AS PeriodoNombre, C.Calificacion, C.FechaActualizacion\n    FROM Calificaciones C\n    JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId\n    JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE C.AlumnoId = ? AND P.CicloId = ? AND P.Orden BETWEEN 1 AND 3\n    ORDER BY P.Orden ASC, Asg.MateriaNombre ASC\n");
-$StmtCalificaciones->execute([$AlumnoId, (int)$PeriodoInfo['CicloId']]);
+$StmtCalificaciones = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, P.Nombre AS PeriodoNombre, C.Calificacion, C.FechaActualizacion\n    FROM Calificaciones C\n    JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId\n    JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id AND Asg.CicloId = P.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE C.AlumnoId = ? AND P.CicloId = ? AND Asg.GrupoId = ? AND P.Orden BETWEEN 1 AND 3\n    ORDER BY P.Orden ASC, Asg.MateriaNombre ASC\n");
+$StmtCalificaciones->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
 $Calificaciones = $StmtCalificaciones->fetchAll();
 
-$StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado\n    FROM Asistencias Asis\n    JOIN Asignaciones Asg ON Asis.AsignacionId = Asg.Id\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE Asis.AlumnoId = ? AND Asis.FechaDia BETWEEN ? AND ?\n    ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n    LIMIT 300\n");
-$StmtAsistencias->execute([$AlumnoId, $FechaInicioCiclo, $FechaFinCiclo]);
+$StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado\n    FROM Asistencias Asis\n    JOIN Asignaciones Asg ON Asis.AsignacionId = Asg.Id AND Asg.CicloId = Asis.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n    LIMIT 300\n");
+$StmtAsistencias->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Asistencias = $StmtAsistencias->fetchAll();
 
 function TextoEstado($Estado) {
@@ -97,6 +99,10 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
             <a href="ExportarAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&PeriodoId=<?= (int)$PeriodoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnBoletaPdf">
                 <i class="fa-solid fa-file-pdf"></i>
                 <span>BOLETA PDF</span>
+            </a>
+            <a href="ExportarHistorialAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnBoletaPdf">
+                <i class="fa-solid fa-scroll"></i>
+                <span>HISTORIAL PDF</span>
             </a>
             <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
         </div>

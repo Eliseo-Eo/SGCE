@@ -33,6 +33,50 @@ function ConfigFechaValida($Fecha) {
     return $D && $D->format('Y-m-d') === $Fecha;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['MigrarGrupoAcademico'])) {
+    try {
+        $GrupoOrigenId = max(0, (int)($_POST['GrupoOrigenId'] ?? 0));
+        $CopiarAsignaciones = !empty($_POST['CopiarAsignaciones']);
+        $CicloDestino = SgceCicloActivo($Pdo);
+        $CicloDestinoId = (int)($CicloDestino['Id'] ?? 0);
+        if ($GrupoOrigenId <= 0 || $CicloDestinoId <= 0) { throw new Exception('Selecciona un grupo origen y asegúrate de tener un ciclo activo destino.'); }
+        $Pdo->beginTransaction();
+        $R = SgceMigrarGrupoSiguienteCiclo($Pdo, $GrupoOrigenId, $CicloDestinoId, $CopiarAsignaciones);
+        RegistrarBitacora($Pdo, $UserSession, 'MIGRAR_GRUPO_CICLO', 'Grupos', $GrupoOrigenId, 'PROMOVIDOS: '.$R['Promovidos'].' | EGRESADOS: '.$R['Egresados'].' | KARDEX: '.($R['KardexCongelados'] ?? 0).' | CONFLICTOS: '.$R['Conflictos']);
+        $Pdo->commit();
+        $_SESSION['MensajeConfiguracion'] = 'Migración realizada: '.$R['Promovidos'].' alumnos promovidos, '.$R['Egresados'].' egresados, '.$R['Conflictos'].' conflictos omitidos. Kardex congelados: '.($R['KardexCongelados'] ?? 0).'. Asignaciones copiadas: '.($R['AsignacionesCopiadas'] ?? 0).'. Omitidas por docente inactivo: '.($R['AsignacionesOmitidasDocente'] ?? 0).'. Grupos creados: '.(!empty($R['GrupoCreado']) ? '1' : '0').'.';
+        $_SESSION['MensajeConfiguracionTipo'] = 'success';
+    } catch (Exception $E) {
+        if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
+        $_SESSION['MensajeConfiguracion'] = $E->getMessage();
+        $_SESSION['MensajeConfiguracionTipo'] = 'danger';
+    }
+    header('Location: ConfiguracionAdmin.php');
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['MigrarCicloAcademico'])) {
+    try {
+        $CicloOrigenId = max(0, (int)($_POST['CicloOrigenId'] ?? 0));
+        $CopiarAsignaciones = !empty($_POST['CopiarAsignaciones']);
+        $CicloDestino = SgceCicloActivo($Pdo);
+        $CicloDestinoId = (int)($CicloDestino['Id'] ?? 0);
+        if ($CicloOrigenId <= 0 || $CicloDestinoId <= 0) { throw new Exception('Selecciona un ciclo origen cerrado y asegúrate de tener un ciclo activo destino.'); }
+        $Pdo->beginTransaction();
+        $R = SgceMigrarCicloCompleto($Pdo, $CicloOrigenId, $CicloDestinoId, $CopiarAsignaciones);
+        RegistrarBitacora($Pdo, $UserSession, 'MIGRAR_CICLO_COMPLETO', 'CiclosEscolares', $CicloOrigenId, 'GRUPOS: '.$R['GruposProcesados'].' | PROMOVIDOS: '.$R['Promovidos'].' | EGRESADOS: '.$R['Egresados'].' | KARDEX: '.($R['KardexCongelados'] ?? 0).' | CONFLICTOS: '.$R['Conflictos']);
+        $Pdo->commit();
+        $_SESSION['MensajeConfiguracion'] = 'Ciclo migrado: '.$R['GruposProcesados'].' grupos procesados, '.$R['Promovidos'].' alumnos promovidos, '.$R['Egresados'].' egresados, '.$R['Conflictos'].' conflictos omitidos, '.($R['KardexCongelados'] ?? 0).' kardex congelados y '.$R['GruposCreados'].' grupos creados en el ciclo activo. Asignaciones copiadas: '.($R['AsignacionesCopiadas'] ?? 0).'. Omitidas por docente inactivo: '.($R['AsignacionesOmitidasDocente'] ?? 0).'.';
+        $_SESSION['MensajeConfiguracionTipo'] = 'success';
+    } catch (Exception $E) {
+        if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
+        $_SESSION['MensajeConfiguracion'] = $E->getMessage();
+        $_SESSION['MensajeConfiguracionTipo'] = 'danger';
+    }
+    header('Location: ConfiguracionAdmin.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $NombreEscuela = ConfigNormalizar($_POST['NombreEscuela'] ?? '', true);
@@ -86,14 +130,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $CicloActivo = SgceCicloActivo($Pdo);
         $CicloId = (int)($CicloActivo['Id'] ?? 0);
-        if ($CicloId > 0) {
-            $StmtCiclo = $Pdo->prepare('UPDATE CiclosEscolares SET Nombre = ?, FechaInicio = ?, FechaFin = ?, Activo = 1 WHERE Id = ?');
-            $StmtCiclo->execute([$CicloNombre, $FechaInicio, $FechaFin, $CicloId]);
-        } else {
+        $NombreActivoActual = ConfigNormalizar($CicloActivo['Nombre'] ?? '', true);
+        $EsCambioDeCiclo = ($CicloId <= 0 || $NombreActivoActual !== $CicloNombre);
+
+        if ($EsCambioDeCiclo) {
             $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 0')->execute();
-            $StmtCiclo = $Pdo->prepare('INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES (?, ?, ?, 1)');
-            $StmtCiclo->execute([$CicloNombre, $FechaInicio, $FechaFin]);
-            $CicloId = (int)$Pdo->lastInsertId();
+            $StmtExisteCiclo = $Pdo->prepare('SELECT Id FROM CiclosEscolares WHERE Nombre = ? LIMIT 1');
+            $StmtExisteCiclo->execute([$CicloNombre]);
+            $CicloExistenteId = (int)$StmtExisteCiclo->fetchColumn();
+            if ($CicloExistenteId > 0) {
+                $StmtCiclo = $Pdo->prepare('UPDATE CiclosEscolares SET FechaInicio = ?, FechaFin = ?, Activo = 1 WHERE Id = ?');
+                $StmtCiclo->execute([$FechaInicio, $FechaFin, $CicloExistenteId]);
+                $CicloId = $CicloExistenteId;
+            } else {
+                $StmtCiclo = $Pdo->prepare('INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES (?, ?, ?, 1)');
+                $StmtCiclo->execute([$CicloNombre, $FechaInicio, $FechaFin]);
+                $CicloId = (int)$Pdo->lastInsertId();
+            }
+        } else {
+            $StmtCiclo = $Pdo->prepare('UPDATE CiclosEscolares SET FechaInicio = ?, FechaFin = ?, Activo = 1 WHERE Id = ?');
+            $StmtCiclo->execute([$FechaInicio, $FechaFin, $CicloId]);
         }
 
         $PeriodosFinales = [1 => $PeriodoUno, 2 => $PeriodoDos, 3 => $PeriodoTres];
@@ -131,6 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $Config = SgceObtenerConfiguracion($Pdo);
 $CicloActivo = SgceCicloActivo($Pdo);
+$CiclosInactivosMigracion = SgceCiclosInactivosConGrupos($Pdo);
+$CicloOrigenMigracionId = max(0, (int)($_GET['CicloOrigenId'] ?? ($CiclosInactivosMigracion[0]['Id'] ?? 0)));
+$GruposMigracion = $CicloOrigenMigracionId > 0 ? SgceGruposListarPorCiclo($Pdo, $CicloOrigenMigracionId, true) : [];
 $Periodos = [];
 if (!empty($CicloActivo['Id'])) {
     $StmtPeriodos = $Pdo->prepare('SELECT Orden, Nombre FROM PeriodosEvaluacion WHERE CicloId = ? AND Orden BETWEEN 1 AND 3 ORDER BY Orden ASC');
@@ -238,6 +297,87 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
         </section>
         </div>
     </form>
+
+    <section class="SgceConfigCard mt-4">
+        <div class="SgceConfigHead">
+            <span><span class="SgceColorIcon" aria-hidden="true">🔁</span></span>
+            <div>
+                <h2>Migración de ciclo escolar</h2>
+                <p>Promueve alumnos conservando historial: 1° pasa a 2°, 2° pasa a 3° y 3° queda egresado. Antes de mover alumnos congela su kardex para proteger boletas históricas. Solo permite migrar desde ciclos cerrados/inactivos hacia el ciclo activo.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-warning border-0 rounded-4 shadow-sm">
+            <strong><i class="fa-solid fa-shield-halved me-2"></i>Validación importante:</strong>
+            no se renombra el grupo anterior. SGCE crea o reutiliza el grupo equivalente del ciclo activo para no contaminar boletas, asistencias ni calificaciones históricas.
+        </div>
+
+        <form method="get" class="row g-3 align-items-end mb-3">
+            <input type="hidden" name="Tab" value="configuracion">
+            <div class="col-md-8">
+                <label class="SgceFieldLabel">Ciclo origen cerrado</label>
+                <select name="CicloOrigenId" class="form-select FormControl" onchange="this.form.submit()">
+                    <?php if(empty($CiclosInactivosMigracion)): ?>
+                        <option value="">No hay ciclos inactivos con grupos para migrar</option>
+                    <?php else: ?>
+                        <?php foreach($CiclosInactivosMigracion as $Ci): ?>
+                            <option value="<?= (int)$Ci['Id'] ?>" <?= (int)$CicloOrigenMigracionId === (int)$Ci['Id'] ? 'selected' : '' ?>><?= HConfig($Ci['Nombre']) ?> · <?= (int)$Ci['TotalGrupos'] ?> grupo(s)</option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <div class="col-md-4"><button class="btn btn-outline-secondary w-100" type="submit"><i class="fa-solid fa-filter me-2"></i>Ver grupos</button></div>
+        </form>
+
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <form method="post" class="p-3 border rounded-4 h-100 bg-light">
+                    <?= CampoCsrf() ?>
+                    <input type="hidden" name="MigrarGrupoAcademico" value="1">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-users-viewfinder me-2"></i>Migrar un grupo</h5>
+                    <p class="text-muted small fw-semibold">Ejemplo: 1B del ciclo cerrado se convertirá en 2B del ciclo activo. Si es 3°, se marca como egresado.</p>
+                    <label class="SgceFieldLabel">Grupo origen</label>
+                    <select name="GrupoOrigenId" class="form-select FormControl mb-3" required <?= empty($GruposMigracion) ? 'disabled' : '' ?>>
+                        <?php if(empty($GruposMigracion)): ?>
+                            <option value="">Sin grupos disponibles</option>
+                        <?php else: ?>
+                            <?php foreach($GruposMigracion as $Gm): ?>
+                                <option value="<?= (int)$Gm['Id'] ?>"><?= HConfig($Gm['Grado'].' '.$Gm['Grupo'].' '.$Gm['Turno']) ?> · <?= (int)$Gm['TotalAlumnos'] ?> alumno(s)</option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="CopiarAsignaciones" value="1" id="CopiarAsignacionesGrupo">
+                        <label class="form-check-label fw-semibold" for="CopiarAsignacionesGrupo">Copiar asignaciones con docente activo al nuevo grupo</label>
+                    </div>
+                    <button class="btn btn-success w-100" type="submit" <?= empty($GruposMigracion) || empty($CicloActivo['Id']) ? 'disabled' : '' ?> data-sgce-confirm="delete" data-sgce-confirm-title="CONFIRMAR MIGRACIÓN" data-sgce-confirm-subtitle="MIGRAR GRUPO" data-sgce-confirm-message="¿DESEAS MIGRAR ESTE GRUPO AL CICLO ACTIVO?" data-sgce-confirm-detail="Se conservará el historial del ciclo origen y se creará la inscripción del alumno en el ciclo activo." data-sgce-confirm-button="SÍ, MIGRAR GRUPO" data-sgce-confirm-loading="MIGRANDO..." data-sgce-confirm-icon="fa-rotate">
+                        <i class="fa-solid fa-arrow-up-a-z me-2"></i>Migrar grupo al siguiente grado
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-lg-6">
+                <form method="post" class="p-3 border rounded-4 h-100 bg-light">
+                    <?= CampoCsrf() ?>
+                    <input type="hidden" name="MigrarCicloAcademico" value="1">
+                    <input type="hidden" name="CicloOrigenId" value="<?= (int)$CicloOrigenMigracionId ?>">
+                    <h5 class="fw-bold mb-2"><i class="fa-solid fa-school-circle-check me-2"></i>Migrar ciclo completo</h5>
+                    <p class="text-muted small fw-semibold">Procesa todos los grupos del ciclo origen seleccionado. Úsalo al cierre oficial del año escolar.</p>
+                    <div class="mb-3">
+                        <span class="badge text-bg-primary">Destino activo: <?= HConfig($CicloActivo['Nombre'] ?? 'SIN CICLO ACTIVO') ?></span>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="CopiarAsignaciones" value="1" id="CopiarAsignacionesCiclo">
+                        <label class="form-check-label fw-semibold" for="CopiarAsignacionesCiclo">Copiar asignaciones con docente activo de todos los grupos</label>
+                    </div>
+                    <button class="btn btn-success w-100" type="submit" <?= empty($GruposMigracion) || empty($CicloActivo['Id']) ? 'disabled' : '' ?> data-sgce-confirm="delete" data-sgce-confirm-title="CONFIRMAR MIGRACIÓN MASIVA" data-sgce-confirm-subtitle="MIGRAR CICLO COMPLETO" data-sgce-confirm-message="¿DESEAS MIGRAR TODOS LOS GRUPOS DEL CICLO CERRADO?" data-sgce-confirm-detail="Esta operación es segura e idempotente: no duplica alumnos ya inscritos en el ciclo activo; los conflictos se omiten." data-sgce-confirm-button="SÍ, MIGRAR CICLO" data-sgce-confirm-loading="MIGRANDO CICLO..." data-sgce-confirm-icon="fa-school">
+                        <i class="fa-solid fa-forward me-2"></i>Migrar todos los grupos
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sgce-shared.js?v=sgce"></script>

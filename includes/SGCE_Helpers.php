@@ -790,14 +790,17 @@ function SgceNombrePlaneacionInterno($CicloNombre, $MaestroNombre, $MateriaNombr
 }
 
 function SgceMateriasDocente($Pdo, $MaestroId) {
+    $Ciclo = SgceCicloActivo($Pdo);
+    $CicloId = (int)($Ciclo['Id'] ?? 0);
+    if ($CicloId <= 0) { return []; }
     $Stmt = $Pdo->prepare("SELECT A.MateriaNombre,
-        GROUP_CONCAT(CONCAT(G.Grado, ' ', G.Grupo, ' - ', G.Turno) ORDER BY G.Turno, G.Grado, G.Grupo SEPARATOR ', ') AS Grupos
+        GROUP_CONCAT(CONCAT(G.Grado, ' ', G.Grupo, ' - ', G.Turno) ORDER BY G.Turno, CAST(G.Grado AS UNSIGNED), G.Grado, G.Grupo SEPARATOR ', ') AS Grupos
         FROM Asignaciones A
-        INNER JOIN Grupos G ON G.Id = A.GrupoId
-        WHERE A.MaestroId = ? AND A.Activo = 1 AND G.Activo = 1
+        INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.CicloId = A.CicloId
+        WHERE A.MaestroId = ? AND A.CicloId = ? AND A.Activo = 1 AND G.Activo = 1
         GROUP BY A.MateriaNombre
         ORDER BY A.MateriaNombre ASC");
-    $Stmt->execute([(int)$MaestroId]);
+    $Stmt->execute([(int)$MaestroId, $CicloId]);
     return $Stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -884,4 +887,610 @@ function SgceValidarSqlRestauracionSegura($Sql, $MaxSentencias = 250000) {
     $AproxSentencias = substr_count($Sql, ';');
     if ($AproxSentencias > $MaxSentencias) { return 'El respaldo supera el límite seguro de sentencias.'; }
     return true;
+}
+
+function SgceDbTablaExiste(PDO $Pdo, string $Tabla): bool {
+    try {
+        $Stmt = $Pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?");
+        $Stmt->execute([$Tabla]);
+        return (int)$Stmt->fetchColumn() > 0;
+    } catch (Exception $E) { return false; }
+}
+
+function SgceDbColumnaExiste(PDO $Pdo, string $Tabla, string $Columna): bool {
+    try {
+        $Stmt = $Pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+        $Stmt->execute([$Tabla, $Columna]);
+        return (int)$Stmt->fetchColumn() > 0;
+    } catch (Exception $E) { return false; }
+}
+
+function SgceDbIndiceExiste(PDO $Pdo, string $Tabla, string $Indice): bool {
+    try {
+        $Stmt = $Pdo->prepare("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ?");
+        $Stmt->execute([$Tabla, $Indice]);
+        return (int)$Stmt->fetchColumn() > 0;
+    } catch (Exception $E) { return false; }
+}
+
+function SgceDbFkExiste(PDO $Pdo, string $Tabla, string $Fk): bool {
+    try {
+        $Stmt = $Pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'");
+        $Stmt->execute([$Tabla, $Fk]);
+        return (int)$Stmt->fetchColumn() > 0;
+    } catch (Exception $E) { return false; }
+}
+
+function SgceDbExecSilencioso(PDO $Pdo, string $Sql): void {
+    try { $Pdo->exec($Sql); } catch (Exception $E) {}
+}
+
+function SgceCicloPorId(PDO $Pdo, int $CicloId) {
+    $Stmt = $Pdo->prepare('SELECT Id, Nombre, FechaInicio, FechaFin, Activo FROM CiclosEscolares WHERE Id = ? LIMIT 1');
+    $Stmt->execute([$CicloId]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceCiclosListar(PDO $Pdo): array {
+    return $Pdo->query('SELECT Id, Nombre, FechaInicio, FechaFin, Activo FROM CiclosEscolares ORDER BY FechaInicio DESC, Id DESC')->fetchAll();
+}
+
+function SgceCiclosInactivosConGrupos(PDO $Pdo): array {
+    if (!SgceDbTablaExiste($Pdo, 'Grupos') || !SgceDbColumnaExiste($Pdo, 'Grupos', 'CicloId')) { return []; }
+    return $Pdo->query("SELECT C.Id, C.Nombre, C.FechaInicio, C.FechaFin, COUNT(G.Id) AS TotalGrupos
+        FROM CiclosEscolares C
+        INNER JOIN Grupos G ON G.CicloId = C.Id
+        WHERE C.Activo = 0
+        GROUP BY C.Id, C.Nombre, C.FechaInicio, C.FechaFin
+        ORDER BY C.FechaInicio DESC, C.Id DESC")->fetchAll();
+}
+
+function SgceGruposListarPorCiclo(PDO $Pdo, int $CicloId, bool $SoloActivos = true): array {
+    if ($CicloId <= 0) { return []; }
+    $WhereActivo = $SoloActivos ? ' AND G.Activo = 1' : '';
+    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre, C.Activo AS CicloActivo,
+        (SELECT COUNT(*) FROM AlumnoInscripciones AI WHERE AI.GrupoId = G.Id AND AI.CicloId = G.CicloId AND AI.Estado IN ('INSCRITO','PROMOVIDO','EGRESADO')) AS TotalAlumnos
+        FROM Grupos G
+        INNER JOIN CiclosEscolares C ON C.Id = G.CicloId
+        WHERE G.CicloId = ?{$WhereActivo}
+        ORDER BY G.Turno, CAST(G.Grado AS UNSIGNED), G.Grado, G.Grupo, G.Id");
+    $Stmt->execute([$CicloId]);
+    return $Stmt->fetchAll();
+}
+
+function SgceGrupoObtenerPorId(PDO $Pdo, int $GrupoId) {
+    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.Grado, G.Grupo, G.Turno, G.Activo, C.Nombre AS CicloNombre, C.Activo AS CicloActivo, C.FechaInicio, C.FechaFin
+        FROM Grupos G
+        INNER JOIN CiclosEscolares C ON C.Id = G.CicloId
+        WHERE G.Id = ? LIMIT 1");
+    $Stmt->execute([$GrupoId]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceGrupoObtenerPorCicloDatos(PDO $Pdo, int $CicloId, string $Grado, string $Grupo, string $Turno) {
+    $Stmt = $Pdo->prepare('SELECT Id, CicloId, Grado, Grupo, Turno, Activo FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1');
+    $Stmt->execute([$CicloId, $Grado, $Grupo, $Turno]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceGrupoCrearOReactivar(PDO $Pdo, int $CicloId, string $Grado, string $Grupo, string $Turno): int {
+    $Existente = SgceGrupoObtenerPorCicloDatos($Pdo, $CicloId, $Grado, $Grupo, $Turno);
+    if ($Existente) {
+        if ((int)$Existente['Activo'] !== 1) {
+            $Stmt = $Pdo->prepare('UPDATE Grupos SET Activo = 1 WHERE Id = ?');
+            $Stmt->execute([(int)$Existente['Id']]);
+        }
+        return (int)$Existente['Id'];
+    }
+    $Stmt = $Pdo->prepare('INSERT INTO Grupos (CicloId, Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, ?, 1)');
+    $Stmt->execute([$CicloId, $Grado, $Grupo, $Turno]);
+    return (int)$Pdo->lastInsertId();
+}
+
+function SgceAlumnoTieneInscripcion(PDO $Pdo, int $AlumnoId, int $CicloId): bool {
+    $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ?');
+    $Stmt->execute([$AlumnoId, $CicloId]);
+    return (int)$Stmt->fetchColumn() > 0;
+}
+
+function SgceAlumnoInscribirEnCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, int $GrupoId, string $Estado = 'INSCRITO'): bool {
+    $Estado = in_array($Estado, ['INSCRITO','PROMOVIDO','EGRESADO','BAJA'], true) ? $Estado : 'INSCRITO';
+    try {
+        $Stmt = $Pdo->prepare('INSERT INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, Estado) VALUES (?, ?, ?, ?)');
+        $Stmt->execute([$AlumnoId, $CicloId, $GrupoId, $Estado]);
+        return true;
+    } catch (PDOException $E) {
+        return false;
+    }
+}
+
+function SgceAlumnosPorGrupoCiclo(PDO $Pdo, int $GrupoId, int $CicloId, array $Estados = ['INSCRITO']): array {
+    if ($GrupoId <= 0 || $CicloId <= 0) { return []; }
+    $EstadosPermitidos = ['INSCRITO','PROMOVIDO','EGRESADO','BAJA'];
+    $Estados = array_values(array_intersect($Estados, $EstadosPermitidos));
+    if (!$Estados) { $Estados = ['INSCRITO']; }
+    $Place = implode(',', array_fill(0, count($Estados), '?'));
+    $Stmt = $Pdo->prepare("SELECT A.Id, A.NombreCompleto, AI.GrupoId, G.Grado, G.Grupo, G.Turno, AI.CicloId, AI.Estado
+        FROM AlumnoInscripciones AI
+        INNER JOIN Alumnos A ON A.Id = AI.AlumnoId AND A.Activo = 1
+        INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId
+        WHERE AI.GrupoId = ? AND AI.CicloId = ? AND AI.Estado IN ($Place)
+        ORDER BY A.NombreCompleto, A.Id");
+    $Stmt->execute(array_merge([$GrupoId, $CicloId], $Estados));
+    return $Stmt->fetchAll();
+}
+
+
+function SgceMateriaIdPorNombre(PDO $Pdo, string $Nombre): int {
+    $Nombre = SgceNormalizarMayusculas($Nombre);
+    if ($Nombre === '') { return 0; }
+    if (!SgceDbTablaExiste($Pdo, 'MateriasCatalogo')) { return 0; }
+    $Stmt = $Pdo->prepare('SELECT Id FROM MateriasCatalogo WHERE Nombre = ? LIMIT 1');
+    $Stmt->execute([$Nombre]);
+    $Id = (int)$Stmt->fetchColumn();
+    if ($Id > 0) {
+        $Pdo->prepare('UPDATE MateriasCatalogo SET Activo = 1 WHERE Id = ?')->execute([$Id]);
+        return $Id;
+    }
+    $Stmt = $Pdo->prepare('INSERT INTO MateriasCatalogo (Nombre, Activo) VALUES (?, 1)');
+    $Stmt->execute([$Nombre]);
+    return (int)$Pdo->lastInsertId();
+}
+
+function SgceAsignacionObtener(PDO $Pdo, int $AsignacionId) {
+    $Stmt = $Pdo->prepare("SELECT A.Id, A.CicloId, A.MaestroId, A.GrupoId, A.MateriaId, A.MateriaNombre, A.Activo,
+        G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre, C.Activo AS CicloActivo,
+        U.NombreCompleto AS MaestroNombre
+        FROM Asignaciones A
+        INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.CicloId = A.CicloId
+        INNER JOIN CiclosEscolares C ON C.Id = A.CicloId
+        INNER JOIN Usuarios U ON U.Id = A.MaestroId
+        WHERE A.Id = ? LIMIT 1");
+    $Stmt->execute([$AsignacionId]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceAsignacionTieneDatosAcademicos(PDO $Pdo, int $AsignacionId): bool {
+    if ($AsignacionId <= 0) { return false; }
+    $Total = 0;
+    if (SgceDbTablaExiste($Pdo, 'Calificaciones')) {
+        $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM Calificaciones WHERE AsignacionId = ?');
+        $Stmt->execute([$AsignacionId]);
+        $Total += (int)$Stmt->fetchColumn();
+    }
+    if (SgceDbTablaExiste($Pdo, 'Asistencias')) {
+        $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM Asistencias WHERE AsignacionId = ?');
+        $Stmt->execute([$AsignacionId]);
+        $Total += (int)$Stmt->fetchColumn();
+    }
+    return $Total > 0;
+}
+
+function SgceDocenteAsignacionesActuales(PDO $Pdo, int $MaestroId): int {
+    if ($MaestroId <= 0 || !SgceDbTablaExiste($Pdo, 'Asignaciones')) { return 0; }
+    $Stmt = $Pdo->prepare("SELECT COUNT(*)
+        FROM Asignaciones A
+        INNER JOIN CiclosEscolares C ON C.Id = A.CicloId AND C.Activo = 1
+        INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.CicloId = A.CicloId AND G.Activo = 1
+        WHERE A.MaestroId = ? AND A.Activo = 1");
+    $Stmt->execute([$MaestroId]);
+    return (int)$Stmt->fetchColumn();
+}
+
+function SgceAsignacionTieneHistorialActivo(PDO $Pdo, int $AsignacionId, int $MaestroId): bool {
+    if (!SgceDbTablaExiste($Pdo, 'AsignacionDocenteHistorial')) { return false; }
+    $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM AsignacionDocenteHistorial WHERE AsignacionId = ? AND MaestroId = ? AND FechaFin IS NULL');
+    $Stmt->execute([$AsignacionId, $MaestroId]);
+    return (int)$Stmt->fetchColumn() > 0;
+}
+
+function SgceRegistrarDocenteAsignacionActual(PDO $Pdo, int $AsignacionId, int $MaestroId, int $UsuarioId = 0, string $Tipo = 'TITULAR', string $Motivo = ''): void {
+    if ($AsignacionId <= 0 || $MaestroId <= 0 || !SgceDbTablaExiste($Pdo, 'AsignacionDocenteHistorial')) { return; }
+    $Tipo = in_array($Tipo, ['TITULAR','INTERINATO','RELEVO'], true) ? $Tipo : 'TITULAR';
+    if (SgceAsignacionTieneHistorialActivo($Pdo, $AsignacionId, $MaestroId)) { return; }
+    $StmtCerrar = $Pdo->prepare('UPDATE AsignacionDocenteHistorial SET FechaFin = NOW() WHERE AsignacionId = ? AND FechaFin IS NULL');
+    $StmtCerrar->execute([$AsignacionId]);
+    $Stmt = $Pdo->prepare('INSERT INTO AsignacionDocenteHistorial (AsignacionId, MaestroId, FechaInicio, TipoMovimiento, Motivo, RegistradoPor) VALUES (?, ?, NOW(), ?, ?, NULLIF(?,0))');
+    $Stmt->execute([$AsignacionId, $MaestroId, $Tipo, $Motivo, $UsuarioId]);
+}
+
+function SgceRelevarDocenteAsignacion(PDO $Pdo, int $AsignacionId, int $NuevoMaestroId, int $UsuarioId = 0, string $Motivo = 'RELEVO DOCENTE / INTERINATO'): bool {
+    $Asignacion = SgceAsignacionObtener($Pdo, $AsignacionId);
+    if (!$Asignacion) { throw new RuntimeException('La asignación no existe.'); }
+    if ((int)$Asignacion['CicloActivo'] !== 1 || (int)$Asignacion['Activo'] !== 1) { throw new RuntimeException('Solo puedes relevar docentes en asignaciones activas del ciclo activo.'); }
+    if (!SgceMaestroExisteActivo($Pdo, $NuevoMaestroId)) { throw new RuntimeException('El nuevo docente debe estar activo.'); }
+    $MaestroAnteriorId = (int)$Asignacion['MaestroId'];
+    if ($MaestroAnteriorId === $NuevoMaestroId) {
+        SgceRegistrarDocenteAsignacionActual($Pdo, $AsignacionId, $NuevoMaestroId, $UsuarioId, 'TITULAR', 'REGISTRO ACTUAL SIN CAMBIO');
+        return false;
+    }
+    if (!SgceAsignacionTieneHistorialActivo($Pdo, $AsignacionId, $MaestroAnteriorId)) {
+        $Pdo->prepare('INSERT INTO AsignacionDocenteHistorial (AsignacionId, MaestroId, FechaInicio, FechaFin, TipoMovimiento, Motivo, RegistradoPor) VALUES (?, ?, NULL, NOW(), ?, ?, NULLIF(?,0))')
+            ->execute([$AsignacionId, $MaestroAnteriorId, 'TITULAR', 'DOCENTE RESPONSABLE ANTERIOR ANTES DEL RELEVO', $UsuarioId]);
+    } else {
+        $Pdo->prepare('UPDATE AsignacionDocenteHistorial SET FechaFin = NOW() WHERE AsignacionId = ? AND MaestroId = ? AND FechaFin IS NULL')
+            ->execute([$AsignacionId, $MaestroAnteriorId]);
+    }
+    $Pdo->prepare('UPDATE Asignaciones SET MaestroId = ? WHERE Id = ?')->execute([$NuevoMaestroId, $AsignacionId]);
+    $Pdo->prepare('INSERT INTO AsignacionDocenteHistorial (AsignacionId, MaestroId, FechaInicio, TipoMovimiento, Motivo, RegistradoPor) VALUES (?, ?, NOW(), ?, ?, NULLIF(?,0))')
+        ->execute([$AsignacionId, $NuevoMaestroId, 'INTERINATO', $Motivo, $UsuarioId]);
+    return true;
+}
+
+function SgceAsignacionSincronizarMateria(PDO $Pdo, int $AsignacionId, string $MateriaNombre): void {
+    if ($AsignacionId <= 0 || !SgceDbColumnaExiste($Pdo, 'Asignaciones', 'MateriaId')) { return; }
+    $MateriaId = SgceMateriaIdPorNombre($Pdo, $MateriaNombre);
+    if ($MateriaId > 0) {
+        $Stmt = $Pdo->prepare('UPDATE Asignaciones SET MateriaId = ? WHERE Id = ?');
+        $Stmt->execute([$MateriaId, $AsignacionId]);
+    }
+}
+
+function SgceKardexAlumnoExiste(PDO $Pdo, int $AlumnoId, int $CicloId): bool {
+    if (!SgceDbTablaExiste($Pdo, 'KardexAlumno')) { return false; }
+    $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM KardexAlumno WHERE AlumnoId = ? AND CicloId = ?');
+    $Stmt->execute([$AlumnoId, $CicloId]);
+    return (int)$Stmt->fetchColumn() > 0;
+}
+
+function SgceKardexCongelarAlumnoCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, int $UsuarioId = 0, bool $Forzar = true): bool {
+    if ($AlumnoId <= 0 || $CicloId <= 0 || !SgceDbTablaExiste($Pdo, 'KardexAlumno') || !SgceDbTablaExiste($Pdo, 'KardexDetalle')) { return false; }
+    $StmtInfo = $Pdo->prepare("SELECT A.Id AS AlumnoId, A.NombreCompleto, AI.GrupoId, AI.Estado, C.Nombre AS CicloNombre,
+            G.Grado, G.Grupo, G.Turno
+        FROM AlumnoInscripciones AI
+        INNER JOIN Alumnos A ON A.Id = AI.AlumnoId
+        INNER JOIN CiclosEscolares C ON C.Id = AI.CicloId
+        INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId
+        WHERE AI.AlumnoId = ? AND AI.CicloId = ? LIMIT 1");
+    $StmtInfo->execute([$AlumnoId, $CicloId]);
+    $Info = $StmtInfo->fetch();
+    if (!$Info) { return false; }
+
+    if (!$Forzar && SgceKardexAlumnoExiste($Pdo, $AlumnoId, $CicloId)) { return true; }
+
+    $StmtDetalle = $Pdo->prepare("SELECT Asg.MateriaNombre, U.NombreCompleto AS MaestroNombre,
+            MAX(CASE WHEN P.Orden = 1 THEN Cal.Calificacion END) AS P1,
+            MAX(CASE WHEN P.Orden = 2 THEN Cal.Calificacion END) AS P2,
+            MAX(CASE WHEN P.Orden = 3 THEN Cal.Calificacion END) AS P3,
+            ROUND(AVG(CASE WHEN Cal.Calificacion IS NOT NULL THEN Cal.Calificacion END), 2) AS Promedio
+        FROM Asignaciones Asg
+        LEFT JOIN Usuarios U ON U.Id = Asg.MaestroId
+        LEFT JOIN PeriodosEvaluacion P ON P.CicloId = Asg.CicloId AND P.Activo = 1 AND P.Orden BETWEEN 1 AND 3
+        LEFT JOIN Calificaciones Cal ON Cal.AlumnoId = ? AND Cal.AsignacionId = Asg.Id AND Cal.PeriodoId = P.Id
+        WHERE Asg.CicloId = ? AND Asg.GrupoId = ?
+        GROUP BY Asg.Id, Asg.MateriaNombre, U.NombreCompleto
+        HAVING P1 IS NOT NULL OR P2 IS NOT NULL OR P3 IS NOT NULL
+        ORDER BY Asg.MateriaNombre ASC, Asg.Id ASC");
+    $StmtDetalle->execute([$AlumnoId, $CicloId, (int)$Info['GrupoId']]);
+    $Detalles = $StmtDetalle->fetchAll();
+
+    $Suma = 0.0; $Cuenta = 0;
+    foreach ($Detalles as $D) {
+        foreach (['P1','P2','P3'] as $K) {
+            if ($D[$K] !== null && $D[$K] !== '') { $Suma += (float)$D[$K]; $Cuenta++; }
+        }
+    }
+    $PromedioFinal = $Cuenta > 0 ? round($Suma / $Cuenta, 2) : null;
+
+    $TransaccionPropia = !$Pdo->inTransaction();
+    if ($TransaccionPropia) { $Pdo->beginTransaction(); }
+    try {
+        $StmtId = $Pdo->prepare('SELECT Id FROM KardexAlumno WHERE AlumnoId = ? AND CicloId = ? LIMIT 1 FOR UPDATE');
+        $StmtId->execute([$AlumnoId, $CicloId]);
+        $KardexId = (int)$StmtId->fetchColumn();
+        if ($KardexId > 0) {
+            $Pdo->prepare('UPDATE KardexAlumno SET GrupoId = ?, CicloNombreSnapshot = ?, GradoSnapshot = ?, GrupoSnapshot = ?, TurnoSnapshot = ?, EstadoFinal = ?, PromedioFinal = ?, GeneradoPor = NULLIF(?,0), FechaGeneracion = CURRENT_TIMESTAMP WHERE Id = ?')
+                ->execute([(int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)$Info['Estado'], $PromedioFinal, $UsuarioId, $KardexId]);
+            $Pdo->prepare('DELETE FROM KardexDetalle WHERE KardexId = ?')->execute([$KardexId]);
+        } else {
+            $Pdo->prepare('INSERT INTO KardexAlumno (AlumnoId, CicloId, GrupoId, CicloNombreSnapshot, GradoSnapshot, GrupoSnapshot, TurnoSnapshot, EstadoFinal, PromedioFinal, GeneradoPor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?,0))')
+                ->execute([$AlumnoId, $CicloId, (int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)$Info['Estado'], $PromedioFinal, $UsuarioId]);
+            $KardexId = (int)$Pdo->lastInsertId();
+        }
+        $StmtInsDet = $Pdo->prepare('INSERT INTO KardexDetalle (KardexId, MateriaNombreSnapshot, MaestroNombreSnapshot, Parcial1, Parcial2, Parcial3, Promedio, Orden) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $Orden = 1;
+        foreach ($Detalles as $D) {
+            $StmtInsDet->execute([
+                $KardexId,
+                (string)$D['MateriaNombre'],
+                (string)($D['MaestroNombre'] ?? ''),
+                $D['P1'] !== null ? (float)$D['P1'] : null,
+                $D['P2'] !== null ? (float)$D['P2'] : null,
+                $D['P3'] !== null ? (float)$D['P3'] : null,
+                $D['Promedio'] !== null ? (float)$D['Promedio'] : null,
+                $Orden++
+            ]);
+        }
+        if ($TransaccionPropia) { $Pdo->commit(); }
+        return true;
+    } catch (Throwable $E) {
+        if ($TransaccionPropia && $Pdo->inTransaction()) { $Pdo->rollBack(); }
+        throw $E;
+    }
+}
+
+function SgceKardexCongelarCiclo(PDO $Pdo, int $CicloId, int $UsuarioId = 0, bool $Forzar = true): int {
+    if ($CicloId <= 0) { return 0; }
+    $Stmt = $Pdo->prepare("SELECT AlumnoId FROM AlumnoInscripciones WHERE CicloId = ? AND Estado IN ('INSCRITO','PROMOVIDO','EGRESADO') ORDER BY AlumnoId");
+    $Stmt->execute([$CicloId]);
+    $Total = 0;
+    foreach ($Stmt->fetchAll(PDO::FETCH_COLUMN) as $AlumnoId) {
+        if (SgceKardexCongelarAlumnoCiclo($Pdo, (int)$AlumnoId, $CicloId, $UsuarioId, $Forzar)) { $Total++; }
+    }
+    return $Total;
+}
+
+function SgceAsegurarEsquemaAcademico(PDO $Pdo): void {
+    static $Listo = false;
+    if ($Listo) { return; }
+    $Listo = true;
+    if (!SgceDbTablaExiste($Pdo, 'CiclosEscolares') || !SgceDbTablaExiste($Pdo, 'Grupos') || !SgceDbTablaExiste($Pdo, 'Alumnos')) { return; }
+
+    $CicloId = (int)$Pdo->query('SELECT Id FROM CiclosEscolares WHERE Activo = 1 ORDER BY FechaInicio DESC, Id DESC LIMIT 1')->fetchColumn();
+    if ($CicloId <= 0) {
+        $Pdo->prepare('INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES (?, ?, ?, 1)')->execute(['CICLO INICIAL', date('Y-01-01'), date('Y-12-31')]);
+        $CicloId = (int)$Pdo->lastInsertId();
+    }
+
+    if (!SgceDbColumnaExiste($Pdo, 'Grupos', 'CicloId')) {
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD COLUMN CicloId INT UNSIGNED NULL AFTER Id');
+        $Stmt = $Pdo->prepare('UPDATE Grupos SET CicloId = ? WHERE CicloId IS NULL');
+        $Stmt->execute([$CicloId]);
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos MODIFY CicloId INT UNSIGNED NOT NULL');
+    }
+    if (SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos DROP INDEX unico_grupo_turno'); }
+    if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_ciclo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD UNIQUE KEY unico_grupo_ciclo_turno (CicloId, Grado, Grupo, Turno)'); }
+    if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'idx_grupos_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD INDEX idx_grupos_ciclo (CicloId, Activo)'); }
+    if (!SgceDbFkExiste($Pdo, 'Grupos', 'fk_grupos_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD CONSTRAINT fk_grupos_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+
+    if (!SgceDbTablaExiste($Pdo, 'AlumnoInscripciones')) {
+        $Pdo->exec("CREATE TABLE AlumnoInscripciones (
+            Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            AlumnoId INT UNSIGNED NOT NULL,
+            CicloId INT UNSIGNED NOT NULL,
+            GrupoId INT UNSIGNED NOT NULL,
+            Estado ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
+            FechaInscripcion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_inscripciones_alumno FOREIGN KEY (AlumnoId) REFERENCES Alumnos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_inscripciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_inscripciones_grupo FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            UNIQUE KEY unico_alumno_ciclo (AlumnoId, CicloId),
+            INDEX idx_inscripciones_ciclo_grupo_estado (CicloId, GrupoId, Estado, AlumnoId),
+            INDEX idx_inscripciones_alumno_ciclo (AlumnoId, CicloId),
+            INDEX idx_inscripciones_grupo_estado (GrupoId, Estado)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    $Pdo->exec("INSERT IGNORE INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, Estado)
+        SELECT A.Id, G.CicloId, A.GrupoId, 'INSCRITO'
+        FROM Alumnos A
+        INNER JOIN Grupos G ON G.Id = A.GrupoId
+        WHERE A.Activo = 1 AND A.GrupoId IS NOT NULL");
+
+    if (SgceDbTablaExiste($Pdo, 'Asignaciones') && !SgceDbColumnaExiste($Pdo, 'Asignaciones', 'CicloId')) {
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD COLUMN CicloId INT UNSIGNED NULL AFTER Id');
+        SgceDbExecSilencioso($Pdo, 'UPDATE Asignaciones A INNER JOIN Grupos G ON G.Id = A.GrupoId SET A.CicloId = G.CicloId WHERE A.CicloId IS NULL');
+        SgceDbExecSilencioso($Pdo, 'UPDATE Asignaciones SET CicloId = ' . (int)$CicloId . ' WHERE CicloId IS NULL');
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones MODIFY CicloId INT UNSIGNED NOT NULL');
+    }
+    if (SgceDbTablaExiste($Pdo, 'Asignaciones')) {
+        if (!SgceDbIndiceExiste($Pdo, 'Asignaciones', 'idx_asignaciones_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD INDEX idx_asignaciones_ciclo (CicloId, Activo)'); }
+        if (!SgceDbIndiceExiste($Pdo, 'Asignaciones', 'unica_materia_grupo_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD UNIQUE KEY unica_materia_grupo_ciclo (CicloId, GrupoId, MateriaNombre)'); }
+        if (!SgceDbFkExiste($Pdo, 'Asignaciones', 'fk_asignaciones_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD CONSTRAINT fk_asignaciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+    }
+
+    if (SgceDbTablaExiste($Pdo, 'Asistencias') && !SgceDbColumnaExiste($Pdo, 'Asistencias', 'CicloId')) {
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asistencias ADD COLUMN CicloId INT UNSIGNED NULL AFTER Id');
+        SgceDbExecSilencioso($Pdo, 'UPDATE Asistencias Asi INNER JOIN Asignaciones A ON A.Id = Asi.AsignacionId SET Asi.CicloId = A.CicloId WHERE Asi.CicloId IS NULL');
+        SgceDbExecSilencioso($Pdo, 'UPDATE Asistencias SET CicloId = ' . (int)$CicloId . ' WHERE CicloId IS NULL');
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asistencias MODIFY CicloId INT UNSIGNED NOT NULL');
+    }
+    if (SgceDbTablaExiste($Pdo, 'Asistencias')) {
+        if (!SgceDbIndiceExiste($Pdo, 'Asistencias', 'idx_asistencias_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asistencias ADD INDEX idx_asistencias_ciclo (CicloId, FechaDia)'); }
+        if (!SgceDbFkExiste($Pdo, 'Asistencias', 'fk_asistencias_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asistencias ADD CONSTRAINT fk_asistencias_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+    }
+
+
+    // Catálogo de materias: la materia es estable; el docente solo es el responsable actual.
+    if (!SgceDbTablaExiste($Pdo, 'MateriasCatalogo')) {
+        $Pdo->exec("CREATE TABLE MateriasCatalogo (
+            Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            Nombre VARCHAR(140) NOT NULL,
+            Activo TINYINT(1) NOT NULL DEFAULT 1,
+            FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unico_materia_nombre (Nombre),
+            INDEX idx_materias_activo_nombre (Activo, Nombre)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (SgceDbTablaExiste($Pdo, 'Asignaciones') && !SgceDbColumnaExiste($Pdo, 'Asignaciones', 'MateriaId')) {
+        SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD COLUMN MateriaId INT UNSIGNED NULL AFTER GrupoId');
+    }
+    if (SgceDbTablaExiste($Pdo, 'Asignaciones')) {
+        $Materias = $Pdo->query("SELECT DISTINCT MateriaNombre FROM Asignaciones WHERE MateriaNombre IS NOT NULL AND TRIM(MateriaNombre) <> ''")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($Materias as $MateriaNombre) { SgceMateriaIdPorNombre($Pdo, (string)$MateriaNombre); }
+        SgceDbExecSilencioso($Pdo, "UPDATE Asignaciones A INNER JOIN MateriasCatalogo M ON M.Nombre = A.MateriaNombre SET A.MateriaId = M.Id WHERE A.MateriaId IS NULL");
+        if (!SgceDbIndiceExiste($Pdo, 'Asignaciones', 'idx_asignaciones_materia_id')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD INDEX idx_asignaciones_materia_id (MateriaId)'); }
+        if (!SgceDbFkExiste($Pdo, 'Asignaciones', 'fk_asignaciones_materia_catalogo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD CONSTRAINT fk_asignaciones_materia_catalogo FOREIGN KEY (MateriaId) REFERENCES MateriasCatalogo(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+    }
+
+    if (!SgceDbTablaExiste($Pdo, 'AsignacionDocenteHistorial')) {
+        $Pdo->exec("CREATE TABLE AsignacionDocenteHistorial (
+            Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            AsignacionId INT UNSIGNED NOT NULL,
+            MaestroId INT UNSIGNED NOT NULL,
+            FechaInicio DATETIME NULL,
+            FechaFin DATETIME NULL,
+            TipoMovimiento ENUM('TITULAR','INTERINATO','RELEVO') NOT NULL DEFAULT 'TITULAR',
+            Motivo VARCHAR(255) DEFAULT NULL,
+            RegistradoPor INT UNSIGNED DEFAULT NULL,
+            FechaRegistro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_hist_asignacion FOREIGN KEY (AsignacionId) REFERENCES Asignaciones(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_hist_maestro FOREIGN KEY (MaestroId) REFERENCES Usuarios(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_hist_registrado_por FOREIGN KEY (RegistradoPor) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE,
+            INDEX idx_hist_asignacion_fechas (AsignacionId, FechaInicio, FechaFin),
+            INDEX idx_hist_maestro (MaestroId, FechaInicio, FechaFin),
+            INDEX idx_hist_activo (AsignacionId, FechaFin)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (SgceDbTablaExiste($Pdo, 'AsignacionDocenteHistorial') && SgceDbTablaExiste($Pdo, 'Asignaciones')) {
+        $StmtAsignacionesHist = $Pdo->query('SELECT Id, MaestroId FROM Asignaciones WHERE Activo = 1');
+        foreach ($StmtAsignacionesHist->fetchAll() as $AsigHist) {
+            SgceRegistrarDocenteAsignacionActual($Pdo, (int)$AsigHist['Id'], (int)$AsigHist['MaestroId'], 0, 'TITULAR', 'REGISTRO AUTOMÁTICO DE RESPONSABLE ACTUAL');
+        }
+    }
+
+    if (!SgceDbTablaExiste($Pdo, 'KardexAlumno')) {
+        $Pdo->exec("CREATE TABLE KardexAlumno (
+            Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            AlumnoId INT UNSIGNED NOT NULL,
+            CicloId INT UNSIGNED NOT NULL,
+            GrupoId INT UNSIGNED NOT NULL,
+            CicloNombreSnapshot VARCHAR(40) NOT NULL,
+            GradoSnapshot VARCHAR(20) NOT NULL,
+            GrupoSnapshot VARCHAR(10) NOT NULL,
+            TurnoSnapshot VARCHAR(20) NOT NULL,
+            EstadoFinal ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
+            PromedioFinal DECIMAL(5,2) DEFAULT NULL,
+            GeneradoPor INT UNSIGNED DEFAULT NULL,
+            FechaGeneracion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_kardex_alumno FOREIGN KEY (AlumnoId) REFERENCES Alumnos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_kardex_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_kardex_grupo FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            CONSTRAINT fk_kardex_generado_por FOREIGN KEY (GeneradoPor) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE,
+            UNIQUE KEY unico_kardex_alumno_ciclo (AlumnoId, CicloId),
+            INDEX idx_kardex_alumno_ciclo (AlumnoId, CicloId),
+            INDEX idx_kardex_ciclo_grupo (CicloId, GrupoId)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (!SgceDbTablaExiste($Pdo, 'KardexDetalle')) {
+        $Pdo->exec("CREATE TABLE KardexDetalle (
+            Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            KardexId BIGINT UNSIGNED NOT NULL,
+            MateriaNombreSnapshot VARCHAR(140) NOT NULL,
+            MaestroNombreSnapshot VARCHAR(140) DEFAULT NULL,
+            Parcial1 DECIMAL(4,2) DEFAULT NULL,
+            Parcial2 DECIMAL(4,2) DEFAULT NULL,
+            Parcial3 DECIMAL(4,2) DEFAULT NULL,
+            Promedio DECIMAL(5,2) DEFAULT NULL,
+            Orden INT UNSIGNED NOT NULL DEFAULT 1,
+            CONSTRAINT fk_kardex_detalle FOREIGN KEY (KardexId) REFERENCES KardexAlumno(Id) ON DELETE CASCADE ON UPDATE CASCADE,
+            INDEX idx_kardex_detalle_kardex_orden (KardexId, Orden)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+}
+
+function SgceMigrarGrupoSiguienteCiclo(PDO $Pdo, int $GrupoOrigenId, int $CicloDestinoId, bool $CopiarAsignaciones = false): array {
+    $Origen = SgceGrupoObtenerPorId($Pdo, $GrupoOrigenId);
+    $DestinoCiclo = SgceCicloPorId($Pdo, $CicloDestinoId);
+    if (!$Origen) { throw new RuntimeException('El grupo origen no existe.'); }
+    if (!$DestinoCiclo || (int)$DestinoCiclo['Activo'] !== 1) { throw new RuntimeException('Debe existir un ciclo destino activo.'); }
+    if ((int)$Origen['CicloId'] === $CicloDestinoId) { throw new RuntimeException('El grupo origen ya pertenece al ciclo activo.'); }
+    if ((int)$Origen['CicloActivo'] === 1) { throw new RuntimeException('No se puede migrar un grupo de un ciclo que todavía está activo. Primero crea/activa el nuevo ciclo.'); }
+    if (!SgceValidarGrado($Origen['Grado'])) { throw new RuntimeException('El grado del grupo origen no es numérico y no puede migrarse automáticamente.'); }
+
+    $GradoOrigen = (int)$Origen['Grado'];
+    if ($GradoOrigen <= 0) { throw new RuntimeException('El grado del grupo origen no es válido.'); }
+
+    $Resultado = [
+        'GrupoOrigen' => $Origen,
+        'GrupoDestinoId' => null,
+        'NuevoGrado' => null,
+        'Promovidos' => 0,
+        'Egresados' => 0,
+        'Omitidos' => 0,
+        'Conflictos' => 0,
+        'AsignacionesCopiadas' => 0,
+        'AsignacionesOmitidasDocente' => 0,
+        'KardexCongelados' => 0,
+        'GrupoCreado' => false,
+    ];
+
+    $Alumnos = SgceAlumnosPorGrupoCiclo($Pdo, $GrupoOrigenId, (int)$Origen['CicloId'], ['INSCRITO']);
+    // El kardex se congela después de cambiar el estado final de la inscripción
+    // para que quede como PROMOVIDO o EGRESADO y no como INSCRITO.
+
+    if ($GradoOrigen >= 3) {
+        $StmtEgresar = $Pdo->prepare("UPDATE AlumnoInscripciones SET Estado = 'EGRESADO' WHERE AlumnoId = ? AND CicloId = ? AND GrupoId = ?");
+        $StmtAlumnoNull = $Pdo->prepare('UPDATE Alumnos SET GrupoId = NULL WHERE Id = ? AND GrupoId = ?');
+        foreach ($Alumnos as $Alumno) {
+            $StmtEgresar->execute([(int)$Alumno['Id'], (int)$Origen['CicloId'], $GrupoOrigenId]);
+            if (SgceKardexCongelarAlumnoCiclo($Pdo, (int)$Alumno['Id'], (int)$Origen['CicloId'], 0, true)) { $Resultado['KardexCongelados']++; }
+            $StmtAlumnoNull->execute([(int)$Alumno['Id'], $GrupoOrigenId]);
+            $Resultado['Egresados']++;
+        }
+        return $Resultado;
+    }
+
+    $NuevoGrado = (string)($GradoOrigen + 1);
+    $GrupoExistente = SgceGrupoObtenerPorCicloDatos($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno']);
+    $GrupoDestinoId = SgceGrupoCrearOReactivar($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno']);
+    $Resultado['GrupoDestinoId'] = $GrupoDestinoId;
+    $Resultado['NuevoGrado'] = $NuevoGrado;
+    $Resultado['GrupoCreado'] = !$GrupoExistente;
+
+    $StmtPromoverOrigen = $Pdo->prepare("UPDATE AlumnoInscripciones SET Estado = 'PROMOVIDO' WHERE AlumnoId = ? AND CicloId = ? AND GrupoId = ?");
+    $StmtActualizarAlumno = $Pdo->prepare('UPDATE Alumnos SET GrupoId = ?, Activo = 1 WHERE Id = ?');
+    foreach ($Alumnos as $Alumno) {
+        $AlumnoId = (int)$Alumno['Id'];
+        if (SgceAlumnoTieneInscripcion($Pdo, $AlumnoId, $CicloDestinoId)) {
+            $Resultado['Conflictos']++;
+            continue;
+        }
+        if (SgceAlumnoInscribirEnCiclo($Pdo, $AlumnoId, $CicloDestinoId, $GrupoDestinoId, 'INSCRITO')) {
+            $StmtPromoverOrigen->execute([$AlumnoId, (int)$Origen['CicloId'], $GrupoOrigenId]);
+            if (SgceKardexCongelarAlumnoCiclo($Pdo, $AlumnoId, (int)$Origen['CicloId'], 0, true)) { $Resultado['KardexCongelados']++; }
+            $StmtActualizarAlumno->execute([$GrupoDestinoId, $AlumnoId]);
+            $Resultado['Promovidos']++;
+        } else {
+            $Resultado['Omitidos']++;
+        }
+    }
+
+    if ($CopiarAsignaciones) {
+        $StmtAsignaciones = $Pdo->prepare("SELECT A.MaestroId, A.MateriaNombre, U.Activo AS MaestroActivo
+            FROM Asignaciones A
+            INNER JOIN Usuarios U ON U.Id = A.MaestroId AND U.Rol = 'maestro'
+            WHERE A.CicloId = ? AND A.GrupoId = ? AND A.Activo = 1");
+        $StmtAsignaciones->execute([(int)$Origen['CicloId'], $GrupoOrigenId]);
+        $StmtInsertAsignacion = $Pdo->prepare('INSERT IGNORE INTO Asignaciones (CicloId, MaestroId, GrupoId, MateriaId, MateriaNombre, Activo) VALUES (?, ?, ?, NULLIF(?,0), ?, 1)');
+        foreach ($StmtAsignaciones->fetchAll() as $Asig) {
+            if ((int)$Asig['MaestroActivo'] !== 1) {
+                $Resultado['AsignacionesOmitidasDocente']++;
+                continue;
+            }
+            $MateriaNombre = (string)$Asig['MateriaNombre'];
+            $MateriaId = SgceMateriaIdPorNombre($Pdo, $MateriaNombre);
+            $StmtInsertAsignacion->execute([$CicloDestinoId, (int)$Asig['MaestroId'], $GrupoDestinoId, $MateriaId, $MateriaNombre]);
+            if ($StmtInsertAsignacion->rowCount() > 0) {
+                $NuevaAsignacionId = (int)$Pdo->lastInsertId();
+                SgceRegistrarDocenteAsignacionActual($Pdo, $NuevaAsignacionId, (int)$Asig['MaestroId'], 0, 'TITULAR', 'ASIGNACIÓN COPIADA AL NUEVO CICLO');
+                $Resultado['AsignacionesCopiadas']++;
+            }
+        }
+    }
+
+    return $Resultado;
+}
+
+function SgceMigrarCicloCompleto(PDO $Pdo, int $CicloOrigenId, int $CicloDestinoId, bool $CopiarAsignaciones = false): array {
+    $Origen = SgceCicloPorId($Pdo, $CicloOrigenId);
+    $Destino = SgceCicloPorId($Pdo, $CicloDestinoId);
+    if (!$Origen || (int)$Origen['Activo'] === 1) { throw new RuntimeException('Selecciona un ciclo origen cerrado/inactivo.'); }
+    if (!$Destino || (int)$Destino['Activo'] !== 1) { throw new RuntimeException('Debe existir un ciclo destino activo.'); }
+    if ($CicloOrigenId === $CicloDestinoId) { throw new RuntimeException('El ciclo origen y destino no pueden ser el mismo.'); }
+    $Resumen = ['GruposProcesados' => 0, 'Promovidos' => 0, 'Egresados' => 0, 'Conflictos' => 0, 'Omitidos' => 0, 'AsignacionesCopiadas' => 0, 'AsignacionesOmitidasDocente' => 0, 'KardexCongelados' => 0, 'GruposCreados' => 0];
+    foreach (SgceGruposListarPorCiclo($Pdo, $CicloOrigenId, true) as $Grupo) {
+        $R = SgceMigrarGrupoSiguienteCiclo($Pdo, (int)$Grupo['Id'], $CicloDestinoId, $CopiarAsignaciones);
+        $Resumen['GruposProcesados']++;
+        $Resumen['Promovidos'] += (int)$R['Promovidos'];
+        $Resumen['Egresados'] += (int)$R['Egresados'];
+        $Resumen['Conflictos'] += (int)$R['Conflictos'];
+        $Resumen['Omitidos'] += (int)$R['Omitidos'];
+        $Resumen['AsignacionesCopiadas'] += (int)$R['AsignacionesCopiadas'];
+        $Resumen['AsignacionesOmitidasDocente'] += (int)($R['AsignacionesOmitidasDocente'] ?? 0);
+        $Resumen['KardexCongelados'] += (int)($R['KardexCongelados'] ?? 0);
+        $Resumen['GruposCreados'] += !empty($R['GrupoCreado']) ? 1 : 0;
+    }
+    return $Resumen;
 }

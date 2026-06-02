@@ -1,60 +1,45 @@
 # SGCE - Sistema Gestor de Control Escolar
 
-SGCE es un sistema escolar en PHP y MySQL para administración de alumnos, docentes, grupos, asignaciones, asistencias, calificaciones, planeaciones, reportes, respaldos y consulta pública para madres, padres o tutores.
+Versión: **1.0.1**
 
-## Características principales
+SGCE es un sistema escolar en PHP/MySQL para control de alumnos, docentes, grupos, asignaciones, asistencias, calificaciones, planeaciones, reportes, consulta pública y administración de ciclos escolares.
 
-- Administración de docentes, alumnos, grupos y asignaciones.
-- Captura de asistencia y calificaciones por docente.
-- Consulta pública de asistencia y calificaciones con coincidencia exacta.
-- Reportes PDF y exportaciones Excel/CSV.
-- Planeaciones por ciclo escolar.
-- Respaldos, restauración controlada y bitácora de movimientos.
-- Instalador web con bloqueo posterior por `storage/install.lock`.
-- Paginación real desde MySQL en módulos de alto crecimiento.
-- Validación CSRF, sesiones seguras y rate limit de login.
+## Novedades principales de la versión 1.0.1
 
-## Requisitos
+- Control académico por ciclo escolar.
+- Inscripciones históricas por alumno, ciclo y grupo.
+- Migración segura de grupos/ciclos: 1° -> 2°, 2° -> 3°, 3° -> egresado.
+- Kardex congelado por alumno/ciclo para proteger boletas históricas.
+- Soporte para interinatos/relevos docentes sin romper la materia.
+- Bloqueo de desactivación de docentes con asignaciones activas.
+- Bloqueo de desactivación de asignaciones con asistencias o calificaciones.
+- Historial académico PDF basado en kardex congelado cuando exista.
 
-- PHP 8.1 o superior.
-- MySQL 8 o MariaDB compatible.
-- Extensiones PHP: PDO MySQL, mbstring, zip, simplexml, fileinfo.
-- Servidor Apache/Nginx con permisos de escritura en `storage/` y `config/`.
+## Instalación
 
-## Instalación limpia
+1. Copiar el proyecto al servidor.
+2. Dar permisos de escritura a `storage/`.
+3. Entrar a `Instalar.php`.
+4. Configurar base de datos y usuario administrador.
+5. El instalador crea `storage/install.lock` para bloquear reinstalaciones.
 
-```bash
-cd /var/www/html
-sudo unzip SGCE_FINAL_DESDE_0.zip
-sudo chown -R www-data:www-data SGCE/storage SGCE/config
-```
+## Documentación
 
-Después abre `http://tu-servidor/SGCE/Instalar.php` y completa el asistente.
+Revisar especialmente:
 
-Al finalizar, el instalador crea `storage/install.lock`. Mientras ese archivo exista, el instalador queda bloqueado por seguridad.
+- `docs/SGCE_VERSION_1_0_1_CICLOS_KARDEX_INTERINATOS.md`
+- `docs/MIGRACION_CICLOS_SGCE_V1.md`
+- `docs/MANUAL_TECNICO_INSTALACION_SGCE.md`
+- `docs/MANUAL_USUARIO_SGCE.md`
+- `docs/CHANGELOG_SGCE.md`
 
-## Verificación estática
+## Flujo recomendado
 
-```bash
-cd /var/www/html/SGCE
-php tests/RunStaticChecks.php
-```
-
-## Estructura principal
-
-```text
-assets/        CSS, JavaScript e imágenes públicas.
-config/        Configuración de conexión.
-includes/      Utilidades, seguridad, PDF y consultas públicas.
-modules/       Módulos internos del sistema.
-public/        Acceso público y consultas para padres.
-reports/       Exportaciones y reportes.
-repositories/  Consultas SQL optimizadas y paginadas.
-services/      Lógica de negocio reutilizable.
-storage/       Archivos privados, respaldos, logs y planeaciones.
-tests/         Pruebas estáticas del paquete.
-```
-
-## Nota de producción
-
-No instales encima de una carpeta vieja. Para probar limpio, renombra la carpeta anterior y descomprime nuevamente el paquete final.
+1. Crear ciclo escolar activo.
+2. Crear grupos del ciclo activo.
+3. Importar alumnos y docentes.
+4. Asignar materias a grupos y docentes.
+5. Capturar asistencias y calificaciones.
+6. Al cierre del ciclo, inactivar ciclo anterior y activar ciclo nuevo.
+7. Usar Configuración -> Migración de ciclo escolar.
+8. Revisar kardex e historial académico.

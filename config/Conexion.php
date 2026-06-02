@@ -43,6 +43,7 @@ try {
 }
 
 require_once dirname(__DIR__) . '/includes/SGCE_Helpers.php';
+try { SgceAsegurarEsquemaAcademico($Pdo); } catch (Throwable $E) { if (function_exists('SgceRegistrarErrorTecnico')) { SgceRegistrarErrorTecnico('MIGRACION_ESQUEMA_ACADEMICO', $E); } }
 $SgceServiceLoader = dirname(__DIR__) . '/services/SGCE_ServiceLoader.php';
 if (is_file($SgceServiceLoader)) { require_once $SgceServiceLoader; }
 

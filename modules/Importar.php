@@ -364,6 +364,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $Tab = SgceTabAdminPermitida($_POST['Tab'] ?? 'maestros', $UserSession);
+$CicloActivoImportacion = SgceCicloActivo($Pdo);
+$CicloActivoImportacionId = (int)($CicloActivoImportacion['Id'] ?? 0);
 
 if (isset($_POST['ImportarAlumnos'])) {
 
@@ -391,16 +393,21 @@ if (isset($_POST['ImportarAlumnos'])) {
     $Invalidos = 0;
     $Saltados = 0;
 
-    $CheckGrupo = $Pdo->prepare("SELECT COUNT(*) FROM Grupos WHERE Id = ? AND Activo = 1");
-    $CheckGrupo->execute([$GrupoId]);
-
-    if ((int)$CheckGrupo->fetchColumn() <= 0) {
-        RedirectAdminImportar('alumnos', 'El grupo seleccionado no existe.', true);
+    if ($CicloActivoImportacionId <= 0) {
+        RedirectAdminImportar('alumnos', 'Primero configura un ciclo escolar activo.', true);
     }
 
-    $Check = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
-    $StmtReactivar = $Pdo->prepare("UPDATE Alumnos SET Activo = 1 WHERE Id = ?");
-    $Stmt = $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, GrupoId) VALUES (?, ?)");
+    $CheckGrupo = $Pdo->prepare("SELECT COUNT(*) FROM Grupos WHERE Id = ? AND CicloId = ? AND Activo = 1");
+    $CheckGrupo->execute([$GrupoId, $CicloActivoImportacionId]);
+
+    if ((int)$CheckGrupo->fetchColumn() <= 0) {
+        RedirectAdminImportar('alumnos', 'El grupo seleccionado no existe en el ciclo activo.', true);
+    }
+
+    $Check = $Pdo->prepare("SELECT A.Id, A.Activo FROM Alumnos A INNER JOIN AlumnoInscripciones AI ON AI.AlumnoId = A.Id WHERE A.NombreCompleto = ? AND AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' LIMIT 1");
+    $CheckBase = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
+    $StmtReactivar = $Pdo->prepare("UPDATE Alumnos SET Activo = 1, GrupoId = ? WHERE Id = ?");
+    $Stmt = $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, GrupoId, Activo) VALUES (?, ?, 1)");
 
     try {
         $Pdo->beginTransaction();
@@ -416,20 +423,25 @@ if (isset($_POST['ImportarAlumnos'])) {
                 continue;
             }
 
-            $Check->execute([$Nombre, $GrupoId]);
+            $Check->execute([$Nombre, $CicloActivoImportacionId, $GrupoId]);
             $AlumnoExistente = $Check->fetch();
             if ($AlumnoExistente) {
-                if ((int)$AlumnoExistente['Activo'] === 1) {
-                    $Duplicados++;
-                    continue;
-                }
+                $Duplicados++;
+                continue;
+            }
 
-                $StmtReactivar->execute([(int)$AlumnoExistente['Id']]);
+            $CheckBase->execute([$Nombre, $GrupoId]);
+            $AlumnoBase = $CheckBase->fetch();
+            if ($AlumnoBase) {
+                $AlumnoId = (int)$AlumnoBase['Id'];
+                $StmtReactivar->execute([$GrupoId, $AlumnoId]);
+                SgceAlumnoInscribirEnCiclo($Pdo, $AlumnoId, $CicloActivoImportacionId, $GrupoId, 'INSCRITO');
                 $Reactivados++;
                 continue;
             }
 
             $Stmt->execute([$Nombre, $GrupoId]);
+            SgceAlumnoInscribirEnCiclo($Pdo, (int)$Pdo->lastInsertId(), $CicloActivoImportacionId, $GrupoId, 'INSCRITO');
             $Insertados++;
         }
 
@@ -471,9 +483,13 @@ if (isset($_POST['ImportarGrupos'])) {
     $Invalidos = 0;
     $Saltados = 0;
 
-    $Check = $Pdo->prepare("SELECT Id, Activo FROM Grupos WHERE Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1");
+    if ($CicloActivoImportacionId <= 0) {
+        RedirectAdminImportar('grupos', 'Primero configura un ciclo escolar activo.', true);
+    }
+
+    $Check = $Pdo->prepare("SELECT Id, Activo FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1");
     $StmtReactivar = $Pdo->prepare("UPDATE Grupos SET Activo = 1 WHERE Id = ?");
-    $Stmt = $Pdo->prepare("INSERT INTO Grupos (Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, 1)");
+    $Stmt = $Pdo->prepare("INSERT INTO Grupos (CicloId, Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, ?, 1)");
 
     try {
         $Pdo->beginTransaction();
@@ -507,7 +523,7 @@ if (isset($_POST['ImportarGrupos'])) {
                 continue;
             }
 
-            $Check->execute([$Grado, $Grupo, $Turno]);
+            $Check->execute([$CicloActivoImportacionId, $Grado, $Grupo, $Turno]);
             $GrupoExistente = $Check->fetch();
             if ($GrupoExistente) {
                 if ((int)$GrupoExistente['Activo'] === 1) {
@@ -520,7 +536,7 @@ if (isset($_POST['ImportarGrupos'])) {
                 continue;
             }
 
-            $Stmt->execute([$Grado, $Grupo, $Turno]);
+            $Stmt->execute([$CicloActivoImportacionId, $Grado, $Grupo, $Turno]);
             $Insertados++;
         }
 

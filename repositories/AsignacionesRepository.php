@@ -6,11 +6,15 @@ function SgceRepoAsignacionFiltros(array $Entrada): array {
         'buscar' => trim((string)($Entrada['BuscarAsignaciones'] ?? '')),
         'maestro_id' => max(0, (int)($Entrada['MaestroIdFiltro'] ?? 0)),
         'grupo_id' => max(0, (int)($Entrada['GrupoIdFiltro'] ?? 0)),
+        'ciclo_id' => max(0, (int)($Entrada['CicloIdFiltro'] ?? 0)),
     ];
 }
 
-function SgceRepoAsignacionWhere(array $Filtros, array &$Params): string {
+function SgceRepoAsignacionWhere(PDO $Pdo, array $Filtros, array &$Params): string {
+    $CicloActivo = SgceCicloActivo($Pdo);
+    $CicloId = !empty($Filtros['ciclo_id']) ? (int)$Filtros['ciclo_id'] : (int)($CicloActivo['Id'] ?? 0);
     $Where = ['Asn.Activo = 1', 'U.Activo = 1', 'G.Activo = 1'];
+    if ($CicloId > 0) { $Where[] = 'Asn.CicloId = ?'; $Params[] = $CicloId; }
     if (!empty($Filtros['buscar'])) {
         $Where[] = '(Asn.MateriaNombre LIKE ? OR U.NombreCompleto LIKE ?)';
         $Params[] = '%' . $Filtros['buscar'] . '%';
@@ -29,12 +33,12 @@ function SgceRepoAsignacionWhere(array $Filtros, array &$Params): string {
 
 function SgceRepoAsignacionContar(PDO $Pdo, array $Filtros = []): int {
     $Params = [];
-    $Where = SgceRepoAsignacionWhere($Filtros, $Params);
+    $Where = SgceRepoAsignacionWhere($Pdo, $Filtros, $Params);
     $Stmt = $Pdo->prepare("
         SELECT COUNT(*)
         FROM Asignaciones Asn
         INNER JOIN Usuarios U ON U.Id = Asn.MaestroId
-        INNER JOIN Grupos G ON G.Id = Asn.GrupoId
+        INNER JOIN Grupos G ON G.Id = Asn.GrupoId AND G.CicloId = Asn.CicloId
         WHERE {$Where}
     ");
     $Stmt->execute($Params);
@@ -43,14 +47,15 @@ function SgceRepoAsignacionContar(PDO $Pdo, array $Filtros = []): int {
 
 function SgceRepoAsignacionListar(PDO $Pdo, array $Filtros, int $Limit, int $Offset): array {
     $Params = [];
-    $Where = SgceRepoAsignacionWhere($Filtros, $Params);
+    $Where = SgceRepoAsignacionWhere($Pdo, $Filtros, $Params);
     $Stmt = $Pdo->prepare("
-        SELECT Asn.Id, Asn.MateriaNombre, U.NombreCompleto AS Maestro, U.Id AS MaestroId, G.Id AS GrupoId, G.Grado, G.Grupo, G.Turno
+        SELECT Asn.Id, Asn.CicloId, Asn.MateriaNombre, U.NombreCompleto AS Maestro, U.Id AS MaestroId, G.Id AS GrupoId, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre
         FROM Asignaciones Asn
         INNER JOIN Usuarios U ON U.Id = Asn.MaestroId
-        INNER JOIN Grupos G ON G.Id = Asn.GrupoId
+        INNER JOIN Grupos G ON G.Id = Asn.GrupoId AND G.CicloId = Asn.CicloId
+        INNER JOIN CiclosEscolares C ON C.Id = Asn.CicloId
         WHERE {$Where}
-        ORDER BY U.NombreCompleto, G.Turno, G.Grado, G.Grupo, Asn.MateriaNombre, Asn.Id
+        ORDER BY U.NombreCompleto, G.Turno, CAST(G.Grado AS UNSIGNED), G.Grado, G.Grupo, Asn.MateriaNombre, Asn.Id
         LIMIT ? OFFSET ?
     ");
     foreach ($Params as $I => $Param) { $Stmt->bindValue($I + 1, $Param); }

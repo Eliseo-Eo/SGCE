@@ -53,11 +53,20 @@ if (!in_array($FiltroEstado, ['', 'PENDIENTE', 'SUBIDA', 'APROBADA', 'DEVUELTA']
 if ($FiltroNumero < 1 || $FiltroNumero > $CantidadPlaneaciones) { $FiltroNumero = 0; }
 
 $Maestros = $Pdo->query("SELECT Id, NombreCompleto FROM Usuarios WHERE Rol = 'maestro' AND Activo = 1 ORDER BY NombreCompleto")->fetchAll();
-$Grupos = $Pdo->query("SELECT Id, CONCAT(Grado, ' ', Grupo, ' - ', Turno) AS Nombre FROM Grupos WHERE Activo = 1 ORDER BY Turno, Grado, Grupo")->fetchAll();
-$Materias = $Pdo->query("SELECT DISTINCT MateriaNombre FROM Asignaciones WHERE Activo = 1 ORDER BY MateriaNombre")->fetchAll(PDO::FETCH_COLUMN);
+$Grupos = [];
+$Materias = [];
+if ($CicloId > 0) {
+    $StmtGruposPlan = $Pdo->prepare("SELECT Id, CONCAT(Grado, ' ', Grupo, ' - ', Turno) AS Nombre FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY Turno, Grado, Grupo");
+    $StmtGruposPlan->execute([$CicloId]);
+    $Grupos = $StmtGruposPlan->fetchAll();
 
-$Params = [];
-$Where = ["A.Activo = 1", "G.Activo = 1", "U.Rol = 'maestro'", "U.Activo = 1"];
+    $StmtMateriasPlan = $Pdo->prepare("SELECT DISTINCT MateriaNombre FROM Asignaciones WHERE CicloId = ? AND Activo = 1 ORDER BY MateriaNombre");
+    $StmtMateriasPlan->execute([$CicloId]);
+    $Materias = $StmtMateriasPlan->fetchAll(PDO::FETCH_COLUMN);
+}
+
+$Params = [$CicloId];
+$Where = ["A.CicloId = ?", "A.Activo = 1", "G.Activo = 1", "G.CicloId = A.CicloId", "U.Rol = 'maestro'", "U.Activo = 1"];
 if ($FiltroMaestro > 0) { $Where[] = 'U.Id = ?'; $Params[] = $FiltroMaestro; }
 if ($FiltroGrupo > 0) { $Where[] = 'G.Id = ?'; $Params[] = $FiltroGrupo; }
 if ($FiltroMateria !== '') { $Where[] = 'A.MateriaNombre = ?'; $Params[] = $FiltroMateria; }
@@ -66,7 +75,7 @@ $SqlCombosBase = "SELECT U.Id AS MaestroId, U.NombreCompleto, A.MateriaNombre,
     GROUP_CONCAT(DISTINCT CONCAT(G.Grado, ' ', G.Grupo, ' - ', G.Turno) ORDER BY G.Turno, G.Grado, G.Grupo SEPARATOR ', ') AS Grupos
     FROM Asignaciones A
     INNER JOIN Usuarios U ON U.Id = A.MaestroId
-    INNER JOIN Grupos G ON G.Id = A.GrupoId
+    INNER JOIN Grupos G ON G.Id = A.GrupoId AND G.CicloId = A.CicloId
     WHERE " . implode(' AND ', $Where) . "
     GROUP BY U.Id, U.NombreCompleto, A.MateriaNombre";
 

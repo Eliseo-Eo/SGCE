@@ -17,9 +17,10 @@ $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? ($_POST['PeriodoId'
 $PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
 
 $Stmt = $Pdo->prepare("
-    SELECT A.*, G.Grado, G.Grupo, G.Turno
+    SELECT A.*, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre
     FROM Asignaciones A
-    JOIN Grupos G ON A.GrupoId = G.Id
+    JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId
+    JOIN CiclosEscolares C ON C.Id = A.CicloId AND C.Activo = 1
     WHERE A.Id = ? AND A.MaestroId = ? AND A.Activo = 1
 ");
 
@@ -27,7 +28,12 @@ $Stmt->execute([$AsignacionId, $UserSession['Id']]);
 $InfoClase = $Stmt->fetch();
 
 if (!$InfoClase) {
-    SgceSalirConError('Acceso denegado o grupo no encontrado.', 404);
+    SgceSalirConError('Acceso denegado o grupo no encontrado en el ciclo activo.', 404);
+}
+$CicloClaseId = (int)$InfoClase['CicloId'];
+$PeriodoInfoCalificar = SgcePeriodoInfo($Pdo, $PeriodoId);
+if (!$PeriodoInfoCalificar || (int)$PeriodoInfoCalificar['CicloId'] !== $CicloClaseId) {
+    SgceSalirConError('El periodo seleccionado no pertenece al ciclo activo de esta asignación.', 400);
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
@@ -47,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
         exit;
     }
 
-    $StmtAlumnosValidos = $Pdo->prepare("SELECT Id FROM Alumnos WHERE GrupoId = ? AND Activo = 1");
-    $StmtAlumnosValidos->execute([$InfoClase['GrupoId']]);
+    $StmtAlumnosValidos = $Pdo->prepare("SELECT A.Id FROM AlumnoInscripciones AI INNER JOIN Alumnos A ON A.Id = AI.AlumnoId AND A.Activo = 1 WHERE AI.GrupoId = ? AND AI.CicloId = ? AND AI.Estado = 'INSCRITO'");
+    $StmtAlumnosValidos->execute([$InfoClase['GrupoId'], $CicloClaseId]);
     $AlumnosValidos = array_flip(array_map('intval', $StmtAlumnosValidos->fetchAll(PDO::FETCH_COLUMN)));
 
     $StmtBuscarCalificacion = $Pdo->prepare("
@@ -172,7 +178,8 @@ $Stmt = $Pdo->prepare("
         Al.Id AS AlumnoId,
         Al.NombreCompleto,
         C.Calificacion
-    FROM Alumnos Al
+    FROM AlumnoInscripciones AI
+    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId
     LEFT JOIN (
         SELECT AlumnoId, MAX(Id) AS UltimaCalificacionId
         FROM Calificaciones
@@ -182,7 +189,9 @@ $Stmt = $Pdo->prepare("
     ) CU ON CU.AlumnoId = Al.Id
     LEFT JOIN Calificaciones C
         ON C.Id = CU.UltimaCalificacionId
-    WHERE Al.GrupoId = ?
+    WHERE AI.GrupoId = ?
+    AND AI.CicloId = ?
+    AND AI.Estado = 'INSCRITO'
     AND Al.Activo = 1
     ORDER BY Al.NombreCompleto ASC
 ");
@@ -190,7 +199,8 @@ $Stmt = $Pdo->prepare("
 $Stmt->execute([
     $AsignacionId,
     $PeriodoId,
-    $InfoClase['GrupoId']
+    $InfoClase['GrupoId'],
+    $CicloClaseId
 ]);
 
 $Alumnos = $Stmt->fetchAll();

@@ -1,0 +1,15 @@
+SGCE 1.0.1 - Auditoria final
+
+Revision aplicada:
+- Sintaxis PHP revisada en todos los archivos.
+- Sintaxis JS revisada en assets/js.
+- Prueba estatica del sistema ejecutada correctamente.
+- Se reforzo modelo academico por ciclos, kardex e interinatos.
+
+Resultado esperado:
+- El alumno se mantiene como registro unico.
+- Las inscripciones historicas conservan ciclo/grado/grupo.
+- Las boletas historicas se protegen con kardex congelado.
+- La materia no se pierde aunque cambie el maestro.
+- No se permite desactivar docente con asignaciones activas.
+- No se permite eliminar/desactivar asignacion con datos academicos.
