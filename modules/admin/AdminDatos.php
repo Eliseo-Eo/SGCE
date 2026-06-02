@@ -49,6 +49,10 @@ if (!empty($CicloActivo['FechaInicio']) && !empty($CicloActivo['FechaFin'])) {
 }
 $CicloFechaInicio = $CicloActivo['FechaInicio'] ?? date('Y-01-01');
 $CicloFechaFin = $CicloActivo['FechaFin'] ?? date('Y-12-31');
+$OfertaActiva = SgceOfertaActiva($Pdo);
+$OfertaActivaId = (int)($OfertaActiva['Id'] ?? 0);
+$EtapasAcademicas = $OfertaActivaId > 0 ? SgceEtapasAcademicasListar($Pdo, $OfertaActivaId, true) : [];
+$CarrerasActivas = !empty($OfertaActiva['UsaCarreras']) ? SgceCarrerasListar($Pdo, true) : [];
 
 $NecesitaGruposSelect = in_array($TabActual, ['expedientes', 'alumnos', 'asignaciones'], true);
 $NecesitaMaestrosSelect = ($TabActual === 'asignaciones');

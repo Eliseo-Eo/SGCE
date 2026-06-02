@@ -95,6 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $PeriodoDos = ConfigNormalizar($_POST['PeriodoDos'] ?? '', true);
         $PeriodoTres = ConfigNormalizar($_POST['PeriodoTres'] ?? '', true);
         $PlaneacionesCantidad = max(1, min(12, (int)($_POST['PlaneacionesCantidad'] ?? 1)));
+        $NivelEducativo = SgceNivelEducativoValido((string)($_POST['NivelEducativo'] ?? 'SECUNDARIA'));
+        $TipoPeriodizacion = SgceTipoPeriodizacionValido((string)($_POST['TipoPeriodizacion'] ?? 'ANUAL'));
+        $TotalEtapas = max(1, min(20, (int)($_POST['TotalEtapas'] ?? 3)));
+        $UsaCarreras = !empty($_POST['UsaCarreras']) || SgceRequiereCarrerasPorDefecto($NivelEducativo, $TipoPeriodizacion);
+        $CarrerasIniciales = ConfigNormalizar($_POST['CarrerasIniciales'] ?? '', true);
+        $NombreOfertaAcademica = ConfigNormalizar($_POST['NombreOfertaAcademica'] ?? ($NivelEducativo . ' ' . $TipoPeriodizacion), true);
 
         if ($NombreEscuela === '' || ConfigLongitud($NombreEscuela) < 3) { throw new Exception('Escribe el nombre oficial de la escuela.'); }
         if ($ClaveCentroTrabajo !== '' && !preg_match('/^[A-Z0-9-]{3,30}$/', $ClaveCentroTrabajo)) { throw new Exception('La CCT / clave solo debe usar letras, números o guion.'); }
@@ -111,6 +117,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (count(array_unique([$PeriodoUno, $PeriodoDos, $PeriodoTres])) !== 3) { throw new Exception('Los periodos no pueden repetirse.'); }
         if ($PlaneacionesCantidad < 1 || $PlaneacionesCantidad > 12) { throw new Exception('La cantidad de planeaciones debe estar entre 1 y 12.'); }
+        if ($TotalEtapas < 1 || $TotalEtapas > 20) { throw new Exception('La cantidad de etapas académicas debe estar entre 1 y 20.'); }
+        if ($NombreOfertaAcademica === '' || ConfigLongitud($NombreOfertaAcademica) > 140) { throw new Exception('Escribe un nombre válido para la oferta educativa.'); }
+        if ($UsaCarreras && $CarrerasIniciales === '' && count(SgceCarrerasListar($Pdo, true)) === 0) { throw new Exception('Si activas carreras/programas, registra al menos una carrera inicial.'); }
+        $OfertaActualValidar = SgceOfertaActiva($Pdo);
+        if ($OfertaActualValidar) {
+            $StmtGruposOferta = $Pdo->prepare('SELECT COUNT(*) FROM Grupos WHERE OfertaId = ?');
+            $StmtGruposOferta->execute([(int)$OfertaActualValidar['Id']]);
+            $TieneGruposOferta = (int)$StmtGruposOferta->fetchColumn() > 0;
+            $CambioEstructura = (string)$OfertaActualValidar['NivelEducativo'] !== $NivelEducativo
+                || (string)$OfertaActualValidar['TipoPeriodizacion'] !== $TipoPeriodizacion
+                || (int)$OfertaActualValidar['TotalEtapas'] !== $TotalEtapas
+                || (int)$OfertaActualValidar['UsaCarreras'] !== ($UsaCarreras ? 1 : 0);
+            if ($TieneGruposOferta && $CambioEstructura) {
+                throw new Exception('La estructura académica ya tiene grupos vinculados. Por seguridad no se puede cambiar nivel, periodización, etapas o uso de carreras después de crear grupos. Puedes agregar carreras nuevas en el campo de carreras iniciales.');
+            }
+        }
 
         SgceCrearTablaConfiguracionSiNoExiste($Pdo);
         CrearTablaBitacoraSiNoExiste($Pdo);
@@ -126,7 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'ColorInstitucional' => $ColorInstitucional,
             'SistemaNombre' => 'SGCE',
             'PlaneacionesCantidad' => (string)$PlaneacionesCantidad,
+            'NivelEducativo' => $NivelEducativo,
+            'TipoPeriodizacion' => $TipoPeriodizacion,
+            'TotalEtapas' => (string)$TotalEtapas,
+            'UsaCarreras' => $UsaCarreras ? '1' : '0',
+            'NombreOfertaAcademica' => $NombreOfertaAcademica,
         ]);
+        SgceConfigurarMultiescolarInicial($Pdo, $NivelEducativo, $TipoPeriodizacion, $TotalEtapas, $UsaCarreras, $CarrerasIniciales, $NombreOfertaAcademica);
 
         $CicloActivo = SgceCicloActivo($Pdo);
         $CicloId = (int)($CicloActivo['Id'] ?? 0);
@@ -186,6 +214,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $Config = SgceObtenerConfiguracion($Pdo);
+$OfertaActivaConfig = SgceOfertaActiva($Pdo);
+$NivelEducativoConfig = SgceNivelEducativoValido($Config['NivelEducativo'] ?? ($OfertaActivaConfig['NivelEducativo'] ?? 'SECUNDARIA'));
+$TipoPeriodizacionConfig = SgceTipoPeriodizacionValido($Config['TipoPeriodizacion'] ?? ($OfertaActivaConfig['TipoPeriodizacion'] ?? 'ANUAL'));
+$TotalEtapasConfig = (int)($Config['TotalEtapas'] ?? ($OfertaActivaConfig['TotalEtapas'] ?? 3));
+$UsaCarrerasConfig = !empty($Config['UsaCarreras']) || !empty($OfertaActivaConfig['UsaCarreras']);
+$CarrerasConfig = SgceCarrerasListar($Pdo, true);
+$EtapasConfig = !empty($OfertaActivaConfig['Id']) ? SgceEtapasAcademicasListar($Pdo, (int)$OfertaActivaConfig['Id'], true) : [];
 $CicloActivo = SgceCicloActivo($Pdo);
 $CiclosInactivosMigracion = SgceCiclosInactivosConGrupos($Pdo);
 $CicloOrigenMigracionId = max(0, (int)($_GET['CicloOrigenId'] ?? ($CiclosInactivosMigracion[0]['Id'] ?? 0)));
@@ -261,6 +296,59 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
             </div>
         </section>
 
+        <section class="SgceConfigCard SgceConfigCardWide mt-4">
+            <div class="SgceConfigHead">
+                <span><span class="SgceColorIcon" aria-hidden="true">🧭</span></span>
+                <div>
+                    <h2>Estructura multiescolar</h2>
+                    <p>Define si el sistema trabajará como primaria, secundaria, bachillerato, universidad, maestría, doctorado o curso. La migración usa esta estructura, no reglas fijas.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="SgceFieldLabel">Nombre de la oferta educativa</label>
+                    <input class="form-control FormControl InputUpper" name="NombreOfertaAcademica" value="<?= HConfig($Config['NombreOfertaAcademica'] ?? ($OfertaActivaConfig['Nombre'] ?? 'SECUNDARIA')) ?>" maxlength="140" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="SgceFieldLabel">Nivel educativo</label>
+                    <select name="NivelEducativo" class="form-select FormControl" required>
+                        <?php foreach(SgceNivelEducativoOpciones() as $ClaveNivel => $TextoNivel): ?>
+                            <option value="<?= HConfig($ClaveNivel) ?>" <?= $NivelEducativoConfig === $ClaveNivel ? 'selected' : '' ?>><?= HConfig($TextoNivel) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="SgceFieldLabel">Organización académica</label>
+                    <select name="TipoPeriodizacion" class="form-select FormControl" required>
+                        <?php foreach(SgceTipoPeriodizacionOpciones() as $ClaveTipo => $TextoTipo): ?>
+                            <option value="<?= HConfig($ClaveTipo) ?>" <?= $TipoPeriodizacionConfig === $ClaveTipo ? 'selected' : '' ?>><?= HConfig($TextoTipo) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="SgceFieldLabel">Cantidad de años / semestres / etapas</label>
+                    <input class="form-control FormControl InputDigits" name="TotalEtapas" value="<?= HConfig((string)$TotalEtapasConfig) ?>" min="1" max="20" maxlength="2" inputmode="numeric" required>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <label class="form-check fw-semibold">
+                        <input class="form-check-input" type="checkbox" name="UsaCarreras" value="1" <?= $UsaCarrerasConfig ? 'checked' : '' ?>> Usa carreras / programas
+                    </label>
+                </div>
+                <div class="col-12">
+                    <label class="SgceFieldLabel">Carreras iniciales opcionales</label>
+                    <textarea class="form-control FormControl InputUpper" name="CarrerasIniciales" rows="2" placeholder="Ejemplo: INFORMÁTICA, CONTABILIDAD, ENFERMERÍA"><?php if (!empty($CarrerasConfig)) { echo HConfig(implode(', ', array_column($CarrerasConfig, 'Nombre'))); } ?></textarea>
+                    <small class="text-muted fw-semibold">En primaria/secundaria puedes dejarlo vacío. En universidad, maestría, doctorado o bachilleratos técnicos puedes capturar carreras separadas por coma.</small>
+                </div>
+                <?php if (!empty($EtapasConfig)): ?>
+                <div class="col-12">
+                    <div class="alert alert-light border rounded-4 mb-0"><strong>Etapas activas:</strong>
+                        <?= HConfig(implode(' → ', array_map(static fn($E) => $E['Nombre'], $EtapasConfig))) ?> → EGRESADO
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </section>
+
         <section class="SgceConfigActions SgceConfigActionsInline">
             <div>
                 <strong><i class="fa-solid fa-circle-info"></i> Cambios globales</strong>
@@ -303,7 +391,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
             <span><span class="SgceColorIcon" aria-hidden="true">🔁</span></span>
             <div>
                 <h2>Migración de ciclo escolar</h2>
-                <p>Promueve alumnos conservando historial: 1° pasa a 2°, 2° pasa a 3° y 3° queda egresado. Antes de mover alumnos congela su kardex para proteger boletas históricas. Solo permite migrar desde ciclos cerrados/inactivos hacia el ciclo activo.</p>
+                <p>Promueve alumnos conservando historial según la estructura académica configurada: primaria, secundaria, bachillerato, universidad, posgrado o cursos. Antes de mover alumnos congela su kardex para proteger boletas históricas. Solo permite migrar desde ciclos cerrados/inactivos hacia el ciclo activo.</p>
             </div>
         </div>
 
@@ -335,7 +423,7 @@ unset($_SESSION['MensajeConfiguracion'], $_SESSION['MensajeConfiguracionTipo']);
                     <?= CampoCsrf() ?>
                     <input type="hidden" name="MigrarGrupoAcademico" value="1">
                     <h5 class="fw-bold mb-2"><i class="fa-solid fa-users-viewfinder me-2"></i>Migrar un grupo</h5>
-                    <p class="text-muted small fw-semibold">Ejemplo: 1B del ciclo cerrado se convertirá en 2B del ciclo activo. Si es 3°, se marca como egresado.</p>
+                    <p class="text-muted small fw-semibold">Ejemplo: un grupo de la etapa anterior pasa a la siguiente etapa configurada. Si está en la última etapa, queda como egresado.</p>
                     <label class="SgceFieldLabel">Grupo origen</label>
                     <select name="GrupoOrigenId" class="form-select FormControl mb-3" required <?= empty($GruposMigracion) ? 'disabled' : '' ?>>
                         <?php if(empty($GruposMigracion)): ?>

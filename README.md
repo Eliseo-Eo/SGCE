@@ -1,3 +1,9 @@
+# SGCE Version 1.0.2
+
+Sistema Gestor de Control Escolar con soporte multiescolar, ciclos escolares, kardex histórico, interinatos docentes, boletas, asistencia, calificaciones, reportes e importación.
+
+Consulta `docs/SGCE_VERSION_1_0_2_MULTIESCOLAR.md` para conocer el nuevo modelo de primaria/secundaria/bachillerato/universidad/posgrado.
+
 # SGCE - Sistema Gestor de Control Escolar
 
 Versión: **1.0.1**

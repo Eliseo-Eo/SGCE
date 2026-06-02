@@ -565,18 +565,34 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                                 <input type="hidden" name="AltaGrupo">
                                 <input type="hidden" name="Tab" value="grupos">
 
+                                <?php if (!empty($EtapasAcademicas)): ?>
                                 <div class="MaestrosFieldGroup GruposFieldGroup">
-                                    <label>Grado</label>
-                                    <input type="text"
-                                           name="Grado"
-                                           maxlength="20"
-                                           class="form-control form-control-sm MaestrosInput GruposInput InputDigits"
-                                           placeholder="GRADO (EJ: 1)"
-                                           required
-                                           inputmode="numeric"
-                                           pattern="^\d+$"
-                                           autocomplete="off">
+                                    <label>Etapa académica</label>
+                                    <select name="EtapaId" class="form-select form-select-sm MaestrosInput GruposInput" required>
+                                        <option value="">SELECCIONA...</option>
+                                        <?php foreach($EtapasAcademicas as $Et): ?>
+                                            <option value="<?= (int)$Et['Id'] ?>"><?= htmlspecialchars($Et['Nombre'], ENT_QUOTES, 'UTF-8') ?><?= !empty($Et['EsTerminal']) ? ' · TERMINAL' : '' ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
+                                <?php else: ?>
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
+                                    <label>Grado / semestre</label>
+                                    <input type="text" name="Grado" maxlength="40" class="form-control form-control-sm MaestrosInput GruposInput InputUpper" placeholder="EJ: 1, 1 SEMESTRE, MÓDULO 1" required autocomplete="off">
+                                </div>
+                                <?php endif; ?>
+
+                                <?php if (!empty($OfertaActiva['UsaCarreras'])): ?>
+                                <div class="MaestrosFieldGroup GruposFieldGroup">
+                                    <label>Carrera / programa</label>
+                                    <select name="CarreraId" class="form-select form-select-sm MaestrosInput GruposInput" required>
+                                        <option value="">SELECCIONA CARRERA...</option>
+                                        <?php foreach($CarrerasActivas as $Ca): ?>
+                                            <option value="<?= (int)$Ca['Id'] ?>"><?= htmlspecialchars($Ca['Nombre'], ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <?php endif; ?>
 
                                 <div class="MaestrosFieldGroup GruposFieldGroup">
                                     <label>Grupo</label>
@@ -651,7 +667,8 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                             <table class="table table-hover text-center align-middle" id="TableGrupos">
                                 <thead>
                                     <tr>
-                                        <th>Grado</th>
+                                        <th>Etapa</th>
+                                        <?php if (!empty($OfertaActiva['UsaCarreras'])): ?><th>Carrera</th><?php endif; ?>
                                         <th>Grupo</th>
                                         <th>Turno</th>
                                         <th class="text-center">Calif.</th>
@@ -664,7 +681,8 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                                 <tbody>
                                     <?php foreach($GruposTabla as $G): ?>
                                     <tr>
-                                        <td class="searchable fw-bold"><?= htmlspecialchars($G['Grado']) ?></td>
+                                        <td class="searchable fw-bold"><?= htmlspecialchars($G['EtapaNombre'] ?? $G['Grado']) ?></td>
+                                        <?php if (!empty($OfertaActiva['UsaCarreras'])): ?><td class="searchable"><?= htmlspecialchars($G['CarreraNombre'] ?? 'SIN CARRERA') ?></td><?php endif; ?>
                                         <td class="searchable"><span class="GruposGrupoBadge"><?= htmlspecialchars($G['Grupo']) ?></span></td>
 
                                         <td class="searchable">
@@ -747,14 +765,26 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
                                     <input type="hidden" name="Tab" value="grupos">
                                     <input type="hidden" name="Id" value="<?= $G['Id'] ?>">
 
-                                    <label class="small text-muted">Grado</label>
-                                    <input type="text"
-                                           name="Grado"
-                                           value="<?= htmlspecialchars($G['Grado']) ?>"
-                                           class="form-control form-control-sm mb-2 InputDigits"
-                                           required
-                                           inputmode="numeric"
-                                           pattern="^\d+$">
+                                    <?php if (!empty($EtapasAcademicas)): ?>
+                                    <label class="small text-muted">Etapa académica</label>
+                                    <select name="EtapaId" class="form-select form-select-sm mb-2" required>
+                                        <?php foreach($EtapasAcademicas as $Et): ?>
+                                            <option value="<?= (int)$Et['Id'] ?>" <?= (int)($G['EtapaId'] ?? 0) === (int)$Et['Id'] ? 'selected' : '' ?>><?= htmlspecialchars($Et['Nombre'], ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php else: ?>
+                                    <label class="small text-muted">Grado / semestre</label>
+                                    <input type="text" name="Grado" value="<?= htmlspecialchars($G['Grado']) ?>" class="form-control form-control-sm mb-2 InputUpper" required maxlength="40">
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($OfertaActiva['UsaCarreras'])): ?>
+                                    <label class="small text-muted">Carrera / programa</label>
+                                    <select name="CarreraId" class="form-select form-select-sm mb-2" required>
+                                        <?php foreach($CarrerasActivas as $Ca): ?>
+                                            <option value="<?= (int)$Ca['Id'] ?>" <?= (int)($G['CarreraId'] ?? 0) === (int)$Ca['Id'] ? 'selected' : '' ?>><?= htmlspecialchars($Ca['Nombre'], ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php endif; ?>
 
                                     <label class="small text-muted">Grupo</label>
                                     <input type="text"

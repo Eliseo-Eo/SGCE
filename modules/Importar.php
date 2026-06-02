@@ -487,9 +487,15 @@ if (isset($_POST['ImportarGrupos'])) {
         RedirectAdminImportar('grupos', 'Primero configura un ciclo escolar activo.', true);
     }
 
-    $Check = $Pdo->prepare("SELECT Id, Activo FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1");
-    $StmtReactivar = $Pdo->prepare("UPDATE Grupos SET Activo = 1 WHERE Id = ?");
-    $Stmt = $Pdo->prepare("INSERT INTO Grupos (CicloId, Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, ?, 1)");
+    $OfertaImportacion = SgceOfertaActiva($Pdo);
+    $OfertaImportacionId = (int)($OfertaImportacion['Id'] ?? 0);
+    $EtapasImportacion = $OfertaImportacionId > 0 ? SgceEtapasAcademicasListar($Pdo, $OfertaImportacionId, true) : [];
+    $MapaEtapasPorOrden = [];
+    $MapaEtapasPorNombre = [];
+    foreach ($EtapasImportacion as $EtImp) {
+        $MapaEtapasPorOrden[(int)$EtImp['Orden']] = $EtImp;
+        $MapaEtapasPorNombre[SgceNormalizarMayusculas($EtImp['Nombre'])] = $EtImp;
+    }
 
     try {
         $Pdo->beginTransaction();
@@ -514,30 +520,32 @@ if (isset($_POST['ImportarGrupos'])) {
                 continue;
             }
 
-            $Grado = trim($Data[0]);
+            $Grado = SgceNormalizarEtapaAcademica($Data[0]);
             $Grupo = SgceNormalizarGrupo($Data[1]);
             $Turno = SgceNormalizarTurno($Data[2]);
+            $CarreraId = 0;
+            if (!empty($OfertaImportacion['UsaCarreras'])) {
+                $CarreraNombre = SgceNormalizarCarrera($Data[3] ?? '');
+                if ($CarreraNombre === '') { $Invalidos++; continue; }
+                $CarreraId = SgceCarreraCrearOReactivar($Pdo, $CarreraNombre);
+            }
 
-            if (!SgceValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
+            $EtapaId = 0;
+            if ($Grado !== '' && !empty($EtapasImportacion)) {
+                if (ctype_digit($Grado) && isset($MapaEtapasPorOrden[(int)$Grado])) { $EtapaId = (int)$MapaEtapasPorOrden[(int)$Grado]['Id']; $Grado = (string)$MapaEtapasPorOrden[(int)$Grado]['Nombre']; }
+                elseif (isset($MapaEtapasPorNombre[SgceNormalizarMayusculas($Grado)])) { $EtapaId = (int)$MapaEtapasPorNombre[SgceNormalizarMayusculas($Grado)]['Id']; $Grado = (string)$MapaEtapasPorNombre[SgceNormalizarMayusculas($Grado)]['Nombre']; }
+            }
+
+            if (!SgceValidarGrado($Grado) || $Grupo === '' || $Turno === '' || (!empty($EtapasImportacion) && $EtapaId <= 0)) {
                 $Invalidos++;
                 continue;
             }
 
-            $Check->execute([$CicloActivoImportacionId, $Grado, $Grupo, $Turno]);
-            $GrupoExistente = $Check->fetch();
-            if ($GrupoExistente) {
-                if ((int)$GrupoExistente['Activo'] === 1) {
-                    $Duplicados++;
-                    continue;
-                }
-
-                $StmtReactivar->execute([(int)$GrupoExistente['Id']]);
-                $Reactivados++;
-                continue;
-            }
-
-            $Stmt->execute([$CicloActivoImportacionId, $Grado, $Grupo, $Turno]);
-            $Insertados++;
+            $Antes = SgceGrupoObtenerPorCicloEstructura($Pdo, $CicloActivoImportacionId, $OfertaImportacionId, $CarreraId > 0 ? $CarreraId : null, $EtapaId, $Grupo, $Turno);
+            $GrupoIdNuevo = SgceGrupoCrearOReactivar($Pdo, $CicloActivoImportacionId, $Grado, $Grupo, $Turno, $EtapaId, $CarreraId, $OfertaImportacionId);
+            if ($Antes && (int)$Antes['Activo'] === 1) { $Duplicados++; }
+            elseif ($Antes) { $Reactivados++; }
+            else { $Insertados++; }
         }
 
         $Pdo->commit();

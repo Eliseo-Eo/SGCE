@@ -214,8 +214,16 @@ function SgceNormalizarGrupo($Valor) {
 }
 
 function SgceValidarGrado($Valor) {
-    $Valor = trim((string)$Valor);
-    return $Valor !== '' && ctype_digit($Valor);
+    // En SGCE 1.0.2 el campo Grado funciona como etiqueta académica:
+    // puede representar grados, semestres, cuatrimestres, módulos o niveles.
+    $Valor = SgceNormalizarMayusculas($Valor);
+    return $Valor !== '' && SgceLongitudTexto($Valor) <= 40 && preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ .º°\-]+$/u', $Valor) === 1;
+}
+
+function SgceNormalizarEtapaAcademica($Valor) {
+    $Valor = SgceNormalizarMayusculas($Valor);
+    $Valor = str_replace([' SEMESTRE', ' CUATRIMESTRE', ' AÑO'], [' SEMESTRE', ' CUATRIMESTRE', ' AÑO'], $Valor);
+    return preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ .º°\-]{1,40}$/u', $Valor) ? $Valor : '';
 }
 
 function SgceNormalizarTurno($Valor) {
@@ -925,6 +933,242 @@ function SgceDbExecSilencioso(PDO $Pdo, string $Sql): void {
     try { $Pdo->exec($Sql); } catch (Exception $E) {}
 }
 
+
+function SgceNivelEducativoOpciones(): array {
+    return [
+        'PRIMARIA' => 'Primaria',
+        'SECUNDARIA' => 'Secundaria',
+        'BACHILLERATO' => 'Bachillerato / preparatoria',
+        'UNIVERSIDAD' => 'Universidad / licenciatura',
+        'MAESTRIA' => 'Maestría',
+        'DOCTORADO' => 'Doctorado',
+        'CURSO' => 'Curso, diplomado o capacitación',
+    ];
+}
+
+function SgceTipoPeriodizacionOpciones(): array {
+    return [
+        'ANUAL' => 'Años / grados',
+        'SEMESTRAL' => 'Semestres',
+        'CUATRIMESTRAL' => 'Cuatrimestres',
+        'MODULAR' => 'Módulos / niveles',
+    ];
+}
+
+function SgceNivelEducativoValido(string $Nivel): string {
+    $Nivel = SgceNormalizarMayusculas($Nivel);
+    return array_key_exists($Nivel, SgceNivelEducativoOpciones()) ? $Nivel : 'SECUNDARIA';
+}
+
+function SgceTipoPeriodizacionValido(string $Tipo): string {
+    $Tipo = SgceNormalizarMayusculas($Tipo);
+    return array_key_exists($Tipo, SgceTipoPeriodizacionOpciones()) ? $Tipo : 'ANUAL';
+}
+
+function SgceRequiereCarrerasPorDefecto(string $Nivel, string $Tipo): bool {
+    $Nivel = SgceNivelEducativoValido($Nivel);
+    return in_array($Nivel, ['UNIVERSIDAD','MAESTRIA','DOCTORADO'], true);
+}
+
+function SgceEtiquetaEtapaAcademica(int $Orden, string $Tipo): string {
+    $Tipo = SgceTipoPeriodizacionValido($Tipo);
+    if ($Tipo === 'SEMESTRAL') { return $Orden . ' SEMESTRE'; }
+    if ($Tipo === 'CUATRIMESTRAL') { return $Orden . ' CUATRIMESTRE'; }
+    if ($Tipo === 'MODULAR') { return 'MÓDULO ' . $Orden; }
+    return (string)$Orden;
+}
+
+function SgceNormalizarCarrera($Valor): string {
+    $Valor = SgceNormalizarMayusculas($Valor);
+    return preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ .º°_\-\/]{1,160}$/u', $Valor) ? $Valor : '';
+}
+
+function SgceAsegurarTablasMultiescolar(PDO $Pdo): void {
+    if (!SgceDbTablaExiste($Pdo, 'OfertasEducativas')) {
+        $Pdo->exec("CREATE TABLE OfertasEducativas (
+            Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            Nombre VARCHAR(140) NOT NULL,
+            NivelEducativo ENUM('PRIMARIA','SECUNDARIA','BACHILLERATO','UNIVERSIDAD','MAESTRIA','DOCTORADO','CURSO') NOT NULL DEFAULT 'SECUNDARIA',
+            TipoPeriodizacion ENUM('ANUAL','SEMESTRAL','CUATRIMESTRAL','MODULAR') NOT NULL DEFAULT 'ANUAL',
+            TotalEtapas INT UNSIGNED NOT NULL DEFAULT 3,
+            UsaCarreras TINYINT(1) NOT NULL DEFAULT 0,
+            Activo TINYINT(1) NOT NULL DEFAULT 1,
+            FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unico_oferta_nombre (Nombre),
+            INDEX idx_oferta_activa (Activo, NivelEducativo, TipoPeriodizacion)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (!SgceDbTablaExiste($Pdo, 'Carreras')) {
+        $Pdo->exec("CREATE TABLE Carreras (
+            Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            Nombre VARCHAR(160) NOT NULL,
+            Clave VARCHAR(30) DEFAULT NULL,
+            Activo TINYINT(1) NOT NULL DEFAULT 1,
+            FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unico_carrera_nombre (Nombre),
+            INDEX idx_carreras_activo_nombre (Activo, Nombre)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (!SgceDbTablaExiste($Pdo, 'EtapasAcademicas')) {
+        $Pdo->exec("CREATE TABLE EtapasAcademicas (
+            Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            OfertaId INT UNSIGNED NOT NULL,
+            Nombre VARCHAR(40) NOT NULL,
+            Orden INT UNSIGNED NOT NULL,
+            EsTerminal TINYINT(1) NOT NULL DEFAULT 0,
+            Activo TINYINT(1) NOT NULL DEFAULT 1,
+            FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_etapas_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+            UNIQUE KEY unico_etapa_oferta_orden (OfertaId, Orden),
+            UNIQUE KEY unico_etapa_oferta_nombre (OfertaId, Nombre),
+            INDEX idx_etapas_oferta_activa_orden (OfertaId, Activo, Orden)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+    if (SgceDbTablaExiste($Pdo, 'Grupos')) {
+        if (!SgceDbColumnaExiste($Pdo, 'Grupos', 'OfertaId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD COLUMN OfertaId INT UNSIGNED NULL AFTER CicloId'); }
+        if (!SgceDbColumnaExiste($Pdo, 'Grupos', 'CarreraId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD COLUMN CarreraId INT UNSIGNED NULL AFTER OfertaId'); }
+        if (!SgceDbColumnaExiste($Pdo, 'Grupos', 'CarreraKey')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD COLUMN CarreraKey INT UNSIGNED GENERATED ALWAYS AS (IFNULL(CarreraId, 0)) STORED AFTER CarreraId'); }
+        if (!SgceDbColumnaExiste($Pdo, 'Grupos', 'EtapaId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD COLUMN EtapaId INT UNSIGNED NULL AFTER CarreraKey'); }
+        if (SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_ciclo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos DROP INDEX unico_grupo_ciclo_turno'); }
+        if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_multiescolar')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD UNIQUE KEY unico_grupo_multiescolar (CicloId, OfertaId, CarreraKey, EtapaId, Grupo, Turno)'); }
+        if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'idx_grupos_multiescolar')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD INDEX idx_grupos_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Turno, Grupo, Activo)'); }
+        if (!SgceDbFkExiste($Pdo, 'Grupos', 'fk_grupos_oferta')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD CONSTRAINT fk_grupos_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+        if (!SgceDbFkExiste($Pdo, 'Grupos', 'fk_grupos_carrera')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD CONSTRAINT fk_grupos_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+        if (!SgceDbFkExiste($Pdo, 'Grupos', 'fk_grupos_etapa')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD CONSTRAINT fk_grupos_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+    }
+    if (SgceDbTablaExiste($Pdo, 'AlumnoInscripciones')) {
+        if (!SgceDbColumnaExiste($Pdo, 'AlumnoInscripciones', 'OfertaId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD COLUMN OfertaId INT UNSIGNED NULL AFTER GrupoId'); }
+        if (!SgceDbColumnaExiste($Pdo, 'AlumnoInscripciones', 'CarreraId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD COLUMN CarreraId INT UNSIGNED NULL AFTER OfertaId'); }
+        if (!SgceDbColumnaExiste($Pdo, 'AlumnoInscripciones', 'EtapaId')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD COLUMN EtapaId INT UNSIGNED NULL AFTER CarreraId'); }
+        SgceDbExecSilencioso($Pdo, 'UPDATE AlumnoInscripciones AI INNER JOIN Grupos G ON G.Id = AI.GrupoId SET AI.OfertaId = G.OfertaId, AI.CarreraId = G.CarreraId, AI.EtapaId = G.EtapaId WHERE AI.OfertaId IS NULL OR AI.EtapaId IS NULL');
+        if (!SgceDbIndiceExiste($Pdo, 'AlumnoInscripciones', 'idx_inscripciones_multiescolar')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD INDEX idx_inscripciones_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Estado, GrupoId, AlumnoId)'); }
+        if (!SgceDbFkExiste($Pdo, 'AlumnoInscripciones', 'fk_inscripciones_oferta')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD CONSTRAINT fk_inscripciones_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+        if (!SgceDbFkExiste($Pdo, 'AlumnoInscripciones', 'fk_inscripciones_carrera')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD CONSTRAINT fk_inscripciones_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+        if (!SgceDbFkExiste($Pdo, 'AlumnoInscripciones', 'fk_inscripciones_etapa')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE AlumnoInscripciones ADD CONSTRAINT fk_inscripciones_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+    }
+    if (SgceDbTablaExiste($Pdo, 'KardexAlumno')) {
+        if (!SgceDbColumnaExiste($Pdo, 'KardexAlumno', 'OfertaNombreSnapshot')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE KardexAlumno ADD COLUMN OfertaNombreSnapshot VARCHAR(140) DEFAULT NULL AFTER GrupoSnapshot'); }
+        if (!SgceDbColumnaExiste($Pdo, 'KardexAlumno', 'CarreraNombreSnapshot')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE KardexAlumno ADD COLUMN CarreraNombreSnapshot VARCHAR(160) DEFAULT NULL AFTER OfertaNombreSnapshot'); }
+        if (!SgceDbColumnaExiste($Pdo, 'KardexAlumno', 'EtapaNombreSnapshot')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE KardexAlumno ADD COLUMN EtapaNombreSnapshot VARCHAR(40) DEFAULT NULL AFTER CarreraNombreSnapshot'); }
+    }
+}
+
+function SgceOfertaActiva(PDO $Pdo) {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Stmt = $Pdo->query("SELECT * FROM OfertasEducativas WHERE Activo = 1 ORDER BY Id ASC LIMIT 1");
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceEtapasAcademicasListar(PDO $Pdo, int $OfertaId = 0, bool $SoloActivas = true): array {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    if ($OfertaId <= 0) { $Oferta = SgceOfertaActiva($Pdo); $OfertaId = (int)($Oferta['Id'] ?? 0); }
+    if ($OfertaId <= 0) { return []; }
+    $Where = $SoloActivas ? ' AND Activo = 1' : '';
+    $Stmt = $Pdo->prepare("SELECT Id, OfertaId, Nombre, Orden, EsTerminal, Activo FROM EtapasAcademicas WHERE OfertaId = ?{$Where} ORDER BY Orden ASC");
+    $Stmt->execute([$OfertaId]);
+    return $Stmt->fetchAll();
+}
+
+function SgceEtapaAcademicaPorId(PDO $Pdo, int $EtapaId) {
+    if ($EtapaId <= 0) { return null; }
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Stmt = $Pdo->prepare('SELECT Id, OfertaId, Nombre, Orden, EsTerminal, Activo FROM EtapasAcademicas WHERE Id = ? LIMIT 1');
+    $Stmt->execute([$EtapaId]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceEtapaSiguiente(PDO $Pdo, int $EtapaId) {
+    $Etapa = SgceEtapaAcademicaPorId($Pdo, $EtapaId);
+    if (!$Etapa || (int)$Etapa['EsTerminal'] === 1) { return null; }
+    $Stmt = $Pdo->prepare('SELECT Id, OfertaId, Nombre, Orden, EsTerminal, Activo FROM EtapasAcademicas WHERE OfertaId = ? AND Orden > ? AND Activo = 1 ORDER BY Orden ASC LIMIT 1');
+    $Stmt->execute([(int)$Etapa['OfertaId'], (int)$Etapa['Orden']]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceCarrerasListar(PDO $Pdo, bool $SoloActivas = true): array {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Where = $SoloActivas ? 'WHERE Activo = 1' : '';
+    return $Pdo->query("SELECT Id, Nombre, Clave, Activo FROM Carreras {$Where} ORDER BY Nombre ASC")->fetchAll();
+}
+
+function SgceCarreraPorId(PDO $Pdo, int $CarreraId) {
+    if ($CarreraId <= 0) { return null; }
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Stmt = $Pdo->prepare('SELECT Id, Nombre, Clave, Activo FROM Carreras WHERE Id = ? LIMIT 1');
+    $Stmt->execute([$CarreraId]);
+    return $Stmt->fetch() ?: null;
+}
+
+function SgceCarreraCrearOReactivar(PDO $Pdo, string $Nombre, string $Clave = ''): int {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Nombre = SgceNormalizarCarrera($Nombre);
+    $Clave = SgceNormalizarMayusculas($Clave);
+    if ($Nombre === '') { return 0; }
+    $Stmt = $Pdo->prepare('SELECT Id, Activo FROM Carreras WHERE Nombre = ? LIMIT 1');
+    $Stmt->execute([$Nombre]);
+    $Carrera = $Stmt->fetch();
+    if ($Carrera) {
+        $Pdo->prepare('UPDATE Carreras SET Clave = NULLIF(?, \'\'), Activo = 1 WHERE Id = ?')->execute([$Clave, (int)$Carrera['Id']]);
+        return (int)$Carrera['Id'];
+    }
+    $Pdo->prepare('INSERT INTO Carreras (Nombre, Clave, Activo) VALUES (?, NULLIF(?, \'\'), 1)')->execute([$Nombre, $Clave]);
+    return (int)$Pdo->lastInsertId();
+}
+
+function SgceCrearOfertaAcademica(PDO $Pdo, string $Nivel, string $Tipo, int $TotalEtapas, bool $UsaCarreras, string $NombreOferta = ''): int {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Nivel = SgceNivelEducativoValido($Nivel);
+    $Tipo = SgceTipoPeriodizacionValido($Tipo);
+    $TotalEtapas = max(1, min(20, $TotalEtapas));
+    $NombreOferta = SgceNormalizarMayusculas($NombreOferta !== '' ? $NombreOferta : $Nivel . ' ' . $Tipo);
+    $Pdo->prepare('UPDATE OfertasEducativas SET Activo = 0')->execute();
+    $StmtExiste = $Pdo->prepare('SELECT Id FROM OfertasEducativas WHERE Nombre = ? LIMIT 1');
+    $StmtExiste->execute([$NombreOferta]);
+    $OfertaId = (int)$StmtExiste->fetchColumn();
+    if ($OfertaId > 0) {
+        $Pdo->prepare('UPDATE OfertasEducativas SET NivelEducativo = ?, TipoPeriodizacion = ?, TotalEtapas = ?, UsaCarreras = ?, Activo = 1 WHERE Id = ?')->execute([$Nivel, $Tipo, $TotalEtapas, $UsaCarreras ? 1 : 0, $OfertaId]);
+    } else {
+        $Pdo->prepare('INSERT INTO OfertasEducativas (Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, UsaCarreras, Activo) VALUES (?, ?, ?, ?, ?, 1)')->execute([$NombreOferta, $Nivel, $Tipo, $TotalEtapas, $UsaCarreras ? 1 : 0]);
+        $OfertaId = (int)$Pdo->lastInsertId();
+    }
+    $Pdo->prepare('UPDATE EtapasAcademicas SET Activo = 0, EsTerminal = 0 WHERE OfertaId = ?')->execute([$OfertaId]);
+    $StmtBuscar = $Pdo->prepare('SELECT Id FROM EtapasAcademicas WHERE OfertaId = ? AND Orden = ? LIMIT 1');
+    $StmtActualizar = $Pdo->prepare('UPDATE EtapasAcademicas SET Nombre = ?, EsTerminal = ?, Activo = 1 WHERE Id = ?');
+    $StmtInsertar = $Pdo->prepare('INSERT INTO EtapasAcademicas (OfertaId, Nombre, Orden, EsTerminal, Activo) VALUES (?, ?, ?, ?, 1)');
+    for ($Orden = 1; $Orden <= $TotalEtapas; $Orden++) {
+        $Nombre = SgceEtiquetaEtapaAcademica($Orden, $Tipo);
+        $Terminal = $Orden === $TotalEtapas ? 1 : 0;
+        $StmtBuscar->execute([$OfertaId, $Orden]);
+        $EtapaId = (int)$StmtBuscar->fetchColumn();
+        if ($EtapaId > 0) { $StmtActualizar->execute([$Nombre, $Terminal, $EtapaId]); }
+        else { $StmtInsertar->execute([$OfertaId, $Nombre, $Orden, $Terminal]); }
+    }
+    return $OfertaId;
+}
+
+function SgceConfigurarMultiescolarInicial(PDO $Pdo, string $Nivel, string $Tipo, int $TotalEtapas, bool $UsaCarreras, string $CarrerasTexto = '', string $NombreOferta = ''): int {
+    $OfertaId = SgceCrearOfertaAcademica($Pdo, $Nivel, $Tipo, $TotalEtapas, $UsaCarreras, $NombreOferta);
+    foreach (preg_split('/[,;\n]+/u', (string)$CarrerasTexto) as $CarreraNombre) {
+        $CarreraNombre = SgceNormalizarCarrera($CarreraNombre);
+        if ($CarreraNombre !== '') { SgceCarreraCrearOReactivar($Pdo, $CarreraNombre); }
+    }
+    return $OfertaId;
+}
+
+function SgceGrupoObtenerPorCicloEstructura(PDO $Pdo, int $CicloId, int $OfertaId, ?int $CarreraId, int $EtapaId, string $Grupo, string $Turno) {
+    $Sql = 'SELECT Id, CicloId, OfertaId, CarreraId, EtapaId, Grado, Grupo, Turno, Activo FROM Grupos WHERE CicloId = ? AND OfertaId = ? AND EtapaId = ? AND Grupo = ? AND Turno = ?';
+    $Params = [$CicloId, $OfertaId, $EtapaId, $Grupo, $Turno];
+    if ($CarreraId !== null && $CarreraId > 0) { $Sql .= ' AND CarreraId = ?'; $Params[] = $CarreraId; }
+    else { $Sql .= ' AND CarreraId IS NULL'; }
+    $Sql .= ' LIMIT 1';
+    $Stmt = $Pdo->prepare($Sql);
+    $Stmt->execute($Params);
+    return $Stmt->fetch() ?: null;
+}
+
 function SgceCicloPorId(PDO $Pdo, int $CicloId) {
     $Stmt = $Pdo->prepare('SELECT Id, Nombre, FechaInicio, FechaFin, Activo FROM CiclosEscolares WHERE Id = ? LIMIT 1');
     $Stmt->execute([$CicloId]);
@@ -947,34 +1191,57 @@ function SgceCiclosInactivosConGrupos(PDO $Pdo): array {
 
 function SgceGruposListarPorCiclo(PDO $Pdo, int $CicloId, bool $SoloActivos = true): array {
     if ($CicloId <= 0) { return []; }
+    SgceAsegurarTablasMultiescolar($Pdo);
     $WhereActivo = $SoloActivos ? ' AND G.Activo = 1' : '';
-    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre, C.Activo AS CicloActivo,
+    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.OfertaId, G.CarreraId, G.EtapaId, G.Grado, G.Grupo, G.Turno,
+        C.Nombre AS CicloNombre, C.Activo AS CicloActivo,
+        OE.Nombre AS OfertaNombre, OE.NivelEducativo, OE.TipoPeriodizacion, OE.UsaCarreras,
+        CA.Nombre AS CarreraNombre, EA.Nombre AS EtapaNombre, EA.Orden AS EtapaOrden, EA.EsTerminal,
         (SELECT COUNT(*) FROM AlumnoInscripciones AI WHERE AI.GrupoId = G.Id AND AI.CicloId = G.CicloId AND AI.Estado IN ('INSCRITO','PROMOVIDO','EGRESADO')) AS TotalAlumnos
         FROM Grupos G
         INNER JOIN CiclosEscolares C ON C.Id = G.CicloId
+        LEFT JOIN OfertasEducativas OE ON OE.Id = G.OfertaId
+        LEFT JOIN Carreras CA ON CA.Id = G.CarreraId
+        LEFT JOIN EtapasAcademicas EA ON EA.Id = G.EtapaId
         WHERE G.CicloId = ?{$WhereActivo}
-        ORDER BY G.Turno, CAST(G.Grado AS UNSIGNED), G.Grado, G.Grupo, G.Id");
+        ORDER BY G.Turno, COALESCE(EA.Orden, CAST(G.Grado AS UNSIGNED)), G.Grado, CA.Nombre, G.Grupo, G.Id");
     $Stmt->execute([$CicloId]);
     return $Stmt->fetchAll();
 }
 
 function SgceGrupoObtenerPorId(PDO $Pdo, int $GrupoId) {
-    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.Grado, G.Grupo, G.Turno, G.Activo, C.Nombre AS CicloNombre, C.Activo AS CicloActivo, C.FechaInicio, C.FechaFin
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $Stmt = $Pdo->prepare("SELECT G.Id, G.CicloId, G.OfertaId, G.CarreraId, G.EtapaId, G.Grado, G.Grupo, G.Turno, G.Activo,
+        C.Nombre AS CicloNombre, C.Activo AS CicloActivo, C.FechaInicio, C.FechaFin,
+        OE.Nombre AS OfertaNombre, OE.NivelEducativo, OE.TipoPeriodizacion, OE.UsaCarreras,
+        CA.Nombre AS CarreraNombre, EA.Nombre AS EtapaNombre, EA.Orden AS EtapaOrden, EA.EsTerminal
         FROM Grupos G
         INNER JOIN CiclosEscolares C ON C.Id = G.CicloId
+        LEFT JOIN OfertasEducativas OE ON OE.Id = G.OfertaId
+        LEFT JOIN Carreras CA ON CA.Id = G.CarreraId
+        LEFT JOIN EtapasAcademicas EA ON EA.Id = G.EtapaId
         WHERE G.Id = ? LIMIT 1");
     $Stmt->execute([$GrupoId]);
     return $Stmt->fetch() ?: null;
 }
 
 function SgceGrupoObtenerPorCicloDatos(PDO $Pdo, int $CicloId, string $Grado, string $Grupo, string $Turno) {
-    $Stmt = $Pdo->prepare('SELECT Id, CicloId, Grado, Grupo, Turno, Activo FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1');
+    $Stmt = $Pdo->prepare('SELECT Id, CicloId, OfertaId, CarreraId, EtapaId, Grado, Grupo, Turno, Activo FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? LIMIT 1');
     $Stmt->execute([$CicloId, $Grado, $Grupo, $Turno]);
     return $Stmt->fetch() ?: null;
 }
 
-function SgceGrupoCrearOReactivar(PDO $Pdo, int $CicloId, string $Grado, string $Grupo, string $Turno): int {
-    $Existente = SgceGrupoObtenerPorCicloDatos($Pdo, $CicloId, $Grado, $Grupo, $Turno);
+function SgceGrupoCrearOReactivar(PDO $Pdo, int $CicloId, string $Grado, string $Grupo, string $Turno, int $EtapaId = 0, int $CarreraId = 0, int $OfertaId = 0): int {
+    SgceAsegurarTablasMultiescolar($Pdo);
+    if ($EtapaId > 0) {
+        $Etapa = SgceEtapaAcademicaPorId($Pdo, $EtapaId);
+        if (!$Etapa || (int)$Etapa['Activo'] !== 1) { throw new RuntimeException('La etapa académica seleccionada no existe o está inactiva.'); }
+        $OfertaId = $OfertaId > 0 ? $OfertaId : (int)$Etapa['OfertaId'];
+        $Grado = (string)$Etapa['Nombre'];
+        $Existente = SgceGrupoObtenerPorCicloEstructura($Pdo, $CicloId, $OfertaId, $CarreraId > 0 ? $CarreraId : null, $EtapaId, $Grupo, $Turno);
+    } else {
+        $Existente = SgceGrupoObtenerPorCicloDatos($Pdo, $CicloId, $Grado, $Grupo, $Turno);
+    }
     if ($Existente) {
         if ((int)$Existente['Activo'] !== 1) {
             $Stmt = $Pdo->prepare('UPDATE Grupos SET Activo = 1 WHERE Id = ?');
@@ -982,8 +1249,8 @@ function SgceGrupoCrearOReactivar(PDO $Pdo, int $CicloId, string $Grado, string 
         }
         return (int)$Existente['Id'];
     }
-    $Stmt = $Pdo->prepare('INSERT INTO Grupos (CicloId, Grado, Grupo, Turno, Activo) VALUES (?, ?, ?, ?, 1)');
-    $Stmt->execute([$CicloId, $Grado, $Grupo, $Turno]);
+    $Stmt = $Pdo->prepare('INSERT INTO Grupos (CicloId, OfertaId, CarreraId, EtapaId, Grado, Grupo, Turno, Activo) VALUES (?, NULLIF(?,0), NULLIF(?,0), NULLIF(?,0), ?, ?, ?, 1)');
+    $Stmt->execute([$CicloId, $OfertaId, $CarreraId, $EtapaId, $Grado, $Grupo, $Turno]);
     return (int)$Pdo->lastInsertId();
 }
 
@@ -996,8 +1263,13 @@ function SgceAlumnoTieneInscripcion(PDO $Pdo, int $AlumnoId, int $CicloId): bool
 function SgceAlumnoInscribirEnCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, int $GrupoId, string $Estado = 'INSCRITO'): bool {
     $Estado = in_array($Estado, ['INSCRITO','PROMOVIDO','EGRESADO','BAJA'], true) ? $Estado : 'INSCRITO';
     try {
-        $Stmt = $Pdo->prepare('INSERT INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, Estado) VALUES (?, ?, ?, ?)');
-        $Stmt->execute([$AlumnoId, $CicloId, $GrupoId, $Estado]);
+        SgceAsegurarTablasMultiescolar($Pdo);
+        $Grupo = SgceGrupoObtenerPorId($Pdo, $GrupoId);
+        $OfertaId = (int)($Grupo['OfertaId'] ?? 0);
+        $CarreraId = (int)($Grupo['CarreraId'] ?? 0);
+        $EtapaId = (int)($Grupo['EtapaId'] ?? 0);
+        $Stmt = $Pdo->prepare('INSERT INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, OfertaId, CarreraId, EtapaId, Estado) VALUES (?, ?, ?, NULLIF(?,0), NULLIF(?,0), NULLIF(?,0), ?)');
+        $Stmt->execute([$AlumnoId, $CicloId, $GrupoId, $OfertaId, $CarreraId, $EtapaId, $Estado]);
         return true;
     } catch (PDOException $E) {
         return false;
@@ -1010,7 +1282,7 @@ function SgceAlumnosPorGrupoCiclo(PDO $Pdo, int $GrupoId, int $CicloId, array $E
     $Estados = array_values(array_intersect($Estados, $EstadosPermitidos));
     if (!$Estados) { $Estados = ['INSCRITO']; }
     $Place = implode(',', array_fill(0, count($Estados), '?'));
-    $Stmt = $Pdo->prepare("SELECT A.Id, A.NombreCompleto, AI.GrupoId, G.Grado, G.Grupo, G.Turno, AI.CicloId, AI.Estado
+    $Stmt = $Pdo->prepare("SELECT A.Id, A.NombreCompleto, AI.GrupoId, AI.OfertaId, AI.CarreraId, AI.EtapaId, G.Grado, G.Grupo, G.Turno, AI.CicloId, AI.Estado
         FROM AlumnoInscripciones AI
         INNER JOIN Alumnos A ON A.Id = AI.AlumnoId AND A.Activo = 1
         INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId
@@ -1136,11 +1408,15 @@ function SgceKardexAlumnoExiste(PDO $Pdo, int $AlumnoId, int $CicloId): bool {
 function SgceKardexCongelarAlumnoCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, int $UsuarioId = 0, bool $Forzar = true): bool {
     if ($AlumnoId <= 0 || $CicloId <= 0 || !SgceDbTablaExiste($Pdo, 'KardexAlumno') || !SgceDbTablaExiste($Pdo, 'KardexDetalle')) { return false; }
     $StmtInfo = $Pdo->prepare("SELECT A.Id AS AlumnoId, A.NombreCompleto, AI.GrupoId, AI.Estado, C.Nombre AS CicloNombre,
-            G.Grado, G.Grupo, G.Turno
+            G.Grado, G.Grupo, G.Turno,
+            OE.Nombre AS OfertaNombre, CA.Nombre AS CarreraNombre, EA.Nombre AS EtapaNombre
         FROM AlumnoInscripciones AI
         INNER JOIN Alumnos A ON A.Id = AI.AlumnoId
         INNER JOIN CiclosEscolares C ON C.Id = AI.CicloId
         INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId
+        LEFT JOIN OfertasEducativas OE ON OE.Id = G.OfertaId
+        LEFT JOIN Carreras CA ON CA.Id = G.CarreraId
+        LEFT JOIN EtapasAcademicas EA ON EA.Id = G.EtapaId
         WHERE AI.AlumnoId = ? AND AI.CicloId = ? LIMIT 1");
     $StmtInfo->execute([$AlumnoId, $CicloId]);
     $Info = $StmtInfo->fetch();
@@ -1179,12 +1455,12 @@ function SgceKardexCongelarAlumnoCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, in
         $StmtId->execute([$AlumnoId, $CicloId]);
         $KardexId = (int)$StmtId->fetchColumn();
         if ($KardexId > 0) {
-            $Pdo->prepare('UPDATE KardexAlumno SET GrupoId = ?, CicloNombreSnapshot = ?, GradoSnapshot = ?, GrupoSnapshot = ?, TurnoSnapshot = ?, EstadoFinal = ?, PromedioFinal = ?, GeneradoPor = NULLIF(?,0), FechaGeneracion = CURRENT_TIMESTAMP WHERE Id = ?')
-                ->execute([(int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)$Info['Estado'], $PromedioFinal, $UsuarioId, $KardexId]);
+            $Pdo->prepare('UPDATE KardexAlumno SET GrupoId = ?, CicloNombreSnapshot = ?, GradoSnapshot = ?, GrupoSnapshot = ?, TurnoSnapshot = ?, OfertaNombreSnapshot = ?, CarreraNombreSnapshot = ?, EtapaNombreSnapshot = ?, EstadoFinal = ?, PromedioFinal = ?, GeneradoPor = NULLIF(?,0), FechaGeneracion = CURRENT_TIMESTAMP WHERE Id = ?')
+                ->execute([(int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)($Info['OfertaNombre'] ?? ''), (string)($Info['CarreraNombre'] ?? ''), (string)($Info['EtapaNombre'] ?? $Info['Grado']), (string)$Info['Estado'], $PromedioFinal, $UsuarioId, $KardexId]);
             $Pdo->prepare('DELETE FROM KardexDetalle WHERE KardexId = ?')->execute([$KardexId]);
         } else {
-            $Pdo->prepare('INSERT INTO KardexAlumno (AlumnoId, CicloId, GrupoId, CicloNombreSnapshot, GradoSnapshot, GrupoSnapshot, TurnoSnapshot, EstadoFinal, PromedioFinal, GeneradoPor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?,0))')
-                ->execute([$AlumnoId, $CicloId, (int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)$Info['Estado'], $PromedioFinal, $UsuarioId]);
+            $Pdo->prepare('INSERT INTO KardexAlumno (AlumnoId, CicloId, GrupoId, CicloNombreSnapshot, GradoSnapshot, GrupoSnapshot, TurnoSnapshot, OfertaNombreSnapshot, CarreraNombreSnapshot, EtapaNombreSnapshot, EstadoFinal, PromedioFinal, GeneradoPor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?,0))')
+                ->execute([$AlumnoId, $CicloId, (int)$Info['GrupoId'], (string)$Info['CicloNombre'], (string)$Info['Grado'], (string)$Info['Grupo'], (string)$Info['Turno'], (string)($Info['OfertaNombre'] ?? ''), (string)($Info['CarreraNombre'] ?? ''), (string)($Info['EtapaNombre'] ?? $Info['Grado']), (string)$Info['Estado'], $PromedioFinal, $UsuarioId]);
             $KardexId = (int)$Pdo->lastInsertId();
         }
         $StmtInsDet = $Pdo->prepare('INSERT INTO KardexDetalle (KardexId, MateriaNombreSnapshot, MaestroNombreSnapshot, Parcial1, Parcial2, Parcial3, Promedio, Orden) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -1239,9 +1515,27 @@ function SgceAsegurarEsquemaAcademico(PDO $Pdo): void {
         SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos MODIFY CicloId INT UNSIGNED NOT NULL');
     }
     if (SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos DROP INDEX unico_grupo_turno'); }
-    if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_ciclo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD UNIQUE KEY unico_grupo_ciclo_turno (CicloId, Grado, Grupo, Turno)'); }
+    if (SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_ciclo_turno')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos DROP INDEX unico_grupo_ciclo_turno'); }
+    if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'unico_grupo_multiescolar') && SgceDbColumnaExiste($Pdo, 'Grupos', 'CarreraKey')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD UNIQUE KEY unico_grupo_multiescolar (CicloId, OfertaId, CarreraKey, EtapaId, Grupo, Turno)'); }
     if (!SgceDbIndiceExiste($Pdo, 'Grupos', 'idx_grupos_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD INDEX idx_grupos_ciclo (CicloId, Activo)'); }
     if (!SgceDbFkExiste($Pdo, 'Grupos', 'fk_grupos_ciclo')) { SgceDbExecSilencioso($Pdo, 'ALTER TABLE Grupos ADD CONSTRAINT fk_grupos_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE'); }
+
+    // SGCE 1.0.2: estructura multiescolar. Si el sistema viene de una versión anterior,
+    // se crea una oferta educativa inicial y se vinculan grupos existentes por su grado/orden.
+    SgceAsegurarTablasMultiescolar($Pdo);
+    $OfertaIdInicial = (int)$Pdo->query('SELECT Id FROM OfertasEducativas WHERE Activo = 1 ORDER BY Id ASC LIMIT 1')->fetchColumn();
+    if ($OfertaIdInicial <= 0) { $OfertaIdInicial = SgceConfigurarMultiescolarInicial($Pdo, 'SECUNDARIA', 'ANUAL', 3, false, '', 'SECUNDARIA'); }
+    $StmtEtapasIniciales = $Pdo->prepare('SELECT Id, Orden, Nombre FROM EtapasAcademicas WHERE OfertaId = ? AND Activo = 1');
+    $StmtEtapasIniciales->execute([$OfertaIdInicial]);
+    $MapaEtapas = [];
+    foreach ($StmtEtapasIniciales->fetchAll() as $EtapaIni) { $MapaEtapas[(int)$EtapaIni['Orden']] = $EtapaIni; }
+    $StmtGruposSinEtapa = $Pdo->query('SELECT Id, Grado FROM Grupos WHERE OfertaId IS NULL OR EtapaId IS NULL');
+    $StmtUpdGrupoEtapa = $Pdo->prepare('UPDATE Grupos SET OfertaId = ?, EtapaId = ?, Grado = ? WHERE Id = ?');
+    foreach ($StmtGruposSinEtapa->fetchAll() as $GrupoIni) {
+        $OrdenIni = ctype_digit((string)$GrupoIni['Grado']) ? (int)$GrupoIni['Grado'] : 1;
+        $EtapaIni = $MapaEtapas[$OrdenIni] ?? ($MapaEtapas[1] ?? null);
+        if ($EtapaIni) { $StmtUpdGrupoEtapa->execute([$OfertaIdInicial, (int)$EtapaIni['Id'], (string)$EtapaIni['Nombre'], (int)$GrupoIni['Id']]); }
+    }
 
     if (!SgceDbTablaExiste($Pdo, 'AlumnoInscripciones')) {
         $Pdo->exec("CREATE TABLE AlumnoInscripciones (
@@ -1261,11 +1555,12 @@ function SgceAsegurarEsquemaAcademico(PDO $Pdo): void {
             INDEX idx_inscripciones_grupo_estado (GrupoId, Estado)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
-    $Pdo->exec("INSERT IGNORE INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, Estado)
-        SELECT A.Id, G.CicloId, A.GrupoId, 'INSCRITO'
+    $Pdo->exec("INSERT IGNORE INTO AlumnoInscripciones (AlumnoId, CicloId, GrupoId, OfertaId, CarreraId, EtapaId, Estado)
+        SELECT A.Id, G.CicloId, A.GrupoId, G.OfertaId, G.CarreraId, G.EtapaId, 'INSCRITO'
         FROM Alumnos A
         INNER JOIN Grupos G ON G.Id = A.GrupoId
         WHERE A.Activo = 1 AND A.GrupoId IS NOT NULL");
+    SgceDbExecSilencioso($Pdo, 'UPDATE AlumnoInscripciones AI INNER JOIN Grupos G ON G.Id = AI.GrupoId SET AI.OfertaId = G.OfertaId, AI.CarreraId = G.CarreraId, AI.EtapaId = G.EtapaId WHERE AI.OfertaId IS NULL OR AI.EtapaId IS NULL');
 
     if (SgceDbTablaExiste($Pdo, 'Asignaciones') && !SgceDbColumnaExiste($Pdo, 'Asignaciones', 'CicloId')) {
         SgceDbExecSilencioso($Pdo, 'ALTER TABLE Asignaciones ADD COLUMN CicloId INT UNSIGNED NULL AFTER Id');
@@ -1381,16 +1676,13 @@ function SgceAsegurarEsquemaAcademico(PDO $Pdo): void {
 }
 
 function SgceMigrarGrupoSiguienteCiclo(PDO $Pdo, int $GrupoOrigenId, int $CicloDestinoId, bool $CopiarAsignaciones = false): array {
+    SgceAsegurarTablasMultiescolar($Pdo);
     $Origen = SgceGrupoObtenerPorId($Pdo, $GrupoOrigenId);
     $DestinoCiclo = SgceCicloPorId($Pdo, $CicloDestinoId);
     if (!$Origen) { throw new RuntimeException('El grupo origen no existe.'); }
     if (!$DestinoCiclo || (int)$DestinoCiclo['Activo'] !== 1) { throw new RuntimeException('Debe existir un ciclo destino activo.'); }
     if ((int)$Origen['CicloId'] === $CicloDestinoId) { throw new RuntimeException('El grupo origen ya pertenece al ciclo activo.'); }
     if ((int)$Origen['CicloActivo'] === 1) { throw new RuntimeException('No se puede migrar un grupo de un ciclo que todavía está activo. Primero crea/activa el nuevo ciclo.'); }
-    if (!SgceValidarGrado($Origen['Grado'])) { throw new RuntimeException('El grado del grupo origen no es numérico y no puede migrarse automáticamente.'); }
-
-    $GradoOrigen = (int)$Origen['Grado'];
-    if ($GradoOrigen <= 0) { throw new RuntimeException('El grado del grupo origen no es válido.'); }
 
     $Resultado = [
         'GrupoOrigen' => $Origen,
@@ -1407,10 +1699,15 @@ function SgceMigrarGrupoSiguienteCiclo(PDO $Pdo, int $GrupoOrigenId, int $CicloD
     ];
 
     $Alumnos = SgceAlumnosPorGrupoCiclo($Pdo, $GrupoOrigenId, (int)$Origen['CicloId'], ['INSCRITO']);
-    // El kardex se congela después de cambiar el estado final de la inscripción
-    // para que quede como PROMOVIDO o EGRESADO y no como INSCRITO.
+    $EtapaOrigenId = (int)($Origen['EtapaId'] ?? 0);
+    $EtapaSiguiente = $EtapaOrigenId > 0 ? SgceEtapaSiguiente($Pdo, $EtapaOrigenId) : null;
 
-    if ($GradoOrigen >= 3) {
+    // Compatibilidad con bases antiguas sin etapa académica: usa grado numérico y terminal 3.
+    if (!$EtapaSiguiente && $EtapaOrigenId <= 0 && SgceValidarGrado($Origen['Grado']) && ctype_digit((string)$Origen['Grado']) && (int)$Origen['Grado'] < 3) {
+        $EtapaSiguiente = ['Id' => 0, 'Nombre' => (string)((int)$Origen['Grado'] + 1), 'OfertaId' => (int)($Origen['OfertaId'] ?? 0), 'Orden' => (int)$Origen['Grado'] + 1, 'EsTerminal' => ((int)$Origen['Grado'] + 1) >= 3 ? 1 : 0];
+    }
+
+    if (!$EtapaSiguiente) {
         $StmtEgresar = $Pdo->prepare("UPDATE AlumnoInscripciones SET Estado = 'EGRESADO' WHERE AlumnoId = ? AND CicloId = ? AND GrupoId = ?");
         $StmtAlumnoNull = $Pdo->prepare('UPDATE Alumnos SET GrupoId = NULL WHERE Id = ? AND GrupoId = ?');
         foreach ($Alumnos as $Alumno) {
@@ -1422,9 +1719,14 @@ function SgceMigrarGrupoSiguienteCiclo(PDO $Pdo, int $GrupoOrigenId, int $CicloD
         return $Resultado;
     }
 
-    $NuevoGrado = (string)($GradoOrigen + 1);
-    $GrupoExistente = SgceGrupoObtenerPorCicloDatos($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno']);
-    $GrupoDestinoId = SgceGrupoCrearOReactivar($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno']);
+    $NuevoGrado = (string)$EtapaSiguiente['Nombre'];
+    $OfertaId = (int)($EtapaSiguiente['OfertaId'] ?? ($Origen['OfertaId'] ?? 0));
+    $CarreraId = (int)($Origen['CarreraId'] ?? 0);
+    $EtapaDestinoId = (int)($EtapaSiguiente['Id'] ?? 0);
+    $GrupoExistente = $EtapaDestinoId > 0
+        ? SgceGrupoObtenerPorCicloEstructura($Pdo, $CicloDestinoId, $OfertaId, $CarreraId > 0 ? $CarreraId : null, $EtapaDestinoId, (string)$Origen['Grupo'], (string)$Origen['Turno'])
+        : SgceGrupoObtenerPorCicloDatos($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno']);
+    $GrupoDestinoId = SgceGrupoCrearOReactivar($Pdo, $CicloDestinoId, $NuevoGrado, (string)$Origen['Grupo'], (string)$Origen['Turno'], $EtapaDestinoId, $CarreraId, $OfertaId);
     $Resultado['GrupoDestinoId'] = $GrupoDestinoId;
     $Resultado['NuevoGrado'] = $NuevoGrado;
     $Resultado['GrupoCreado'] = !$GrupoExistente;

@@ -36,20 +36,69 @@ CREATE TABLE CiclosEscolares (
     INDEX idx_ciclos_activo_fecha (Activo, FechaInicio, FechaFin)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+CREATE TABLE OfertasEducativas (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(140) NOT NULL,
+    NivelEducativo ENUM('PRIMARIA','SECUNDARIA','BACHILLERATO','UNIVERSIDAD','MAESTRIA','DOCTORADO','CURSO') NOT NULL DEFAULT 'SECUNDARIA',
+    TipoPeriodizacion ENUM('ANUAL','SEMESTRAL','CUATRIMESTRAL','MODULAR') NOT NULL DEFAULT 'ANUAL',
+    TotalEtapas INT UNSIGNED NOT NULL DEFAULT 3,
+    UsaCarreras TINYINT(1) NOT NULL DEFAULT 0,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unico_oferta_nombre (Nombre),
+    INDEX idx_oferta_activa (Activo, NivelEducativo, TipoPeriodizacion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Carreras (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(160) NOT NULL,
+    Clave VARCHAR(30) DEFAULT NULL,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unico_carrera_nombre (Nombre),
+    INDEX idx_carreras_activo_nombre (Activo, Nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE EtapasAcademicas (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    OfertaId INT UNSIGNED NOT NULL,
+    Nombre VARCHAR(40) NOT NULL,
+    Orden INT UNSIGNED NOT NULL,
+    EsTerminal TINYINT(1) NOT NULL DEFAULT 0,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_etapas_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_etapa_oferta_orden (OfertaId, Orden),
+    UNIQUE KEY unico_etapa_oferta_nombre (OfertaId, Nombre),
+    INDEX idx_etapas_oferta_activa_orden (OfertaId, Activo, Orden)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE Grupos (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     CicloId INT UNSIGNED NOT NULL,
-    Grado VARCHAR(20) NOT NULL,
+    OfertaId INT UNSIGNED DEFAULT NULL,
+    CarreraId INT UNSIGNED DEFAULT NULL,
+    CarreraKey INT UNSIGNED GENERATED ALWAYS AS (IFNULL(CarreraId, 0)) STORED,
+    EtapaId INT UNSIGNED DEFAULT NULL,
+    Grado VARCHAR(40) NOT NULL,
     Grupo VARCHAR(10) NOT NULL,
     Turno ENUM('MATUTINO', 'VESPERTINO') NOT NULL,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_grupos_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE KEY unico_grupo_ciclo_turno (CicloId, Grado, Grupo, Turno),
+    CONSTRAINT fk_grupos_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_grupos_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_grupos_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_grupo_multiescolar (CicloId, OfertaId, CarreraKey, EtapaId, Grupo, Turno),
     INDEX idx_grupos_busqueda_publica (CicloId, Grado, Grupo, Turno, Activo),
     INDEX idx_grupos_orden (CicloId, Activo, Turno, Grado, Grupo, Id),
-    INDEX idx_grupos_ciclo (CicloId, Activo)
+    INDEX idx_grupos_ciclo (CicloId, Activo),
+    INDEX idx_grupos_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Turno, Grupo, Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Alumnos (
@@ -73,16 +122,23 @@ CREATE TABLE AlumnoInscripciones (
     AlumnoId INT UNSIGNED NOT NULL,
     CicloId INT UNSIGNED NOT NULL,
     GrupoId INT UNSIGNED NOT NULL,
+    OfertaId INT UNSIGNED DEFAULT NULL,
+    CarreraId INT UNSIGNED DEFAULT NULL,
+    EtapaId INT UNSIGNED DEFAULT NULL,
     Estado ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
     FechaInscripcion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_inscripciones_alumno FOREIGN KEY (AlumnoId) REFERENCES Alumnos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_inscripciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_inscripciones_grupo FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_inscripciones_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_inscripciones_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_inscripciones_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE KEY unico_alumno_ciclo (AlumnoId, CicloId),
     INDEX idx_inscripciones_ciclo_grupo_estado (CicloId, GrupoId, Estado, AlumnoId),
     INDEX idx_inscripciones_alumno_ciclo (AlumnoId, CicloId),
-    INDEX idx_inscripciones_grupo_estado (GrupoId, Estado)
+    INDEX idx_inscripciones_grupo_estado (GrupoId, Estado),
+    INDEX idx_inscripciones_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Estado, GrupoId, AlumnoId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -202,9 +258,12 @@ CREATE TABLE KardexAlumno (
     CicloId INT UNSIGNED NOT NULL,
     GrupoId INT UNSIGNED NOT NULL,
     CicloNombreSnapshot VARCHAR(40) NOT NULL,
-    GradoSnapshot VARCHAR(20) NOT NULL,
+    GradoSnapshot VARCHAR(40) NOT NULL,
     GrupoSnapshot VARCHAR(10) NOT NULL,
     TurnoSnapshot VARCHAR(20) NOT NULL,
+    OfertaNombreSnapshot VARCHAR(140) DEFAULT NULL,
+    CarreraNombreSnapshot VARCHAR(160) DEFAULT NULL,
+    EtapaNombreSnapshot VARCHAR(40) DEFAULT NULL,
     EstadoFinal ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
     PromedioFinal DECIMAL(5,2) DEFAULT NULL,
     GeneradoPor INT UNSIGNED DEFAULT NULL,

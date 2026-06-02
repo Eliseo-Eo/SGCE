@@ -200,6 +200,29 @@ function InstalarValidarTextoOpcional($Valor, $Campo, $Maximo = 120, $SoloLetras
     return true;
 }
 
+function InstalarNivelValido($Nivel) {
+    $Nivel = InstalarMayusculas(trim((string)$Nivel));
+    return in_array($Nivel, ['PRIMARIA','SECUNDARIA','BACHILLERATO','UNIVERSIDAD','MAESTRIA','DOCTORADO','CURSO'], true) ? $Nivel : 'SECUNDARIA';
+}
+
+function InstalarTipoPeriodizacionValido($Tipo) {
+    $Tipo = InstalarMayusculas(trim((string)$Tipo));
+    return in_array($Tipo, ['ANUAL','SEMESTRAL','CUATRIMESTRAL','MODULAR'], true) ? $Tipo : 'ANUAL';
+}
+
+function InstalarRequiereCarreras($Nivel) {
+    return in_array(InstalarNivelValido($Nivel), ['UNIVERSIDAD','MAESTRIA','DOCTORADO'], true);
+}
+
+function InstalarEtiquetaEtapa($Orden, $Tipo) {
+    $Orden = max(1, (int)$Orden);
+    $Tipo = InstalarTipoPeriodizacionValido($Tipo);
+    if ($Tipo === 'SEMESTRAL') { return $Orden . ' SEMESTRE'; }
+    if ($Tipo === 'CUATRIMESTRAL') { return $Orden . ' CUATRIMESTRE'; }
+    if ($Tipo === 'MODULAR') { return 'MÓDULO ' . $Orden; }
+    return (string)$Orden;
+}
+
 function InstalarFormatoPermisos($Path) {
     if (!file_exists($Path)) { return 'NO EXISTE'; }
     $Permisos = substr(sprintf('%o', fileperms($Path)), -4);
@@ -434,6 +457,12 @@ $Valores = [
     'PeriodoDos' => $_POST['PeriodoDos'] ?? 'SEGUNDO PARCIAL',
     'PeriodoTres' => $_POST['PeriodoTres'] ?? 'TERCER PARCIAL',
     'PlaneacionesCantidad' => $_POST['PlaneacionesCantidad'] ?? '',
+    'NombreOfertaAcademica' => $_POST['NombreOfertaAcademica'] ?? 'SECUNDARIA',
+    'NivelEducativo' => $_POST['NivelEducativo'] ?? 'SECUNDARIA',
+    'TipoPeriodizacion' => $_POST['TipoPeriodizacion'] ?? 'ANUAL',
+    'TotalEtapas' => $_POST['TotalEtapas'] ?? '3',
+    'UsaCarreras' => $_POST['UsaCarreras'] ?? '',
+    'CarrerasIniciales' => $_POST['CarrerasIniciales'] ?? '',
 ];
 
 if (isset($_GET['VerificarServidor'])) {
@@ -486,6 +515,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             throw new Exception('Escribe la cantidad de planeaciones por ciclo.');
         }
         $PlaneacionesCantidad = (int)$PlaneacionesCantidadTexto;
+        $NivelEducativo = InstalarNivelValido($Valores['NivelEducativo'] ?? 'SECUNDARIA');
+        $TipoPeriodizacion = InstalarTipoPeriodizacionValido($Valores['TipoPeriodizacion'] ?? 'ANUAL');
+        $TotalEtapasTexto = trim((string)($Valores['TotalEtapas'] ?? '3'));
+        if ($TotalEtapasTexto === '' || !ctype_digit($TotalEtapasTexto)) { throw new Exception('Escribe la cantidad de etapas académicas.'); }
+        $TotalEtapas = max(1, min(20, (int)$TotalEtapasTexto));
+        $UsaCarreras = !empty($Valores['UsaCarreras']) || InstalarRequiereCarreras($NivelEducativo);
+        $NombreOfertaAcademica = InstalarNormalizarTexto($Valores['NombreOfertaAcademica'] ?? ($NivelEducativo . ' ' . $TipoPeriodizacion), true);
+        $CarrerasIniciales = InstalarNormalizarTexto($Valores['CarrerasIniciales'] ?? '', true);
 
         if ($Host === '' || $UsuarioMysql === '' || $BaseDatos === '' || !InstalarNombreBaseValido($BaseDatos)) {
             throw new Exception('Revisa host, usuario MySQL y nombre de base de datos. La base solo puede usar letras, números y guion bajo.');
@@ -533,6 +570,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
         }
         if ($PlaneacionesCantidad < 1 || $PlaneacionesCantidad > 12) {
             throw new Exception('La cantidad de planeaciones debe estar entre 1 y 12.');
+        }
+        if ($NombreOfertaAcademica === '' || InstalarLongitud($NombreOfertaAcademica) > 140) {
+            throw new Exception('Escribe un nombre válido para la oferta educativa.');
+        }
+        if ($UsaCarreras && trim($CarrerasIniciales) === '') {
+            throw new Exception('Si la institución usa carreras/programas, registra al menos una carrera inicial.');
         }
 
         
@@ -600,6 +643,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             'ColorInstitucional' => $ColorInstitucional,
             'SistemaNombre' => 'SGCE',
             'PlaneacionesCantidad' => (string)$PlaneacionesCantidad,
+            'NombreOfertaAcademica' => $NombreOfertaAcademica,
+            'NivelEducativo' => $NivelEducativo,
+            'TipoPeriodizacion' => $TipoPeriodizacion,
+            'TotalEtapas' => (string)$TotalEtapas,
+            'UsaCarreras' => $UsaCarreras ? '1' : '0',
             'InstalacionFecha' => date('Y-m-d H:i:s'),
         ]);
 
@@ -611,6 +659,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
         $StmtPeriodo->execute([$CicloId, $PeriodoUno, 1]);
         $StmtPeriodo->execute([$CicloId, $PeriodoDos, 2]);
         $StmtPeriodo->execute([$CicloId, $PeriodoTres, 3]);
+
+        $StmtOferta = $PdoDb->prepare('INSERT INTO OfertasEducativas (Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, UsaCarreras, Activo) VALUES (?, ?, ?, ?, ?, 1)');
+        $StmtOferta->execute([$NombreOfertaAcademica, $NivelEducativo, $TipoPeriodizacion, $TotalEtapas, $UsaCarreras ? 1 : 0]);
+        $OfertaId = (int)$PdoDb->lastInsertId();
+        $StmtEtapa = $PdoDb->prepare('INSERT INTO EtapasAcademicas (OfertaId, Nombre, Orden, EsTerminal, Activo) VALUES (?, ?, ?, ?, 1)');
+        for ($OrdenEtapa = 1; $OrdenEtapa <= $TotalEtapas; $OrdenEtapa++) {
+            $StmtEtapa->execute([$OfertaId, InstalarEtiquetaEtapa($OrdenEtapa, $TipoPeriodizacion), $OrdenEtapa, $OrdenEtapa === $TotalEtapas ? 1 : 0]);
+        }
+        if ($UsaCarreras) {
+            $StmtCarrera = $PdoDb->prepare('INSERT IGNORE INTO Carreras (Nombre, Activo) VALUES (?, 1)');
+            foreach (preg_split('/[,;\n]+/u', $CarrerasIniciales) as $CarreraInstalar) {
+                $CarreraInstalar = InstalarNormalizarTexto($CarreraInstalar, true);
+                if ($CarreraInstalar !== '') { $StmtCarrera->execute([$CarreraInstalar]); }
+            }
+        }
 
         $StmtBitacora = $PdoDb->prepare('INSERT INTO BitacoraMovimientos (UsuarioId, Rol, Accion, TablaAfectada, RegistroId, Detalle, Ip) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $StmtBitacora->execute([$AdminId, 'admin', 'INSTALACION_INICIAL', 'ConfiguracionSistema', null, 'INSTALACIÓN INICIAL DEL SISTEMA', $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
@@ -750,6 +813,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                 <div class="col-md-4"><label class="fw-bold mb-2">Periodo 2</label><input class="form-control FormControl InputUpper" name="PeriodoDos" value="<?= HInst($Valores['PeriodoDos']) ?>" required maxlength="80"></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Periodo 3</label><input class="form-control FormControl InputUpper" name="PeriodoTres" value="<?= HInst($Valores['PeriodoTres']) ?>" required maxlength="80"></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Planeaciones por ciclo</label><input class="form-control FormControl InputDigits" name="PlaneacionesCantidad" value="<?= HInst($Valores['PlaneacionesCantidad']) ?>" required min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Ej. 3"><small class="text-muted fw-semibold">Define cuántas entregas solicitará la institución por materia en el ciclo activo.</small></div>
+
+                <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">🧭</span> Estructura multiescolar</h3></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Nombre de la oferta educativa</label><input class="form-control FormControl InputUpper" name="NombreOfertaAcademica" value="<?= HInst($Valores['NombreOfertaAcademica']) ?>" required maxlength="140" placeholder="SECUNDARIA / BACHILLERATO / LICENCIATURA"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Nivel educativo</label><select class="form-select FormControl" name="NivelEducativo" required>
+                    <?php foreach(['PRIMARIA'=>'Primaria','SECUNDARIA'=>'Secundaria','BACHILLERATO'=>'Bachillerato / preparatoria','UNIVERSIDAD'=>'Universidad / licenciatura','MAESTRIA'=>'Maestría','DOCTORADO'=>'Doctorado','CURSO'=>'Curso / diplomado'] as $ClaveNivel=>$TextoNivel): ?>
+                    <option value="<?= HInst($ClaveNivel) ?>" <?= InstalarNivelValido($Valores['NivelEducativo']) === $ClaveNivel ? 'selected' : '' ?>><?= HInst($TextoNivel) ?></option>
+                    <?php endforeach; ?>
+                </select></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">Organización</label><select class="form-select FormControl" name="TipoPeriodizacion" required>
+                    <?php foreach(['ANUAL'=>'Años / grados','SEMESTRAL'=>'Semestres','CUATRIMESTRAL'=>'Cuatrimestres','MODULAR'=>'Módulos / niveles'] as $ClaveTipo=>$TextoTipo): ?>
+                    <option value="<?= HInst($ClaveTipo) ?>" <?= InstalarTipoPeriodizacionValido($Valores['TipoPeriodizacion']) === $ClaveTipo ? 'selected' : '' ?>><?= HInst($TextoTipo) ?></option>
+                    <?php endforeach; ?>
+                </select></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">Cantidad de etapas</label><input class="form-control FormControl InputDigits" name="TotalEtapas" value="<?= HInst($Valores['TotalEtapas']) ?>" required min="1" max="20" maxlength="2" inputmode="numeric" placeholder="Ej. 3, 6, 8"></div>
+                <div class="col-md-4 d-flex align-items-end"><label class="form-check fw-semibold mb-2"><input class="form-check-input" type="checkbox" name="UsaCarreras" value="1" <?= !empty($Valores['UsaCarreras']) ? 'checked' : '' ?>> Usa carreras / programas</label></div>
+                <div class="col-12"><label class="fw-bold mb-2">Carreras iniciales</label><textarea class="form-control FormControl InputUpper" name="CarrerasIniciales" rows="2" placeholder="Ej: INFORMÁTICA, CONTABILIDAD, ENFERMERÍA"><?= HInst($Valores['CarrerasIniciales']) ?></textarea><small class="text-muted fw-semibold">Obligatorio si es universidad, maestría, doctorado o si activas carreras/programas. En primaria/secundaria puede quedar vacío.</small></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">👤</span> Administrador inicial</h3></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Nombre del administrador</label><input class="form-control FormControl InputUpper" name="AdminNombre" value="<?= HInst($Valores['AdminNombre']) ?>" required minlength="3" maxlength="120" pattern="[A-ZÁÉÍÓÚÜÑ .'-]+" title="Solo letras y espacios." placeholder="NOMBRE COMPLETO"></div>

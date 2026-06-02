@@ -131,29 +131,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['AltaGrupo'])) {
+        $Oferta = SgceOfertaActiva($Pdo);
+        $OfertaId = (int)($Oferta['Id'] ?? 0);
+        $EtapaId = intval($_POST['EtapaId'] ?? 0);
+        $CarreraId = intval($_POST['CarreraId'] ?? 0);
         $Grado = trim($_POST['Grado'] ?? '');
         $Grupo = SgceNormalizarGrupo($_POST['Grupo'] ?? '');
         $Turno = SgceNormalizarTurno($_POST['Turno'] ?? '');
         if ($CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Primero configura un ciclo escolar activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
-        if (!SgceValidarGrado($Grado) || SgceLongitudTexto($Grado) > 20 || $Grupo === '' || $Turno === '') { $_SESSION['Mensaje'] = "Grupo Inválido: grado solo números, máximo 20 caracteres; grupo solo letras mayúsculas."; SgceRedirectAdminTab($TabPost, $UserSession); }
+        if ($OfertaId > 0) {
+            $Etapa = SgceEtapaAcademicaPorId($Pdo, $EtapaId);
+            if (!$Etapa || (int)$Etapa['OfertaId'] !== $OfertaId) { $_SESSION['Mensaje'] = "Selecciona una etapa académica válida."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            if (!empty($Oferta['UsaCarreras'])) {
+                $Carrera = SgceCarreraPorId($Pdo, $CarreraId);
+                if (!$Carrera || (int)$Carrera['Activo'] !== 1) { $_SESSION['Mensaje'] = "Selecciona una carrera/programa activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            } else { $CarreraId = 0; }
+            $Grado = (string)$Etapa['Nombre'];
+        }
+        if (!SgceValidarGrado($Grado) || SgceLongitudTexto($Grado) > 40 || $Grupo === '' || $Turno === '') { $_SESSION['Mensaje'] = "Grupo inválido: selecciona etapa/grado, grupo y turno."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
-            $GrupoId = SgceGrupoCrearOReactivar($Pdo, $CicloActivoAccionId, $Grado, $Grupo, $Turno);
-            RegistrarBitacora($Pdo, $UserSession, 'ALTA_GRUPO', 'Grupos', $GrupoId, 'GRUPO CREADO/REACTIVADO EN CICLO ACTIVO');
+            $GrupoId = SgceGrupoCrearOReactivar($Pdo, $CicloActivoAccionId, $Grado, $Grupo, $Turno, $EtapaId, $CarreraId, $OfertaId);
+            RegistrarBitacora($Pdo, $UserSession, 'ALTA_GRUPO', 'Grupos', $GrupoId, 'GRUPO CREADO/REACTIVADO EN CICLO ACTIVO CON ESTRUCTURA MULTIESCOLAR');
             $_SESSION['Mensaje'] = "Grupo Creado";
-        } catch (PDOException $Ex) { $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al crear grupo."; }
+        } catch (Throwable $Ex) { $_SESSION['Mensaje'] = $Ex instanceof PDOException && $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al crear grupo: " . $Ex->getMessage(); }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
     if (isset($_POST['EditGrupo'])) {
         $Id = intval($_POST['Id'] ?? 0);
+        $Oferta = SgceOfertaActiva($Pdo);
+        $OfertaId = (int)($Oferta['Id'] ?? 0);
+        $EtapaId = intval($_POST['EtapaId'] ?? 0);
+        $CarreraId = intval($_POST['CarreraId'] ?? 0);
         $Grado = trim($_POST['Grado'] ?? '');
         $Grupo = SgceNormalizarGrupo($_POST['Grupo'] ?? '');
         $Turno = SgceNormalizarTurno($_POST['Turno'] ?? '');
-        if ($Id <= 0 || !SgceValidarGrado($Grado) || SgceLongitudTexto($Grado) > 20 || $Grupo === '' || $Turno === '') { $_SESSION['Mensaje'] = "Grupo Inválido: grado solo números, máximo 20 caracteres; grupo solo letras mayúsculas."; SgceRedirectAdminTab($TabPost, $UserSession); }
+        if ($OfertaId > 0) {
+            $Etapa = SgceEtapaAcademicaPorId($Pdo, $EtapaId);
+            if (!$Etapa || (int)$Etapa['OfertaId'] !== $OfertaId) { $_SESSION['Mensaje'] = "Selecciona una etapa académica válida."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            if (!empty($Oferta['UsaCarreras'])) {
+                $Carrera = SgceCarreraPorId($Pdo, $CarreraId);
+                if (!$Carrera || (int)$Carrera['Activo'] !== 1) { $_SESSION['Mensaje'] = "Selecciona una carrera/programa activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            } else { $CarreraId = 0; }
+            $Grado = (string)$Etapa['Nombre'];
+        }
+        if ($Id <= 0 || !SgceValidarGrado($Grado) || SgceLongitudTexto($Grado) > 40 || $Grupo === '' || $Turno === '') { $_SESSION['Mensaje'] = "Grupo inválido: selecciona etapa/grado, grupo y turno."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
             if (!SgceGrupoObtenerActivoPorId($Pdo, $Id)) { $_SESSION['Mensaje'] = "Solo puedes editar grupos del ciclo activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
-            $Pdo->prepare("UPDATE Grupos SET Grado = ?, Grupo = ?, Turno = ? WHERE Id = ? AND CicloId = ?")->execute([$Grado, $Grupo, $Turno, $Id, $CicloActivoAccionId]);
-            RegistrarBitacora($Pdo, $UserSession, 'EDITAR_GRUPO', 'Grupos', $Id, 'GRUPO ACTUALIZADO');
+            $Pdo->prepare("UPDATE Grupos SET OfertaId = NULLIF(?,0), CarreraId = NULLIF(?,0), EtapaId = NULLIF(?,0), Grado = ?, Grupo = ?, Turno = ? WHERE Id = ? AND CicloId = ?")->execute([$OfertaId, $CarreraId, $EtapaId, $Grado, $Grupo, $Turno, $Id, $CicloActivoAccionId]);
+            $Pdo->prepare("UPDATE AlumnoInscripciones SET OfertaId = NULLIF(?,0), CarreraId = NULLIF(?,0), EtapaId = NULLIF(?,0) WHERE GrupoId = ? AND CicloId = ?")->execute([$OfertaId, $CarreraId, $EtapaId, $Id, $CicloActivoAccionId]);
+            RegistrarBitacora($Pdo, $UserSession, 'EDITAR_GRUPO', 'Grupos', $Id, 'GRUPO ACTUALIZADO CON ESTRUCTURA MULTIESCOLAR');
             $_SESSION['Mensaje'] = "Grupo Actualizado";
         } catch (PDOException $Ex) { $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al actualizar grupo."; }
         SgceRedirectAdminTab($TabPost, $UserSession);
