@@ -30,11 +30,7 @@ class SgcePdfSimple {
     }
 
     public function Width(): int { return $this->Width; }
-    public function Height(): int { return $this->Height; }
     public function Margin(): float { return $this->Margin; }
-    public function Y(): float { return $this->Y; }
-    public function SetY(float $Y): void { $this->Y = $Y; }
-    public function AddY(float $Delta): void { $this->Y += $Delta; }
 
     private function Op(string $Op): void { $this->Current['ops'][] = $Op; }
 
@@ -47,13 +43,6 @@ class SgcePdfSimple {
         return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $Text);
     }
 
-    public function SetTextColorHex(string $Hex): void {
-        $this->Fill = $this->HexToRgb($Hex);
-    }
-
-    public function SetDrawColorHex(string $Hex): void {
-        $this->Stroke = $this->HexToRgb($Hex);
-    }
 
     private function HexToRgb(string $Hex): array {
         $Hex = ltrim(trim($Hex), '#');

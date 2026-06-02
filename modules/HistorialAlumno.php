@@ -64,16 +64,6 @@ function TextoEstado($Estado) {
     }
 }
 
-function ClaseEstado($Estado) {
-    switch ($Estado) {
-        case 'A': return 'success';
-        case 'F': return 'danger';
-        case 'R': return 'warning text-dark';
-        case 'J': return 'primary';
-        default: return 'secondary';
-    }
-}
-
 RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $AlumnoId, 'EXPEDIENTE INDIVIDUAL CONSULTADO');
 
 ?>
@@ -89,8 +79,8 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="ExpedienteAlumnoBody">
@@ -245,6 +235,6 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
         </article>
     </section>
 </div>
-<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
+<script src="assets/js/sgce-shared.js?v=sgce"></script>
 </body>
 </html>

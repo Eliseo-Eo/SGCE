@@ -1,19 +1,3 @@
-(function(){
-    function PrepararModal(Modal){
-        if(!Modal || !Modal.classList || !Modal.classList.contains('modal')){return;}
-        if(Modal.parentElement !== document.body){
-            document.body.appendChild(Modal);
-        }
-        var Dialog = Modal.querySelector('.modal-dialog');
-        if(Dialog && !Dialog.classList.contains('modal-dialog-centered')){
-            Dialog.classList.add('modal-dialog-centered');
-        }
-    }
-    document.addEventListener('show.bs.modal', function(Evento){
-        PrepararModal(Evento.target);
-    }, true);
-})();
-
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('.modal[id^="EM"], .modal[id^="EG"], .modal[id^="EAl"], .modal[id^="EAsg"]').forEach(function(Modal){
         const Content = Modal.querySelector('.modal-content');

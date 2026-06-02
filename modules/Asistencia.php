@@ -276,8 +276,8 @@ foreach ($Alumnos as $AlumnoResumen) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
 <?= SgceEstilosTema($Pdo) ?>
 
 
@@ -370,7 +370,7 @@ foreach ($Alumnos as $AlumnoResumen) {
     @media (max-width:991px) { .TopHeader { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
     @media (max-width:576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .EstadoSelect { width:160px; } .BtnGuardar { width:100%; min-width:0; } }
 </style>
-<link rel="stylesheet" href="assets/css/asistencia-botones-metalicos.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/asistencia-botones-metalicos.css?v=sgce">
 
 </head>
 
@@ -703,7 +703,7 @@ foreach ($Alumnos as $AlumnoResumen) {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
-<script src="assets/js/Asistencia.js?cache=sgce2026consulta"></script>
+<script src="assets/js/sgce-shared.js?v=sgce"></script>
+<script src="assets/js/Asistencia.js?v=sgce"></script>
 </body>
 </html>

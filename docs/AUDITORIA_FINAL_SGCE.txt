@@ -1,58 +1,42 @@
-AUDITORIA FINAL SGCE
-Fecha de revision: 2026-06-01
+SGCE - Auditoria final de entrega
 
-RESUMEN
-[OK] Paquete revisado como version final para montaje y prueba.
-[OK] Estructura ordenada por carpetas.
-[OK] Favicon centralizado en assets/media/img/.
-[OK] No existe favicon.ico ni favicon.png en la raiz.
-[OK] No se detectaron archivos temporales, respaldos viejos ni ZIP interno.
-[OK] No se detectaron marcadores de depuracion en codigo PHP/JS/CSS.
-[OK] No se detectaron funciones PHP duplicadas.
-[OK] No se detectaron includes/requires locales faltantes.
-[OK] No se detectaron referencias locales href/src/action faltantes bajo el modo de ejecucion por wrappers de raiz.
+Paquete: SGCE_FINAL_DESDE_0.zip
+Objetivo: instalacion limpia desde cero, prueba funcional y publicacion controlada.
 
-METRICAS
-Archivos totales: 149
-Archivos PHP: 73
-Archivos JS: 12
-Archivos CSS: 15
-Funciones PHP: 282
-PHP lint OK: 73/73
-JS syntax OK: 12/12
-Funciones PHP duplicadas: 0
-Includes/requires faltantes: 0
-Residuos detectados: 0
+Resultado general:
+- PHP lint: OK.
+- JavaScript syntax check: OK.
+- Funciones PHP sin duplicados.
+- Includes/requires locales revisados.
+- Referencias locales href/src/action revisadas.
+- Favicon en raiz: no existe.
+- Favicon centralizado: assets/media/img/.
+- ZIP interno dentro del proyecto: no existe.
+- Archivos temporales/residuos (.bak, .old, .tmp, .dm, .orig): no detectados.
+- Cache de CSS/JS normalizado como ?v=sgce.
+- README, manual tecnico, manual de usuario y revision tecnica actualizados.
 
-VALIDACION VISUAL ESPECIFICA
-[OK] Modales de importar, modificar y eliminar: boton CANCELAR con fondo blanco.
-[OK] Hover/focus/active de CANCELAR: solo cambia texto/icono a color institucional.
-[OK] No se aplican escalas agresivas en botones de modal.
-[OK] Transiciones suaves activas al cargar pantallas.
+Rendimiento y escalabilidad:
+- Panel administrativo renderiza solamente la pestana activa.
+- Alumnos, asignaciones y bitacora trabajan con paginacion desde base de datos.
+- Consultas principales usan LIMIT/OFFSET cuando aplica.
+- Asistencia y calificaciones usan consultas directas y guardado con llave unica.
+- Indices SQL reforzados para alumnos, docentes, grupos, asignaciones, asistencia, calificaciones, planeaciones, avisos y bitacora.
 
-DOCUMENTACION
-[OK] README.md actualizado.
-[OK] Manual tecnico en MD y PDF actualizado.
-[OK] Manual de usuario en MD y PDF actualizado.
-[OK] Revision de funciones en MD y PDF actualizada.
-[OK] Estructura de proyecto actualizada.
-[OK] Changelog actualizado.
-[OK] Manifest de archivos actualizado.
+Seguridad:
+- Login con consulta preparada, LIMIT 1 y rehash automatico cuando PHP lo requiere.
+- Sesiones con protecciones basicas de cookie.
+- Tokens CSRF en formularios POST.
+- Control de roles/permisos por modulo.
+- Consulta publica con coincidencia exacta y control de intentos.
+- Instalador protegido mediante install.lock despues de instalar.
+- Carpetas internas protegidas con .htaccess.
 
-CALIFICACION
-Seguridad: 8.6/10
-Mantenimiento: 8.4/10
-Desempeno: 8.5/10
-Experiencia de usuario: 8.8/10
-Documentacion: 9.0/10
-Instalacion: 8.7/10
-Calificacion general: 8.7/10
+Interfaz:
+- Diseno visual aprobado conservado.
+- Transiciones suaves centralizadas en sgce-soft-motion.css.
+- Portal docente con iconos de avisos y encabezado de materia suavizados.
+- Consulta publica de asistencia y calificaciones con avisos suavizados y entrada uniforme de paneles.
 
-OBSERVACION HONESTA
-La revision estatica salio correcta. Para cierre de entrega formal se debe hacer prueba funcional en servidor real con MySQL: instalacion limpia, login, altas, asistencia, calificaciones, planeaciones, reportes, respaldo y restauracion.
-
-
-AJUSTE FINAL CONSULTA PUBLICA
-- Se igualo el efecto de ResultadoCard en ConsultaPadre y ConsultaCalificaciones con el encabezado y la tarjeta Buscar alumno.
-- No se modifico logica PHP, autenticacion, botones ni modales.
-- El ajuste solo afecta opacity/transform para evitar penalizacion de rendimiento.
+Nota de entrega:
+La validacion estatica fue correcta. Antes de vender o entregar formalmente se debe ejecutar una prueba real en el servidor del cliente con MySQL: instalacion desde cero, creacion de usuario administrador, registro/importacion de docentes, alumnos, grupos, asignaciones, asistencia, calificaciones, planeaciones, reportes, respaldo, restauracion y consulta publica.

@@ -28,36 +28,6 @@ function SgcePublicoTextoEstado($Estado) {
     }
 }
 
-function SgcePublicoClaseEstado($Estado) {
-    switch ((string)$Estado) {
-        case 'A': return 'success';
-        case 'F': return 'danger';
-        case 'R': return 'warning';
-        case 'J': return 'primary';
-        default: return 'secondary';
-    }
-}
-
-function SgcePublicoIconoEstado($Estado) {
-    switch ((string)$Estado) {
-        case 'A': return 'fa-circle-check';
-        case 'F': return 'fa-circle-xmark';
-        case 'R': return 'fa-clock';
-        case 'J': return 'fa-file-circle-check';
-        default: return 'fa-circle-question';
-    }
-}
-
-function SgcePublicoEmojiEstado($Estado) {
-    switch ((string)$Estado) {
-        case 'A': return '✅';
-        case 'F': return '❌';
-        case 'R': return '⏱️';
-        case 'J': return '📄';
-        default: return '📋';
-    }
-}
-
 function SgcePublicoCatalogos(PDO $Pdo) {
     $Grados = $Pdo->query("SELECT DISTINCT Grado FROM Grupos WHERE Activo = 1 ORDER BY CAST(Grado AS UNSIGNED), Grado ASC")->fetchAll();
     $Grupos = $Pdo->query("SELECT DISTINCT Grupo FROM Grupos WHERE Activo = 1 ORDER BY Grupo ASC")->fetchAll();

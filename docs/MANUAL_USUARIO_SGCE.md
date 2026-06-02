@@ -2,7 +2,7 @@
 
 ## 1. Acceso
 
-Entrar al sistema desde la URL proporcionada por la institucion. En la pantalla principal se inicia sesion con usuario y contraseña.
+Entrar al sistema desde la URL proporcionada por la institucion. En la pantalla principal se inicia sesion con usuario y contrasena.
 
 ## 2. Roles
 
@@ -12,7 +12,7 @@ Puede administrar usuarios, docentes, grupos, alumnos, asignaciones, avisos, rep
 
 ### Administrativo
 
-Puede apoyar en catalogos, avisos, reportes, asistencia, calificaciones, importaciones y planeaciones segun permisos configurados.
+Puede apoyar en catalogos, avisos, reportes, asistencia, calificaciones, importaciones y planeaciones segun los permisos del sistema.
 
 ### Maestro
 
@@ -20,11 +20,11 @@ Puede consultar sus grupos, registrar asistencia, capturar calificaciones y subi
 
 ## 3. Panel principal
 
-El panel muestra accesos a las secciones disponibles. Cada tarjeta lleva al modulo correspondiente. El sistema usa transiciones suaves al cargar paginas para que la navegacion sea mas fluida.
+El panel muestra accesos a las secciones disponibles. Cada tarjeta lleva al modulo correspondiente. El sistema usa transiciones suaves al cargar paginas para dar una navegacion mas fluida sin afectar botones ni formularios.
 
 ## 4. Docentes
 
-Permite registrar, editar, desactivar e importar docentes desde CSV o Excel. El archivo de importacion debe incluir columnas de nombre, usuario y contraseña.
+Permite registrar, editar, desactivar e importar docentes desde CSV o Excel. El archivo de importacion debe incluir columnas de nombre, usuario y contrasena.
 
 ## 5. Grupos
 
@@ -40,7 +40,7 @@ Relaciona docente, grupo y materia. Esta relacion es la base para que el maestro
 
 ## 8. Asistencia
 
-El maestro selecciona su asignacion y fecha para registrar asistencia por alumno. Los estados disponibles son:
+El maestro selecciona su asignacion y fecha para registrar asistencia por alumno. Estados disponibles:
 
 - A: Asistencia.
 - F: Falta.

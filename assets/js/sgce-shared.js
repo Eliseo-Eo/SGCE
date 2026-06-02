@@ -139,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
-/* SGCE: las transiciones visuales quedan centralizadas en assets/css/sgce-soft-motion.css. */
 document.addEventListener('show.bs.modal', function(Evento){
     var Modal = Evento.target;
     if (Modal && Modal.classList && Modal.classList.contains('modal') && Modal.parentElement !== document.body) {

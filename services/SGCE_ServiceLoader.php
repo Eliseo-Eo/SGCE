@@ -8,7 +8,6 @@ $SgceServiceFiles = [
     __DIR__ . '/AsistenciaService.php',
     __DIR__ . '/CalificacionService.php',
     __DIR__ . '/ReporteService.php',
-    __DIR__ . '/UsuarioService.php',
 ];
 
 foreach ($SgceServiceFiles as $SgceServiceFile) {

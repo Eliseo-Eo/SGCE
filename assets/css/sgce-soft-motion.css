@@ -1,8 +1,4 @@
-/*
- * SGCE Stable Soft Motion
- * Transiciones suaves y parejas sin penalizar rendimiento.
- * Solo usa opacity y transform. No modifica botones, colores ni fondos.
- */
+/* SGCE - Transiciones suaves: opacity y transform, sin modificar colores ni tamanos de botones. */
 :root{
     --SgceMotionEase:cubic-bezier(.22,.61,.36,1);
     --SgceMotionPage:.14s;
@@ -189,6 +185,51 @@ body{animation:SgcePageIn var(--SgceMotionPage) ease-out both;}
     transition:transform .14s var(--SgceMotionEase),opacity .14s ease;
 }
 
+.LoginPage :where(.ContainerPrincipal,.GridLogin){
+    animation:SgceSoftFade .18s ease-out both;
+    will-change:opacity;
+}
+
+.LoginPage :where(.PanelIzquierdo,.PanelDerecho){
+    animation:SgceSoftUp .24s var(--SgceMotionEase) both;
+    will-change:opacity,transform;
+}
+
+.LoginPage .PanelDerecho{
+    animation-delay:.025s;
+}
+
+.LoginPage :where(
+    .LogoSistema,
+    .TituloSistema,
+    .SubtituloSistema,
+    .DescripcionSistema,
+    .LoginHeader,
+    .AlertError,
+    .InputContainer,
+    .BtnConsultaPublicaGrid,
+    .FooterLogin,
+    .CardCaracteristica
+){
+    animation:SgceSoftUp .20s var(--SgceMotionEase) both;
+    will-change:opacity,transform;
+}
+
+.LoginPage .InputContainer:nth-of-type(2),
+.LoginPage .CardCaracteristica:nth-child(2){
+    animation-delay:.018s;
+}
+
+.LoginPage .BtnConsultaPublicaGrid,
+.LoginPage .CardCaracteristica:nth-child(3){
+    animation-delay:.032s;
+}
+
+.LoginPage .FooterLogin,
+.LoginPage .CardCaracteristica:nth-child(4){
+    animation-delay:.046s;
+}
+
 @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{
         animation-duration:.001ms!important;
@@ -198,77 +239,28 @@ body{animation:SgcePageIn var(--SgceMotionPage) ease-out both;}
     }
 }
 
-/* SGCE Login Motion Final
-   Efectos suaves específicos del login sin afectar rendimiento ni hover. */
-body.LoginPage .ContainerPrincipal,
-body.LoginPage .GridLogin{
-    animation:SgceSoftFade var(--SgceMotionPane) ease-out both;
-}
 
-body.LoginPage .PanelIzquierdo,
-body.LoginPage .PanelDerecho{
-    animation:SgceSoftUp var(--SgceMotionHero) var(--SgceMotionEase) both;
-}
-
-body.LoginPage .PanelDerecho{
-    animation-delay:.025s;
-}
-
-body.LoginPage .LogoSistema,
-body.LoginPage .TituloSistema,
-body.LoginPage .SubtituloSistema,
-body.LoginPage .DescripcionSistema,
-body.LoginPage .LoginHeader,
-body.LoginPage .InputContainer,
-body.LoginPage .BtnConsultaPublicaGrid,
-body.LoginPage .FooterLogin{
-    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both;
-}
-
-body.LoginPage .LogoSistema{animation-delay:.018s;}
-body.LoginPage .TituloSistema{animation-delay:.030s;}
-body.LoginPage .SubtituloSistema{animation-delay:.042s;}
-body.LoginPage .DescripcionSistema{animation-delay:.054s;}
-body.LoginPage .LoginHeader{animation-delay:.030s;}
-body.LoginPage .InputContainer:nth-of-type(1){animation-delay:.045s;}
-body.LoginPage .InputContainer:nth-of-type(2){animation-delay:.060s;}
-body.LoginPage .BtnConsultaPublicaGrid{animation-delay:.070s;}
-body.LoginPage .FooterLogin{animation-delay:.080s;}
-
-body.LoginPage .Caracteristicas .CardCaracteristica{
-    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) backwards;
-    transition:transform .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease;
-}
-
-body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(1){animation-delay:.030s;}
-body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(2){animation-delay:.045s;}
-body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(3){animation-delay:.060s;}
-body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(4){animation-delay:.075s;}
-
-body.LoginPage .Caracteristicas .CardCaracteristica .IconoCaracteristica{
-    transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease;
-}
-
-body.LoginPage .Caracteristicas .CardCaracteristica:hover,
-body.LoginPage .Caracteristicas .CardCaracteristica:focus-within{
-    transform:translate3d(0,-3px,0);
-    background:rgba(255,255,255,.18);
-    border-color:rgba(255,255,255,.30);
-    box-shadow:0 14px 28px rgba(0,0,0,.12);
-}
-
-body.LoginPage .Caracteristicas .CardCaracteristica:hover .IconoCaracteristica,
-body.LoginPage .Caracteristicas .CardCaracteristica:focus-within .IconoCaracteristica{
-    transform:translate3d(0,-1px,0);
-    background:rgba(255,255,255,.24);
-}
-
-/* SGCE Consulta publica: el panel de resultado usa el mismo efecto base que
-   el encabezado y la tarjeta de busqueda. No se agregan animaciones internas
-   para evitar que el resultado se vea mas fuerte que el resto de la pagina. */
-body:not(.LoginPage) .ConsultaGrid > div:nth-child(2) > .ResultadoCard,
-body:not(.LoginPage) .ConsultaGridCalificaciones > div:nth-child(2) > .ResultadoCard{
-    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both;
-    animation-delay:.018s;
+/* Consulta publica: entrada uniforme de paneles. */
+.ConsultaPublicaBody .ConsultaGrid > .ConsultaCard,
+.ConsultaPublicaBody .ConsultaGrid > .ResultadoCard{
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both!important;
+    animation-delay:0s!important;
     will-change:opacity,transform;
 }
+
+html body.ConsultaPublicaBody .ConsultaAvisosCard,
+html body.ConsultaPublicaBody .ConsultaGrid > div,
+html body.ConsultaPublicaBody .ConsultaGrid > div > .ConsultaCard,
+html body.ConsultaPublicaBody .ConsultaGrid > div > .ResultadoCard{
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both!important;
+    will-change:opacity,transform!important;
+}
+html body.ConsultaPublicaBody .ConsultaGrid > div:nth-child(1),
+html body.ConsultaPublicaBody .ConsultaGrid > div:nth-child(1) > .ConsultaCard{
+    animation-delay:0s!important;
+}
+html body.ConsultaPublicaBody .ConsultaGrid > div:nth-child(2),
+html body.ConsultaPublicaBody .ConsultaGrid > div:nth-child(2) > .ResultadoCard{
+    animation-delay:.018s!important;
+}
+
