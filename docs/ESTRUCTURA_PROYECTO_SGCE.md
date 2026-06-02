@@ -1,29 +1,39 @@
-# Estructura del proyecto - SGCE
+# Estructura del proyecto SGCE
 
 ```text
 SGCE/
 ├── assets/
-│   ├── css/                  Estilos minificados y estilos por módulo.
-│   ├── js/                   JavaScript del sistema y validaciones visuales.
-│   └── media/img/            Favicon e imágenes institucionales del sistema.
-├── config/                   Conexión y configuración local del servidor.
-├── cron/                     Respaldos automáticos diario/semanal.
-├── docs/                     Manuales y documentación para GitHub.
-├── includes/                 Helpers, seguridad, PDF y consultas públicas.
-├── install/                  SQL base para instalación inicial.
-├── modules/                  Módulos internos protegidos del sistema.
-│   └── admin/                Lógica, datos y vista del panel administrativo.
-├── public/                   Inicio, login y consultas públicas.
-├── reports/                  Exportaciones, reportes y respaldos.
-├── services/                 Funciones de acceso a datos por módulo.
-└── storage/                  Respaldos, logs, planeaciones y temporales protegidos.
+│   ├── css/
+│   ├── js/
+│   └── media/img/
+├── config/
+├── cron/
+├── docs/
+├── includes/
+├── install/
+├── modules/
+│   └── admin/
+├── public/
+├── reports/
+├── services/
+├── storage/
+│   ├── backups/
+│   ├── locks/
+│   ├── logs/
+│   ├── planeaciones/
+│   └── tmp_uploads/
+├── .gitignore
+├── .htaccess
+├── .user.ini
+├── Instalar.php
+├── index.php
+└── README.md
 ```
 
-## Conteo de archivos
+## Criterio de organizacion
 
-- Archivos totales: 138
-- PHP: 73
-- CSS: 14
-- JS: 12
-- Funciones PHP detectadas: 282
-- Clases PHP detectadas: 2
+- La raiz conserva entradas PHP publicas por compatibilidad de rutas.
+- `modules/`, `reports/`, `public/`, `includes/`, `services/` y `config/` estan protegidos contra acceso directo.
+- Los archivos generados por usuarios o respaldos se guardan en `storage/`.
+- Los manuales y auditoria se guardan en `docs/`.
+- Favicon e imagen PNG institucional del sistema estan en `assets/media/img/`.

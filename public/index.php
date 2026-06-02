@@ -109,7 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 
@@ -350,8 +351,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/index.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
+<script src="assets/js/index.js?cache=sgce2026consulta"></script>
 </body>
 
 </html>

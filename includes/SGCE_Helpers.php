@@ -230,12 +230,15 @@ function SgceNormalizarTextoUsuarios($Valor) {
 }
 
 function SgceCrearTablaConfiguracionSiNoExiste($Pdo) {
+    static $TablaConfiguracionLista = false;
+    if ($TablaConfiguracionLista) { return; }
     $Pdo->exec("CREATE TABLE IF NOT EXISTS ConfiguracionSistema (
         Clave VARCHAR(80) NOT NULL PRIMARY KEY,
         Valor TEXT NULL,
         FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_config_fecha (FechaActualizacion)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $TablaConfiguracionLista = true;
 }
 
 function SgceConfiguracionDefault() {
@@ -253,7 +256,11 @@ function SgceConfiguracionDefault() {
     ];
 }
 
-function SgceObtenerConfiguracion($Pdo) {
+function SgceObtenerConfiguracion($Pdo, $ForzarRecarga = false) {
+    if (!$ForzarRecarga && isset($GLOBALS['SGCE_CONFIG_CACHE']) && is_array($GLOBALS['SGCE_CONFIG_CACHE'])) {
+        return $GLOBALS['SGCE_CONFIG_CACHE'];
+    }
+
     $Config = SgceConfiguracionDefault();
     try {
         if (!$Pdo->inTransaction()) { SgceCrearTablaConfiguracionSiNoExiste($Pdo); }
@@ -265,11 +272,14 @@ function SgceObtenerConfiguracion($Pdo) {
             }
         }
     } catch (Exception $E) {}
+
+    $GLOBALS['SGCE_CONFIG_CACHE'] = $Config;
     return $Config;
 }
 
 function SgceGuardarConfiguracion($Pdo, $Datos) {
     if (!$Pdo->inTransaction()) { SgceCrearTablaConfiguracionSiNoExiste($Pdo); }
+    unset($GLOBALS['SGCE_CONFIG_CACHE']);
     $Permitidas = array_keys(SgceConfiguracionDefault());
     $Stmt = $Pdo->prepare('INSERT INTO ConfiguracionSistema (Clave, Valor) VALUES (?, ?) ON DUPLICATE KEY UPDATE Valor = VALUES(Valor), FechaActualizacion = CURRENT_TIMESTAMP');
     foreach ($Permitidas as $Clave) {
@@ -378,7 +388,8 @@ function SgceDenegarAcceso($Mensaje = 'No tienes permiso para entrar a esta secc
     http_response_code(403);
     $MensajeSeguro = HGlobal($Mensaje);
     $Inicio = 'index.php';
-    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
+    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
     exit;
 }
 
@@ -568,6 +579,8 @@ function RateLimitLimpiar($Pdo, $Contexto, $Identificador = '') {
 }
 
 function CrearTablaBitacoraSiNoExiste($Pdo) {
+    static $TablaBitacoraLista = false;
+    if ($TablaBitacoraLista) { return; }
     $Pdo->exec("CREATE TABLE IF NOT EXISTS BitacoraMovimientos (
         Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         UsuarioId INT UNSIGNED DEFAULT NULL,
@@ -583,6 +596,7 @@ function CrearTablaBitacoraSiNoExiste($Pdo) {
         INDEX idx_bitacora_accion_fecha (Accion, FechaRegistro),
         INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $TablaBitacoraLista = true;
 }
 
 function RegistrarBitacora($Pdo, $UserSession, $Accion, $TablaAfectada = null, $RegistroId = null, $Detalle = null) {
@@ -609,6 +623,8 @@ function SgceCantidadPlaneaciones($Pdo) {
 }
 
 function SgceCrearTablaPlaneacionesSiNoExiste($Pdo) {
+    static $TablaPlaneacionesLista = false;
+    if ($TablaPlaneacionesLista) { return; }
     $Pdo->exec("CREATE TABLE IF NOT EXISTS Planeaciones (
         Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         CicloId INT UNSIGNED NOT NULL,
@@ -635,6 +651,7 @@ function SgceCrearTablaPlaneacionesSiNoExiste($Pdo) {
         CONSTRAINT fk_planeaciones_maestro FOREIGN KEY (MaestroId) REFERENCES Usuarios(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
         CONSTRAINT fk_planeaciones_revisor FOREIGN KEY (RevisadoPor) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $TablaPlaneacionesLista = true;
 }
 
 function SgceNormalizarMateriaPlaneacion($Texto) {

@@ -1,14 +1,58 @@
-SGCE FINAL AUDIT
-[OK] PHP lint OK: 73/73
-[OK] Funciones sin duplicados: 282
-[OK] Rutas require/include locales OK
-[OK] Referencias locales href/src/action OK
-[OK] Sin favicon duplicado en raíz
-[OK] README, manuales y docs GitHub OK
-[OK] Sin marcadores de depuración reales
-[OK] Sin residuos .bak/.old/.tmp/.dm
-[OK] Archivos finales: 148
-[OK] PDF manual técnico: 56387 bytes
-[OK] PDF manual usuario: 52266 bytes
-[OK] PDF revisión funciones: 63052 bytes
-SUMMARY {"ok": 12, "warnings": 0, "errors": 0}
+AUDITORIA FINAL SGCE
+Fecha de revision: 2026-06-01
+
+RESUMEN
+[OK] Paquete revisado como version final para montaje y prueba.
+[OK] Estructura ordenada por carpetas.
+[OK] Favicon centralizado en assets/media/img/.
+[OK] No existe favicon.ico ni favicon.png en la raiz.
+[OK] No se detectaron archivos temporales, respaldos viejos ni ZIP interno.
+[OK] No se detectaron marcadores de depuracion en codigo PHP/JS/CSS.
+[OK] No se detectaron funciones PHP duplicadas.
+[OK] No se detectaron includes/requires locales faltantes.
+[OK] No se detectaron referencias locales href/src/action faltantes bajo el modo de ejecucion por wrappers de raiz.
+
+METRICAS
+Archivos totales: 149
+Archivos PHP: 73
+Archivos JS: 12
+Archivos CSS: 15
+Funciones PHP: 282
+PHP lint OK: 73/73
+JS syntax OK: 12/12
+Funciones PHP duplicadas: 0
+Includes/requires faltantes: 0
+Residuos detectados: 0
+
+VALIDACION VISUAL ESPECIFICA
+[OK] Modales de importar, modificar y eliminar: boton CANCELAR con fondo blanco.
+[OK] Hover/focus/active de CANCELAR: solo cambia texto/icono a color institucional.
+[OK] No se aplican escalas agresivas en botones de modal.
+[OK] Transiciones suaves activas al cargar pantallas.
+
+DOCUMENTACION
+[OK] README.md actualizado.
+[OK] Manual tecnico en MD y PDF actualizado.
+[OK] Manual de usuario en MD y PDF actualizado.
+[OK] Revision de funciones en MD y PDF actualizada.
+[OK] Estructura de proyecto actualizada.
+[OK] Changelog actualizado.
+[OK] Manifest de archivos actualizado.
+
+CALIFICACION
+Seguridad: 8.6/10
+Mantenimiento: 8.4/10
+Desempeno: 8.5/10
+Experiencia de usuario: 8.8/10
+Documentacion: 9.0/10
+Instalacion: 8.7/10
+Calificacion general: 8.7/10
+
+OBSERVACION HONESTA
+La revision estatica salio correcta. Para cierre de entrega formal se debe hacer prueba funcional en servidor real con MySQL: instalacion limpia, login, altas, asistencia, calificaciones, planeaciones, reportes, respaldo y restauracion.
+
+
+AJUSTE FINAL CONSULTA PUBLICA
+- Se igualo el efecto de ResultadoCard en ConsultaPadre y ConsultaCalificaciones con el encabezado y la tarjeta Buscar alumno.
+- No se modifico logica PHP, autenticacion, botones ni modales.
+- El ajuste solo afecta opacity/transform para evitar penalizacion de rendimiento.

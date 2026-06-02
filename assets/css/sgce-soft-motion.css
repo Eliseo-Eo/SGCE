@@ -1,0 +1,274 @@
+/*
+ * SGCE Stable Soft Motion
+ * Transiciones suaves y parejas sin penalizar rendimiento.
+ * Solo usa opacity y transform. No modifica botones, colores ni fondos.
+ */
+:root{
+    --SgceMotionEase:cubic-bezier(.22,.61,.36,1);
+    --SgceMotionPage:.14s;
+    --SgceMotionHero:.20s;
+    --SgceMotionPane:.18s;
+    --SgceMotionBlock:.22s;
+    --SgceMotionTable:.18s;
+}
+
+@keyframes SgcePageIn{
+    from{opacity:.96;}
+    to{opacity:1;}
+}
+
+@keyframes SgceSoftUp{
+    from{opacity:0;transform:translate3d(0,6px,0);}
+    to{opacity:1;transform:translate3d(0,0,0);}
+}
+
+@keyframes SgceSoftFade{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+html{scroll-behavior:auto;}
+body{animation:SgcePageIn var(--SgceMotionPage) ease-out both;}
+
+:where(.SgceHero,.Top,.TopBar,.TopHeader,.ReportHero,.LoginHeader,.SgceInstallerHero,.ConsultaHero){
+    animation:SgceSoftUp var(--SgceMotionHero) var(--SgceMotionEase) both;
+    will-change:opacity,transform;
+}
+
+:where(.SgceActivePane,.tab-pane.show.active){
+    animation:SgceSoftFade var(--SgceMotionPane) ease-out both;
+    will-change:opacity;
+}
+
+:where(.SgceActivePane,.tab-pane.show.active) > :where(
+    .row,
+    .card,
+    .card-custom,
+    .SgceCard,
+    .SgcePanel,
+    .MainCard,
+    .StatsGrid,
+    .DashboardTopPro,
+    .DashboardAccessPanel,
+    .DashboardSummaryPanel,
+    .DashboardRiskPro,
+    .SgceConfigGrid,
+    .SgceConfigGridRedisenada,
+    .SgcePeriodosGrid,
+    .SgceReportCards,
+    .PlaneacionesStatsGrid,
+    .PlaneacionesMateriaGrid,
+    .PlaneacionesEntregaGrid,
+    .PlaneacionesSeguimientoCard,
+    .SgceBitacoraCard,
+    .SgceUsersStats,
+    .SgceUsersCreateCard,
+    .SgceUsersTableCard,
+    .SgceRestoreCard,
+    .ConsultaGrid,
+    .ResultadoCard,
+    .AvisosLayout,
+    section
+),
+:where(
+    .DashboardKpiCard,
+    .DashboardModuleCard,
+    .MaestrosSideCard,
+    .MaestrosTableCard,
+    .GruposSideCard,
+    .GruposTableCard,
+    .AlumnosSideCard,
+    .AlumnosRegisterCard,
+    .AlumnosImportCard,
+    .AlumnosTableCard,
+    .ExpedientesCard,
+    .AsignacionesHeaderCard,
+    .AsignacionesTableCard,
+    .StatsCard,
+    .SgceReportCard,
+    .PlaneacionStatCard,
+    .PlaneacionMateriaCard,
+    .PlaneacionEntregaItem,
+    .StatCard,
+    .CardPanel,
+    .ConsultaCard,
+    .MetricCard,
+    .ExpedienteMetricCard,
+    .MaestroClaseItem,
+    .CardClase,
+    .CardCaracteristica,
+    .SgceConfigCard,
+    .SgcePeriodCard,
+    .SgcePeriodTableCard,
+    .SgceRestoreCard,
+    .SgceBitacoraCard,
+    .SgceUsersCreateCard,
+    .SgceUsersTableCard
+){
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both;
+    will-change:opacity,transform;
+}
+
+:where(
+    .table-responsive,
+    .SgceTableWrap,
+    .SgcePeriodTableBox,
+    .DashboardRiskTableWrap,
+    .PlaneacionesSeguimientoTableWrap,
+    .ExpedientesTableWrap,
+    .AsignacionesTableWrap,
+    .ExpedienteTableWrap,
+    .AvisosTableResponsive
+){
+    animation:SgceSoftFade var(--SgceMotionTable) ease-out both;
+    will-change:opacity;
+}
+
+:where(
+    .DashboardKpiGrid,
+    .DashboardModuleGridPro,
+    .PlaneacionesStatsGrid,
+    .SgceReportCards,
+    .StatsGrid,
+    .MaestroClasesGrid,
+    .ConsultaGrid,
+    .ExpedienteMetricGrid,
+    .PlaneacionesMateriaGrid,
+    .PlaneacionesEntregaGrid,
+    .AvisosLayout,
+    .SgceConfigGrid,
+    .SgceConfigGridRedisenada,
+    .SgcePeriodosGrid
+) > :where(*:nth-child(2)){
+    animation-delay:.018s;
+}
+
+:where(
+    .DashboardKpiGrid,
+    .DashboardModuleGridPro,
+    .PlaneacionesStatsGrid,
+    .SgceReportCards,
+    .StatsGrid,
+    .MaestroClasesGrid,
+    .ConsultaGrid,
+    .ExpedienteMetricGrid,
+    .PlaneacionesMateriaGrid,
+    .PlaneacionesEntregaGrid,
+    .AvisosLayout,
+    .SgceConfigGrid,
+    .SgceConfigGridRedisenada,
+    .SgcePeriodosGrid
+) > :where(*:nth-child(3)){
+    animation-delay:.032s;
+}
+
+:where(
+    .DashboardKpiGrid,
+    .DashboardModuleGridPro,
+    .PlaneacionesStatsGrid,
+    .SgceReportCards,
+    .StatsGrid,
+    .MaestroClasesGrid,
+    .ConsultaGrid,
+    .ExpedienteMetricGrid,
+    .PlaneacionesMateriaGrid,
+    .PlaneacionesEntregaGrid,
+    .AvisosLayout,
+    .SgceConfigGrid,
+    .SgceConfigGridRedisenada,
+    .SgcePeriodosGrid
+) > :where(*:nth-child(n+4)){
+    animation-delay:.046s;
+}
+
+:where(.form-control,.form-select,.InputCustom,.FormControl){
+    transition:border-color .14s ease,box-shadow .14s ease,background-color .14s ease;
+}
+
+.modal.fade .modal-dialog{
+    transition:transform .14s var(--SgceMotionEase),opacity .14s ease;
+}
+
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+        animation-duration:.001ms!important;
+        animation-iteration-count:1!important;
+        scroll-behavior:auto!important;
+        transition-duration:.001ms!important;
+    }
+}
+
+/* SGCE Login Motion Final
+   Efectos suaves específicos del login sin afectar rendimiento ni hover. */
+body.LoginPage .ContainerPrincipal,
+body.LoginPage .GridLogin{
+    animation:SgceSoftFade var(--SgceMotionPane) ease-out both;
+}
+
+body.LoginPage .PanelIzquierdo,
+body.LoginPage .PanelDerecho{
+    animation:SgceSoftUp var(--SgceMotionHero) var(--SgceMotionEase) both;
+}
+
+body.LoginPage .PanelDerecho{
+    animation-delay:.025s;
+}
+
+body.LoginPage .LogoSistema,
+body.LoginPage .TituloSistema,
+body.LoginPage .SubtituloSistema,
+body.LoginPage .DescripcionSistema,
+body.LoginPage .LoginHeader,
+body.LoginPage .InputContainer,
+body.LoginPage .BtnConsultaPublicaGrid,
+body.LoginPage .FooterLogin{
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both;
+}
+
+body.LoginPage .LogoSistema{animation-delay:.018s;}
+body.LoginPage .TituloSistema{animation-delay:.030s;}
+body.LoginPage .SubtituloSistema{animation-delay:.042s;}
+body.LoginPage .DescripcionSistema{animation-delay:.054s;}
+body.LoginPage .LoginHeader{animation-delay:.030s;}
+body.LoginPage .InputContainer:nth-of-type(1){animation-delay:.045s;}
+body.LoginPage .InputContainer:nth-of-type(2){animation-delay:.060s;}
+body.LoginPage .BtnConsultaPublicaGrid{animation-delay:.070s;}
+body.LoginPage .FooterLogin{animation-delay:.080s;}
+
+body.LoginPage .Caracteristicas .CardCaracteristica{
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) backwards;
+    transition:transform .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+
+body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(1){animation-delay:.030s;}
+body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(2){animation-delay:.045s;}
+body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(3){animation-delay:.060s;}
+body.LoginPage .Caracteristicas .CardCaracteristica:nth-child(4){animation-delay:.075s;}
+
+body.LoginPage .Caracteristicas .CardCaracteristica .IconoCaracteristica{
+    transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease;
+}
+
+body.LoginPage .Caracteristicas .CardCaracteristica:hover,
+body.LoginPage .Caracteristicas .CardCaracteristica:focus-within{
+    transform:translate3d(0,-3px,0);
+    background:rgba(255,255,255,.18);
+    border-color:rgba(255,255,255,.30);
+    box-shadow:0 14px 28px rgba(0,0,0,.12);
+}
+
+body.LoginPage .Caracteristicas .CardCaracteristica:hover .IconoCaracteristica,
+body.LoginPage .Caracteristicas .CardCaracteristica:focus-within .IconoCaracteristica{
+    transform:translate3d(0,-1px,0);
+    background:rgba(255,255,255,.24);
+}
+
+/* SGCE Consulta publica: el panel de resultado usa el mismo efecto base que
+   el encabezado y la tarjeta de busqueda. No se agregan animaciones internas
+   para evitar que el resultado se vea mas fuerte que el resto de la pagina. */
+body:not(.LoginPage) .ConsultaGrid > div:nth-child(2) > .ResultadoCard,
+body:not(.LoginPage) .ConsultaGridCalificaciones > div:nth-child(2) > .ResultadoCard{
+    animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both;
+    animation-delay:.018s;
+    will-change:opacity,transform;
+}

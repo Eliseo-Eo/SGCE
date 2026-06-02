@@ -283,9 +283,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/respaldos-botones-metalicos.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/respaldos-botones-metalicos.css?cache=sgce2026consulta">
 </head>
 <body class="SgceRestorePage">
 <div class="container py-4 SgceModuleWrap SgceRestoreWrap">
@@ -353,6 +354,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
 </body>
 </html>

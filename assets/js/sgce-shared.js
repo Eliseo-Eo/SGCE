@@ -139,34 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
-document.addEventListener('DOMContentLoaded', function(){
-    document.body.classList.add('PageFadeIn');
-
-    const Elementos = document.querySelectorAll('.card, .card-custom, .MainCard, .StatsCard, .CardClase, .alert, .TopBar, .TopHeader');
-
-    if ('IntersectionObserver' in window) {
-        const Observador = new IntersectionObserver(function(Entradas){
-            Entradas.forEach(function(Entrada){
-                if (Entrada.isIntersecting) {
-                    Entrada.target.style.animationPlayState = 'running';
-                    Observador.unobserve(Entrada.target);
-                }
-            });
-        }, { threshold:0.08 });
-
-        Elementos.forEach(function(Elemento, Indice){
-            Elemento.style.animationDelay = Math.min(Indice * 0.035, 0.35) + 's';
-            Observador.observe(Elemento);
-        });
+/* SGCE: las transiciones visuales quedan centralizadas en assets/css/sgce-soft-motion.css. */
+document.addEventListener('show.bs.modal', function(Evento){
+    var Modal = Evento.target;
+    if (Modal && Modal.classList && Modal.classList.contains('modal') && Modal.parentElement !== document.body) {
+        document.body.appendChild(Modal);
     }
-});
-document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.modal').forEach(function(Modal){
-        if (Modal.parentElement !== document.body) {
-            document.body.appendChild(Modal);
-        }
-    });
-});
+}, true);
 document.addEventListener('DOMContentLoaded', function(){
     var ModalActual = null;
     var FormularioPendiente = null;

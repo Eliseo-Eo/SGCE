@@ -1,16 +1,17 @@
 (function(){
-    function PrepararModales(){
-        document.querySelectorAll('.modal').forEach(function(Modal){
-            if(Modal.parentElement !== document.body){
-                document.body.appendChild(Modal);
-            }
-            var Dialog = Modal.querySelector('.modal-dialog');
-            if(Dialog && !Dialog.classList.contains('modal-dialog-centered')){
-                Dialog.classList.add('modal-dialog-centered');
-            }
-        });
+    function PrepararModal(Modal){
+        if(!Modal || !Modal.classList || !Modal.classList.contains('modal')){return;}
+        if(Modal.parentElement !== document.body){
+            document.body.appendChild(Modal);
+        }
+        var Dialog = Modal.querySelector('.modal-dialog');
+        if(Dialog && !Dialog.classList.contains('modal-dialog-centered')){
+            Dialog.classList.add('modal-dialog-centered');
+        }
     }
-    document.addEventListener('DOMContentLoaded', PrepararModales);
+    document.addEventListener('show.bs.modal', function(Evento){
+        PrepararModal(Evento.target);
+    }, true);
 })();
 
 document.addEventListener("DOMContentLoaded", function() {

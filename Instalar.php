@@ -426,7 +426,7 @@ $Valores = [
     'PeriodoUno' => $_POST['PeriodoUno'] ?? 'PRIMER PARCIAL',
     'PeriodoDos' => $_POST['PeriodoDos'] ?? 'SEGUNDO PARCIAL',
     'PeriodoTres' => $_POST['PeriodoTres'] ?? 'TERCER PARCIAL',
-    'PlaneacionesCantidad' => $_POST['PlaneacionesCantidad'] ?? '3',
+    'PlaneacionesCantidad' => $_POST['PlaneacionesCantidad'] ?? '',
 ];
 
 if (isset($_GET['VerificarServidor'])) {
@@ -663,7 +663,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
 </head>
 <body class="SgceBody SgceInstallerPage">
 <main class="SgceModuleWrap" style="max-width:1120px">
@@ -741,7 +742,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                 <div class="col-md-4"><label class="fw-bold mb-2">Periodo 1</label><input class="form-control FormControl InputUpper" name="PeriodoUno" value="<?= HInst($Valores['PeriodoUno']) ?>" required maxlength="80"></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Periodo 2</label><input class="form-control FormControl InputUpper" name="PeriodoDos" value="<?= HInst($Valores['PeriodoDos']) ?>" required maxlength="80"></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Periodo 3</label><input class="form-control FormControl InputUpper" name="PeriodoTres" value="<?= HInst($Valores['PeriodoTres']) ?>" required maxlength="80"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Planeaciones por ciclo</label><input class="form-control FormControl InputDigits" name="PlaneacionesCantidad" value="<?= HInst($Valores['PlaneacionesCantidad']) ?>" required min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Cantidad de entregas"><small class="text-muted fw-semibold">Define cuántas entregas solicitará la institución por materia en el ciclo activo.</small></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">Planeaciones por ciclo</label><input class="form-control FormControl InputDigits" name="PlaneacionesCantidad" value="<?= HInst($Valores['PlaneacionesCantidad']) ?>" required min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Ej. 3"><small class="text-muted fw-semibold">Define cuántas entregas solicitará la institución por materia en el ciclo activo.</small></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">👤</span> Administrador inicial</h3></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Nombre del administrador</label><input class="form-control FormControl InputUpper" name="AdminNombre" value="<?= HInst($Valores['AdminNombre']) ?>" required minlength="3" maxlength="120" pattern="[A-ZÁÉÍÓÚÜÑ .'-]+" title="Solo letras y espacios." placeholder="NOMBRE COMPLETO"></div>
@@ -755,7 +756,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
     <?php endif; ?>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/Instalar.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
+<script src="assets/js/Instalar.js?cache=sgce2026consulta"></script>
 </body>
 </html>

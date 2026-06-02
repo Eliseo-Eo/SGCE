@@ -15,13 +15,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/sgce-base.min.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?cache=sgce2026consulta">
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/maestros-botones-metalicos.css?cache=sgce2026final">
-<link rel="stylesheet" href="assets/css/grupos-alumnos-botones-metalicos.css?cache=sgce2026final">
-<link rel="stylesheet" href="assets/css/asignaciones-botones-metalicos.css?cache=sgce2026final">
-<link rel="stylesheet" href="assets/css/expedientes-botones-metalicos.css?cache=sgce2026final">
-<link rel="stylesheet" href="assets/css/dashboard-colores-suaves.css?cache=sgce2026final">
+<link rel="stylesheet" href="assets/css/maestros-botones-metalicos.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/grupos-alumnos-botones-metalicos.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/asignaciones-botones-metalicos.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/expedientes-botones-metalicos.css?cache=sgce2026consulta">
+<link rel="stylesheet" href="assets/css/dashboard-colores-suaves.css?cache=sgce2026consulta">
 <style id="SgceAdminDashboardAjusteSuaveFinal">
 html body .SgceModuleWrap .DashboardRiskEmpty .DashboardRiskEmptyIcon{
     background:rgba(22,163,74,.10)!important;
@@ -111,7 +112,8 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
 
         
-        <div class="tab-pane fade <?= $TabActual==='inicio'?'show active':'' ?>" id="inicio">
+        <?php if ($TabActual === 'inicio'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="inicio">
             <?php
                 $TarjetasInicio = [
                     ['ALUMNOS ACTIVOS', $TotalAlumnosActivos, 'fa-children', 'var(--SgceAzul)'],
@@ -344,7 +346,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
         
 
-        <div class="tab-pane fade <?= $TabActual==='maestros'?'show active':'' ?>" id="maestros">
+        
+<?php endif; ?>
+<?php if ($TabActual === 'maestros'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="maestros">
             <div class="row MaestrosLayoutRow GruposLayoutRow">
 
                 <div class="col-xl-3 col-lg-4 MaestrosSideCol GruposSideCol">
@@ -541,7 +546,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
         
 
-        <div class="tab-pane fade <?= $TabActual==='grupos'?'show active':'' ?>" id="grupos">
+        
+<?php endif; ?>
+<?php if ($TabActual === 'grupos'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="grupos">
             <div class="row MaestrosLayoutRow GruposLayoutRow">
 
                 <div class="col-xl-3 col-lg-4 MaestrosSideCol GruposSideCol">
@@ -777,7 +785,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
         
 
-        <div class="tab-pane fade <?= $TabActual==='expedientes'?'show active':'' ?>" id="expedientes">
+        
+<?php endif; ?>
+<?php if ($TabActual === 'expedientes'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="expedientes">
             <div class="card card-custom ExpedientesCard">
                 <div class="card-body ExpedientesCardBody">
 
@@ -895,7 +906,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
         
 
-        <div class="tab-pane fade <?= $TabActual==='alumnos'?'show active':'' ?>" id="alumnos">
+        
+<?php endif; ?>
+<?php if ($TabActual === 'alumnos'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="alumnos">
             <div class="row MaestrosLayoutRow AlumnosLayoutRow">
 
                 <div class="col-xl-3 col-lg-4 MaestrosSideCol AlumnosSideCol">
@@ -1110,7 +1124,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
         
 
-        <div class="tab-pane fade <?= $TabActual==='asignaciones'?'show active':'' ?>" id="asignaciones">
+        
+<?php endif; ?>
+<?php if ($TabActual === 'asignaciones'): ?>
+<div class="tab-pane fade show active SgceActivePane" id="asignaciones">
             <div class="card card-custom shadow-sm border-0 AsignacionesTableCard">
 
                 <div class="card-header bg-white py-3 border-bottom AsignacionesHeaderCard">
@@ -1339,8 +1356,10 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
 
         
-        <?php if ($PuedeVerBitacora): ?>
-                <div class="tab-pane fade <?= $TabActual==='bitacora'?'show active':'' ?>" id="bitacora">
+        
+<?php endif; ?>
+<?php if ($PuedeVerBitacora && $TabActual === 'bitacora'): ?>
+                <div class="tab-pane fade show active SgceActivePane" id="bitacora">
                     <div class="card card-custom p-4 SgceBitacoraCard">
                         <div class="SgceBitacoraHead">
                             <div class="SgceBitacoraTitle">
@@ -1477,7 +1496,7 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.Dashboard
 
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?cache=sgce2026final"></script>
-<script src="assets/js/Admin.js?cache=sgce2026final"></script>
+<script src="assets/js/sgce-shared.js?cache=sgce2026consulta"></script>
+<script src="assets/js/Admin.js?cache=sgce2026consulta"></script>
 </body>
 </html>

@@ -1,275 +1,162 @@
-# Manual técnico e instalación - SGCE
+# Manual tecnico e instalacion - SGCE
 
 ## 1. Objetivo
 
-Este manual describe la instalación, estructura, configuración, seguridad, mantenimiento y revisión técnica del Sistema Gestor de Control Escolar SGCE.
-
-SGCE está diseñado para operar como una aplicación web PHP/MySQL con instalación inicial asistida, módulos protegidos y archivos de trabajo resguardados fuera del acceso público directo.
+Este manual explica como instalar, configurar, respaldar y mantener SGCE en un servidor PHP/MySQL.
 
 ## 2. Requisitos del servidor
 
-### 2.1 Software
+- PHP 8.0 o superior recomendado.
+- MySQL 5.7/8.0 o MariaDB compatible.
+- Apache con soporte para `.htaccess`.
+- Extension `pdo_mysql` habilitada.
+- Permisos de escritura en `config/` y `storage/`.
+- Navegador moderno para administracion.
 
-- PHP 8.1 o superior.
-- MySQL 8.x o MariaDB compatible.
-- Apache con `.htaccess` habilitado, Plesk con Apache/Nginx proxy, o configuración Nginx equivalente.
-- Navegador moderno para administración.
+## 3. Instalacion desde cero
 
-### 2.2 Extensiones PHP obligatorias
-
-- `pdo`
-- `pdo_mysql`
-- `mbstring`
-- `zip`
-- `simplexml`
-- `fileinfo`
-- `iconv`
-- `json`
-
-El instalador valida estas extensiones antes de permitir la instalación.
-
-## 3. Instalación desde cero
-
-### 3.1 Preparar carpeta
-
-Sube la carpeta `SGCE` completa al servidor. No mezcles esta versión con una carpeta antigua.
-
-Ejemplo en Ubuntu:
+### 3.1 Descomprimir
 
 ```bash
 cd /var/www/html
-sudo mv SGCE SGCE_RESPALDO_ANTES_FINAL 2>/dev/null || true
-sudo unzip SGCE_VERSION_FINAL_DOCUMENTADA_GITHUB.zip
+sudo unzip SGCE.zip
 ```
 
-### 3.2 Permisos mínimos
-
-El instalador necesita escribir en `config/` y `storage/`.
+### 3.2 Permisos
 
 ```bash
-sudo chown -R www-data:www-data /var/www/html/SGCE/config /var/www/html/SGCE/storage
-sudo chmod 775 /var/www/html/SGCE/config
-sudo find /var/www/html/SGCE/storage -type d -exec chmod 775 {} \;
+sudo chown -R www-data:www-data SGCE/storage SGCE/config
+sudo find SGCE -type d -exec chmod 755 {} \;
+sudo find SGCE -type f -exec chmod 644 {} \;
 ```
 
-En Plesk puede ser necesario ajustar el usuario del dominio, por ejemplo `usuario_psacln` o el usuario propio del sitio.
+### 3.3 Crear base de datos
 
-### 3.3 Base de datos
+Desde MySQL:
 
-Crea una base vacía y asigna permisos al usuario MySQL. La base debe estar vacía porque el instalador evita mezclar instalaciones.
+```sql
+CREATE DATABASE sgce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'sgce_user'@'localhost' IDENTIFIED BY 'Cambia_Esta_Clave_2026!';
+GRANT ALL PRIVILEGES ON sgce.* TO 'sgce_user'@'localhost';
+FLUSH PRIVILEGES;
+```
 
 ### 3.4 Ejecutar instalador
 
-Abre:
+Abrir en navegador:
 
 ```text
-https://tu-dominio.com/SGCE/Instalar.php
+http://servidor/SGCE/Instalar.php
 ```
 
-El instalador solicita:
+Capturar:
 
-- Host, base de datos, usuario y contraseña MySQL.
-- Nombre oficial de la escuela.
-- CCT, director(a), municipio/estado, teléfono y correo opcionales.
-- Color institucional.
-- Ciclo escolar inicial.
-- Tres periodos de evaluación.
+- Datos de conexion MySQL.
+- Datos de la escuela.
+- Ciclo activo.
+- Tres periodos oficiales.
 - Cantidad de planeaciones por ciclo.
-- Usuario administrador inicial.
+- Usuario administrador.
 
-Al finalizar correctamente:
+El campo de planeaciones por ciclo no trae valor impuesto; la institucion decide la cantidad.
 
-- Crea tablas desde `install/SGCE.sql`.
-- Inserta administrador inicial.
-- Inserta configuración institucional.
-- Inserta ciclo escolar activo y tres periodos.
-- Crea `config/database.local.php`.
-- Crea `storage/install.lock`.
-- Intenta eliminar `install/` y `Instalar.php`.
+## 4. Configuracion generada
 
-## 4. Estructura técnica
+El instalador crea `config/database.local.php`. Este archivo no debe subirse a GitHub porque contiene credenciales reales.
 
-```text
-SGCE/
-├── assets/
-│   ├── css/                  Estilos minificados y estilos por módulo.
-│   ├── js/                   JavaScript del sistema y validaciones visuales.
-│   └── media/img/            Favicon e imágenes institucionales del sistema.
-├── config/                   Conexión y configuración local del servidor.
-├── cron/                     Respaldos automáticos diario/semanal.
-├── docs/                     Manuales y documentación para GitHub.
-├── includes/                 Helpers, seguridad, PDF y consultas públicas.
-├── install/                  SQL base para instalación inicial.
-├── modules/                  Módulos internos protegidos del sistema.
-│   └── admin/                Lógica, datos y vista del panel administrativo.
-├── public/                   Inicio, login y consultas públicas.
-├── reports/                  Exportaciones, reportes y respaldos.
-├── services/                 Funciones de acceso a datos por módulo.
-└── storage/                  Respaldos, logs, planeaciones y temporales protegidos.
-```
+El archivo `.gitignore` ya excluye:
 
-## 5. Archivos de entrada pública
+- `config/database.local.php`
+- `storage/install.lock`
+- logs, respaldos y archivos generados.
 
-Los archivos PHP en la raíz son wrappers. Cada wrapper define `SGCE_APP` y carga el módulo real protegido.
+## 5. Estructura tecnica
 
-Ejemplos:
+| Area | Carpeta |
+|---|---|
+| Pantallas internas | `modules/` |
+| Pantallas publicas | `public/` |
+| Reportes/exportaciones | `reports/` |
+| Servicios | `services/` |
+| Utilidades globales | `includes/` |
+| Activos visuales | `assets/` |
+| Archivos generados | `storage/` |
+| SQL de instalacion | `install/` |
 
-- `Admin.php` carga `modules/Admin.php`.
-- `Maestro.php` carga `modules/Maestro.php`.
-- `ConsultaPadre.php` carga `public/ConsultaPadre.php`.
-- `ExportarAlumno.php` carga `reports/ExportarAlumno.php`.
+## 6. Seguridad
 
-Esto permite URLs simples para el usuario y mantiene la lógica real en carpetas internas bloqueadas.
+### 6.1 Sesiones
 
-## 6. Seguridad técnica
+Las sesiones se inicializan con cookie segura, `httponly` y `SameSite=Strict` cuando el entorno lo permite.
 
-### 6.1 Carpetas protegidas
+### 6.2 CSRF
 
-Las carpetas `config/`, `includes/`, `modules/`, `reports/`, `cron/` y `storage/` tienen reglas `.htaccess` para evitar acceso directo.
+Los formularios POST utilizan token CSRF para evitar envios no autorizados.
 
-### 6.2 Archivos sensibles
+### 6.3 Permisos
 
-La raíz bloquea archivos como:
+El sistema maneja tres roles principales:
 
-- `database.php`
-- `database.local.php`
-- `.sql`
-- `.log`
-- `.zip`
-- `.bak`
-- `.old`
-- `.tmp`
-- `.md`
-- `.env`
+- `admin`
+- `administrativo`
+- `maestro`
 
-Esto permite subir documentación a GitHub sin exponerla necesariamente desde producción.
+Cada modulo valida permisos antes de permitir operaciones sensibles.
 
-### 6.3 Sesiones
+### 6.4 Contraseñas
 
-El sistema inicializa sesiones seguras con:
+Las contraseñas se almacenan con `password_hash()` y se validan con `password_verify()`.
 
-- `HttpOnly`
-- `SameSite=Strict`
-- cookie segura si detecta HTTPS directo o por proxy.
+### 6.5 Directorios protegidos
 
-### 6.4 Formularios
+Las carpetas internas incluyen `.htaccess` para bloquear acceso directo cuando el servidor usa Apache.
 
-Los formularios POST usan token CSRF. El archivo `assets/js/sgce-shared.js` también ayuda a insertar el token en formularios dinámicos cuando corresponde.
+## 7. Respaldos
 
-### 6.5 Contraseñas
-
-Las contraseñas se almacenan con `password_hash()` y se validan con `password_verify()`. El sistema permite rehash cuando PHP actualiza el algoritmo recomendado.
-
-## 7. Módulos funcionales
-
-### Administración
-
-- Dashboard institucional.
-- Alta, edición, desactivación y reactivación de docentes.
-- Alta, edición, desactivación y reactivación de grupos.
-- Alta, edición, desactivación y reactivación de alumnos.
-- Asignación de materias a docentes y grupos.
-- Expedientes por grupo.
-- Acceso a reportes, avisos, periodos, configuración, respaldos y bitácora.
-
-### Docente
-
-- Portal docente.
-- Registro de asistencia.
-- Captura de calificaciones.
-- Entrega de planeaciones por materia.
-
-### Consulta pública
-
-- Consulta de asistencia.
-- Consulta de calificaciones.
-- Exportación de boleta pública en PDF.
-
-### Reportes
-
-- Asistencia por grupo.
-- Asistencia por asignación.
-- Calificaciones por asignación o grupo.
-- Historial/boleta por alumno.
-- Exportación de base de datos.
-- Respaldo SQL.
-
-### Planeaciones
-
-- Subida de PDF, Word, Excel o PowerPoint.
-- Validación de extensión, MIME y firma de archivo.
-- Versionado interno.
-- Revisión administrativa: subida, aprobada o devuelta.
-
-## 8. Base de datos
-
-Tablas principales:
-
-- `ConfiguracionSistema`
-- `Usuarios`
-- `Grupos`
-- `Alumnos`
-- `Asignaciones`
-- `CiclosEscolares`
-- `PeriodosEvaluacion`
-- `Calificaciones`
-- `Asistencias`
-- `Avisos`
-- `Planeaciones`
-- `BitacoraMovimientos`
-- `IntentosSeguridad`
-
-Todas las tablas usan InnoDB y `utf8mb4_unicode_ci`.
-
-## 9. Respaldos
-
-El sistema permite respaldos manuales desde el panel y scripts de cron:
-
-```bash
-php /ruta/SGCE/cron/backup_diario.php
-php /ruta/SGCE/cron/backup_semanal.php
-```
+El sistema incluye respaldo manual desde panel y tareas programadas en `cron/`.
 
 Ejemplo de cron diario:
 
 ```cron
-0 2 * * * php /var/www/html/SGCE/cron/backup_diario.php
+0 2 * * * /usr/bin/php /var/www/html/SGCE/cron/backup_diario.php >/dev/null 2>&1
 ```
 
-## 10. Restauración
+Ejemplo de cron semanal:
 
-La restauración permite importar archivos SQL generados por SGCE. Existen modos de fusión o reemplazo, y el módulo protege contra sentencias no permitidas.
+```cron
+0 3 * * 0 /usr/bin/php /var/www/html/SGCE/cron/backup_semanal.php >/dev/null 2>&1
+```
 
-Antes de restaurar en producción:
+## 8. Mantenimiento
 
-1. Genera respaldo actual.
-2. Verifica que el archivo SQL provenga de SGCE.
-3. Prueba en ambiente local si es información crítica.
+- Mantener `storage/backups/` con limpieza periodica.
+- Revisar `storage/logs/` cuando ocurra un error.
+- No editar directamente `config/database.local.php` salvo que cambien credenciales.
+- Hacer respaldos antes de restaurar base de datos.
+- Probar restauracion en ambiente de prueba antes de hacerlo en produccion.
 
-## 11. Publicación en GitHub
+## 9. Validacion tecnica realizada
 
-Antes de subir al repositorio:
+- Sintaxis PHP validada.
+- Sintaxis JavaScript validada.
+- Wrappers principales revisados.
+- Includes y requires locales revisados.
+- Funciones PHP sin duplicados.
+- Favicon centralizado en `assets/media/img/`.
+- Documentacion actualizada para esta entrega.
 
-- Conserva `README.md` y `docs/`.
-- No subas `config/database.local.php`.
-- No subas backups reales.
-- No subas logs reales.
-- No subas planeaciones reales de docentes si contienen datos sensibles.
+## 10. Prueba final recomendada
 
-La `.gitignore` incluida ya contempla estos puntos.
+Antes de entregar al cliente, realizar flujo completo en servidor real:
 
-## 12. Checklist de entrega
-
-- [ ] Carpeta nueva, no mezclada con versiones anteriores.
-- [ ] Base de datos vacía.
-- [ ] Permisos de escritura en `config/` y `storage/`.
-- [ ] Instalador ejecutado correctamente.
-- [ ] Login admin probado.
-- [ ] Alta de grupo, docente y alumno probada.
-- [ ] Asignación docente-grupo-materia probada.
-- [ ] Login docente probado.
-- [ ] Captura de asistencia probada.
-- [ ] Captura de calificaciones probada.
-- [ ] Consulta pública probada.
-- [ ] Reportes PDF/Excel/HTML probados.
-- [ ] Respaldo SQL probado.
+1. Instalacion limpia.
+2. Inicio de sesion admin.
+3. Alta de docente.
+4. Alta de grupo.
+5. Alta de alumno.
+6. Asignacion de materia.
+7. Pase de lista.
+8. Captura de calificaciones.
+9. Subida y revision de planeaciones.
+10. Exportacion de reportes.
+11. Respaldo y restauracion controlada.

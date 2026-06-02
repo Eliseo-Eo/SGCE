@@ -1,213 +1,76 @@
 # Manual de usuario - SGCE
 
-## 1. Acceso al sistema
+## 1. Acceso
 
-Abre la dirección del sistema en el navegador e inicia sesión con tu usuario y contraseña.
+Entrar al sistema desde la URL proporcionada por la institucion. En la pantalla principal se inicia sesion con usuario y contraseña.
 
-Roles principales:
+## 2. Roles
 
-- Administrador: controla todo el sistema.
-- Administrativo: puede apoyar en operación escolar según permisos configurados.
-- Maestro: captura asistencia, calificaciones y planeaciones.
-- Padre de familia: consulta asistencia y calificaciones desde las pantallas públicas.
+### Administrador
 
-## 2. Panel de administrador
+Puede administrar usuarios, docentes, grupos, alumnos, asignaciones, avisos, reportes, configuracion, respaldos, bitacora, periodos y planeaciones.
 
-Al entrar como administrador se muestra el dashboard con tarjetas de acceso a módulos y datos principales del ciclo escolar.
+### Administrativo
 
-### 2.1 Inicio
+Puede apoyar en catalogos, avisos, reportes, asistencia, calificaciones, importaciones y planeaciones segun permisos configurados.
 
-Muestra resumen de:
+### Maestro
 
-- Alumnos activos.
-- Docentes activos.
-- Grupos activos.
-- Asistencias y faltas del día.
-- Promedio general del ciclo.
-- Alumnos en riesgo.
+Puede consultar sus grupos, registrar asistencia, capturar calificaciones y subir planeaciones.
 
-### 2.2 Maestros
+## 3. Panel principal
 
-Permite:
+El panel muestra accesos a las secciones disponibles. Cada tarjeta lleva al modulo correspondiente. El sistema usa transiciones suaves al cargar paginas para que la navegacion sea mas fluida.
 
-- Registrar docente.
-- Editar nombre, usuario o contraseña.
-- Desactivar docente.
-- Reactivar docente cuando el usuario ya existe pero está inactivo.
+## 4. Docentes
 
-Los nombres se normalizan en mayúsculas y se validan para evitar números en nombres.
+Permite registrar, editar, desactivar e importar docentes desde CSV o Excel. El archivo de importacion debe incluir columnas de nombre, usuario y contraseña.
 
-### 2.3 Grupos
+## 5. Grupos
 
-Permite registrar grupos por:
+Permite crear grupos por grado, grupo y turno. Los grupos activos se utilizan para asignar alumnos, materias, asistencia y calificaciones.
 
-- Grado.
-- Grupo.
-- Turno.
+## 6. Alumnos
 
-El grado acepta números. El grupo acepta letras en mayúsculas.
+Permite registrar alumnos, asignarlos a grupo, editarlos, desactivarlos y consultar expediente.
 
-### 2.4 Alumnos
+## 7. Asignaciones
 
-Permite:
+Relaciona docente, grupo y materia. Esta relacion es la base para que el maestro capture asistencia, calificaciones y planeaciones.
 
-- Registrar alumno individual.
-- Asociarlo a un grupo.
-- Importar alumnos por CSV o Excel.
-- Editar alumno.
-- Desactivar alumno.
+## 8. Asistencia
 
-### 2.5 Asignaciones
+El maestro selecciona su asignacion y fecha para registrar asistencia por alumno. Los estados disponibles son:
 
-Sirve para vincular:
+- A: Asistencia.
+- F: Falta.
+- R: Retardo.
+- J: Justificante.
 
-- Docente.
-- Grupo.
-- Materia.
+## 9. Calificaciones
 
-La asignación activa permite que el docente capture asistencia, calificaciones y planeaciones.
+El maestro captura calificaciones por periodo. El sistema valida rangos permitidos y evita duplicados por alumno, asignacion y periodo.
 
-### 2.6 Expedientes
+## 10. Planeaciones
 
-Permite consultar alumnos por grupo y entrar al historial del alumno.
+El docente sube planeaciones por materia y numero de entrega. Administracion puede revisar, aprobar o devolver una planeacion con observaciones.
 
-### 2.7 Avisos y comunicados
+## 11. Avisos
 
-Permite crear avisos para:
+Permite publicar comunicados para todos, maestros o padres de familia.
 
-- Todos.
-- Maestros.
-- Padres.
+## 12. Consulta publica
 
-También permite modificar, activar o desactivar avisos.
+Padres o tutores pueden consultar informacion permitida mediante los filtros definidos por el sistema. Las consultas publicas incluyen controles de seguridad y limite de intentos.
 
-### 2.8 Planeaciones administrativas
+## 13. Reportes
 
-Permite revisar las planeaciones subidas por docentes.
+El sistema genera reportes de asistencia, calificaciones, alumnos, boletas y respaldo de datos.
 
-Estados disponibles:
+## 14. Respaldos
 
-- SUBIDA: el docente ya cargó archivo.
-- APROBADA: la planeación fue validada.
-- DEVUELTA: requiere corrección.
+El administrador puede crear respaldos de base de datos y restaurar informacion. Se recomienda hacer respaldo antes de cualquier operacion importante.
 
-Cuando una planeación se devuelve, el docente puede volver a subir archivo. El sistema incrementa versión interna y conserva control del registro.
+## 15. Cierre de sesion
 
-### 2.9 Reportes
-
-Permite generar reportes de:
-
-- Asistencia por grupo.
-- Asistencia por asignación.
-- Calificaciones.
-- Boleta o historial por alumno.
-- Exportación de datos.
-
-### 2.10 Configuración
-
-Permite actualizar datos institucionales, color institucional, ciclo activo, periodos y cantidad de planeaciones solicitadas.
-
-### 2.11 Respaldos
-
-Permite descargar respaldo SQL del sistema y restaurar información desde respaldos válidos.
-
-### 2.12 Bitácora
-
-Muestra movimientos relevantes del sistema, como altas, bajas, ediciones, capturas y restauraciones.
-
-## 3. Portal docente
-
-Al entrar como maestro se muestran sus materias asignadas y accesos a captura.
-
-### 3.1 Asistencia
-
-Pasos:
-
-1. Selecciona la asignación.
-2. Selecciona la fecha.
-3. Marca cada alumno como asistencia, falta, retardo o justificante.
-4. Guarda la lista.
-
-Estados:
-
-- A: asistencia.
-- F: falta.
-- R: retardo.
-- J: justificante.
-
-### 3.2 Calificaciones
-
-Pasos:
-
-1. Selecciona la materia/asignación.
-2. Selecciona el periodo.
-3. Captura calificación por alumno.
-4. Guarda cambios.
-
-La calificación debe estar dentro del rango permitido por el sistema.
-
-### 3.3 Planeaciones
-
-Pasos:
-
-1. Entra a planeaciones.
-2. Selecciona materia.
-3. Elige el número de planeación solicitado.
-4. Sube archivo.
-5. Espera revisión administrativa.
-
-Formatos aceptados:
-
-- PDF.
-- Word.
-- Excel.
-- PowerPoint.
-
-## 4. Consulta para padres de familia
-
-Desde la pantalla principal existen accesos a consulta pública.
-
-### 4.1 Consulta de asistencia
-
-El padre captura:
-
-- Nombre completo del alumno.
-- Grado.
-- Grupo.
-- Turno.
-- Rango de fechas.
-
-El sistema muestra resumen por materia y detalle de registros.
-
-### 4.2 Consulta de calificaciones
-
-El padre captura:
-
-- Nombre completo del alumno.
-- Grado.
-- Grupo.
-- Turno.
-
-El sistema muestra calificaciones por materia y periodo, con opción de exportar boleta.
-
-## 5. Recomendaciones de uso
-
-- Captura nombres completos en mayúsculas.
-- Revisa grupo y turno antes de guardar alumnos.
-- Crea primero grupos y docentes antes de asignar materias.
-- Realiza respaldos antes de restaurar información.
-- No compartas usuarios entre varias personas.
-- Cierra sesión al terminar.
-
-## 6. Flujo recomendado para iniciar un ciclo
-
-1. Configurar datos de la escuela.
-2. Crear ciclo escolar y periodos.
-3. Registrar grupos.
-4. Registrar docentes.
-5. Registrar o importar alumnos.
-6. Crear asignaciones.
-7. Probar login docente.
-8. Capturar asistencia de prueba.
-9. Capturar calificación de prueba.
-10. Generar un respaldo inicial.
+Usar siempre el boton de salir para cerrar la sesion correctamente.

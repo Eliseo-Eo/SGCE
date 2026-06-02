@@ -1,11 +1,19 @@
-# Historial de entrega - SGCE
+# Changelog SGCE
 
-## Versión final documentada para GitHub
+## Version final de entrega
 
-- README regenerado desde cero.
-- Manual técnico regenerado desde cero.
-- Manual de usuario regenerado desde cero.
-- Documento de revisión de funciones agregado.
-- `.gitignore` agregado para evitar subir datos sensibles.
-- Favicon e imágenes conservados solamente en `assets/media/img/`.
-- Se conserva estructura protegida por wrappers en raíz y módulos internos bloqueados.
+- Documentacion regenerada para GitHub.
+- README actualizado con instalacion limpia y estructura real.
+- Manual tecnico actualizado.
+- Manual de usuario actualizado.
+- Revision de funciones actualizada.
+- Favicon centralizado en `assets/media/img/`.
+- Sin favicon duplicado en raiz.
+- Modal de importar, modificar y eliminar homologadas.
+- Boton cancelar en modales: fondo blanco, texto gris en reposo y texto institucional al pasar el mouse.
+- Transiciones suaves conservadas sin movimientos agresivos en botones.
+- Campo de planeaciones por ciclo sin valor impuesto en instalador.
+- Auditoria estatica ejecutada sobre PHP, JavaScript, rutas, funciones y estructura.
+- Ajuste final de animación en panel de resultado de consulta pública de asistencia y calificaciones.
+- Se conserva la optimización previa de pestaña activa y rendimiento.
+

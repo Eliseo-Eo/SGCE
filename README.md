@@ -1,107 +1,98 @@
 # SGCE - Sistema Gestor de Control Escolar
 
-SGCE es un sistema web en PHP y MySQL para administrar control escolar: docentes, alumnos, grupos, asignaciones, calificaciones, asistencia, planeaciones, avisos, reportes, respaldos y consulta pública para padres de familia.
-
-Esta versión está organizada para instalación desde cero y para control de versiones en GitHub.
+SGCE es un sistema web en PHP y MySQL para administrar control escolar en una institucion educativa. Incluye administracion de docentes, grupos, alumnos, asignaciones, asistencia, calificaciones, avisos, planeaciones, consultas publicas, reportes, respaldos y restauracion de base de datos.
 
 ## Estado de esta entrega
 
-- Favicon e imágenes centralizados en `assets/media/img/`.
-- Módulos internos protegidos con `.htaccess` y acceso mediante wrappers en raíz.
-- Instalador inicial en `Instalar.php` con verificación de servidor, creación de base de datos, configuración local, ciclo escolar y administrador inicial.
-- Manuales técnicos y de usuario regenerados desde cero dentro de `docs/`.
-- Archivos de configuración local, logs, backups y subidas protegidos para no exponerse públicamente.
+Esta version queda preparada como base final para subir a GitHub, montar en servidor y probar instalacion limpia desde cero.
 
-## Requisitos recomendados
+Puntos revisados:
 
-- PHP 8.1 o superior.
-- MySQL 8.x o MariaDB compatible con InnoDB, claves foráneas y columnas generadas.
-- Extensiones PHP: `pdo`, `pdo_mysql`, `mbstring`, `zip`, `simplexml`, `fileinfo`, `iconv` y `json`.
-- Servidor Apache con soporte `.htaccess` o reglas equivalentes en Nginx/Plesk.
-- Permisos de escritura en `config/` y `storage/` durante la instalación.
+- Estructura de carpetas ordenada por responsabilidad.
+- Entradas publicas compatibles en raiz mediante wrappers PHP.
+- Modulos internos protegidos contra acceso directo.
+- Favicon centralizado en `assets/media/img/`.
+- Sin favicon duplicado en la raiz del proyecto.
+- Sin ZIP interno, archivos temporales o residuos de versiones anteriores.
+- README y manuales regenerados para esta entrega.
+- Modal de importar, modificar y eliminar homologadas: el boton cancelar conserva fondo blanco y en hover solo cambia texto/icono a color institucional.
+- Transiciones suaves al cargar pantallas, sin crecimiento agresivo de botones.
+- Campo de planeaciones por ciclo sin valor impuesto en el instalador; la institucion escribe la cantidad deseada.
 
-## Instalación rápida desde cero
+## Requisitos
 
-1. Sube la carpeta `SGCE` al servidor.
-2. Crea una base de datos vacía para el sistema.
-3. Asegura permisos de escritura:
+- PHP 8.0 o superior recomendado.
+- MySQL 5.7/8.0 o MariaDB compatible.
+- Apache con `.htaccess` habilitado.
+- Extension PDO MySQL activa.
+- Permisos de escritura en `storage/` y `config/` durante la instalacion.
+
+## Instalacion limpia
+
+1. Subir o descomprimir la carpeta `SGCE` en el servidor.
+2. Entrar a `http://tu-dominio/SGCE/Instalar.php`.
+3. Capturar datos de conexion MySQL, datos institucionales, ciclo activo, periodos y usuario administrador.
+4. Finalizar la instalacion.
+5. Iniciar sesion desde `index.php`.
+6. Eliminar o bloquear `Instalar.php` despues de confirmar que el sistema quedo instalado.
+
+En Ubuntu local:
 
 ```bash
-sudo chown -R www-data:www-data SGCE/config SGCE/storage
-sudo find SGCE/storage -type d -exec chmod 775 {} \;
-sudo chmod 775 SGCE/config
+cd /var/www/html
+sudo unzip SGCE.zip
+sudo chown -R www-data:www-data SGCE/storage SGCE/config
 ```
 
-4. Abre en el navegador:
+Para reemplazar una instalacion anterior, no descomprimas encima de la carpeta vieja. Primero respalda o renombra la carpeta anterior y despues monta esta version limpia.
 
-```text
-https://tu-dominio.com/SGCE/Instalar.php
-```
+## Carpetas principales
 
-5. Captura conexión MySQL, datos de escuela, ciclo escolar, periodos y administrador inicial.
-6. Al finalizar, el instalador crea `config/database.local.php`, `storage/install.lock`, elimina `install/` y se programa para eliminar `Instalar.php`.
-7. Entra desde:
-
-```text
-https://tu-dominio.com/SGCE/index.php
-```
-
-## Estructura del proyecto
-
-```text
-SGCE/
-├── assets/
-│   ├── css/                  Estilos minificados y estilos por módulo.
-│   ├── js/                   JavaScript del sistema y validaciones visuales.
-│   └── media/img/            Favicon e imágenes institucionales del sistema.
-├── config/                   Conexión y configuración local del servidor.
-├── cron/                     Respaldos automáticos diario/semanal.
-├── docs/                     Manuales y documentación para GitHub.
-├── includes/                 Helpers, seguridad, PDF y consultas públicas.
-├── install/                  SQL base para instalación inicial.
-├── modules/                  Módulos internos protegidos del sistema.
-│   └── admin/                Lógica, datos y vista del panel administrativo.
-├── public/                   Inicio, login y consultas públicas.
-├── reports/                  Exportaciones, reportes y respaldos.
-├── services/                 Funciones de acceso a datos por módulo.
-└── storage/                  Respaldos, logs, planeaciones y temporales protegidos.
-```
-
-## Documentación
-
-- [`docs/MANUAL_TECNICO_INSTALACION_SGCE.md`](docs/MANUAL_TECNICO_INSTALACION_SGCE.md): instalación, estructura, seguridad, respaldos y despliegue.
-- [`docs/MANUAL_USUARIO_SGCE.md`](docs/MANUAL_USUARIO_SGCE.md): uso por administradores, docentes y padres de familia.
-- [`docs/REVISION_FUNCIONES_SGCE.md`](docs/REVISION_FUNCIONES_SGCE.md): revisión técnica de funciones, módulos y validaciones.
-- PDFs equivalentes incluidos en `docs/` para entrega al cliente.
-
-## Archivos que no deben subirse con datos reales
-
-El repositorio incluye una `.gitignore` para evitar subir datos sensibles o generados en producción. Revisa especialmente:
-
-- `config/database.local.php`
-- `storage/backups/*`
-- `storage/logs/*`
-- `storage/planeaciones/*`
-- `storage/tmp_uploads/*`
-- `storage/install.lock`
+| Carpeta | Uso |
+|---|---|
+| `assets/` | CSS, JavaScript e imagenes del sistema. |
+| `config/` | Conexion y configuracion local generada por instalador. |
+| `cron/` | Tareas programadas de respaldo. |
+| `docs/` | Manuales, estructura, revision y auditoria. |
+| `includes/` | Helpers, seguridad, PDF y consultas publicas. |
+| `install/` | Script SQL base. |
+| `modules/` | Pantallas internas del sistema. |
+| `public/` | Pantallas publicas y salida de sesion. |
+| `reports/` | Exportaciones, reportes y respaldos. |
+| `services/` | Capa de servicios por entidad. |
+| `storage/` | Respaldos, logs, planeaciones y temporales. |
 
 ## Seguridad incluida
 
-- Sesiones con cookies `HttpOnly`, `SameSite=Strict` y `secure` cuando el sitio usa HTTPS.
+- Contraseñas almacenadas con hash de PHP.
 - Tokens CSRF en formularios POST.
-- Rate limit para login y consultas públicas.
-- Bitácora de movimientos administrativos.
-- Bloqueo de acceso directo a carpetas internas.
-- Contraseñas almacenadas mediante hash seguro de PHP.
-- Protección para archivos SQL, ZIP, logs, temporales y configuración local.
+- Validacion de roles y permisos.
+- Encabezados de seguridad HTTP.
+- Directorios internos protegidos con `.htaccess`.
+- Archivos generados en `storage/` protegidos.
+- Rate limit para consultas publicas sensibles.
+- Uso de consultas preparadas PDO.
 
-## Flujo principal
+## Documentacion
 
-1. El administrador configura escuela, ciclos, periodos, grupos, alumnos, docentes y asignaciones.
-2. El docente registra asistencia, calificaciones y sube planeaciones.
-3. El administrador revisa planeaciones, genera reportes, consulta bitácora y respalda/restaura información.
-4. Padres de familia consultan asistencia y calificaciones mediante datos del alumno.
+Consulta estos archivos:
 
-## Nota de despliegue
+- `docs/MANUAL_TECNICO_INSTALACION_SGCE.md`
+- `docs/MANUAL_USUARIO_SGCE.md`
+- `docs/REVISION_FUNCIONES_SGCE.md`
+- `docs/ESTRUCTURA_PROYECTO_SGCE.md`
+- `docs/AUDITORIA_FINAL_SGCE.txt`
 
-Para reemplazar una instalación vieja no descomprimas encima de la carpeta anterior. Renombra o respalda la carpeta vieja y sube la versión nueva limpia. Esto evita que queden archivos obsoletos como favicons duplicados, ZIPs anteriores o respaldos mezclados.
+## Recomendacion antes de entregar al cliente
+
+Realizar prueba funcional real con MySQL y navegador:
+
+1. Instalar desde cero.
+2. Crear usuario administrador.
+3. Registrar docente, grupo, alumno y asignacion.
+4. Capturar asistencia y calificaciones.
+5. Subir planeacion.
+6. Generar reportes PDF/CSV.
+7. Crear respaldo y probar restauracion en ambiente de prueba.
+
+La revision estatica de esta entrega no sustituye la prueba final en el servidor real.

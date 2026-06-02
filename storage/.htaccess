@@ -6,7 +6,7 @@ Options -Indexes
     Order allow,deny
     Deny from all
 </IfModule>
-<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh|sql|log|bak|backup|old|orig|tmp|zip|tar|gz|7z|dm)$">
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh|sql|log|bak|backup|old|orig|tmp|zip|tar|gz|7z)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
