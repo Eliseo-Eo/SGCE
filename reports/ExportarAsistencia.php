@@ -24,6 +24,10 @@ if ($CicloId > 0 && ($FechaInicio === '' || $FechaFin === '')) {
 $TieneRango = preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin);
 if ($Rango !== 'Hoy' && !$TieneRango) { http_response_code(400); exit('Selecciona fecha de inicio y fecha fin válidas.'); }
 if ($TieneRango && $FechaInicio > $FechaFin) { http_response_code(400); exit('La fecha de inicio no puede ser mayor que la fecha fin.'); }
+if ($Rango !== 'Hoy' && $TieneRango && function_exists('SgceRepoValidarRangoReporte') && !SgceRepoValidarRangoReporte($FechaInicio, $FechaFin, 370)) {
+    http_response_code(400);
+    exit('El rango del reporte de asistencia no puede superar 370 días. Divide el reporte por ciclo o por periodos más pequeños.');
+}
 if ($AsignacionId <= 0 && $GrupoId <= 0) { http_response_code(400); exit('Selecciona un grupo o una asignación.'); }
 
 function HAsis($Texto){ return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }

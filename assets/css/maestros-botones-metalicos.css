@@ -1,5 +1,4 @@
 
-
 html body .SgceModuleWrap #BtnGuardarMaestroVerdeMetalico,
 html body .SgceModuleWrap button#BtnGuardarMaestroVerdeMetalico.BtnMaestroGuardarMetalico,
 html body button#BtnGuardarMaestroVerdeMetalico{
@@ -104,3 +103,95 @@ html body .SgceModuleWrap #BtnImportarMaestroAzulMetalico span{
   position:relative!important;
   z-index:1!important;
 }
+
+@media (min-width: 992px){
+  html body .SgceModuleWrap #maestros .MaestrosLayoutRow{
+    align-items:stretch!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosSideCol,
+  html body .SgceModuleWrap #maestros .MaestrosTableCol{
+    display:flex!important;
+    flex-direction:column!important;
+    align-self:stretch!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosSideCol{
+    min-height:531px!important;
+    height:auto!important;
+    gap:14px!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosRegisterCard{
+    flex:0 0 auto!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosImportCard{
+    flex:1 1 auto!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosTableCard{
+    min-height:563px!important;
+    height:auto!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{
+    min-height:392px!important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px){
+  html body .SgceModuleWrap #maestros .MaestrosSideCol{
+    min-height:506px!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosTableCard{
+    min-height:536px!important;
+  }
+
+  html body .SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{
+    min-height:356px!important;
+  }
+}
+
+/* SGCE 1.0.91: Estilos específicos extraídos de sgce-base para reducir herencia global. */
+.MaestrosSideCard{padding:0!important;border-left:0!important;overflow:hidden;}
+.MaestrosSideCard .card-body{padding:18px 18px 20px!important;}
+.MaestrosCardTitle{display:flex;align-items:center;gap:9px;min-height:48px;padding:16px 18px 0!important;color:var(--SgceGuindaOscuro)!important;font-size:.98rem;font-weight:900;text-transform:uppercase;letter-spacing:.2px;}
+.MaestrosCardTitle i{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;background:#FDE8EE;color:var(--SgceGuinda)!important;}
+.MaestrosImportTitle i{background:#E8F7EE;color:#159447!important;}
+.MaestrosFormStack{display:flex;flex-direction:column;gap:13px;}
+.MaestrosFieldGroup{display:flex;flex-direction:column;gap:6px;}
+.MaestrosFieldGroup label{margin:0;font-size:.74rem;font-weight:900;text-transform:uppercase;color:#64748B;letter-spacing:.25px;}
+.MaestrosInput,.MaestrosSideCard .form-control,.MaestrosSideCard .form-select{width:100%!important;min-height:45px!important;height:45px!important;border-radius:14px!important;border:2px solid #E2E8F0!important;font-size:.88rem!important;font-weight:700!important;padding:9px 12px!important;}
+.MaestrosFileInput{padding:8px 12px!important;line-height:1.5!important;}
+.MaestrosHelpText{margin:0;color:#64748B;font-size:.78rem;line-height:1.55;font-weight:700;}
+.MaestrosHelpText code{color:#E11D48;background:#FFF1F2;border-radius:8px;padding:2px 5px;font-weight:900;}
+.BtnTeacherPrimary,.MaestrosSideCard .BtnTeacherPrimary{min-height:46px!important;height:46px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;font-size:.88rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20)!important;transition:.2s ease!important;}
+.MaestrosLayoutRow{align-items:stretch!important;--bs-gutter-x:1.4rem!important;}
+.MaestrosSideCol,.MaestrosTableCol{display:flex!important;flex-direction:column!important;}
+.MaestrosSideCol{gap:16px!important;}
+.MaestrosSideCol .MaestrosSideCard{margin-bottom:0!important;}
+.MaestrosRegisterCard{flex:0 0 auto!important;}
+.MaestrosImportCard{flex:1 1 auto!important;}
+.MaestrosTableCard{min-height:625px!important;height:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.MaestrosTableCard .table-responsive{flex:1 1 auto!important;min-height:435px!important;}
+.MaestrosTableTop h6{color:#334155!important;font-weight:800!important;}
+#TableMaestros{margin-bottom:0!important;}
+#TableMaestros thead th{height:42px!important;}
+#TableMaestros tbody td{height:56px!important;}
+#TableMaestros .AdminActions{gap:10px!important;}
+#TableMaestros .ActionBtn.BtnTeacherEdit,#TableMaestros .ActionBtn.BtnTeacherDelete{position:relative!important;overflow:hidden!important;min-height:38px!important;padding:9px 14px!important;border-radius:999px!important;border:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;font-size:.78rem!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 12px 22px rgba(15,23,42,.12)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+#TableMaestros .ActionBtn.BtnTeacherEdit::before,#TableMaestros .ActionBtn.BtnTeacherDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 100%);opacity:.72;pointer-events:none;}
+#TableMaestros .ActionBtn.BtnTeacherEdit::after,#TableMaestros .ActionBtn.BtnTeacherDelete::after{content:"";position:absolute;width:38px;height:120%;top:-10%;left:-52px;transform:skewX(-20deg);background:rgba(255,255,255,.42);filter:blur(3px);transition:left .45s ease;pointer-events:none;}
+#TableMaestros .ActionBtn.BtnTeacherEdit:hover::after,#TableMaestros .ActionBtn.BtnTeacherDelete:hover::after{left:120%;}
+#TableMaestros .ActionBtn.BtnTeacherEdit:hover,#TableMaestros .ActionBtn.BtnTeacherDelete:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+#TableMaestros .ActionBtn.BtnTeacherEdit i,#TableMaestros .ActionBtn.BtnTeacherEdit span,#TableMaestros .ActionBtn.BtnTeacherDelete i,#TableMaestros .ActionBtn.BtnTeacherDelete span{position:relative;z-index:1;margin:0!important;}
+#TableMaestros .ActionBtn.BtnTeacherEdit{background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(37,99,235,.22)!important;}
+#TableMaestros .ActionBtn.BtnTeacherEdit:hover{box-shadow:0 16px 28px rgba(37,99,235,.30)!important;}
+#TableMaestros .ActionBtn.BtnTeacherDelete{background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;}
+#TableMaestros .ActionBtn.BtnTeacherDelete:hover{box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;}
+@media(max-width:1199px){.MaestrosTableCard{min-height:595px!important}.MaestrosTableCard .table-responsive{min-height:395px!important}}
+@media(max-width:991px){.MaestrosLayoutRow{gap:18px!important}.MaestrosTableCard{min-height:420px!important;height:auto!important}.MaestrosTableCard .table-responsive{min-height:240px!important}}
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard{min-height:616px!important;}
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{min-height:396px!important;}

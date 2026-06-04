@@ -23,8 +23,6 @@ html body .SgcePage #BtnGuardarAsistenciaVerdeMetalico:hover {
     color: #ffffff !important;
 }
 
-
-
 html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon {
     width: 42px !important;
     height: 42px !important;
@@ -82,3 +80,12 @@ html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
     line-height: 1 !important;
     filter: drop-shadow(0 1px 0 rgba(255,255,255,.75)) !important;
 }
+
+/* SGCE 1.0.91: Estilos específicos extraídos de sgce-base para reducir herencia global. */
+.MetricAsistencias{background:linear-gradient(135deg,#fff,#F0FDF4);}
+.MetricAsistencias .MetricIcon{background:#DCFCE7;color:#16A34A;}
+.MetricAsistencias strong{color:#15803D;}
+.BtnAsistencia{background:linear-gradient(135deg,#15803D,#16A34A)!important;}
+.BtnCalificaciones:hover,.BtnAsistencia:hover{transform:translateY(-1px);filter:brightness(.97);}
+.SgceModuleWrap .ActionSuccess,.SgceModuleWrap .btn-success,.SgceModuleWrap .BtnExcel,.SgceModuleWrap .BtnAsistencia{background:linear-gradient(135deg,#0E7A3A,#22C55E)!important;box-shadow:0 14px 28px rgba(34,197,94,.22)!important;}
+.SgceModuleWrap .MaestroAccionesGrid .BtnAsistencia{background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 48%,#60A5FA 100%)!important;box-shadow:0 14px 28px rgba(37,99,235,.28)!important;}

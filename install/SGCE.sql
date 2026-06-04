@@ -6,11 +6,24 @@ CREATE TABLE ConfiguracionSistema (
     INDEX idx_config_fecha (FechaActualizacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+
+CREATE TABLE SchemaMigrations (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Version VARCHAR(40) NOT NULL,
+    Nombre VARCHAR(180) NOT NULL,
+    Checksum CHAR(64) NOT NULL DEFAULT '',
+    AplicadaEn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unico_schema_migration_version (Version),
+    INDEX idx_schema_migrations_aplicada (AplicadaEn)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE Usuarios (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(80) NOT NULL,
     Password VARCHAR(255) NOT NULL,
     NombreCompleto VARCHAR(140) NOT NULL,
+    NombreBusqueda VARCHAR(180) NOT NULL DEFAULT '',
     Rol ENUM('admin', 'administrativo', 'maestro') NOT NULL DEFAULT 'maestro',
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     SessionToken CHAR(64) DEFAULT NULL,
@@ -22,6 +35,8 @@ CREATE TABLE Usuarios (
     INDEX idx_usuarios_session_expira (SessionTokenExpira),
     INDEX idx_usuarios_rol_activo_nombre (Rol, Activo, NombreCompleto),
     INDEX idx_usuarios_nombre (NombreCompleto),
+    INDEX idx_usuarios_nombre_busqueda (NombreBusqueda),
+    FULLTEXT KEY ft_usuarios_busqueda (NombreBusqueda, NombreCompleto),
     INDEX idx_usuarios_activo (Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -31,8 +46,10 @@ CREATE TABLE CiclosEscolares (
     FechaInicio DATE NOT NULL,
     FechaFin DATE NOT NULL,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
+    ActivoUnico TINYINT GENERATED ALWAYS AS (CASE WHEN Activo = 1 THEN 1 ELSE NULL END) STORED,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unico_ciclo_nombre (Nombre),
+    UNIQUE KEY unico_ciclo_activo (ActivoUnico),
     INDEX idx_ciclos_activo_fecha (Activo, FechaInicio, FechaFin)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -41,25 +58,48 @@ CREATE TABLE OfertasEducativas (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     Nombre VARCHAR(140) NOT NULL,
     NivelEducativo ENUM('PRIMARIA','SECUNDARIA','BACHILLERATO','UNIVERSIDAD','MAESTRIA','DOCTORADO','CURSO') NOT NULL DEFAULT 'SECUNDARIA',
-    TipoPeriodizacion ENUM('ANUAL','SEMESTRAL','CUATRIMESTRAL','MODULAR') NOT NULL DEFAULT 'ANUAL',
+    TipoPeriodizacion ENUM('ANUAL','SEMESTRAL','CUATRIMESTRAL','TRIMESTRAL','MODULAR') NOT NULL DEFAULT 'ANUAL',
     TotalEtapas INT UNSIGNED NOT NULL DEFAULT 3,
-    UsaCarreras TINYINT(1) NOT NULL DEFAULT 0,
+    EtiquetaEtapa VARCHAR(40) NOT NULL DEFAULT 'GRADO',
+    UsaProgramas TINYINT(1) NOT NULL DEFAULT 0,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unico_oferta_nombre (Nombre),
-    INDEX idx_oferta_activa (Activo, NivelEducativo, TipoPeriodizacion)
+    INDEX idx_oferta_activa (Activo, NivelEducativo, TipoPeriodizacion),
+    INDEX idx_oferta_nivel_periodizacion (NivelEducativo, TipoPeriodizacion, Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE Carreras (
+CREATE TABLE ConfiguracionesAcademicas (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    OfertaId INT UNSIGNED NOT NULL,
+    CantidadPeriodosEvaluacion INT UNSIGNED NOT NULL DEFAULT 3,
+    NombreBasePeriodo VARCHAR(60) NOT NULL DEFAULT 'PARCIAL',
+    ModoPeriodos ENUM('AUTOMATICO','PERSONALIZADO') NOT NULL DEFAULT 'AUTOMATICO',
+    PeriodosPersonalizados TEXT DEFAULT NULL,
+    UsaPlaneaciones TINYINT(1) NOT NULL DEFAULT 1,
+    TipoPlaneacion ENUM('CICLO','PERIODO','UNIDAD','SEMANA') NOT NULL DEFAULT 'PERIODO',
+    PlaneacionesCantidad INT UNSIGNED NOT NULL DEFAULT 3,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_config_academica_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_config_academica_oferta (OfertaId),
+    INDEX idx_config_academica_activa (Activo, OfertaId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ProgramasEducativos (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    OfertaId INT UNSIGNED NOT NULL,
     Nombre VARCHAR(160) NOT NULL,
     Clave VARCHAR(30) DEFAULT NULL,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unico_carrera_nombre (Nombre),
-    INDEX idx_carreras_activo_nombre (Activo, Nombre)
+    CONSTRAINT fk_programas_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_programa_oferta_nombre (OfertaId, Nombre),
+    INDEX idx_programas_activo_nombre (Activo, Nombre),
+    INDEX idx_programas_oferta_activo (OfertaId, Activo, Nombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE EtapasAcademicas (
@@ -80,10 +120,9 @@ CREATE TABLE EtapasAcademicas (
 CREATE TABLE Grupos (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     CicloId INT UNSIGNED NOT NULL,
-    OfertaId INT UNSIGNED DEFAULT NULL,
-    CarreraId INT UNSIGNED DEFAULT NULL,
-    CarreraKey INT UNSIGNED GENERATED ALWAYS AS (IFNULL(CarreraId, 0)) STORED,
-    EtapaId INT UNSIGNED DEFAULT NULL,
+    OfertaId INT UNSIGNED NOT NULL,
+    ProgramaId INT UNSIGNED NOT NULL,
+    EtapaId INT UNSIGNED NOT NULL,
     Grado VARCHAR(40) NOT NULL,
     Grupo VARCHAR(10) NOT NULL,
     Turno ENUM('MATUTINO', 'VESPERTINO') NOT NULL,
@@ -92,18 +131,19 @@ CREATE TABLE Grupos (
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_grupos_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_grupos_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_grupos_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_grupos_programa FOREIGN KEY (ProgramaId) REFERENCES ProgramasEducativos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_grupos_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE KEY unico_grupo_multiescolar (CicloId, OfertaId, CarreraKey, EtapaId, Grupo, Turno),
+    UNIQUE KEY unico_grupo_estructura (CicloId, OfertaId, ProgramaId, EtapaId, Grupo, Turno),
     INDEX idx_grupos_busqueda_publica (CicloId, Grado, Grupo, Turno, Activo),
     INDEX idx_grupos_orden (CicloId, Activo, Turno, Grado, Grupo, Id),
     INDEX idx_grupos_ciclo (CicloId, Activo),
-    INDEX idx_grupos_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Turno, Grupo, Activo)
+    INDEX idx_grupos_estructura (CicloId, OfertaId, ProgramaId, EtapaId, Turno, Grupo, Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Alumnos (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     NombreCompleto VARCHAR(160) NOT NULL,
+    NombreBusqueda VARCHAR(200) NOT NULL DEFAULT '',
     GrupoId INT UNSIGNED DEFAULT NULL,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -113,6 +153,8 @@ CREATE TABLE Alumnos (
     INDEX idx_alumnos_grupo_nombre_id (GrupoId, NombreCompleto, Id),
     INDEX idx_alumnos_busqueda_publica (GrupoId, NombreCompleto, Activo),
     INDEX idx_alumnos_nombre (NombreCompleto),
+    INDEX idx_alumnos_nombre_busqueda (NombreBusqueda),
+    FULLTEXT KEY ft_alumnos_busqueda (NombreBusqueda, NombreCompleto),
     INDEX idx_alumnos_activo_grupo_nombre (Activo, GrupoId, NombreCompleto, Id),
     INDEX idx_alumnos_activo (Activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -122,9 +164,9 @@ CREATE TABLE AlumnoInscripciones (
     AlumnoId INT UNSIGNED NOT NULL,
     CicloId INT UNSIGNED NOT NULL,
     GrupoId INT UNSIGNED NOT NULL,
-    OfertaId INT UNSIGNED DEFAULT NULL,
-    CarreraId INT UNSIGNED DEFAULT NULL,
-    EtapaId INT UNSIGNED DEFAULT NULL,
+    OfertaId INT UNSIGNED NOT NULL,
+    ProgramaId INT UNSIGNED NOT NULL,
+    EtapaId INT UNSIGNED NOT NULL,
     Estado ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
     FechaInscripcion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -132,24 +174,57 @@ CREATE TABLE AlumnoInscripciones (
     CONSTRAINT fk_inscripciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_inscripciones_grupo FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_inscripciones_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_inscripciones_carrera FOREIGN KEY (CarreraId) REFERENCES Carreras(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_inscripciones_programa FOREIGN KEY (ProgramaId) REFERENCES ProgramasEducativos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_inscripciones_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     UNIQUE KEY unico_alumno_ciclo (AlumnoId, CicloId),
     INDEX idx_inscripciones_ciclo_grupo_estado (CicloId, GrupoId, Estado, AlumnoId),
     INDEX idx_inscripciones_alumno_ciclo (AlumnoId, CicloId),
     INDEX idx_inscripciones_grupo_estado (GrupoId, Estado),
-    INDEX idx_inscripciones_multiescolar (CicloId, OfertaId, CarreraId, EtapaId, Estado, GrupoId, AlumnoId)
+    INDEX idx_inscripciones_estructura (CicloId, OfertaId, ProgramaId, EtapaId, Estado, GrupoId, AlumnoId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE MateriasCatalogo (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     Nombre VARCHAR(140) NOT NULL,
+    NombreBusqueda VARCHAR(180) NOT NULL DEFAULT '',
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unico_materia_nombre (Nombre),
-    INDEX idx_materias_activo_nombre (Activo, Nombre)
+    INDEX idx_materias_activo_nombre (Activo, Nombre),
+    INDEX idx_materias_nombre_busqueda (NombreBusqueda),
+    FULLTEXT KEY ft_materias_catalogo_busqueda (NombreBusqueda, Nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE MateriasGrupo (
+    Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    CicloId INT UNSIGNED NOT NULL,
+    OfertaId INT UNSIGNED NOT NULL,
+    ProgramaId INT UNSIGNED NOT NULL,
+    EtapaId INT UNSIGNED NOT NULL,
+    GrupoId INT UNSIGNED NOT NULL,
+    MateriaId INT UNSIGNED NOT NULL,
+    MateriaNombre VARCHAR(140) NOT NULL,
+    MateriaBusqueda VARCHAR(180) NOT NULL DEFAULT '',
+    HorasSemana TINYINT UNSIGNED NOT NULL,
+    Activo TINYINT(1) NOT NULL DEFAULT 1,
+    FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT chk_materias_grupo_horas CHECK (HorasSemana >= 1 AND HorasSemana <= 40),
+    CONSTRAINT fk_materias_grupo_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_materias_grupo_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_materias_grupo_programa FOREIGN KEY (ProgramaId) REFERENCES ProgramasEducativos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_materias_grupo_etapa FOREIGN KEY (EtapaId) REFERENCES EtapasAcademicas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_materias_grupo_grupo FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_materias_grupo_catalogo FOREIGN KEY (MateriaId) REFERENCES MateriasCatalogo(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_materia_por_grupo (CicloId, GrupoId, MateriaId),
+    INDEX idx_materias_grupo_ciclo_grupo (CicloId, GrupoId, Activo, MateriaNombre),
+    INDEX idx_materias_grupo_estructura (CicloId, OfertaId, ProgramaId, EtapaId, GrupoId, Activo),
+    INDEX idx_materias_grupo_catalogo (MateriaId, Activo),
+    INDEX idx_materias_grupo_busqueda (CicloId, Activo, MateriaBusqueda, GrupoId),
+    FULLTEXT KEY ft_materiasgrupo_busqueda (MateriaBusqueda, MateriaNombre),
+    INDEX idx_materias_grupo_horas (CicloId, GrupoId, HorasSemana)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Asignaciones (
@@ -157,36 +232,47 @@ CREATE TABLE Asignaciones (
     CicloId INT UNSIGNED NOT NULL,
     MaestroId INT UNSIGNED NOT NULL,
     GrupoId INT UNSIGNED NOT NULL,
-    MateriaId INT UNSIGNED DEFAULT NULL,
+    MateriaGrupoId INT UNSIGNED NOT NULL,
+    MateriaId INT UNSIGNED NOT NULL,
     MateriaNombre VARCHAR(140) NOT NULL,
+    MateriaBusqueda VARCHAR(180) NOT NULL DEFAULT '',
+    HorasSemana TINYINT UNSIGNED NOT NULL,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT chk_asignaciones_horas CHECK (HorasSemana >= 1 AND HorasSemana <= 40),
     CONSTRAINT fk_asignaciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_asignaciones_maestros FOREIGN KEY (MaestroId) REFERENCES Usuarios(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_asignaciones_grupos FOREIGN KEY (GrupoId) REFERENCES Grupos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_asignaciones_materia_grupo FOREIGN KEY (MateriaGrupoId) REFERENCES MateriasGrupo(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_asignaciones_materia_catalogo FOREIGN KEY (MateriaId) REFERENCES MateriasCatalogo(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE KEY unica_asignacion (CicloId, MaestroId, GrupoId, MateriaNombre),
-    UNIQUE KEY unica_materia_grupo_ciclo (CicloId, GrupoId, MateriaNombre),
+    UNIQUE KEY unica_asignacion_materia_grupo (MateriaGrupoId),
+    UNIQUE KEY unica_materia_grupo_ciclo (CicloId, GrupoId, MateriaId),
     INDEX idx_asignaciones_maestro (CicloId, MaestroId, Activo),
     INDEX idx_asignaciones_grupo (CicloId, GrupoId, Activo),
     INDEX idx_asignaciones_grupo_id (GrupoId, Id, Activo),
-    INDEX idx_asignaciones_grupo_materia (CicloId, GrupoId, MateriaNombre, MaestroId),
+    INDEX idx_asignaciones_grupo_materia (CicloId, GrupoId, MateriaId, MaestroId),
     INDEX idx_asignaciones_activo_maestro_grupo_materia (CicloId, Activo, MaestroId, GrupoId, MateriaNombre, Id),
     INDEX idx_asignaciones_materia (MateriaNombre),
-    INDEX idx_asignaciones_materia_id (MateriaId)
+    INDEX idx_asignaciones_materia_busqueda (CicloId, Activo, MateriaBusqueda),
+    FULLTEXT KEY ft_asignaciones_busqueda (MateriaBusqueda, MateriaNombre),
+    INDEX idx_asignaciones_materia_id (MateriaId),
+    INDEX idx_asignaciones_materia_grupo_id (MateriaGrupoId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE PeriodosEvaluacion (
     Id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     CicloId INT UNSIGNED NOT NULL,
+    OfertaId INT UNSIGNED NOT NULL,
     Nombre VARCHAR(80) NOT NULL,
     Orden INT UNSIGNED NOT NULL DEFAULT 1,
     Activo TINYINT(1) NOT NULL DEFAULT 1,
     FechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_periodos_ciclos FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    UNIQUE KEY unico_periodo_ciclo_nombre (CicloId, Nombre),
-    UNIQUE KEY unico_periodo_ciclo_orden (CicloId, Orden),
+    CONSTRAINT fk_periodos_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    UNIQUE KEY unico_periodo_ciclo_oferta_nombre (CicloId, OfertaId, Nombre),
+    UNIQUE KEY unico_periodo_ciclo_oferta_orden (CicloId, OfertaId, Orden),
+    INDEX idx_periodos_ciclo_oferta_orden (CicloId, OfertaId, Activo, Orden),
     INDEX idx_periodos_ciclo_orden (CicloId, Activo, Orden)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -262,7 +348,7 @@ CREATE TABLE KardexAlumno (
     GrupoSnapshot VARCHAR(10) NOT NULL,
     TurnoSnapshot VARCHAR(20) NOT NULL,
     OfertaNombreSnapshot VARCHAR(140) DEFAULT NULL,
-    CarreraNombreSnapshot VARCHAR(160) DEFAULT NULL,
+    ProgramaNombreSnapshot VARCHAR(160) DEFAULT NULL,
     EtapaNombreSnapshot VARCHAR(40) DEFAULT NULL,
     EstadoFinal ENUM('INSCRITO','PROMOVIDO','EGRESADO','BAJA') NOT NULL DEFAULT 'INSCRITO',
     PromedioFinal DECIMAL(5,2) DEFAULT NULL,
@@ -282,9 +368,7 @@ CREATE TABLE KardexDetalle (
     KardexId BIGINT UNSIGNED NOT NULL,
     MateriaNombreSnapshot VARCHAR(140) NOT NULL,
     MaestroNombreSnapshot VARCHAR(140) DEFAULT NULL,
-    Parcial1 DECIMAL(4,2) DEFAULT NULL,
-    Parcial2 DECIMAL(4,2) DEFAULT NULL,
-    Parcial3 DECIMAL(4,2) DEFAULT NULL,
+    CalificacionesJson TEXT NOT NULL,
     Promedio DECIMAL(5,2) DEFAULT NULL,
     Orden INT UNSIGNED NOT NULL DEFAULT 1,
     CONSTRAINT fk_kardex_detalle FOREIGN KEY (KardexId) REFERENCES KardexAlumno(Id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -306,9 +390,13 @@ CREATE TABLE Avisos (
 CREATE TABLE Planeaciones (
     Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     CicloId INT UNSIGNED NOT NULL,
+    OfertaId INT UNSIGNED NOT NULL,
+    PeriodoId INT UNSIGNED DEFAULT NULL,
+    ProgramaId INT UNSIGNED NOT NULL,
     MaestroId INT UNSIGNED NOT NULL,
     MateriaNombre VARCHAR(140) NOT NULL,
     Numero INT UNSIGNED NOT NULL,
+    TipoPlaneacion ENUM('CICLO','PERIODO','UNIDAD','SEMANA') NOT NULL DEFAULT 'PERIODO',
     VersionArchivo INT UNSIGNED NOT NULL DEFAULT 1,
     Titulo VARCHAR(180) DEFAULT NULL,
     ArchivoOriginal VARCHAR(255) NOT NULL,
@@ -322,12 +410,16 @@ CREATE TABLE Planeaciones (
     FechaSubida TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_planeaciones_ciclo FOREIGN KEY (CicloId) REFERENCES CiclosEscolares(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_planeaciones_oferta FOREIGN KEY (OfertaId) REFERENCES OfertasEducativas(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_planeaciones_programa FOREIGN KEY (ProgramaId) REFERENCES ProgramasEducativos(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_planeaciones_periodo FOREIGN KEY (PeriodoId) REFERENCES PeriodosEvaluacion(Id) ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT fk_planeaciones_maestro FOREIGN KEY (MaestroId) REFERENCES Usuarios(Id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_planeaciones_revisor FOREIGN KEY (RevisadoPor) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE,
-    UNIQUE KEY unico_planeacion_docente_materia_numero (CicloId, MaestroId, MateriaNombre, Numero),
-    INDEX idx_planeaciones_maestro_ciclo (MaestroId, CicloId, MateriaNombre, Numero),
+    UNIQUE KEY unico_planeacion_docente_materia_numero (CicloId, OfertaId, ProgramaId, MaestroId, MateriaNombre, Numero),
+    INDEX idx_planeaciones_maestro_ciclo (MaestroId, CicloId, ProgramaId, MateriaNombre, Numero),
     INDEX idx_planeaciones_estado (Estado, FechaActualizacion),
-    INDEX idx_planeaciones_numero (Numero)
+    INDEX idx_planeaciones_numero (Numero),
+    INDEX idx_planeaciones_modelo_academico (CicloId, OfertaId, ProgramaId, PeriodoId, TipoPlaneacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE BitacoraMovimientos (
@@ -338,6 +430,7 @@ CREATE TABLE BitacoraMovimientos (
     TablaAfectada VARCHAR(80) DEFAULT NULL,
     RegistroId BIGINT UNSIGNED DEFAULT NULL,
     Detalle TEXT DEFAULT NULL,
+    BusquedaTexto VARCHAR(500) NOT NULL DEFAULT '',
     Ip VARCHAR(45) DEFAULT NULL,
     FechaRegistro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_bitacora_usuario FOREIGN KEY (UsuarioId) REFERENCES Usuarios(Id) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -345,8 +438,13 @@ CREATE TABLE BitacoraMovimientos (
     INDEX idx_bitacora_usuario_fecha (UsuarioId, FechaRegistro),
     INDEX idx_bitacora_accion_fecha (Accion, FechaRegistro),
     INDEX idx_bitacora_fecha_id (FechaRegistro, Id),
-    INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId)
+    INDEX idx_bitacora_busqueda (FechaRegistro, Accion, UsuarioId),
+    INDEX idx_bitacora_tabla_registro (TablaAfectada, RegistroId),
+    FULLTEXT KEY ft_bitacora_busqueda (BusquedaTexto, Accion, TablaAfectada, Detalle)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE BitacoraMovimientosArchivo LIKE BitacoraMovimientos;
 
 CREATE TABLE IntentosSeguridad (
     Id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -359,3 +457,5 @@ CREATE TABLE IntentosSeguridad (
     INDEX idx_intentos_bloqueado (Contexto, BloqueadoHasta),
     INDEX idx_intentos_ultimo (UltimoIntento)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO SchemaMigrations (Version, Nombre, Checksum) VALUES ('1.0.91-base', 'Instalación base SGCE 1.0.91', 'BASE_INSTALL');

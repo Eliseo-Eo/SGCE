@@ -26,17 +26,18 @@ if (!$ConsultaGuardada) {
 
 $Datos = $ConsultaGuardada['Datos'] ?? [];
 $NombreAlumno = SgceNormalizarMayusculas($Datos['NombreAlumno'] ?? '');
+$ProgramaId = (int)($Datos['ProgramaId'] ?? 0);
 $Grado = SgceNormalizarMayusculas($Datos['Grado'] ?? '');
 $Grupo = SgcePublicoNormalizarGrupo($Datos['Grupo'] ?? '');
 $Turno = SgceNormalizarMayusculas($Datos['Turno'] ?? '');
 
-$RateKey = SgcePublicoRateKey($NombreAlumno, $Grado, $Grupo, $Turno);
+$RateKey = SgcePublicoRateKey($NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno);
 if (!SgcePublicoRateDisponible($Pdo, 'exportar_boleta_publica', $RateKey)) {
     http_response_code(429);
     exit('Demasiados intentos. Espera unos minutos e intenta nuevamente.');
 }
 
-$DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $Grado, $Grupo, $Turno, $Error);
+$DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno, $Error);
 if (!$DatosAlumno) {
     SgcePublicoRegistrarFallo($Pdo, 'exportar_boleta_publica', $RateKey, 8, 24, 15);
     http_response_code(404);
@@ -61,7 +62,7 @@ foreach ($DatosCal['Filas'] as $Fila) {
     $FilasPdf[] = $Row;
 }
 
-$GrupoTexto = trim(($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
+$GrupoTexto = trim((($InfoGrupo['ProgramaNombre'] ?? '') !== '' ? ($InfoGrupo['ProgramaNombre'] . ' / ') : '') . ($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
 $Promedio = $DatosCal['PromedioGeneral'] !== null ? number_format((float)$DatosCal['PromedioGeneral'], 2) : '-';
 $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Ciclo: ' . (($DatosCal['Ciclo']['Nombre'] ?? '') ?: 'Sin ciclo activo') . ' | Promedio general: ' . $Promedio;
 $Anchos = [230];

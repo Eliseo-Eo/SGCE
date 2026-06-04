@@ -26,13 +26,14 @@ if (!$ConsultaGuardada) {
 
 $Datos = $ConsultaGuardada['Datos'] ?? [];
 $NombreAlumno = SgceNormalizarMayusculas($Datos['NombreAlumno'] ?? '');
+$ProgramaId = (int)($Datos['ProgramaId'] ?? 0);
 $Grado = SgceNormalizarMayusculas($Datos['Grado'] ?? '');
 $Grupo = SgcePublicoNormalizarGrupo($Datos['Grupo'] ?? '');
 $Turno = SgceNormalizarMayusculas($Datos['Turno'] ?? '');
 $FechaInicio = SgcePublicoNormalizarFecha($Datos['FechaInicio'] ?? date('Y-m-d'), date('Y-m-d'));
 $FechaFin = SgcePublicoNormalizarFecha($Datos['FechaFin'] ?? date('Y-m-d'), date('Y-m-d'));
 
-$RateKey = SgcePublicoRateKey($NombreAlumno, $Grado, $Grupo, $Turno);
+$RateKey = SgcePublicoRateKey($NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno);
 if (!SgcePublicoRateDisponible($Pdo, 'exportar_asistencia_publica', $RateKey)) {
     http_response_code(429);
     exit('Demasiados intentos. Espera unos minutos e intenta nuevamente.');
@@ -40,7 +41,7 @@ if (!SgcePublicoRateDisponible($Pdo, 'exportar_asistencia_publica', $RateKey)) {
 [$FechaInicio, $FechaFin] = SgcePublicoValidarRangoFechas($FechaInicio, $FechaFin, $Error, 60);
 if ($Error !== '') { http_response_code(400); exit($Error); }
 
-$DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $Grado, $Grupo, $Turno, $Error);
+$DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno, $Error);
 if (!$DatosAlumno) {
     SgcePublicoRegistrarFallo($Pdo, 'exportar_asistencia_publica', $RateKey, 8, 24, 15);
     http_response_code(404);
@@ -56,7 +57,7 @@ foreach ($Resumen['Detalle'] as $D) {
     $FilasPdf[] = [$D['FechaTexto'], $D['MateriaNombre'], $D['Maestro'], SgcePublicoTextoEstado($D['Estado'])];
 }
 
-$GrupoTexto = trim(($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
+$GrupoTexto = trim((($InfoGrupo['ProgramaNombre'] ?? '') !== '' ? ($InfoGrupo['ProgramaNombre'] . ' / ') : '') . ($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
 $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Rango: ' . date('d/m/Y', strtotime($FechaInicio)) . ' al ' . date('d/m/Y', strtotime($FechaFin)) . ' | A ' . $Resumen['Conteos']['A'] . ' / F ' . $Resumen['Conteos']['F'] . ' / R ' . $Resumen['Conteos']['R'] . ' / J ' . $Resumen['Conteos']['J'];
 RegistrarBitacora($Pdo, ['Id' => null, 'Rol' => 'publico'], 'EXPORTAR_ASISTENCIA_PUBLICA', 'Alumnos', (int)$Alumno['Id'], 'PDF PÚBLICO DE ASISTENCIA');
 SgcePdfRespuestaTabla($Pdo, 'Reporte de asistencia individual', $Subtitulo, ['Fecha', 'Materia', 'Docente', 'Estado'], $FilasPdf, 'Asistencia_' . $Alumno['NombreCompleto'] . '_' . $FechaInicio . '_' . $FechaFin, 'L', [85, 230, 230, 120]);

@@ -15,9 +15,11 @@ $Error = '';
 
 $StmtAvisosPadres = $Pdo->query("SELECT Titulo, Mensaje, FechaCreacion FROM Avisos WHERE Activo = 1 AND Publico IN ('TODOS','PADRES') ORDER BY FechaCreacion DESC LIMIT 3");
 $AvisosPadres = $StmtAvisosPadres ? $StmtAvisosPadres->fetchAll() : [];
-[$GradosDisponibles, $GruposDisponibles] = SgcePublicoCatalogos($Pdo);
+[$ProgramasDisponibles, $GradosDisponibles, $GruposDisponibles, $UsaProgramasPublico] = SgcePublicoCatalogos($Pdo);
+$EtiquetaEtapaPublica = SgceEtiquetaEtapaActual($Pdo);
 
 $NombreAlumno = '';
+$ProgramaId = 0;
 $Grado = '';
 $Grupo = '';
 $Turno = '';
@@ -35,11 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ConsultaToken !== '') {
     } else {
         $Datos = $ConsultaGuardada['Datos'] ?? [];
         $NombreAlumno = SgceNormalizarMayusculas($Datos['NombreAlumno'] ?? '');
+        $ProgramaId = (int)($Datos['ProgramaId'] ?? 0);
         $Grado = SgceNormalizarMayusculas($Datos['Grado'] ?? '');
         $Grupo = SgcePublicoNormalizarGrupo($Datos['Grupo'] ?? '');
         $Turno = SgceNormalizarMayusculas($Datos['Turno'] ?? '');
 
-        $DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $Grado, $Grupo, $Turno, $Error);
+        $DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno, $Error);
         if ($DatosAlumno) {
             $Alumno = $DatosAlumno['Alumno'];
             $InfoGrupo = $DatosAlumno['Grupo'];
@@ -47,7 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ConsultaToken !== '') {
             $Resultado = [
                 'Alumno' => $Alumno['NombreCompleto'],
                 'AlumnoId' => (int)$Alumno['Id'],
-                'Grado' => $InfoGrupo['Grado'],
+                'ProgramaId' => (int)($InfoGrupo['ProgramaId'] ?? 0),
+                    'Programa' => $InfoGrupo['ProgramaNombre'] ?? '',
+                    'Grado' => $InfoGrupo['Grado'],
                 'Grupo' => $InfoGrupo['Grupo'],
                 'Turno' => $InfoGrupo['Turno'],
             ] + $Calificaciones;
@@ -59,18 +64,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     RequerirCsrfPost();
 
     $NombreAlumno = SgceNormalizarMayusculas($_POST['NombreAlumno'] ?? '');
+    $ProgramaId = (int)($_POST['ProgramaId'] ?? 0);
     $Grado = SgceNormalizarMayusculas($_POST['Grado'] ?? '');
     $Grupo = SgcePublicoNormalizarGrupo($_POST['Grupo'] ?? '');
     $Turno = SgceNormalizarMayusculas($_POST['Turno'] ?? '');
 
-    $RateKey = SgcePublicoRateKey($NombreAlumno, $Grado, $Grupo, $Turno);
+    $RateKey = SgcePublicoRateKey($NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno);
     if (SgcePublicoHoneypotActivado()) {
         SgcePublicoRegistrarFallo($Pdo, 'consulta_calificaciones', $RateKey, 4, 12, 30);
         $Error = 'NO FUE POSIBLE PROCESAR LA CONSULTA. REVISA LOS DATOS E INTENTA NUEVAMENTE.';
     } elseif (!SgcePublicoRateDisponible($Pdo, 'consulta_calificaciones', $RateKey)) {
         $Error = 'DEMASIADOS INTENTOS DE CONSULTA. ESPERA 15 MINUTOS E INTENTA NUEVAMENTE.';
     } else {
-        $DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $Grado, $Grupo, $Turno, $Error);
+        $DatosAlumno = SgcePublicoBuscarAlumno($Pdo, $NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno, $Error);
         if (!$DatosAlumno) {
             SgcePublicoRegistrarFallo($Pdo, 'consulta_calificaciones', $RateKey, 8, 24, 15);
         } else {
@@ -80,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $ConsultaToken = SgcePublicoCrearTokenConsulta('calificaciones', [
                 'NombreAlumno' => $NombreAlumno,
+                'ProgramaId' => $ProgramaId,
                 'Grado' => $Grado,
                 'Grupo' => $Grupo,
                 'Turno' => $Turno,
@@ -103,11 +110,11 @@ function HCC($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-
     <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
     <?= SgceEstilosTema($Pdo) ?>
-    <link rel="stylesheet" href="assets/css/consulta-publica-botones-metalicos.css?v=sgce">
+    <?= SgceCss('assets/css/consulta-publica-botones-metalicos.css') ?>
 </head>
 <body class="ConsultaPublicaBody ConsultaCalificacionesBody">
 
@@ -155,7 +162,7 @@ function HCC($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-
         <div>
             <div class="ConsultaCard">
                 <h4 class="fw-bold mb-1"><span class="SgceColorIcon SgceTitleIcon" aria-hidden="true">🔎</span>Buscar alumno</h4>
-                <p class="text-muted mb-4">Escribe el nombre completo y selecciona grado, grupo y turno. No se muestran listas completas por privacidad.</p>
+                <p class="text-muted mb-4">Escribe el nombre completo y selecciona etapa académica, grupo y turno. No se muestran listas completas por privacidad.</p>
 
                 <?php if($Error): ?>
                     <div class="alert alert-danger mb-4"><i class="fa-solid fa-circle-exclamation me-2"></i><?= HCC($Error) ?></div>
@@ -168,11 +175,22 @@ function HCC($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-
                         <label>Nombre completo del alumno</label>
                         <input type="text" name="NombreAlumno" class="form-control SoloLetrasMayus" placeholder="NOMBRE COMPLETO" value="<?= HCC($NombreAlumno) ?>" required>
                     </div>
+                    <?php if($UsaProgramasPublico): ?>
+                        <div class="mb-3">
+                            <label>Programa educativo</label>
+                            <select name="ProgramaId" class="form-select" required>
+                                <option value="">PROGRAMA EDUCATIVO</option>
+                                <?php foreach($ProgramasDisponibles as $Prog): ?>
+                                    <option value="<?= (int)$Prog['Id'] ?>" <?= $ProgramaId === (int)$Prog['Id'] ? 'selected' : '' ?>><?= HCC($Prog['Nombre']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endif; ?>
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label>Grado</label>
+                            <label><?= HCC($EtiquetaEtapaPublica) ?></label>
                             <select name="Grado" class="form-select" required>
-                                <option value="">GRADO</option>
+                                <option value=""><?= HCC(SgceNormalizarMayusculas($EtiquetaEtapaPublica)) ?></option>
                                 <?php foreach($GradosDisponibles as $G): ?>
                                     <option value="<?= HCC($G['Grado']) ?>" <?= $Grado === $G['Grado'] ? 'selected' : '' ?>><?= HCC($G['Grado']) ?></option>
                                 <?php endforeach; ?>
@@ -215,7 +233,7 @@ function HCC($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-
 
                     <div class="mb-4">
                         <h5 class="fw-bold mb-2"><i class="fa-solid fa-user-graduate text-danger me-2"></i><?= HCC($Resultado['Alumno']) ?></h5>
-                        <div class="text-muted fw-semibold"><?= HCC($Resultado['Grado']) ?> "<?= HCC($Resultado['Grupo']) ?>" · <?= HCC($Resultado['Turno']) ?> · <?= HCC($Resultado['Ciclo']['Nombre'] ?? 'SIN CICLO ACTIVO') ?></div>
+                        <div class="text-muted fw-semibold"><?= !empty($Resultado['Programa']) ? HCC($Resultado['Programa']) . ' · ' : '' ?><?= HCC($Resultado['Grado']) ?> "<?= HCC($Resultado['Grupo']) ?>" · <?= HCC($Resultado['Turno']) ?> · <?= HCC($Resultado['Ciclo']['Nombre'] ?? 'SIN CICLO ACTIVO') ?></div>
                     </div>
 
                     <div class="row g-3">
@@ -273,7 +291,7 @@ function HCC($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
-<script src="assets/js/ConsultaPadre.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceJs('assets/js/ConsultaPadre.js') ?>
 </body>
 </html>

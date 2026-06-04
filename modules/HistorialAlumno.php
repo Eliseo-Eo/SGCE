@@ -26,7 +26,7 @@ function H($Texto) {
 
 $CicloConsultaId = (int)$PeriodoInfo['CicloId'];
 
-$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.CicloId, AI.GrupoId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    INNER JOIN CiclosEscolares C ON C.Id = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
+$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.CicloId, AI.GrupoId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno, G.OfertaId, G.ProgramaId, C.Nombre AS CicloNombre\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    INNER JOIN CiclosEscolares C ON C.Id = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
 $StmtAlumno->execute([$AlumnoId, $CicloConsultaId]);
 $Alumno = $StmtAlumno->fetch();
 
@@ -43,13 +43,13 @@ foreach ($StmtResumenAsis->fetchAll() as $Fila) {
     }
 }
 
-$StmtPromedio = $Pdo->prepare("\n    SELECT ROUND(AVG(C.Calificacion), 1)\n    FROM Calificaciones C\n    INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId\n    INNER JOIN Asignaciones Asg ON Asg.Id = C.AsignacionId AND Asg.CicloId = P.CicloId\n    WHERE C.AlumnoId = ?\n      AND P.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND P.Orden BETWEEN 1 AND 3\n");
-$StmtPromedio->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
+$StmtPromedio = $Pdo->prepare("\n    SELECT ROUND(AVG(C.Calificacion), 1)\n    FROM Calificaciones C\n    INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.OfertaId = ?\n    INNER JOIN Asignaciones Asg ON Asg.Id = C.AsignacionId AND Asg.CicloId = P.CicloId\n    WHERE C.AlumnoId = ?\n      AND P.CicloId = ?\n      AND Asg.GrupoId = ?\n     \n");
+$StmtPromedio->execute([(int)($Alumno['OfertaId'] ?? 0), $AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
 $Promedio = $StmtPromedio->fetchColumn();
 $Promedio = $Promedio !== null ? $Promedio : '0.0';
 
-$StmtCalificaciones = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, P.Nombre AS PeriodoNombre, C.Calificacion, C.FechaActualizacion\n    FROM Calificaciones C\n    JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId\n    JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id AND Asg.CicloId = P.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE C.AlumnoId = ? AND P.CicloId = ? AND Asg.GrupoId = ? AND P.Orden BETWEEN 1 AND 3\n    ORDER BY P.Orden ASC, Asg.MateriaNombre ASC\n");
-$StmtCalificaciones->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
+$StmtCalificaciones = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, P.Nombre AS PeriodoNombre, C.Calificacion, C.FechaActualizacion\n    FROM Calificaciones C\n    JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.OfertaId = ?\n    JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id AND Asg.CicloId = P.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE C.AlumnoId = ? AND P.CicloId = ? AND Asg.GrupoId = ?\n    ORDER BY P.Orden ASC, Asg.MateriaNombre ASC\n");
+$StmtCalificaciones->execute([(int)($Alumno['OfertaId'] ?? 0), $AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
 $Calificaciones = $StmtCalificaciones->fetchAll();
 
 $StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado\n    FROM Asistencias Asis\n    JOIN Asignaciones Asg ON Asis.AsignacionId = Asg.Id AND Asg.CicloId = Asis.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n    LIMIT 300\n");
@@ -80,9 +80,9 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
     <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="ExpedienteAlumnoBody">
@@ -241,6 +241,6 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
         </article>
     </section>
 </div>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
 </body>
 </html>

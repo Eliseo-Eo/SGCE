@@ -23,8 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Activo = isset($_POST['Activo']) ? 1 : 0;
 
         if ($Nombre !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin)) {
-            $Stmt = $Pdo->prepare("\n                INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo)\n                VALUES (?, ?, ?, ?)\n                ON DUPLICATE KEY UPDATE\n                    FechaInicio = VALUES(FechaInicio),\n                    FechaFin = VALUES(FechaFin),\n                    Activo = VALUES(Activo)\n            ");
-            $Stmt->execute([$Nombre, $FechaInicio, $FechaFin, $Activo]);
+            $Stmt = $Pdo->prepare("
+                INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo)
+                VALUES (?, ?, ?, 0)
+                ON DUPLICATE KEY UPDATE
+                    FechaInicio = VALUES(FechaInicio),
+                    FechaFin = VALUES(FechaFin)
+            ");
+            $Stmt->execute([$Nombre, $FechaInicio, $FechaFin]);
+            if ($Activo === 1) {
+                $StmtCicloActivar = $Pdo->prepare('SELECT Id FROM CiclosEscolares WHERE Nombre = ? LIMIT 1');
+                $StmtCicloActivar->execute([$Nombre]);
+                SgceActivarCicloUnico($Pdo, (int)$StmtCicloActivar->fetchColumn());
+            }
             RegistrarBitacora($Pdo, $UserSession, 'GUARDAR_CICLO_ESCOLAR', 'CiclosEscolares', null, $Nombre);
             $_SESSION['MensajePeriodos'] = 'Ciclo escolar guardado correctamente.';
         } else {
@@ -37,19 +48,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['AltaPeriodo'])) {
         $CicloId = (int)($_POST['CicloId'] ?? 0);
-        $Nombre = trim((string)($_POST['NombrePeriodo'] ?? ''));
-        $NombrePeriodo = function_exists('mb_strtoupper') ? mb_strtoupper($Nombre, 'UTF-8') : strtoupper($Nombre);
-        $MapaPeriodos = [
-            'PRIMER PARCIAL' => 1,
-            'SEGUNDO PARCIAL' => 2,
-            'TERCER PARCIAL' => 3,
-        ];
-        $Orden = $MapaPeriodos[$NombrePeriodo] ?? 0;
+        $OfertaId = (int)($_POST['OfertaId'] ?? 0);
+        if ($OfertaId <= 0) { $Oferta = SgceOfertaActiva($Pdo); $OfertaId = (int)($Oferta['Id'] ?? 0); }
+        $NombrePeriodo = function_exists('mb_strtoupper') ? mb_strtoupper(trim((string)($_POST['NombrePeriodo'] ?? '')), 'UTF-8') : strtoupper(trim((string)($_POST['NombrePeriodo'] ?? '')));
+        $OrdenRaw = trim((string)($_POST['OrdenPeriodo'] ?? ''));
+        if ($OrdenRaw === '') {
+            $StmtOrdenAutomatico = $Pdo->prepare('SELECT COALESCE(MAX(Orden), 0) + 1 FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ?');
+            $StmtOrdenAutomatico->execute([$CicloId, $OfertaId]);
+            $Orden = (int)$StmtOrdenAutomatico->fetchColumn();
+        } else {
+            $Orden = (int)$OrdenRaw;
+        }
+        $Orden = max(1, min(12, $Orden));
         $Activo = isset($_POST['ActivoPeriodo']) ? 1 : 0;
 
-        if ($CicloId > 0 && isset($MapaPeriodos[$NombrePeriodo]) && SgceValidarParcial($Orden)) {
-            $Stmt = $Pdo->prepare("\n                INSERT INTO PeriodosEvaluacion (CicloId, Nombre, Orden, Activo)\n                VALUES (?, ?, ?, ?)\n                ON DUPLICATE KEY UPDATE\n                    Orden = VALUES(Orden),\n                    Activo = VALUES(Activo)\n            ");
-            $Stmt->execute([$CicloId, $NombrePeriodo, $Orden, $Activo]);
+        if ($CicloId > 0 && $OfertaId > 0 && $NombrePeriodo !== '' && mb_strlen($NombrePeriodo, 'UTF-8') <= 80 && SgceValidarParcial($Orden)) {
+            if (SgceCicloOfertaTieneCalificaciones($Pdo, $CicloId, $OfertaId)) {
+                $_SESSION['MensajePeriodos'] = 'No se puede modificar la estructura de periodos porque ya existen calificaciones en ese ciclo y oferta educativa.';
+                header('Location: PeriodosAdmin.php');
+                exit;
+            }
+            $Stmt = $Pdo->prepare("INSERT INTO PeriodosEvaluacion (CicloId, OfertaId, Nombre, Orden, Activo)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE Nombre = VALUES(Nombre), Activo = VALUES(Activo)");
+            $Stmt->execute([$CicloId, $OfertaId, $NombrePeriodo, $Orden, $Activo]);
             RegistrarBitacora($Pdo, $UserSession, 'GUARDAR_PERIODO_EVALUACION', 'PeriodosEvaluacion', null, $NombrePeriodo);
             $_SESSION['MensajePeriodos'] = 'Periodo guardado correctamente.';
         } else {
@@ -61,21 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$CiclosTodos = $Pdo->query("SELECT * FROM CiclosEscolares ORDER BY FechaInicio DESC, Id DESC")->fetchAll();
+$CiclosTodos = $Pdo->query("SELECT Id, Nombre, FechaInicio, FechaFin, Activo, FechaCreacion FROM CiclosEscolares ORDER BY FechaInicio DESC, Id DESC")->fetchAll();
+$OfertaActivaPeriodos = SgceOfertaActiva($Pdo);
+$OfertasPeriodos = $Pdo->query("SELECT Id, Nombre FROM OfertasEducativas WHERE Activo = 1 ORDER BY Nombre ASC")->fetchAll();
 
 $PaginaCiclos = SgcePaginaActual('PagCiclos', 1);
 $PorPaginaCiclos = 4;
 [$OffsetCiclos, $LimitCiclos] = SgceLimitOffset($PaginaCiclos, $PorPaginaCiclos);
 $TotalCiclos = (int)$Pdo->query("SELECT COUNT(*) FROM CiclosEscolares")->fetchColumn();
-$StmtCiclos = $Pdo->prepare("SELECT * FROM CiclosEscolares ORDER BY FechaInicio DESC, Id DESC LIMIT $LimitCiclos OFFSET $OffsetCiclos");
+$StmtCiclos = $Pdo->prepare("SELECT Id, Nombre, FechaInicio, FechaFin, Activo, FechaCreacion FROM CiclosEscolares ORDER BY FechaInicio DESC, Id DESC LIMIT $LimitCiclos OFFSET $OffsetCiclos");
 $StmtCiclos->execute();
 $Ciclos = $StmtCiclos->fetchAll();
 
 $PaginaPeriodos = SgcePaginaActual('PagPeriodos', 1);
 $PorPaginaPeriodos = 4;
 [$OffsetPeriodos, $LimitPeriodos] = SgceLimitOffset($PaginaPeriodos, $PorPaginaPeriodos);
-$TotalPeriodos = (int)$Pdo->query("SELECT COUNT(*) FROM PeriodosEvaluacion WHERE Orden BETWEEN 1 AND 3")->fetchColumn();
-$StmtPeriodos = $Pdo->prepare("\n    SELECT P.*, C.Nombre AS CicloNombre\n    FROM PeriodosEvaluacion P\n    JOIN CiclosEscolares C ON P.CicloId = C.Id\n    WHERE P.Orden BETWEEN 1 AND 3\n    ORDER BY C.FechaInicio DESC, P.Orden ASC, P.Id ASC\n    LIMIT $LimitPeriodos OFFSET $OffsetPeriodos\n");
+$TotalPeriodos = (int)$Pdo->query("SELECT COUNT(*) FROM PeriodosEvaluacion")->fetchColumn();
+$StmtPeriodos = $Pdo->prepare("\n    SELECT P.*, C.Nombre AS CicloNombre, OE.Nombre AS OfertaNombre\n    FROM PeriodosEvaluacion P\n    JOIN CiclosEscolares C ON P.CicloId = C.Id\n    LEFT JOIN OfertasEducativas OE ON OE.Id = P.OfertaId\n    ORDER BY C.FechaInicio DESC, OE.Nombre ASC, P.Orden ASC, P.Id ASC\n    LIMIT $LimitPeriodos OFFSET $OffsetPeriodos\n");
 $StmtPeriodos->execute();
 $Periodos = $StmtPeriodos->fetchAll();
 ?>
@@ -88,10 +112,11 @@ $Periodos = $StmtPeriodos->fetchAll();
     <link rel="icon" href="assets/media/img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+    <?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
-    <link rel="stylesheet" href="assets/css/periodos-verde-metalico.css?v=sgce">
+    <?= SgceCss('assets/css/periodos-verde-metalico.css') ?>
+<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
 </head>
 <body>
 <div class="SgceModuleWrap SgcePeriodosWrap">
@@ -152,14 +177,14 @@ $Periodos = $StmtPeriodos->fetchAll();
                 <span><span class="SgceColorIcon" aria-hidden="true">📚</span></span>
                 <div>
                     <h2>Nuevo / editar periodo</h2>
-                    <p>Define únicamente los 3 parciales oficiales del ciclo escolar.</p>
+                    <p>Define los periodos oficiales del ciclo escolar. Pueden ser 1 a 12 según la oferta educativa.</p>
                 </div>
             </div>
             <form method="POST" class="SgcePeriodForm">
                 <?= CampoCsrf() ?>
                 <input type="hidden" name="AltaPeriodo">
 
-                <div class="SgcePeriodFormGrid">
+                <div class="SgcePeriodTopGrid">
                     <div>
                         <label class="SgceFieldLabel">Ciclo</label>
                         <select name="CicloId" class="form-select" required>
@@ -169,12 +194,24 @@ $Periodos = $StmtPeriodos->fetchAll();
                         </select>
                     </div>
                     <div>
-                        <label class="SgceFieldLabel">Periodo</label>
-                        <select name="NombrePeriodo" class="form-select" required><option value="PRIMER PARCIAL">PRIMER PARCIAL</option><option value="SEGUNDO PARCIAL">SEGUNDO PARCIAL</option><option value="TERCER PARCIAL">TERCER PARCIAL</option></select>
+                        <label class="SgceFieldLabel">Oferta</label>
+                        <select name="OfertaId" class="form-select" required>
+                            <?php foreach ($OfertasPeriodos as $O): ?>
+                                <option value="<?= (int)$O['Id'] ?>"><?= HPeriodo($O['Nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="SgcePeriodNameOrderGrid">
+                    <div>
+                        <label class="SgceFieldLabel">Nombre del periodo</label>
+                        <input name="NombrePeriodo" class="form-control InputUpper" placeholder="PARCIAL 1 / ORDINARIO" required maxlength="80">
                     </div>
                     <div>
                         <label class="SgceFieldLabel">Orden</label>
-                        <select class="form-select" disabled><option>Automático según parcial</option></select>
+                        <input name="OrdenPeriodo" class="form-control InputDigits" placeholder="Automático" min="1" max="12" maxlength="2" inputmode="numeric">
+                        <small class="SgcePeriodAutoHint">Automático si lo dejas vacío.</small>
                     </div>
                 </div>
 
@@ -227,18 +264,19 @@ $Periodos = $StmtPeriodos->fetchAll();
             <div class="table-responsive SgcePeriodTableBox">
                 <table class="table align-middle SgcePeriodTable">
                     <thead>
-                        <tr><th>Ciclo</th><th>Periodo</th><th>Orden</th><th>Estado</th></tr>
+                        <tr><th>Ciclo</th><th>Oferta</th><th>Periodo</th><th>Orden</th><th>Estado</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($Periodos as $P): ?>
                             <tr>
                                 <td><?= HPeriodo($P['CicloNombre']) ?></td>
+                                <td><?= HPeriodo($P['OfertaNombre'] ?? 'GENERAL') ?></td>
                                 <td class="fw-bold"><?= HPeriodo($P['Nombre']) ?></td>
                                 <td><?= (int)$P['Orden'] ?></td>
                                 <td><span class="SgceStatusBadge <?= $P['Activo'] ? 'IsActive' : 'IsInactive' ?>"><?= $P['Activo'] ? 'ACTIVO' : 'INACTIVO' ?></span></td>
                             </tr>
                         <?php endforeach; ?>
-                        <?php if (!$Periodos): ?><tr><td colspan="4" class="text-center text-muted py-3">No hay periodos registrados.</td></tr><?php endif; ?>
+                        <?php if (!$Periodos): ?><tr><td colspan="5" class="text-center text-muted py-3">No hay periodos registrados.</td></tr><?php endif; ?>
                     </tbody>
                 </table>
             </div>

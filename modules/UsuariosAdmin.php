@@ -56,17 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $Stmt = $Pdo->prepare("
                     UPDATE Usuarios
-                    SET Password = ?, NombreCompleto = ?, Rol = ?, Activo = 1, SessionToken = NULL, SessionTokenExpira = NULL
+                    SET Password = ?, NombreCompleto = ?, NombreBusqueda = ?, Rol = ?, Activo = 1, SessionToken = NULL, SessionTokenExpira = NULL
                     WHERE Id = ?
                 " );
-                $Stmt->execute([SgcePasswordHash($Password), $NombreCompleto, $Rol, $UsuarioExistenteId]);
+                $Stmt->execute([SgcePasswordHash($Password), $NombreCompleto, SgceTextoBusquedaNormalizado($NombreCompleto), $Rol, $UsuarioExistenteId]);
                 RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_USUARIO', 'Usuarios', $UsuarioExistenteId, 'USUARIO REACTIVADO CON ROL: ' . strtoupper($Rol));
                 header('Location: UsuariosAdmin.php?M=' . urlencode('Usuario reactivado correctamente'));
                 exit;
             }
 
-            $Stmt = $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, Rol, Activo, SessionToken) VALUES (?, ?, ?, ?, 1, NULL)");
-            $Stmt->execute([$Username, SgcePasswordHash($Password), $NombreCompleto, $Rol]);
+            $Stmt = $Pdo->prepare("INSERT INTO Usuarios (Username, Password, NombreCompleto, NombreBusqueda, Rol, Activo, SessionToken) VALUES (?, ?, ?, ?, ?, 1, NULL)");
+            $Stmt->execute([$Username, SgcePasswordHash($Password), $NombreCompleto, SgceTextoBusquedaNormalizado($NombreCompleto), $Rol]);
             RegistrarBitacora($Pdo, $UserSession, 'CREAR_USUARIO', 'Usuarios', (int)$Pdo->lastInsertId(), 'ALTA DE USUARIO CON ROL: ' . strtoupper($Rol));
             header('Location: UsuariosAdmin.php?M=' . urlencode('Usuario creado correctamente'));
             exit;
@@ -126,10 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 || ($Activo === 0);
             $SessionSql = $DebeCerrarSesiones ? ', SessionToken = NULL, SessionTokenExpira = NULL' : '';
             $PasswordSql = $Password !== '' ? ', Password = ?' : '';
-            $Params = [$Username, $NombreCompleto, $Rol, $Activo];
+            $Params = [$Username, $NombreCompleto, SgceTextoBusquedaNormalizado($NombreCompleto), $Rol, $Activo];
             if ($Password !== '') { $Params[] = SgcePasswordHash($Password); }
             $Params[] = $Id;
-            $Stmt = $Pdo->prepare("UPDATE Usuarios SET Username = ?, NombreCompleto = ?, Rol = ?, Activo = ? $PasswordSql $SessionSql WHERE Id = ?");
+            $Stmt = $Pdo->prepare("UPDATE Usuarios SET Username = ?, NombreCompleto = ?, NombreBusqueda = ?, Rol = ?, Activo = ? $PasswordSql $SessionSql WHERE Id = ?");
             $Stmt->execute($Params);
             RegistrarBitacora($Pdo, $UserSession, 'EDITAR_USUARIO', 'Usuarios', $Id, 'EDICIÓN DE USUARIO. ROL: ' . strtoupper($Rol));
             header('Location: UsuariosAdmin.php?M=' . urlencode('Usuario actualizado correctamente'));
@@ -213,10 +213,11 @@ foreach ($Roles as $Key => $Label) {
     <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+    <?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
-    <link rel="stylesheet" href="assets/css/usuarios-botones-metalicos.css?v=sgce">
+    <?= SgceCss('assets/css/usuarios-botones-metalicos.css') ?>
+<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
 </head>
 <body>
 <div class="MainWrap SgceModuleWrap SgceUsersPage">
@@ -419,7 +420,7 @@ foreach ($Roles as $Key => $Label) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
-<script src="assets/js/UsuariosAdmin.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceJs('assets/js/UsuariosAdmin.js') ?>
 </body>
 </html>

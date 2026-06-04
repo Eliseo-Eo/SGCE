@@ -5,7 +5,6 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession || $UserSession['Rol'] !== 'maestro') { header('Location: index.php'); exit; }
 RequerirCsrfPost();
-SgceCrearTablaPlaneacionesSiNoExiste($Pdo);
 
 function HPlan($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
 function PlaneacionEstadoClase($Estado) {
@@ -21,18 +20,32 @@ $MaestroId = (int)$UserSession['Id'];
 $CicloActivo = SgceCicloActivo($Pdo);
 $CicloId = (int)($CicloActivo['Id'] ?? 0);
 $CantidadPlaneaciones = SgceCantidadPlaneaciones($Pdo);
+$OfertaActivaPlaneacion = SgceOfertaActiva($Pdo);
+$OfertaIdPlaneacion = (int)($OfertaActivaPlaneacion['Id'] ?? 0);
+$ConfigAcademicaPlaneacion = SgceConfiguracionAcademicaPorOferta($Pdo, $OfertaIdPlaneacion);
+$TipoPlaneacionActiva = SgceTipoPlaneacionValido((string)($ConfigAcademicaPlaneacion['TipoPlaneacion'] ?? 'PERIODO'));
+$PeriodosPlaneacion = [];
+if ($CicloId > 0 && $OfertaIdPlaneacion > 0) {
+    $StmtPeriodosPlaneacion = $Pdo->prepare('SELECT Id, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Orden ASC');
+    $StmtPeriodosPlaneacion->execute([$CicloId, $OfertaIdPlaneacion]);
+    foreach ($StmtPeriodosPlaneacion->fetchAll() as $PeriodoPlaneacion) { $PeriodosPlaneacion[(int)$PeriodoPlaneacion['Orden']] = (int)$PeriodoPlaneacion['Id']; }
+}
 $MateriasDocente = SgceMateriasDocente($Pdo, $MaestroId);
-$MateriasPermitidas = array_map(fn($M) => (string)$M['MateriaNombre'], $MateriasDocente);
+$MateriasPermitidas = [];
+foreach ($MateriasDocente as $Mdoc) {
+    $MateriasPermitidas[(int)($Mdoc['ProgramaId'] ?? 0) . '|' . (string)$Mdoc['MateriaNombre']] = $Mdoc;
+}
 $MateriaSeleccionada = SgceNormalizarMateriaPlaneacion($_GET['Materia'] ?? '');
-if ($MateriaSeleccionada !== '' && !in_array($MateriaSeleccionada, $MateriasPermitidas, true)) { $MateriaSeleccionada = ''; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SubirPlaneacion'])) {
     try {
         if ($CicloId <= 0) { throw new Exception('No hay ciclo escolar activo.'); }
         $Materia = SgceNormalizarMateriaPlaneacion($_POST['MateriaNombre'] ?? '');
+        $ProgramaIdPlaneacion = (int)($_POST['ProgramaId'] ?? 0);
         $Numero = (int)($_POST['Numero'] ?? 0);
         $Titulo = trim(preg_replace('/\s+/u', ' ', (string)($_POST['Titulo'] ?? '')));
-        if (!in_array($Materia, $MateriasPermitidas, true)) { throw new Exception('La materia seleccionada no está asignada a tu usuario.'); }
+        $LlaveMateriaPrograma = $ProgramaIdPlaneacion . '|' . $Materia;
+        if (!isset($MateriasPermitidas[$LlaveMateriaPrograma])) { throw new Exception('La materia y programa seleccionados no están asignados a tu usuario.'); }
         if ($Numero < 1 || $Numero > $CantidadPlaneaciones) { throw new Exception('Número de planeación inválido.'); }
         $ValidacionArchivo = SgceValidarArchivoPlaneacion($_FILES['ArchivoPlaneacion'] ?? []);
         if ($ValidacionArchivo !== true) { throw new Exception($ValidacionArchivo); }
@@ -41,12 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SubirPlaneacion'])) {
         $NombreOriginal = (string)$Archivo['name'];
         $Ext = strtolower(pathinfo($NombreOriginal, PATHINFO_EXTENSION));
         $BaseDir = SgceCarpetaPlaneaciones();
-        $SubDir = $BaseDir . '/M' . $MaestroId . '_' . SgceNombreArchivoSeguro($UserSession['Username']) . '/C' . $CicloId . '/' . SgceNombreArchivoSeguro($Materia);
+        $SubDir = $BaseDir . '/M' . $MaestroId . '_' . SgceNombreArchivoSeguro($UserSession['Username']) . '/C' . $CicloId . '/P' . $ProgramaIdPlaneacion . '/' . SgceNombreArchivoSeguro($Materia);
         if (!is_dir($SubDir) && !@mkdir($SubDir, 0775, true) && !is_dir($SubDir)) { throw new Exception('No se pudo crear la carpeta de planeaciones.'); }
         if (!is_writable($SubDir)) { throw new Exception('La carpeta de planeaciones no tiene permisos de escritura.'); }
 
-        $StmtAnterior = $Pdo->prepare('SELECT Id, ArchivoGuardado, VersionArchivo FROM Planeaciones WHERE CicloId = ? AND MaestroId = ? AND MateriaNombre = ? AND Numero = ? LIMIT 1');
-        $StmtAnterior->execute([$CicloId, $MaestroId, $Materia, $Numero]);
+        $PeriodoIdPlaneacion = ($TipoPlaneacionActiva === 'PERIODO' && isset($PeriodosPlaneacion[$Numero])) ? (int)$PeriodosPlaneacion[$Numero] : 0;
+
+        $StmtAnterior = $Pdo->prepare('SELECT Id, ArchivoGuardado, VersionArchivo FROM Planeaciones WHERE CicloId = ? AND OfertaId = ? AND ProgramaId = ? AND MaestroId = ? AND MateriaNombre = ? AND Numero = ? LIMIT 1');
+        $StmtAnterior->execute([$CicloId, $OfertaIdPlaneacion, $ProgramaIdPlaneacion, $MaestroId, $Materia, $Numero]);
         $RegistroAnterior = $StmtAnterior->fetch(PDO::FETCH_ASSOC) ?: null;
         $ArchivoAnterior = $RegistroAnterior['ArchivoGuardado'] ?? null;
         $VersionArchivo = $RegistroAnterior ? ((int)($RegistroAnterior['VersionArchivo'] ?? 1) + 1) : 1;
@@ -59,12 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SubirPlaneacion'])) {
         $Mime = '';
         if (function_exists('finfo_open')) {
             $Finfo = finfo_open(FILEINFO_MIME_TYPE);
-            if ($Finfo) { $Mime = (string)finfo_file($Finfo, $RutaDestino); finfo_close($Finfo); }
+            if ($Finfo) { $Mime = (string)finfo_file($Finfo, $RutaDestino); }
         }
         $Stmt = $Pdo->prepare("INSERT INTO Planeaciones
-            (CicloId, MaestroId, MateriaNombre, Numero, VersionArchivo, Titulo, ArchivoOriginal, ArchivoGuardado, MimeType, TamanoBytes, Estado, NotaRevision, RevisadoPor, FechaRevision)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SUBIDA', NULL, NULL, NULL)
+            (CicloId, OfertaId, ProgramaId, PeriodoId, TipoPlaneacion, MaestroId, MateriaNombre, Numero, VersionArchivo, Titulo, ArchivoOriginal, ArchivoGuardado, MimeType, TamanoBytes, Estado, NotaRevision, RevisadoPor, FechaRevision)
+            VALUES (?, ?, ?, NULLIF(?,0), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SUBIDA', NULL, NULL, NULL)
             ON DUPLICATE KEY UPDATE
+                OfertaId = VALUES(OfertaId),
+                ProgramaId = VALUES(ProgramaId),
+                PeriodoId = VALUES(PeriodoId),
+                TipoPlaneacion = VALUES(TipoPlaneacion),
                 VersionArchivo = VALUES(VersionArchivo),
                 Titulo = VALUES(Titulo),
                 ArchivoOriginal = VALUES(ArchivoOriginal),
@@ -76,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SubirPlaneacion'])) {
                 RevisadoPor = NULL,
                 FechaRevision = NULL,
                 FechaActualizacion = CURRENT_TIMESTAMP");
-        $Stmt->execute([$CicloId, $MaestroId, $Materia, $Numero, $VersionArchivo, $Titulo, $NombreOriginal, $RutaDestino, $Mime, (int)filesize($RutaDestino)]);
+        $Stmt->execute([$CicloId, $OfertaIdPlaneacion, $ProgramaIdPlaneacion, $PeriodoIdPlaneacion, $TipoPlaneacionActiva, $MaestroId, $Materia, $Numero, $VersionArchivo, $Titulo, $NombreOriginal, $RutaDestino, $Mime, (int)filesize($RutaDestino)]);
         $PlaneacionId = $RegistroAnterior ? (int)$RegistroAnterior['Id'] : (int)$Pdo->lastInsertId();
         if ($ArchivoAnterior && is_string($ArchivoAnterior) && $ArchivoAnterior !== $RutaDestino && is_file($ArchivoAnterior)) { @unlink($ArchivoAnterior); }
         RegistrarBitacora($Pdo, $UserSession, $RegistroAnterior ? 'REEMPLAZAR_PLANEACION' : 'SUBIR_PLANEACION', 'Planeaciones', $PlaneacionId, 'PLANEACIÓN ' . $Numero . ' - ' . $Materia . ' - VERSIÓN ' . $VersionArchivo);
@@ -94,10 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['SubirPlaneacion'])) {
 
 $Planeaciones = [];
 if ($CicloId > 0) {
-    $Stmt = $Pdo->prepare('SELECT * FROM Planeaciones WHERE CicloId = ? AND MaestroId = ? ORDER BY MateriaNombre, Numero');
-    $Stmt->execute([$CicloId, $MaestroId]);
+    $Stmt = $Pdo->prepare('SELECT Id, CicloId, OfertaId, PeriodoId, ProgramaId, MaestroId, MateriaNombre, Numero, TipoPlaneacion, VersionArchivo, Titulo, ArchivoOriginal, ArchivoGuardado, MimeType, TamanoBytes, Estado, NotaRevision, RevisadoPor, FechaRevision, FechaSubida, FechaActualizacion FROM Planeaciones WHERE CicloId = ? AND OfertaId = ? AND MaestroId = ? ORDER BY ProgramaId, MateriaNombre, Numero');
+    $Stmt->execute([$CicloId, $OfertaIdPlaneacion, $MaestroId]);
     foreach ($Stmt->fetchAll() as $Row) {
-        $Planeaciones[$Row['MateriaNombre']][(int)$Row['Numero']] = $Row;
+        $Llave = (int)($Row['ProgramaId'] ?? 0) . '|' . (string)$Row['MateriaNombre'];
+        $Planeaciones[$Llave][(int)$Row['Numero']] = $Row;
     }
 }
 $TotalRequeridas = count($MateriasDocente) * $CantidadPlaneaciones;
@@ -127,8 +147,8 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body>
@@ -167,19 +187,19 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
     <?php else: ?>
         <div class="PlaneacionesMateriaGrid">
             <?php foreach ($MateriasDocente as $MateriaInfo): ?>
-                <?php $Materia = (string)$MateriaInfo['MateriaNombre']; ?>
-                <section class="PlaneacionMateriaCard" id="Materia<?= md5($Materia) ?>">
+                <?php $Materia = (string)$MateriaInfo['MateriaNombre']; $ProgramaIdMateria = (int)($MateriaInfo['ProgramaId'] ?? 0); $LlavePlaneacion = $ProgramaIdMateria . '|' . $Materia; ?>
+                <section class="PlaneacionMateriaCard" id="Materia<?= md5($LlavePlaneacion) ?>">
                     <div class="PlaneacionMateriaHeader">
                         <span class="PlaneacionMateriaIcon"><span class="SgceColorIcon" aria-hidden="true">📘</span></span>
                         <div>
                             <h2><?= HPlan($Materia) ?></h2>
-                            <p><?= HPlan($MateriaInfo['Grupos'] ?? '') ?></p>
+                            <p><?= HPlan((($MateriaInfo['ProgramaNombre'] ?? '') !== 'GENERAL' ? (($MateriaInfo['ProgramaNombre'] ?? '') . ' · ') : '') . ($MateriaInfo['Grupos'] ?? '')) ?></p>
                         </div>
                     </div>
                     <div class="PlaneacionesEntregaGrid">
                         <?php for ($Numero = 1; $Numero <= $CantidadPlaneaciones; $Numero++): ?>
                             <?php
-                                $Registro = $Planeaciones[$Materia][$Numero] ?? null;
+                                $Registro = $Planeaciones[$LlavePlaneacion][$Numero] ?? null;
                                 $Estado = $Registro['Estado'] ?? 'PENDIENTE';
                                 $IconoEstado = match ($Estado) {
                                     'APROBADA' => '✅',
@@ -209,6 +229,7 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
                                 <form method="post" enctype="multipart/form-data" class="PlaneacionUploadForm">
                                     <?= CampoCsrf() ?>
                                     <input type="hidden" name="MateriaNombre" value="<?= HPlan($Materia) ?>">
+                                    <input type="hidden" name="ProgramaId" value="<?= (int)$ProgramaIdMateria ?>">
                                     <input type="hidden" name="Numero" value="<?= $Numero ?>">
                                     <input type="text" name="Titulo" class="form-control FormControl" maxlength="180" placeholder="Título opcional" value="<?= HPlan($Registro['Titulo'] ?? '') ?>">
                                     <input type="file" name="ArchivoPlaneacion" class="form-control FormControl" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" required>
@@ -223,6 +244,6 @@ $NombreEscuela = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE'));
     <?php endif; ?>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
 </body>
 </html>

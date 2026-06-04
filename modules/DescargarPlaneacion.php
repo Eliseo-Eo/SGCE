@@ -4,7 +4,6 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }
-SgceCrearTablaPlaneacionesSiNoExiste($Pdo);
 
 $Id = (int)($_GET['Id'] ?? 0);
 if ($Id <= 0) { http_response_code(404); exit('Archivo no encontrado.'); }

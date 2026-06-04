@@ -116,6 +116,73 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
+    var FormPlaneaciones = document.getElementById('SgceInstallerForm');
+    if (FormPlaneaciones) {
+        var UsaPlaneacionesSwitch = FormPlaneaciones.querySelector('input[type="checkbox"][name="UsaPlaneaciones"]');
+        var TipoPlaneacionSelect = FormPlaneaciones.querySelector('select[name="TipoPlaneacion"]');
+        var PlaneacionesCantidadInput = FormPlaneaciones.querySelector('input[name="PlaneacionesCantidad"]');
+        var PlaneacionesAyuda = FormPlaneaciones.querySelector('.SgcePlaneacionesHelp');
+        var UsaProgramasSwitch = FormPlaneaciones.querySelector('input[type="checkbox"][name="UsaProgramas"]');
+        var NivelEducativoSelect = FormPlaneaciones.querySelector('select[name="NivelEducativo"]');
+        var ProgramasTextarea = FormPlaneaciones.querySelector('textarea[name="ProgramasIniciales"]');
+        var ProgramasAyuda = FormPlaneaciones.querySelector('.SgceProgramasHelp');
+        var NivelesConProgramasObligatorios = ['UNIVERSIDAD', 'MAESTRIA', 'DOCTORADO'];
+        var ActualizarProgramasEducativos = function () {
+            if (!UsaProgramasSwitch || !ProgramasTextarea) { return; }
+            var Nivel = NivelEducativoSelect ? String(NivelEducativoSelect.value || '').toUpperCase() : '';
+            var RequiereProgramas = NivelesConProgramasObligatorios.indexOf(Nivel) !== -1;
+            if (RequiereProgramas) {
+                UsaProgramasSwitch.checked = true;
+                UsaProgramasSwitch.disabled = true;
+            } else {
+                UsaProgramasSwitch.disabled = false;
+            }
+            var Habilitado = UsaProgramasSwitch.checked === true || RequiereProgramas;
+            ProgramasTextarea.disabled = !Habilitado;
+            ProgramasTextarea.required = Habilitado;
+            ProgramasTextarea.classList.toggle('SgceCampoBloqueado', !Habilitado);
+            if (!Habilitado) { ProgramasTextarea.setCustomValidity(''); }
+            if (ProgramasAyuda) { ProgramasAyuda.classList.toggle('SgceMuted', !Habilitado); }
+        };
+        var ActualizarPlaneaciones = function () {
+            if (!UsaPlaneacionesSwitch) { return; }
+            var Habilitado = UsaPlaneacionesSwitch.checked === true;
+            [TipoPlaneacionSelect, PlaneacionesCantidadInput].forEach(function (Campo) {
+                if (!Campo) { return; }
+                Campo.disabled = !Habilitado;
+                Campo.required = Habilitado;
+                Campo.classList.toggle('SgceCampoBloqueado', !Habilitado);
+                if (!Habilitado) { Campo.setCustomValidity(''); }
+            });
+            if (!Habilitado && PlaneacionesCantidadInput) { PlaneacionesCantidadInput.value = ''; }
+            if (PlaneacionesAyuda) {
+                PlaneacionesAyuda.classList.toggle('SgceMuted', !Habilitado);
+            }
+        };
+        if (UsaPlaneacionesSwitch) {
+            ['change', 'input', 'click'].forEach(function (EventoNombre) {
+                UsaPlaneacionesSwitch.addEventListener(EventoNombre, function () {
+                    window.setTimeout(ActualizarPlaneaciones, 0);
+                });
+            });
+            ActualizarPlaneaciones();
+            window.setTimeout(ActualizarPlaneaciones, 60);
+            window.addEventListener('pageshow', ActualizarPlaneaciones);
+        }
+        if (UsaProgramasSwitch && ProgramasTextarea) {
+            ['change', 'input', 'click'].forEach(function (EventoNombre) {
+                UsaProgramasSwitch.addEventListener(EventoNombre, function () {
+                    window.setTimeout(ActualizarProgramasEducativos, 0);
+                });
+            });
+            if (NivelEducativoSelect) { NivelEducativoSelect.addEventListener('change', ActualizarProgramasEducativos); }
+            ActualizarProgramasEducativos();
+            window.setTimeout(ActualizarProgramasEducativos, 60);
+            window.addEventListener('pageshow', ActualizarProgramasEducativos);
+        }
+    }
+
     document.querySelectorAll('.SgceInstallerPage form').forEach(function (Form) {
         Form.addEventListener('submit', function (Evento) {
             var Telefono = Form.querySelector('input[name="TelefonoEscuela"]');
@@ -131,6 +198,11 @@ document.addEventListener('DOMContentLoaded', function () {
             var FechaFin = Form.querySelector('input[name="FechaFin"]');
             var ColorInstitucional = Form.querySelector('input[name="ColorInstitucional"]');
             var PlaneacionesCantidad = Form.querySelector('input[name="PlaneacionesCantidad"]');
+            var UsaPlaneaciones = Form.querySelector('input[type="checkbox"][name="UsaPlaneaciones"]');
+            var PeriodosCantidad = Form.querySelector('input[name="PeriodosCantidad"]');
+            var UsaProgramas = Form.querySelector('input[type="checkbox"][name="UsaProgramas"]');
+            var ProgramasIniciales = Form.querySelector('textarea[name="ProgramasIniciales"]');
+            var NivelEducativo = Form.querySelector('select[name="NivelEducativo"]');
 
 
             if (NombreEscuela && NombreEscuela.value.trim().length < 3) {
@@ -196,7 +268,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (PlaneacionesCantidad) {
+            if (PeriodosCantidad) {
+                var CantidadPeriodos = parseInt(PeriodosCantidad.value || '0', 10);
+                if (!CantidadPeriodos || CantidadPeriodos < 1 || CantidadPeriodos > 12) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'La cantidad de periodos de evaluación debe estar entre 1 y 12.');
+                    PeriodosCantidad.focus();
+                    return;
+                }
+            }
+
+            if (UsaProgramas && ProgramasIniciales) {
+                var NivelActual = NivelEducativo ? String(NivelEducativo.value || '').toUpperCase() : '';
+                var RequiereProgramas = ['UNIVERSIDAD', 'MAESTRIA', 'DOCTORADO'].indexOf(NivelActual) !== -1;
+                var ProgramasHabilitados = UsaProgramas.checked === true || RequiereProgramas;
+                if (ProgramasHabilitados && !ProgramasIniciales.value.trim()) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'Captura al menos un programa educativo o desmarca Usa programas educativos.');
+                    ProgramasIniciales.focus();
+                    return;
+                }
+            }
+
+            if (PlaneacionesCantidad && UsaPlaneaciones && UsaPlaneaciones.checked) {
                 var Cantidad = parseInt(PlaneacionesCantidad.value || '0', 10);
                 if (!Cantidad || Cantidad < 1 || Cantidad > 12) {
                     Evento.preventDefault();

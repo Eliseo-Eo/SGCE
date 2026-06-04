@@ -7,6 +7,8 @@ if (!$UserSession) { header('Location: index.php'); exit; }
 SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para entrar al centro de reportes.');
 
 $CicloActivo = SgceCicloActivo($Pdo) ?: ['Id'=>0,'Nombre'=>'','FechaInicio'=>'','FechaFin'=>''];
+$ReporteFechaFinDefault = min(date('Y-m-d'), (string)($CicloActivo['FechaFin'] ?: date('Y-m-d')));
+$ReporteFechaInicioDefault = max((string)($CicloActivo['FechaInicio'] ?: date('Y-m-d', strtotime('-30 days'))), date('Y-m-d', strtotime($ReporteFechaFinDefault . ' -30 days')));
 $CicloActivoId = (int)($CicloActivo['Id'] ?? 0);
 $Grupos = [];
 $Asignaciones = [];
@@ -44,10 +46,10 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
 <link rel="icon" href="assets/media/img/favicon.ico">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/reportes-botones-metalicos.css?v=sgce">
+<?= SgceCss('assets/css/reportes-botones-metalicos.css') ?>
 </head>
 <body class="SgceReportsPage">
 <div class="container py-4 SgceReportsWrap">
@@ -84,11 +86,11 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
                 <div class="SgceReportTwoCols">
                     <div class="SgceFormField">
                         <label>Fecha inicio</label>
-                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>" required>
+                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($ReporteFechaInicioDefault) ?>" required>
                     </div>
                     <div class="SgceFormField">
                         <label>Fecha fin</label>
-                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>" required>
+                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($ReporteFechaFinDefault) ?>" required>
                     </div>
                 </div>
                 <div class="SgceFormField Full">
@@ -120,11 +122,11 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
                 <div class="SgceReportTwoCols">
                     <div class="SgceFormField">
                         <label>Fecha inicio</label>
-                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($CicloActivo['FechaInicio'] ?? '') ?>" required>
+                        <input type="date" name="FechaInicio" class="form-control" value="<?= HGlobal($ReporteFechaInicioDefault) ?>" required>
                     </div>
                     <div class="SgceFormField">
                         <label>Fecha fin</label>
-                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($CicloActivo['FechaFin'] ?? '') ?>" required>
+                        <input type="date" name="FechaFin" class="form-control" value="<?= HGlobal($ReporteFechaFinDefault) ?>" required>
                     </div>
                 </div>
                 <div class="SgceFormField Full">
@@ -209,7 +211,7 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
     </div>
 </div>
 
-<script src="assets/js/ReportesAdmin.js?v=sgce"></script>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
+<?= SgceJs('assets/js/ReportesAdmin.js') ?>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
 </body>
 </html>

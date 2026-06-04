@@ -1,16 +1,17 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-function SgceAsignacionContarActivas(PDO $Pdo): int { return SgceAsignacionContarFiltradas($Pdo, []); }
+function SgceMateriaGrupoContarFiltradas(PDO $Pdo, array $Filtros = []): int { return SgceRepoMateriaContar($Pdo, $Filtros); }
+function SgceMateriaGrupoListarFiltradas(PDO $Pdo, array $Filtros, int $Limit, int $Offset): array { return SgceRepoMateriaListar($Pdo, $Filtros, $Limit, $Offset); }
 
 function SgceAsignacionContarFiltradas(PDO $Pdo, array $Filtros = []): int { return SgceRepoAsignacionContar($Pdo, $Filtros); }
-
-function SgceAsignacionListarPaginadas(PDO $Pdo, int $Limit, int $Offset): array { return SgceAsignacionListarFiltradas($Pdo, [], $Limit, $Offset); }
 
 function SgceAsignacionListarFiltradas(PDO $Pdo, array $Filtros, int $Limit, int $Offset): array { return SgceRepoAsignacionListar($Pdo, $Filtros, $Limit, $Offset); }
 
 function SgceReporteAlumnosRiesgo(PDO $Pdo, int $CicloId, string $FechaInicio, string $FechaFin, int $Limit = 10): array {
     if ($CicloId <= 0 || !SgceRepoValidarRangoReporte($FechaInicio, $FechaFin, 370)) { return []; }
+    $Oferta = function_exists('SgceOfertaActiva') ? SgceOfertaActiva($Pdo) : null;
+    $OfertaId = (int)($Oferta['Id'] ?? 0);
     $Sql = "
         SELECT
             Al.Id, Al.NombreCompleto, G.Grado, G.Grupo, G.Turno,
@@ -36,6 +37,7 @@ function SgceReporteAlumnosRiesgo(PDO $Pdo, int $CicloId, string $FechaInicio, s
             INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.Activo = 1
             INNER JOIN Asignaciones A3 ON A3.Id = C.AsignacionId AND A3.Activo = 1 AND A3.CicloId = P.CicloId
             WHERE P.CicloId = ?
+              AND (? = 0 OR P.OfertaId = ?)
             GROUP BY C.AlumnoId
         ) CalAgg ON CalAgg.AlumnoId = Al.Id
         WHERE AI.CicloId = ? AND AI.Estado = 'INSCRITO'
@@ -48,8 +50,10 @@ function SgceReporteAlumnosRiesgo(PDO $Pdo, int $CicloId, string $FechaInicio, s
     $Stmt->bindValue(2, $FechaInicio);
     $Stmt->bindValue(3, $FechaFin);
     $Stmt->bindValue(4, $CicloId, PDO::PARAM_INT);
-    $Stmt->bindValue(5, $CicloId, PDO::PARAM_INT);
-    $Stmt->bindValue(6, max(1, min(50, $Limit)), PDO::PARAM_INT);
+    $Stmt->bindValue(5, $OfertaId, PDO::PARAM_INT);
+    $Stmt->bindValue(6, $OfertaId, PDO::PARAM_INT);
+    $Stmt->bindValue(7, $CicloId, PDO::PARAM_INT);
+    $Stmt->bindValue(8, max(1, min(50, $Limit)), PDO::PARAM_INT);
     $Stmt->execute();
     return $Stmt->fetchAll();
 }
@@ -58,4 +62,3 @@ function SgceReporteBitacoraContar(PDO $Pdo, array $Filtros = []): int { return 
 
 function SgceReporteBitacoraPaginada(PDO $Pdo, array $Filtros, int $Limit, int $Offset): array { return SgceRepoBitacoraListar($Pdo, $Filtros, $Limit, $Offset); }
 
-function SgceReporteBitacoraReciente(PDO $Pdo, int $Limit = 100): array { return SgceRepoBitacoraListar($Pdo, [], $Limit, 0); }

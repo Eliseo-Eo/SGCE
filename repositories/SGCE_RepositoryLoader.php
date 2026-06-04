@@ -3,6 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 $SgceRepositoryFiles = [
     __DIR__ . '/AlumnosRepository.php',
+    __DIR__ . '/MateriasRepository.php',
     __DIR__ . '/AsignacionesRepository.php',
     __DIR__ . '/BitacoraRepository.php',
     __DIR__ . '/ReportesRepository.php',

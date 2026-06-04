@@ -17,7 +17,7 @@ $Alumno = $StmtAlumno->fetch();
 if (!$Alumno) { http_response_code(404); exit('Alumno no encontrado.'); }
 
 // Primero se consulta el kardex congelado. Si un ciclo todavía no fue congelado,
-// se usa el cálculo dinámico como respaldo para no ocultar información.
+// se usa el cálculo dinámico como respaldo. El kardex oficial usa JSON para soportar 1 a 12 periodos.
 $StmtKardex = $Pdo->prepare("SELECT KA.CicloNombreSnapshot AS CicloNombre,
         KA.GradoSnapshot AS Grado,
         KA.GrupoSnapshot AS Grupo,
@@ -26,9 +26,7 @@ $StmtKardex = $Pdo->prepare("SELECT KA.CicloNombreSnapshot AS CicloNombre,
         KA.PromedioFinal,
         KD.MateriaNombreSnapshot AS MateriaNombre,
         KD.MaestroNombreSnapshot AS Maestro,
-        KD.Parcial1,
-        KD.Parcial2,
-        KD.Parcial3,
+        KD.CalificacionesJson,
         KD.Promedio
     FROM KardexAlumno KA
     INNER JOIN KardexDetalle KD ON KD.KardexId = KA.Id
@@ -42,51 +40,56 @@ $Suma = 0.0;
 $Cuenta = 0;
 $UsaKardex = !empty($Kardex);
 
+$FormatearJson = static function($Json) use (&$Suma, &$Cuenta): string {
+    $Datos = json_decode((string)$Json, true);
+    if (!is_array($Datos)) { return ''; }
+    $Partes = [];
+    foreach ($Datos as $Item) {
+        $Nombre = (string)($Item['Nombre'] ?? $Item['Periodo'] ?? '');
+        $Cal = $Item['Calificacion'] ?? null;
+        if ($Cal !== null && $Cal !== '') { $Suma += (float)$Cal; $Cuenta++; }
+        $Partes[] = trim($Nombre . ': ' . ($Cal !== null && $Cal !== '' ? number_format((float)$Cal, 2) : '-'));
+    }
+    return implode(' | ', array_filter($Partes));
+};
+
 if ($UsaKardex) {
     foreach ($Kardex as $R) {
-        foreach (['Parcial1','Parcial2','Parcial3'] as $K) {
-            if ($R[$K] !== null && $R[$K] !== '') { $Suma += (float)$R[$K]; $Cuenta++; }
-        }
+        $Evaluaciones = !empty($R['CalificacionesJson']) ? $FormatearJson($R['CalificacionesJson']) : '';
+        if ($Evaluaciones === '') { $Evaluaciones = '-'; }
         $FilasPdf[] = [
             (string)$R['CicloNombre'],
             trim($R['Grado'].' '.$R['Grupo'].' '.$R['Turno']),
             (string)$R['MateriaNombre'],
-            $R['Parcial1'] !== null ? number_format((float)$R['Parcial1'], 2) : '-',
-            $R['Parcial2'] !== null ? number_format((float)$R['Parcial2'], 2) : '-',
-            $R['Parcial3'] !== null ? number_format((float)$R['Parcial3'], 2) : '-',
+            $Evaluaciones,
             $R['Promedio'] !== null ? number_format((float)$R['Promedio'], 2) : '-',
         ];
     }
 } else {
     $Stmt = $Pdo->prepare("SELECT Cc.Nombre AS CicloNombre, G.Grado, G.Grupo, G.Turno, AI.Estado AS EstadoInscripcion,
                Asg.MateriaNombre, U.NombreCompleto AS Maestro,
-               MAX(CASE WHEN P.Orden = 1 THEN Cal.Calificacion END) AS Parcial1,
-               MAX(CASE WHEN P.Orden = 2 THEN Cal.Calificacion END) AS Parcial2,
-               MAX(CASE WHEN P.Orden = 3 THEN Cal.Calificacion END) AS Parcial3,
-               ROUND(AVG(CASE WHEN Cal.Calificacion IS NOT NULL THEN Cal.Calificacion END), 2) AS Promedio
+               GROUP_CONCAT(CONCAT(P.Nombre, ': ', FORMAT(Cal.Calificacion, 2)) ORDER BY P.Orden SEPARATOR ' | ') AS Evaluaciones,
+               ROUND(AVG(CASE WHEN Cal.Calificacion IS NOT NULL THEN Cal.Calificacion END), 2) AS Promedio,
+               COUNT(Cal.Id) AS TotalCalificaciones
         FROM AlumnoInscripciones AI
         INNER JOIN CiclosEscolares Cc ON Cc.Id = AI.CicloId
         INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId
         INNER JOIN Asignaciones Asg ON Asg.CicloId = AI.CicloId AND Asg.GrupoId = AI.GrupoId
         LEFT JOIN Usuarios U ON U.Id = Asg.MaestroId
-        LEFT JOIN PeriodosEvaluacion P ON P.CicloId = AI.CicloId AND P.Activo = 1 AND P.Orden BETWEEN 1 AND 3
+        LEFT JOIN PeriodosEvaluacion P ON P.CicloId = AI.CicloId AND P.OfertaId = AI.OfertaId AND P.Activo = 1
         LEFT JOIN Calificaciones Cal ON Cal.AlumnoId = AI.AlumnoId AND Cal.AsignacionId = Asg.Id AND Cal.PeriodoId = P.Id
         WHERE AI.AlumnoId = ?
         GROUP BY Cc.Id, Cc.Nombre, G.Grado, G.Grupo, G.Turno, AI.Estado, Asg.Id, Asg.MateriaNombre, U.NombreCompleto
-        HAVING Parcial1 IS NOT NULL OR Parcial2 IS NOT NULL OR Parcial3 IS NOT NULL
+        HAVING TotalCalificaciones > 0
         ORDER BY Cc.FechaInicio ASC, CAST(G.Grado AS UNSIGNED), G.Grupo, Asg.MateriaNombre");
     $Stmt->execute([$AlumnoId]);
     foreach ($Stmt->fetchAll() as $R) {
-        foreach (['Parcial1','Parcial2','Parcial3'] as $K) {
-            if ($R[$K] !== null && $R[$K] !== '') { $Suma += (float)$R[$K]; $Cuenta++; }
-        }
+        if ($R['Promedio'] !== null) { $Suma += (float)$R['Promedio']; $Cuenta++; }
         $FilasPdf[] = [
             (string)$R['CicloNombre'],
             trim($R['Grado'].' '.$R['Grupo'].' '.$R['Turno']),
             (string)$R['MateriaNombre'],
-            $R['Parcial1'] !== null ? number_format((float)$R['Parcial1'], 2) : '-',
-            $R['Parcial2'] !== null ? number_format((float)$R['Parcial2'], 2) : '-',
-            $R['Parcial3'] !== null ? number_format((float)$R['Parcial3'], 2) : '-',
+            (string)($R['Evaluaciones'] ?? '-'),
             $R['Promedio'] !== null ? number_format((float)$R['Promedio'], 2) : '-',
         ];
     }
@@ -96,4 +99,4 @@ $Promedio = $Cuenta > 0 ? number_format($Suma / $Cuenta, 2) : '-';
 $Fuente = $UsaKardex ? 'KARDEX CONGELADO' : 'CÁLCULO DINÁMICO';
 $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Promedio general histórico: ' . $Promedio . ' | Fuente: ' . $Fuente;
 RegistrarBitacora($Pdo, $UserSession, 'EXPORTAR_HISTORIAL_ALUMNO', 'Alumnos', $AlumnoId, 'HISTORIAL ACADÉMICO COMPLETO GENERADO');
-SgcePdfRespuestaTabla($Pdo, 'Historial académico completo', $Subtitulo, ['Ciclo', 'Grupo', 'Materia', 'P1', 'P2', 'P3', 'Promedio'], $FilasPdf, 'Historial_' . $Alumno['NombreCompleto'], 'L', [115, 75, 230, 55, 55, 55, 70]);
+SgcePdfRespuestaTabla($Pdo, 'Historial académico completo', $Subtitulo, ['Ciclo', 'Grupo', 'Materia', 'Evaluaciones', 'Promedio'], $FilasPdf, 'Historial_' . $Alumno['NombreCompleto'], 'L', [90, 70, 160, 260, 60]);

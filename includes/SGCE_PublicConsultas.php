@@ -31,21 +31,28 @@ function SgcePublicoTextoEstado($Estado) {
 function SgcePublicoCatalogos(PDO $Pdo) {
     $Ciclo = SgceCicloActivo($Pdo);
     $CicloId = (int)($Ciclo['Id'] ?? 0);
-    if ($CicloId <= 0) { return [[], []]; }
+    $Oferta = SgceOfertaActiva($Pdo);
+    $OfertaId = (int)($Oferta['Id'] ?? 0);
+    if ($CicloId <= 0 || $OfertaId <= 0) { return [[], [], [], false]; }
 
-    $StmtGrados = $Pdo->prepare("SELECT DISTINCT Grado FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY CAST(Grado AS UNSIGNED), Grado ASC");
-    $StmtGrados->execute([$CicloId]);
+    $UsaProgramas = !empty($Oferta['UsaProgramas']);
+    $StmtProgramas = $Pdo->prepare("SELECT DISTINCT PE.Id, PE.Nombre FROM Grupos G INNER JOIN ProgramasEducativos PE ON PE.Id = G.ProgramaId WHERE G.CicloId = ? AND G.OfertaId = ? AND G.Activo = 1 AND PE.Activo = 1 ORDER BY PE.Nombre ASC");
+    $StmtProgramas->execute([$CicloId, $OfertaId]);
+    $Programas = $StmtProgramas->fetchAll();
+
+    $StmtGrados = $Pdo->prepare("SELECT DISTINCT Grado FROM Grupos WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY CAST(Grado AS UNSIGNED), Grado ASC");
+    $StmtGrados->execute([$CicloId, $OfertaId]);
     $Grados = $StmtGrados->fetchAll();
 
-    $StmtGrupos = $Pdo->prepare("SELECT DISTINCT Grupo FROM Grupos WHERE CicloId = ? AND Activo = 1 ORDER BY Grupo ASC");
-    $StmtGrupos->execute([$CicloId]);
+    $StmtGrupos = $Pdo->prepare("SELECT DISTINCT Grupo FROM Grupos WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Grupo ASC");
+    $StmtGrupos->execute([$CicloId, $OfertaId]);
     $Grupos = $StmtGrupos->fetchAll();
 
-    return [$Grados, $Grupos];
+    return [$Programas, $Grados, $Grupos, $UsaProgramas];
 }
 
-function SgcePublicoRateKey($NombreAlumno, $Grado, $Grupo, $Turno) {
-    return SgceNormalizarMayusculas($NombreAlumno) . '|' . SgceNormalizarMayusculas($Grado) . '|' . SgcePublicoNormalizarGrupo($Grupo) . '|' . SgceNormalizarMayusculas($Turno);
+function SgcePublicoRateKey($NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno) {
+    return SgceNormalizarMayusculas($NombreAlumno) . '|' . (int)$ProgramaId . '|' . SgceNormalizarMayusculas($Grado) . '|' . SgcePublicoNormalizarGrupo($Grupo) . '|' . SgceNormalizarMayusculas($Turno);
 }
 
 function SgcePublicoEnviarHeaders(): void {
@@ -80,8 +87,9 @@ function SgcePublicoCampoHoneypot(): string {
     return '<div class="SgceHpField" aria-hidden="true"><label>Sitio web</label><input type="text" name="SitioWeb" value="" tabindex="-1" autocomplete="off"></div>';
 }
 
-function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno, &$Error = '') {
+function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $ProgramaId, $Grado, $Grupo, $Turno, &$Error = '') {
     $NombreAlumno = SgceNormalizarMayusculas($NombreAlumno);
+    $ProgramaId = (int)$ProgramaId;
     $Grado = SgceNormalizarMayusculas($Grado);
     $Grupo = SgcePublicoNormalizarGrupo($Grupo);
     $Turno = SgceNormalizarMayusculas($Turno);
@@ -96,7 +104,7 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
         return null;
     }
     if (!SgceValidarGrado($Grado) || $Grupo === '' || !in_array($Turno, ['MATUTINO', 'VESPERTINO'], true)) {
-        $Error = 'SELECCIONA GRADO, GRUPO Y TURNO PARA VALIDAR LA CONSULTA.';
+        $Error = 'SELECCIONA ETAPA/GRADO, GRUPO Y TURNO PARA VALIDAR LA CONSULTA.';
         return null;
     }
 
@@ -106,9 +114,23 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
         $Error = 'NO HAY UN CICLO ESCOLAR ACTIVO PARA CONSULTAS PÚBLICAS.';
         return null;
     }
+    $Oferta = SgceOfertaActiva($Pdo);
+    $OfertaId = (int)($Oferta['Id'] ?? 0);
+    if ($OfertaId <= 0) {
+        $Error = 'NO HAY UNA OFERTA EDUCATIVA ACTIVA PARA CONSULTAS PÚBLICAS.';
+        return null;
+    }
+    $UsaProgramas = !empty($Oferta['UsaProgramas']);
+    if ($UsaProgramas && $ProgramaId <= 0) {
+        $Error = 'SELECCIONA EL PROGRAMA EDUCATIVO PARA VALIDAR LA CONSULTA.';
+        return null;
+    }
+    if (!$UsaProgramas && $ProgramaId <= 0) {
+        $ProgramaId = SgceProgramaGeneralId($Pdo, $OfertaId);
+    }
 
-    $StmtGrupo = $Pdo->prepare("SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE CicloId = ? AND Grado = ? AND Grupo = ? AND Turno = ? AND Activo = 1 LIMIT 1");
-    $StmtGrupo->execute([$CicloId, $Grado, $Grupo, $Turno]);
+    $StmtGrupo = $Pdo->prepare("SELECT G.Id, G.CicloId, G.OfertaId, G.ProgramaId, G.EtapaId, G.Grado, G.Grupo, G.Turno, PE.Nombre AS ProgramaNombre FROM Grupos G INNER JOIN ProgramasEducativos PE ON PE.Id = G.ProgramaId WHERE G.CicloId = ? AND G.OfertaId = ? AND G.ProgramaId = ? AND G.Grado = ? AND G.Grupo = ? AND G.Turno = ? AND G.Activo = 1 LIMIT 1");
+    $StmtGrupo->execute([$CicloId, $OfertaId, $ProgramaId, $Grado, $Grupo, $Turno]);
     $InfoGrupo = $StmtGrupo->fetch();
     if (!$InfoGrupo) {
         $Error = SgcePublicoMensajeNoEncontrado();
@@ -120,12 +142,14 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
         FROM AlumnoInscripciones AI
         INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1
         WHERE AI.CicloId = ?
+          AND AI.OfertaId = ?
+          AND AI.ProgramaId = ?
           AND AI.GrupoId = ?
           AND AI.Estado = 'INSCRITO'
           AND Al.NombreCompleto = ?
         LIMIT 1
     ");
-    $StmtAlumno->execute([$CicloId, (int)$InfoGrupo['Id'], $NombreAlumno]);
+    $StmtAlumno->execute([$CicloId, $OfertaId, $ProgramaId, (int)$InfoGrupo['Id'], $NombreAlumno]);
     $Alumno = $StmtAlumno->fetch();
     if (!$Alumno) {
         $Error = SgcePublicoMensajeNoEncontrado();
@@ -137,6 +161,8 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $Grado, $Grupo, $Turno
         'Grupo' => $InfoGrupo,
         'Ciclo' => $Ciclo,
         'NombreAlumno' => $NombreAlumno,
+        'ProgramaId' => $ProgramaId,
+        'ProgramaNombre' => $InfoGrupo['ProgramaNombre'] ?? '',
         'Grado' => $Grado,
         'GrupoLetra' => $Grupo,
         'Turno' => $Turno,
@@ -282,8 +308,9 @@ function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
         return ['Ciclo' => $Ciclo, 'Periodos' => [], 'Filas' => [], 'PromedioGeneral' => null, 'Capturadas' => 0, 'Materias' => 0];
     }
 
-    $StmtPeriodos = $Pdo->prepare("SELECT Id, Nombre, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND Activo = 1 AND Orden BETWEEN 1 AND 3 ORDER BY Orden ASC, Id ASC");
-    $StmtPeriodos->execute([$CicloId]);
+    $OfertaId = (int)($GrupoInfo['OfertaId'] ?? 0);
+    $StmtPeriodos = $Pdo->prepare("SELECT Id, Nombre, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Orden ASC, Id ASC");
+    $StmtPeriodos->execute([$CicloId, $OfertaId]);
     $Periodos = $StmtPeriodos->fetchAll();
 
     $StmtAsignaciones = $Pdo->prepare("

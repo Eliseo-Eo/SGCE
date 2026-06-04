@@ -32,7 +32,7 @@ function EstilosReporteCal($Landscape = false) { global $ColorReporte; ?>
 </style>
 <?php }
 
-$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.CicloId, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1');
+$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.CicloId, P.OfertaId, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1');
 $StmtPeriodo->execute([$PeriodoId]);
 $Periodo = $StmtPeriodo->fetch();
 if (!$Periodo) { http_response_code(400); exit('Periodo no válido.'); }
@@ -57,11 +57,11 @@ if ($Modo === 'General') {
         LEFT JOIN AlumnoInscripciones AI ON AI.CicloId = A.CicloId AND AI.GrupoId = G.Id AND AI.Estado = 'INSCRITO'
         LEFT JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1
         LEFT JOIN Calificaciones C ON C.AsignacionId = A.Id AND C.AlumnoId = Al.Id AND C.PeriodoId = ?
-        WHERE A.CicloId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1
+        WHERE A.CicloId = ? AND G.OfertaId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1
         GROUP BY A.Id, G.Grado, G.Grupo, G.Turno, A.MateriaNombre, U.NombreCompleto
         ORDER BY G.Turno, G.Grado, G.Grupo, A.MateriaNombre";
     $Stmt = $Pdo->prepare($Sql);
-    $Stmt->execute([$PeriodoId, (int)$Periodo['CicloId']]);
+    $Stmt->execute([$PeriodoId, (int)$Periodo['CicloId'], (int)$Periodo['OfertaId']]);
     $Rows = $Stmt->fetchAll();
 
     if ($Tipo === 'Excel') { SgceCalificacionesEmitirExcel($TituloArchivo); }
@@ -87,8 +87,8 @@ if ($Modo === 'General') {
 }
 
 if ($Modo === 'Grupo') {
-    $StmtGrupo = $Pdo->prepare('SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND CicloId = ? AND Activo = 1 LIMIT 1');
-    $StmtGrupo->execute([$GrupoId, (int)$Periodo['CicloId']]);
+    $StmtGrupo = $Pdo->prepare('SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE Id = ? AND CicloId = ? AND OfertaId = ? AND Activo = 1 LIMIT 1');
+    $StmtGrupo->execute([$GrupoId, (int)$Periodo['CicloId'], (int)$Periodo['OfertaId']]);
     $Grupo = $StmtGrupo->fetch();
     if (!$Grupo) { http_response_code(404); exit('Grupo no encontrado.'); }
 
@@ -147,8 +147,8 @@ if ($Modo === 'Grupo') {
     exit;
 }
 
-$Stmt = $Pdo->prepare('SELECT A.Id, A.CicloId, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.CicloId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 LIMIT 1');
-$Stmt->execute([$AsignacionId, (int)$Periodo['CicloId']]);
+$Stmt = $Pdo->prepare('SELECT A.Id, A.CicloId, A.MateriaNombre, A.MaestroId, G.Grado, G.Grupo, G.Turno, G.Id AS GrupoId, U.NombreCompleto AS Maestro FROM Asignaciones A JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId JOIN Usuarios U ON A.MaestroId = U.Id WHERE A.Id = ? AND A.CicloId = ? AND G.OfertaId = ? AND A.Activo = 1 AND G.Activo = 1 AND U.Activo = 1 LIMIT 1');
+$Stmt->execute([$AsignacionId, (int)$Periodo['CicloId'], (int)$Periodo['OfertaId']]);
 $Info = $Stmt->fetch();
 if (!$Info) { http_response_code(404); exit('Asignación no encontrada.'); }
 if (SgceTieneRol($UserSession, ['maestro'])) {

@@ -179,7 +179,7 @@ $PorPaginaAvisos = 7;
 $TotalAvisos = (int)$Pdo->query("SELECT COUNT(*) FROM Avisos")->fetchColumn();
 
 $StmtAvisos = $Pdo->prepare("
-    SELECT *
+    SELECT Id, Titulo, Mensaje, Publico, Activo, FechaCreacion
     FROM Avisos
     ORDER BY Activo DESC, FechaCreacion DESC, Id DESC
     LIMIT :Limit OFFSET :Offset
@@ -204,9 +204,10 @@ $Avisos = $StmtAvisos->fetchAll();
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
+<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="AvisosBody">
@@ -296,7 +297,7 @@ $Avisos = $StmtAvisos->fetchAll();
                             ?>
                             <tr>
                                 <td class="AvisoFecha"><?= HAviso(date('d/m/Y H:i', strtotime($A['FechaCreacion']))) ?></td>
-                                <td class="fw-bold AvisoTituloTabla"><?= HAviso($A['Titulo']) ?></td>
+                                <td class="AvisoTituloTabla"><?= HAviso($A['Titulo']) ?></td>
                                 <td><span class="BadgePublico"><?= HAviso($A['Publico']) ?></span></td>
                                 <td>
                                     <span class="BadgeEstado <?= $EstaActivo ? '' : 'BadgeInactivo' ?>">
@@ -453,7 +454,7 @@ $Avisos = $StmtAvisos->fetchAll();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
-<script src="assets/js/AvisosAdmin.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceJs('assets/js/AvisosAdmin.js') ?>
 </body>
 </html>

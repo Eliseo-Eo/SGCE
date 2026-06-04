@@ -318,6 +318,11 @@ document.addEventListener('DOMContentLoaded', function(){
             return;
         }
 
+        var SubmitterActual = Evento.submitter || document.activeElement || null;
+        if (SubmitterActual && SubmitterActual.dataset && SubmitterActual.dataset.sgceSkipConfirm === '1') {
+            return;
+        }
+
         if (!FormularioConfirmacionValido(Formulario)) {
             Evento.preventDefault();
             return;

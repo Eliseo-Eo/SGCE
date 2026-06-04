@@ -1,5 +1,4 @@
 
-
 html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico,
 html body .SgceModuleWrap button#BtnVincularAsignacionVerdeMetalico.BtnAsignacionVincularMetalico,
 html body button#BtnVincularAsignacionVerdeMetalico{
@@ -70,3 +69,389 @@ html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico span
   position:relative!important;
   z-index:1!important;
 }
+
+@media (min-width: 768px){
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm{
+    align-items:end!important;
+    flex-wrap:nowrap!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm > .col-md-4{
+    flex:0 0 34%!important;
+    max-width:34%!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm > .col-md-6{
+    flex:1 1 auto!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionButtonCol{
+    flex:0 0 128px!important;
+    max-width:128px!important;
+    width:128px!important;
+    min-width:128px!important;
+  }
+}
+html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico,
+html body .SgceModuleWrap button#BtnVincularAsignacionVerdeMetalico.BtnAsignacionVincularMetalico,
+html body button#BtnVincularAsignacionVerdeMetalico{
+  width:128px!important;
+  max-width:128px!important;
+  min-width:128px!important;
+  min-height:40px!important;
+  height:40px!important;
+  padding:8px 14px!important;
+  gap:7px!important;
+  font-size:.82rem!important;
+  line-height:1!important;
+}
+@media (max-width: 767px){
+  html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico,
+  html body .SgceModuleWrap button#BtnVincularAsignacionVerdeMetalico.BtnAsignacionVincularMetalico,
+  html body button#BtnVincularAsignacionVerdeMetalico{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+}
+
+@media (min-width: 768px){
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm{
+    display:grid!important;
+    grid-template-columns:minmax(230px, 31%) minmax(360px, 1fr) 104px!important;
+    column-gap:12px!important;
+    row-gap:8px!important;
+    align-items:end!important;
+    flex-wrap:nowrap!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm > .col-md-4,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm > .col-md-6,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm > .AsignacionButtonCol{
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    flex:none!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionButtonCol{
+    justify-self:start!important;
+    width:104px!important;
+    max-width:104px!important;
+    min-width:104px!important;
+  }
+}
+
+html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico,
+html body .SgceModuleWrap button#BtnVincularAsignacionVerdeMetalico.BtnAsignacionVincularMetalico,
+html body button#BtnVincularAsignacionVerdeMetalico{
+  width:104px!important;
+  max-width:104px!important;
+  min-width:104px!important;
+  min-height:39px!important;
+  height:39px!important;
+  padding:7px 10px!important;
+  gap:6px!important;
+  font-size:.78rem!important;
+  line-height:1!important;
+}
+
+@media (min-width: 1200px){
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones{
+    display:grid!important;
+    grid-template-columns:minmax(240px,320px) 132px 112px 112px 88px 92px!important;
+    justify-content:start!important;
+    align-items:center!important;
+    gap:6px!important;
+    width:100%!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones .SgceFilterSearch{
+    width:100%!important;
+    max-width:320px!important;
+    min-width:240px!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones .SgceQuickFilter{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding-left:.58rem!important;
+    padding-right:1.18rem!important;
+    font-size:.78rem!important;
+    font-weight:500!important;
+    text-transform:none!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones .SgceClearFiltersBtn{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    height:39px!important;
+    min-height:39px!important;
+    padding:7px 10px!important;
+    gap:5px!important;
+    justify-self:start!important;
+    align-self:center!important;
+    font-size:.74rem!important;
+    line-height:1!important;
+  }
+}
+
+@media (min-width: 768px) and (max-width:1199px){
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceFilterBarAsignaciones .SgceClearFiltersBtn{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+  }
+}
+
+@media (max-width: 767px){
+  html body .SgceModuleWrap #asignaciones #BtnVincularAsignacionVerdeMetalico,
+  html body .SgceModuleWrap button#BtnVincularAsignacionVerdeMetalico.BtnAsignacionVincularMetalico,
+  html body button#BtnVincularAsignacionVerdeMetalico{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+}
+
+/* Ajuste visual de Asignaciones.
+   Al quitar la alerta informativa, se elimina la línea divisoria sobrante
+   entre el formulario de nueva asignación y los filtros de cargas activas. */
+html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgceAsignacionesFilterHead{
+  border-top:0!important;
+  padding-top:8px!important;
+  margin-top:6px!important;
+}
+
+html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionForm{
+  margin-bottom:12px!important;
+}
+
+/* Ajuste fino de tabla y paginador en Asignaciones.
+   Causa corregida:
+   - sgce-base.min.css aún tenía reglas específicas para #asignaciones que alineaban el paginador a la izquierda.
+   - La tabla usaba anchos automáticos y botones con demasiado padding, provocando scroll/corte horizontal.
+   Este bloque se carga después del CSS base y restaura el comportamiento correcto solo para Asignaciones. */
+@media (min-width:1101px){
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePartialPager,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePartialPager > .SgcePagerServer,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePagerServer{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    width:100%!important;
+    margin:10px auto 0!important;
+    padding:0!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePagerServer .pagination,
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePartialPager .pagination{
+    justify-content:center!important;
+    align-items:center!important;
+    width:100%!important;
+    margin:0 auto 4px!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .SgcePagerInfo{
+    text-align:center!important;
+    width:100%!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionesTableWrap{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    table-layout:fixed!important;
+    margin-bottom:0!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig thead th{
+    text-align:center!important;
+    vertical-align:middle!important;
+    padding:8px 4px!important;
+    font-size:.72rem!important;
+    letter-spacing:.045em!important;
+    white-space:nowrap!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig tbody td{
+    vertical-align:middle!important;
+    padding:7px 4px!important;
+    font-size:.80rem!important;
+    line-height:1.22!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(1),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(1){width:17%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(2),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(2){width:12%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(3),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(3){width:14%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(4),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(4){width:5%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(5),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(5){width:12%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(6),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(6){width:12%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(7),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(7){width:12%!important;}
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig th:nth-child(8),
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(8){width:16%!important;}
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionMateriaTexto{
+    display:block!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    white-space:normal!important;
+    font-size:.74rem!important;
+    line-height:1.18!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AsignacionGrupoBadgeFull{
+    max-width:100%!important;
+    padding:5px 7px!important;
+    font-size:.68rem!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+    text-align:center!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones #TableAsig td:nth-child(4) .badge{
+    padding:5px 7px!important;
+    font-size:.70rem!important;
+    line-height:1!important;
+    min-width:30px!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .ExportIcons{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:5px!important;
+    min-width:0!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .ExportIcon{
+    min-width:52px!important;
+    height:28px!important;
+    min-height:28px!important;
+    padding:5px 7px!important;
+    border-radius:12px!important;
+    font-size:.68rem!important;
+    line-height:1!important;
+    gap:4px!important;
+    white-space:nowrap!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .ExportIcon i{
+    font-size:.70rem!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AdminActions{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:5px!important;
+    min-width:0!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AdminActions form{
+    min-width:0!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AdminActions .ActionBtn{
+    min-width:66px!important;
+    height:30px!important;
+    min-height:30px!important;
+    padding:6px 8px!important;
+    border-radius:13px!important;
+    font-size:.68rem!important;
+    line-height:1!important;
+    gap:4px!important;
+    white-space:nowrap!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .AdminActions .ActionBtn i{
+    font-size:.70rem!important;
+  }
+
+  html body .SgcePageWrap.SgceModuleWrap #asignaciones .BtnAsignacionDelete{
+    min-width:74px!important;
+  }
+}
+
+/* SGCE 1.0.91: Estilos específicos extraídos de sgce-base para reducir herencia global. */
+#TableGrupos th:nth-child(4),#TableGrupos th:nth-child(5),#TableGrupos th:nth-child(6),#TableAsig th:nth-child(4),#TableAsig th:nth-child(5),#TableAsig th:nth-child(6){min-width:150px!important}
+#TableGrupos td:nth-child(4),#TableGrupos td:nth-child(5),#TableGrupos td:nth-child(6),#TableAsig td:nth-child(4),#TableAsig td:nth-child(5),#TableAsig td:nth-child(6){min-width:150px!important;white-space:nowrap!important}
+.AsignacionesTableCard{min-height:700px!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column!important;overflow:visible!important;}
+.AsignacionesHeaderCard{flex:0 0 auto!important;}
+.AsignacionesCardBody{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;}
+.AsignacionForm{align-items:flex-end!important;padding-bottom:18px!important;border-bottom:1px solid #E5E7EB!important;}
+.AsignacionForm .form-control,.AsignacionForm .form-select,.AsignacionForm .BtnAsignacionPrimary{min-height:46px!important;height:46px!important;border-radius:14px!important;}
+.AsignacionForm label{margin-bottom:7px!important;color:#475569!important;font-weight:900!important;letter-spacing:.15px!important;}
+.AsignacionButtonCol{display:flex!important;flex-direction:column!important;justify-content:flex-end!important;}
+.BtnAsignacionPrimary{position:relative!important;overflow:hidden!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:0!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;font-size:.9rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+.BtnAsignacionPrimary::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.15) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.15) 100%);opacity:.7;pointer-events:none;}
+.BtnAsignacionPrimary i,.BtnAsignacionPrimary span{position:relative;z-index:1;}
+.BtnAsignacionPrimary:hover{transform:translateY(-1px)!important;filter:saturate(1.07) brightness(1.03)!important;box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.30)!important;}
+.AsignacionesTableCard .d-flex.justify-content-between.align-items-center{flex:0 0 auto!important;margin-bottom:12px!important;padding-top:16px!important;border-top:0!important;}
+.AsignacionesTableWrap{flex:1 1 auto!important;min-height:380px!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;}
+#TableAsig{margin-bottom:0!important;}
+#TableAsig thead th{height:42px!important;vertical-align:middle!important;color:#64748B!important;font-weight:900!important;font-size:.74rem!important;text-transform:uppercase!important;}
+#TableAsig tbody td{height:56px!important;vertical-align:middle!important;}
+#TableAsig .AdminActions{gap:10px!important;justify-content:center!important;flex-wrap:nowrap!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit,#TableAsig .ActionBtn.BtnAsignacionDelete{position:relative!important;overflow:hidden!important;min-height:38px!important;padding:9px 14px!important;border-radius:999px!important;border:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;font-size:.78rem!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 12px 22px rgba(15,23,42,.12)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit::before,#TableAsig .ActionBtn.BtnAsignacionDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 100%);opacity:.72;pointer-events:none;}
+#TableAsig .ActionBtn.BtnAsignacionEdit::after,#TableAsig .ActionBtn.BtnAsignacionDelete::after{content:"";position:absolute;width:38px;height:120%;top:-10%;left:-52px;transform:skewX(-20deg);background:rgba(255,255,255,.42);filter:blur(3px);transition:left .45s ease;pointer-events:none;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover::after,#TableAsig .ActionBtn.BtnAsignacionDelete:hover::after{left:120%;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover,#TableAsig .ActionBtn.BtnAsignacionDelete:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit i,#TableAsig .ActionBtn.BtnAsignacionEdit span,#TableAsig .ActionBtn.BtnAsignacionDelete i,#TableAsig .ActionBtn.BtnAsignacionDelete span{position:relative;z-index:1;margin:0!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit{background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(37,99,235,.22)!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover{box-shadow:0 16px 28px rgba(37,99,235,.30)!important;}
+#TableAsig .ActionBtn.BtnAsignacionDelete{background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;}
+#TableAsig .ActionBtn.BtnAsignacionDelete:hover{box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;}
+@media(max-width:1199px){.AsignacionesTableCard{min-height:640px!important;max-height:none!important}.AsignacionesTableWrap{min-height:390px!important;max-height:none!important}}
+@media(max-width:991px){.AsignacionButtonCol label{display:none!important}.AsignacionesTableCard{min-height:420px!important;height:auto!important;max-height:none!important}.AsignacionesTableWrap{min-height:220px!important;max-height:none!important;overflow-x:auto!important}}
+#asignaciones .AsignacionesTableCard{min-height:700px!important;max-height:none!important;overflow:visible!important;}
+#asignaciones .AsignacionesCardBody{overflow:visible!important;}
+#asignaciones .AsignacionesTableWrap{min-height:380px!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;}
+#asignaciones .BtnAsignacionEdit,#asignaciones .BtnAsignacionDelete{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;border:0!important;border-radius:999px!important;min-height:36px!important;padding:8px 15px!important;color:#fff!important;font-weight:900!important;box-shadow:0 13px 25px rgba(15,23,42,.16)!important;position:relative!important;overflow:hidden!important;}
+#asignaciones .BtnAsignacionEdit::before,#asignaciones .BtnAsignacionDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42),rgba(255,255,255,.12) 32%,transparent 54%,rgba(255,255,255,.14));pointer-events:none;}
+#asignaciones .BtnAsignacionEdit{background:linear-gradient(135deg,#2563EB,#3B82F6 55%,#60A5FA)!important;}
+#asignaciones .BtnAsignacionDelete{background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuindaOscuro) 55%,#E11D48)!important;}
+#asignaciones .BtnAsignacionEdit i,#asignaciones .BtnAsignacionEdit span,#asignaciones .BtnAsignacionDelete i,#asignaciones .BtnAsignacionDelete span{position:relative;z-index:1;}
+.SgceModuleWrap .card-header-custom,.SgceModuleWrap .AsignacionesHeaderCard{background:transparent!important;border:0!important;padding:4px 0 16px!important;margin-bottom:10px!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,html body #TableAsig .AsignacionMateriaTexto{display:inline-flex!important;align-items:center!important;color:var(--SgceGuindaOscuro)!important;font-weight:950!important;letter-spacing:.01em!important;text-transform:uppercase!important;text-shadow:none!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,html body #TableAsig .AsignacionGrupoChips{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;flex-wrap:wrap!important;white-space:normal!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChip,html body #TableAsig .AsignacionGrupoChip{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:25px!important;padding:4px 10px!important;border-radius:999px!important;font-size:.72rem!important;font-weight:950!important;line-height:1!important;letter-spacing:.01em!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;text-shadow:none!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGradoChip,html body #TableAsig .AsignacionGradoChip,html body .SgceModuleWrap #TableAsig .AsignacionGrupoChipLetra,html body #TableAsig .AsignacionGrupoChipLetra{min-width:34px!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionTurnoChip,html body #TableAsig .AsignacionTurnoChip{min-width:78px!important;}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple,html body #TableAsig .GrupoTextoSimple{color:var(--SgceGuindaOscuro)!important;}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple i,html body #TableAsig .GrupoTextoSimple i{display:none!important;}
+html body .SgceModuleWrap #TableAsig{table-layout:auto!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(1),html body .SgceModuleWrap #TableAsig td:nth-child(1){min-width:190px!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(2),html body .SgceModuleWrap #TableAsig td:nth-child(2){min-width:150px!important;width:150px!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(3),html body .SgceModuleWrap #TableAsig td:nth-child(3){min-width:142px!important;width:142px!important;white-space:nowrap!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,html body #TableAsig .AsignacionMateriaTexto{display:inline-block!important;max-width:150px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:.78rem!important;line-height:1.15!important;vertical-align:middle!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoTd,html body #TableAsig .AsignacionGrupoTd{white-space:nowrap!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoBadgeFull,html body #TableAsig .AsignacionGrupoBadgeFull{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:26px!important;max-width:142px!important;padding:5px 11px!important;border-radius:999px!important;font-size:.68rem!important;font-weight:950!important;line-height:1!important;letter-spacing:.005em!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;text-shadow:none!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,html body #TableAsig .AsignacionGrupoChips{flex-wrap:nowrap!important;white-space:nowrap!important;}
+@media(max-width:1100px){html body .SgceModuleWrap #TableAsig th:nth-child(1),html body .SgceModuleWrap #TableAsig td:nth-child(1){min-width:170px!important}html body .SgceModuleWrap #TableAsig th:nth-child(2),html body .SgceModuleWrap #TableAsig td:nth-child(2){min-width:132px!important;width:132px!important}html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto{max-width:132px!important;font-size:.74rem!important}html body .SgceModuleWrap #TableAsig th:nth-child(3),html body .SgceModuleWrap #TableAsig td:nth-child(3){min-width:126px!important;width:126px!important}html body .SgceModuleWrap #TableAsig .AsignacionGrupoBadgeFull{max-width:126px!important;font-size:.64rem!important;padding-inline:9px!important}}
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard{min-height:auto!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard{padding:0 0 6px!important;margin:0!important;min-height:0!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard h6{margin:0!important;min-height:44px!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesCardBody{padding-top:10px!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionForm{margin-top:0!important;margin-bottom:18px!important;padding-top:0!important;padding-bottom:16px!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard .d-flex.justify-content-between.align-items-center{padding-top:14px!important;}

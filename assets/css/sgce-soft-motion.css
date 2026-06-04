@@ -1,4 +1,4 @@
-/* SGCE - Transiciones suaves: opacity y transform, sin modificar colores ni tamanos de botones. */
+
 :root{
     --SgceMotionEase:cubic-bezier(.22,.61,.36,1);
     --SgceMotionPage:.14s;
@@ -239,8 +239,6 @@ body{animation:SgcePageIn var(--SgceMotionPage) ease-out both;}
     }
 }
 
-
-/* Consulta publica: entrada uniforme de paneles. */
 .ConsultaPublicaBody .ConsultaGrid > .ConsultaCard,
 .ConsultaPublicaBody .ConsultaGrid > .ResultadoCard{
     animation:SgceSoftUp var(--SgceMotionBlock) var(--SgceMotionEase) both!important;

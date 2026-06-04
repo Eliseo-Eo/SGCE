@@ -58,7 +58,7 @@ function RedirectRestaurar($Mensaje, $Tipo = 'success') {
 function QTablaRest($Tabla) { return '`' . str_replace('`','``',$Tabla) . '`'; }
 
 function TablasSistemaRest($Pdo) {
-    $Preferidas = ['IntentosSeguridad','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','PeriodosEvaluacion','CiclosEscolares','Asignaciones','Alumnos','Grupos','Usuarios','ConfiguracionSistema'];
+    $Preferidas = ['IntentosSeguridad','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','KardexDetalle','KardexAlumno','AsignacionDocenteHistorial','PeriodosEvaluacion','Asignaciones','MateriasGrupo','AlumnoInscripciones','Alumnos','Grupos','EtapasAcademicas','ProgramasEducativos','ConfiguracionesAcademicas','OfertasEducativas','MateriasCatalogo','CiclosEscolares','Usuarios','ConfiguracionSistema'];
     $Existentes = array_map(function($R){ return $R[0]; }, $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM));
     $Tablas = [];
     foreach ($Preferidas as $Tabla) {
@@ -73,7 +73,7 @@ function TablasSistemaRest($Pdo) {
 function VaciarTablasRest($Pdo, $IncluirUsuarios = false, $ConservarCicloPeriodo = true) {
     $Tablas = TablasSistemaRest($Pdo);
     $ConservarEscolar = $ConservarCicloPeriodo
-        ? ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'PeriodosEvaluacion', 'IntentosSeguridad']
+        ? ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'OfertasEducativas', 'ConfiguracionesAcademicas', 'ProgramasEducativos', 'EtapasAcademicas', 'PeriodosEvaluacion', 'IntentosSeguridad']
         : ['Usuarios', 'ConfiguracionSistema', 'IntentosSeguridad'];
 
     $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
@@ -158,7 +158,7 @@ function SentenciaPermitidaRest($Sql) {
     $Limpia = ltrim($Sql);
     if (preg_match('/^SET\s+/i', $Limpia)) { return true; }
     if (preg_match('/^(INSERT|REPLACE)\s+INTO\s+`?([A-Za-z0-9_]+)`?/i', $Limpia, $M)) {
-        $TablasPermitidas = ['Usuarios','Grupos','Alumnos','Asignaciones','CiclosEscolares','PeriodosEvaluacion','Calificaciones','Asistencias','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad','ConfiguracionSistema'];
+        $TablasPermitidas = ['ConfiguracionSistema','Usuarios','CiclosEscolares','OfertasEducativas','ConfiguracionesAcademicas','ProgramasEducativos','EtapasAcademicas','Grupos','Alumnos','AlumnoInscripciones','MateriasCatalogo','MateriasGrupo','Asignaciones','AsignacionDocenteHistorial','PeriodosEvaluacion','Calificaciones','Asistencias','KardexAlumno','KardexDetalle','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad'];
         return in_array($M[2], $TablasPermitidas, true);
     }
     return false;
@@ -222,8 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (function_exists('finfo_open')) {
             $Finfo = finfo_open(FILEINFO_MIME_TYPE);
             $Mime = $Finfo ? (string)finfo_file($Finfo, $ArchivoSql['tmp_name']) : '';
-            if ($Finfo) { finfo_close($Finfo); }
-            $MimesSql = ['text/plain', 'text/x-sql', 'application/sql', 'application/octet-stream'];
+                $MimesSql = ['text/plain', 'text/x-sql', 'application/sql', 'application/octet-stream'];
             if ($Mime !== '' && !in_array($Mime, $MimesSql, true)) {
                 RedirectRestaurar('El archivo no parece ser un respaldo SQL válido.', 'danger');
             }
@@ -284,10 +283,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=sgce">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=sgce">
+<?= SgceCss('assets/css/sgce-base.min.css') ?>
+<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
-<link rel="stylesheet" href="assets/css/respaldos-botones-metalicos.css?v=sgce">
+<?= SgceCss('assets/css/respaldos-botones-metalicos.css') ?>
 </head>
 <body class="SgceRestorePage">
 <div class="container py-4 SgceModuleWrap SgceRestoreWrap">
@@ -310,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="d-grid gap-3">
                     <a id="BtnExportarSoloDatosVerdeMetalico" href="ExportarDatosBD.php" class="ActionBtn BtnRespaldosExportarVerdeMetalico"><span class="SgceColorIcon" aria-hidden="true">📤</span> EXPORTAR SOLO DATOS</a>
                     </div>
-                <div class="SgceRestoreInfo"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> este es el respaldo correcto para volver a importar desde el sistema.</span></div>
+                <div class="SgceRestoreInfo"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> Este es el respaldo correcto para volver a importar desde el sistema.</span></div>
             </div>
         </div>
 
@@ -355,6 +354,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php ImprimirCsrfScript(); ?>
-<script src="assets/js/sgce-shared.js?v=sgce"></script>
+<?= SgceJs('assets/js/sgce-shared.js') ?>
 </body>
 </html>
