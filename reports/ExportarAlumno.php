@@ -13,7 +13,7 @@ $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
 if ($AlumnoId <= 0) { http_response_code(400); exit('Alumno inválido.'); }
 
 $PeriodoInfo = SgcePeriodoInfo($Pdo, $PeriodoId);
-if (!$PeriodoInfo) { http_response_code(400); exit('Periodo inválido.'); }
+if (!$PeriodoInfo) { http_response_code(400); exit('El ciclo activo no tiene periodos configurados. Ve a Ciclos y periodos para registrarlos antes de exportar la boleta.'); }
 $CicloId = (int)$PeriodoInfo['CicloId'];
 $FechaInicioCiclo = $PeriodoInfo['FechaInicio'] ?? date('Y-01-01');
 $FechaFinCiclo = $PeriodoInfo['FechaFin'] ?? date('Y-12-31');
@@ -45,6 +45,12 @@ foreach ($StmtAsis->fetchAll() as $Fila) {
 
 RegistrarBitacora($Pdo, $UserSession, 'EXPORTAR_BOLETA', 'Alumnos', $AlumnoId, 'BOLETA INDIVIDUAL GENERADA POR CICLO');
 
+function SgcePdfValidarBoletaIndividualLigera(array $Filas): void {
+    if (count($Filas) <= 80) { return; }
+    http_response_code(413);
+    exit('La boleta individual tiene demasiadas materias para PDF. Revisa la configuración del grupo o exporta el historial.');
+}
+
 $FilasPdf = [];
 foreach ($Calificaciones as $C) {
     $FilasPdf[] = [
@@ -53,6 +59,7 @@ foreach ($Calificaciones as $C) {
         $C['Calificacion'] !== null ? number_format((float)$C['Calificacion'], 2) : '-'
     ];
 }
+SgcePdfValidarBoletaIndividualLigera($FilasPdf);
 $GrupoTexto = trim(($Alumno['Grado'] ?? '') . ' ' . ($Alumno['Grupo'] ?? '') . ' ' . ($Alumno['Turno'] ?? ''));
 $SubtituloPdf = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Periodo: ' . $Periodo['Nombre'] . ' ' . $Periodo['Ciclo'] . ' | Promedio: ' . ($Promedio !== null ? number_format($Promedio, 2) : '-') . ' | Asistencia: A ' . $Conteos['A'] . ' / F ' . $Conteos['F'] . ' / R ' . $Conteos['R'] . ' / J ' . $Conteos['J'];
 SgcePdfRespuestaTabla($Pdo, 'Boleta individual', $SubtituloPdf, ['Materia', 'Docente', 'Calificación'], $FilasPdf, 'Boleta_' . $Alumno['NombreCompleto'], 'P', [245, 210, 85]);

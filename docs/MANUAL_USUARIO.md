@@ -1,52 +1,59 @@
-# Manual de usuario SGCE
+# Manual de usuario - SGCE 1.0.122
 
-## Administración
+## Roles principales
 
-Desde el panel principal puedes administrar docentes, alumnos, grupos, materias, asignaciones, avisos, reportes, planeaciones, usuarios, ciclos y configuración.
+- Administrador: Gestiona todo el sistema.
+- Administrativo: Apoya procesos escolares según permisos.
+- Maestro: Captura asistencia, calificaciones y planeaciones asignadas.
 
-## Configuración académica
+## Módulos principales
 
-La configuración académica define cómo trabaja la institución:
+- Inicio.
+- Docentes.
+- Grupos.
+- Materias.
+- Alumnos.
+- Asignaciones.
+- Asistencia.
+- Calificaciones.
+- Planeaciones.
+- Expedientes.
+- Reportes.
+- Ciclos y periodos.
+- Migración.
+- Respaldos.
+- Configuración.
 
-- Nivel educativo.
-- Organización anual, semestral, cuatrimestral, trimestral o modular.
-- Número de etapas académicas.
-- Uso de programas educativos.
-- Periodos de evaluación.
-- Planeaciones por ciclo, periodo, unidad o semana.
+## Operación básica
 
-Cuando ya existen grupos, calificaciones o planeaciones, SGCE bloquea cambios estructurales peligrosos para proteger el historial.
+1. Captura o importa docentes.
+2. Captura o importa grupos.
+3. Captura o importa materias por grupo.
+4. Captura o importa alumnos.
+5. Crea asignaciones de docentes a materias/grupos.
+6. Los maestros capturan asistencia y calificaciones.
+7. Administración revisa reportes, expedientes y planeaciones.
 
-## Grupos y alumnos
+## Migración de ciclo
 
-Los grupos pertenecen a un ciclo, oferta, programa y etapa. Los alumnos se inscriben por ciclo mediante `AlumnoInscripciones`, lo que permite consultar boletas históricas sin mezclar generaciones.
+La migración sirve para pasar de un ciclo escolar a otro.
+
+El sistema:
+
+- Conserva intacto el ciclo anterior.
+- Crea los grupos equivalentes del ciclo nuevo.
+- Copia materias por grupo.
+- Promueve alumnos a la siguiente etapa.
+- Egresa alumnos de la etapa terminal.
+- Copia asignaciones/docentes solo si el administrador lo marca.
+- Genera respaldo antes de ejecutar.
+
+Antes de migrar, revisa el diagnóstico y ejecuta simulación.
 
 ## Planeaciones
 
-Las planeaciones se administran por ciclo, oferta, programa educativo, docente y materia. Si un docente da la misma materia a varios grupos del mismo programa, no necesita subir la planeación varias veces.
+Por defecto, las planeaciones están configuradas por ciclo. Esto significa una planeación por materia durante todo el ciclo escolar, salvo que la escuela configure otro tipo de entrega.
 
+## Respaldo
 
-## Migración de ciclo escolar
-
-El módulo **Migración de ciclo escolar** es exclusivo para usuarios con rol **Administrador**. Permite migrar un grupo o un ciclo completo desde un ciclo cerrado/inactivo hacia el ciclo activo, congelando el kardex antes de promover alumnos para proteger boletas históricas.
-
-Antes de ejecutar una migración, crea un respaldo completo desde el módulo de respaldos.
-
-## Consulta pública
-
-Si la institución usa programas educativos, la consulta pública solicita programa, etapa académica, grupo y turno para evitar ambigüedades.
-
-
-## Módulo Materias
-
-Antes de crear asignaciones docentes, registra las materias de cada grupo y las horas semanales correspondientes. El sistema no permite duplicar la misma materia en un grupo ni superar 40 horas semanales por grupo.
-
-El archivo de importación puede usar columnas: Materia, Grado/Etapa, Grupo, Turno, Horas y Programa si aplica. En secundaria sin programas, el programa puede dejarse vacío y SGCE usará GENERAL.
-
-Ejemplo: Ofimática puede registrarse en 1C, 2C y 3C porque son grupos distintos; lo que SGCE bloquea es registrar dos veces Ofimática en el mismo grupo del mismo ciclo.
-
-## Reportes y rendimiento
-
-Los reportes de asistencia piden rango de fechas. Para evitar que el sistema se vuelva lento con muchos años de información, SGCE limita exportaciones muy amplias y recomienda generar reportes por periodo, mes o ciclo.
-
-La bitácora muestra por defecto los últimos 30 días. Puedes cambiar fechas desde los filtros.
+Antes de importaciones grandes o migraciones, crea respaldo desde el módulo correspondiente.

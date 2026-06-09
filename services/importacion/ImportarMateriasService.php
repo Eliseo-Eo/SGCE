@@ -24,6 +24,11 @@ function SgceImportarMateriasService(PDO $Pdo, array $UserSession, int $CicloAct
             RedirectAdminImportar('materias', 'Primero configura la estructura académica.', true);
         }
 
+        $ErrorFormatoPrevio = SgceValidarImportacionMateriasPrevia($Filas, !empty($OfertaImportacion['UsaProgramas']));
+        if ($ErrorFormatoPrevio !== '') {
+            RedirectAdminImportar('materias', $ErrorFormatoPrevio, true);
+        }
+
         $EtapasImportacion = SgceEtapasAcademicasListar($Pdo, $OfertaImportacionId, true);
         $MapaEtapasPorOrden = [];
         $MapaEtapasPorNombre = [];

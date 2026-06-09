@@ -2,7 +2,7 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 ?>
 <?php foreach($Asignaciones as $Asg): ?>
-<div class="modal fade" id="EAsg<?= $Asg['Id'] ?>" tabindex="-1">
+<div class="modal fade" id="EAsg<?= (int)$Asg['Id'] ?>" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered ModalEditarPro">
         <div class="modal-content">
             <form method="POST">
@@ -11,12 +11,12 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                     <h6 class="mb-3 border-bottom pb-2">Editar Asignación</h6>
                     <input type="hidden" name="EditAsignacion">
                     <input type="hidden" name="Tab" value="asignaciones">
-                    <input type="hidden" name="Id" value="<?= $Asg['Id'] ?>">
+                    <input type="hidden" name="Id" value="<?= (int)$Asg['Id'] ?>">
                     <label class="small text-muted">Docente</label>
                     <select name="MaestroId" class="form-select mb-2 SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar docente..." required>
                         <?php foreach($Maestros as $M): ?>
-                            <option value="<?= $M['Id'] ?>" <?= $M['Id'] == $Asg['MaestroId'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($M['NombreCompleto']) ?>
+                            <option value="<?= (int)$M['Id'] ?>" <?= (int)$M['Id'] === (int)$Asg['MaestroId'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($M['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

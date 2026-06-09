@@ -1,75 +1,114 @@
-# Manual técnico SGCE
+# Manual técnico - SGCE 1.0.122
 
-## Modelo de datos académico
+## Estructura general
 
-Las tablas principales son:
-
-- `OfertasEducativas`
-- `ConfiguracionesAcademicas`
-- `ProgramasEducativos`
-- `EtapasAcademicas`
-- `CiclosEscolares`
-- `PeriodosEvaluacion`
-- `Grupos`
-- `Alumnos`
-- `AlumnoInscripciones`
-- `MateriasCatalogo`
-- `MateriasGrupo`
-- `Asignaciones`
-- `AsignacionDocenteHistorial`
-- `Calificaciones`
-- `Asistencias`
-- `Planeaciones`
-- `KardexAlumno`
-- `KardexDetalle`
-
-## Decisiones de integridad
-
-- `Grupos.ProgramaId` es obligatorio. Para escuelas sin programa visible se usa el programa interno `GENERAL`.
-- La llave única de grupos usa `CicloId`, `OfertaId`, `ProgramaId`, `EtapaId`, `Grupo` y `Turno`.
-- Los periodos de evaluación pertenecen a `CicloId` y `OfertaId` y siempre se consultan con ambas claves.
-- Las materias se registran primero en `MateriasCatalogo` y después en `MateriasGrupo` para definir qué materia corresponde a cada grupo y cuántas horas semanales tiene.
-- `MateriasGrupo` evita duplicar la misma materia en el mismo grupo durante el mismo ciclo y valida que el grupo no supere 40 horas semanales.
-- `Asignaciones` solo vincula un docente a una materia previamente registrada para un grupo.
-- Las planeaciones pertenecen a `CicloId`, `OfertaId`, `ProgramaId`, `MaestroId`, `MateriaNombre` y número de entrega.
-- No se permite cambiar la estructura de periodos si ya existen calificaciones.
-- No se permite cambiar la estructura de planeaciones si ya existen archivos cargados.
-- No se permite editar estructuralmente grupos con uso académico.
-- Los cambios de docente se manejan como relevo/interinato, no como cambio de materia.
-- Solo puede existir un ciclo escolar activo; la base de datos lo protege con `unico_ciclo_activo`.
-- La baja ordinaria del alumno se registra en `AlumnoInscripciones.Estado`, no desactivando globalmente al alumno.
-
-## Carga académica y horas
-
-Las horas semanales se guardan en `MateriasGrupo`. Esto permite:
-
-- Controlar que un grupo no rebase 40 horas por semana.
-- Evitar capturar dos veces la misma materia en el mismo grupo.
-- Saber cuántas horas toma cada docente al asignarle materias de grupo.
-- Preparar reportes de carga académica y un futuro módulo de horarios.
-
-## Respaldos y restauración
-
-Los respaldos de solo datos incluyen `MateriasCatalogo` y `MateriasGrupo`, por lo que la estructura de materias por grupo se conserva al exportar e importar datos.
-
-## Rendimiento
-
-Las tablas grandes usan índices por ciclo, grupo, alumno, periodo, asignación, materia y estado. Esto permite separar consultas por ciclo escolar y evita recorrer todo el historial cuando se consulta el ciclo activo.
-
-## SGCE 1.0.91 - Arquitectura y rendimiento
-
-A partir de 1.0.91, `AdminVista.php` funciona como contenedor y las vistas del panel administrador están separadas en `views/admin/`.
-
-`SGCE_Helpers.php` funciona como cargador y las funciones comunes están separadas por responsabilidad en `includes/`.
-
-La revisión automática de esquema ya no se ejecuta en cada carga. Para instalaciones limpias, el esquema oficial es `install/SGCE.sql`. Para cambios futuros controlados se registra historial en `SchemaMigrations`.
-
-Las búsquedas de alumnos, materias, asignaciones y bitácora usan columnas normalizadas e índices `FULLTEXT` cuando aplica. Para mantenimiento técnico se puede ejecutar:
-
-```bash
-php tools/ReindexarBusqueda.php
+```text
+api/
+assets/
+config/
+cron/
+docs/
+includes/
+install/
+modules/
+public/
+reports/
+repositories/
+services/
+storage/
+views/
 ```
 
-La edición de materias usa transacción y bloqueo del grupo con `FOR UPDATE` para evitar que operaciones simultáneas superen 40 horas semanales.
+## Configuración
 
-Los reportes de asistencia tienen rango máximo de 370 días por exportación para proteger rendimiento.
+- `config/Conexion.php`: arranque, sesión, constantes, conexión PDO y seguridad base.
+- `config/database.php`: configuración base.
+- `config/database.local.php`: configuración local generada por el instalador.
+
+## Base de datos
+
+El esquema principal está en:
+
+```text
+install/SGCE.sql
+```
+
+Tablas clave:
+
+- `Usuarios`.
+- `CiclosEscolares`.
+- `OfertasEducativas`.
+- `EtapasAcademicas`.
+- `Grupos`.
+- `MateriasCatalogo`.
+- `MateriasGrupo`.
+- `AlumnoInscripciones`.
+- `Asignaciones`.
+- `Calificaciones`.
+- `Asistencias`.
+- `Kardex`.
+- `MigracionesCiclo`.
+- `BitacoraMovimientos`.
+
+## Seguridad
+
+- CSRF centralizado.
+- Sesiones con cookies `HttpOnly` y `SameSite=Strict`.
+- Tokens persistentes hasheados.
+- Roles por módulo.
+- Acceso directo bloqueado en includes, modules, services y repositories.
+- Carpetas internas protegidas por `.htaccess` e `index.html`.
+
+## Migración escolar
+
+La lógica principal está en:
+
+```text
+services/migracion/MigracionService.php
+```
+
+Responsabilidades:
+
+- Diagnóstico previo.
+- Copia de periodos.
+- Preparación completa del ciclo destino.
+- Copia de materias por grupo.
+- Copia opcional de asignaciones/docentes.
+- Promoción/egreso de alumnos.
+- Kardex congelado.
+- Registro en `MigracionesCiclo`.
+- Transacción y bloqueo de concurrencia.
+
+## Pruebas en Desarrollo
+
+Desde `Desarrollo/`:
+
+```bash
+php tests/RunStaticChecks.php
+php tests/RunImportChecks.php
+php tests/RunScenarioChecks.php
+php tests/RunPermissionChecks.php
+php tests/RunMigrationChecks.php
+php tests/RunPlanningDefaultsChecks.php
+```
+
+Pruebas MySQL profundas requieren variables de entorno `SGCE_TEST_DB_HOST`, `SGCE_TEST_DB_USER`, `SGCE_TEST_DB_PASS` y `SGCE_TEST_DB_NAME`.
+
+## API interna AJAX
+
+SGCE incluye una API interna en `api/admin/` para actualizar tablas administrativas sin recargar toda la página. No es una API pública externa; requiere sesión activa y permisos del panel. Ver `docs/API_INTERNA.md`.
+
+## Instalador multinivel
+
+El instalador captura desde el inicio los mismos parámetros que luego se administran desde Configuración:
+
+- `TurnosDisponibles` en `ConfiguracionSistema`.
+- `CalificacionMinima`, `CalificacionMaxima`, `CalificacionAprobatoria` y `CalificacionDecimales`.
+- `MatriculaAutomatica` y `MatriculaPrefijo`.
+
+El formulario `Instalar.php` valida estos valores en servidor y `assets/js/Instalar.js` agrega validación de cliente y vista previa del formato de matrícula.
+
+
+## Mantenimiento diario
+
+Configura `cron/mantenimiento_diario.php` para archivar bitácora antigua, limpiar sesiones vencidas, intentos de seguridad antiguos y respaldos temporales.

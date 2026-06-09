@@ -96,7 +96,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                             <span class="ExpedientesTurnBadge"><?= htmlspecialchars($Al['Turno'], ENT_QUOTES, 'UTF-8') ?></span>
                                         </td>
                                         <td class="text-center">
-                                            <a class="ActionBtn BtnExpedienteOpen" href="HistorialAlumno.php?AlumnoId=<?= $Al['Id'] ?>">
+                                            <a class="ActionBtn BtnExpedienteOpen" href="HistorialAlumno.php?AlumnoId=<?= (int)$Al['Id'] ?>">
                                                 <span class="SgceColorIcon" aria-hidden="true">📂</span><span>Abrir Expediente</span>
                                             </a>
                                         </td>

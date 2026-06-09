@@ -1,5 +1,6 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
+require_once __DIR__ . '/AdminAccionesServicios.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     RequerirCsrfPost();
@@ -96,11 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['Mensaje'] = "No se puede eliminar/desactivar esta asignación porque ya tiene asistencias o calificaciones. La materia debe conservarse; si cambió el docente, usa Editar para hacer relevo/interinato.";
                     SgceRedirectAdminTab($TabPost, $UserSession);
                 }
+                $Pdo->beginTransaction();
                 $Pdo->prepare("UPDATE Asignaciones SET Activo = 0 WHERE Id = ? AND CicloId = ?")->execute([$Id, $CicloActivoAccionId]);
                 $Pdo->prepare('UPDATE AsignacionDocenteHistorial SET FechaFin = NOW() WHERE AsignacionId = ? AND FechaFin IS NULL')->execute([$Id]);
                 RegistrarBitacora($Pdo, $UserSession, 'BAJA_ASIGNACION', 'Asignaciones', $Id, 'ASIGNACIÓN SIN DATOS ACADÉMICOS DESACTIVADA');
+                $Pdo->commit();
                 $_SESSION['Mensaje'] = "Materia Desasignada";
-            } catch (PDOException $Ex) { $_SESSION['Mensaje'] = "Error al desasignar materia."; }
+            } catch (PDOException $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = "Error al desasignar materia."; }
             SgceRedirectAdminTab($TabPost, $UserSession);
         }
     }
@@ -175,10 +178,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (!SgceValidarGrado($Grado) || SgceLongitudTexto($Grado) > 40 || $Grupo === '' || $Turno === '') { $_SESSION['Mensaje'] = "Grupo inválido: Selecciona etapa académica, grupo y turno."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
+            $Pdo->beginTransaction();
             $GrupoId = SgceGrupoCrearOReactivar($Pdo, $CicloActivoAccionId, $Grado, $Grupo, $Turno, $EtapaId, $ProgramaId, $OfertaId);
             RegistrarBitacora($Pdo, $UserSession, 'ALTA_GRUPO', 'Grupos', $GrupoId, 'GRUPO CREADO/REACTIVADO EN CICLO ACTIVO CON ESTRUCTURA ACADÉMICA');
+            $Pdo->commit();
             $_SESSION['Mensaje'] = "Grupo Creado";
-        } catch (Throwable $Ex) { $_SESSION['Mensaje'] = $Ex instanceof PDOException && $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al crear grupo: " . $Ex->getMessage(); }
+        } catch (Throwable $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex instanceof PDOException && $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al crear grupo: " . $Ex->getMessage(); }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
@@ -209,16 +214,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Mensaje'] = "Este grupo ya tiene alumnos, asignaciones, asistencias o calificaciones. Por seguridad no puedes cambiar su estructura; crea otro grupo o usa migración de ciclo.";
                 SgceRedirectAdminTab($TabPost, $UserSession);
             }
+            $Pdo->beginTransaction();
             $Pdo->prepare("UPDATE Grupos SET OfertaId = ?, ProgramaId = ?, EtapaId = ?, Grado = ?, Grupo = ?, Turno = ? WHERE Id = ? AND CicloId = ?")->execute([$OfertaId, $ProgramaId, $EtapaId, $Grado, $Grupo, $Turno, $Id, $CicloActivoAccionId]);
             $Pdo->prepare("UPDATE AlumnoInscripciones SET OfertaId = ?, ProgramaId = ?, EtapaId = ? WHERE GrupoId = ? AND CicloId = ?")->execute([$OfertaId, $ProgramaId, $EtapaId, $Id, $CicloActivoAccionId]);
             RegistrarBitacora($Pdo, $UserSession, 'EDITAR_GRUPO', 'Grupos', $Id, 'GRUPO ACTUALIZADO CON ESTRUCTURA ACADÉMICA');
+            $Pdo->commit();
             $_SESSION['Mensaje'] = "Grupo Actualizado";
-        } catch (PDOException $Ex) { $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al actualizar grupo."; }
+        } catch (PDOException $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Ese grupo ya existe en el ciclo activo." : "Error al actualizar grupo."; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
     if (isset($_POST['AltaAlumno'])) {
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
+        $MatriculaManual = SgceAdminNormalizarMatricula($_POST['Matricula'] ?? '');
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres, ciclo activo y grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
@@ -229,40 +237,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $AlumnoExistente = $StmtAlumnoExistente->fetch();
             if ($AlumnoExistente) { $_SESSION['Mensaje'] = "Ese alumno ya está inscrito en el grupo seleccionado para el ciclo activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
 
+            $Pdo->beginTransaction();
             $StmtAlumnoMismoNombre = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
-            $StmtAlumnoMismoNombre->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId]);
+            $StmtAlumnoMismoNombre->execute([$Nombre, $GrupoId]);
             $AlumnoBase = $StmtAlumnoMismoNombre->fetch();
             if ($AlumnoBase) {
                 $AlumnoId = (int)$AlumnoBase['Id'];
-                $Pdo->prepare("UPDATE Alumnos SET Activo = 1, NombreBusqueda = NombreCompleto WHERE Id = ?")->execute([$AlumnoId]);
+                $Pdo->prepare("UPDATE Alumnos SET Activo = 1, NombreBusqueda = ?, Matricula = COALESCE(NULLIF(?, ''), Matricula) WHERE Id = ?")->execute([SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $AlumnoId]);
             } else {
-                $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, NombreBusqueda, GrupoId, Activo) VALUES (?, ?, ?, 1)")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId]);
+                $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, NombreBusqueda, Matricula, GrupoId, Activo) VALUES (?, ?, NULLIF(?, ''), ?, 1)")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $GrupoId]);
                 $AlumnoId = (int)$Pdo->lastInsertId();
             }
-            SgceAlumnoInscribirEnCiclo($Pdo, $AlumnoId, $CicloActivoAccionId, $GrupoId, 'INSCRITO');
+            SgceAsignarMatriculaSiAplica($Pdo, $AlumnoId, $CicloActivoAccionId);
+            if (!SgceAlumnoInscribirEnCiclo($Pdo, $AlumnoId, $CicloActivoAccionId, $GrupoId, 'INSCRITO')) { throw new RuntimeException('No se pudo crear la inscripción del alumno en el ciclo activo.'); }
             RegistrarBitacora($Pdo, $UserSession, 'ALTA_ALUMNO', 'Alumnos', $AlumnoId, 'ALUMNO INSCRITO EN CICLO ACTIVO');
+            $Pdo->commit();
             $_SESSION['Mensaje'] = "Alumno Inscrito";
-        } catch (PDOException $Ex) { $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "No se pudo inscribir: Ya existe una inscripción para este ciclo." : "Error al inscribir alumno."; }
+        } catch (Throwable $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex instanceof PDOException && $Ex->getCode() === '23000' ? "No se pudo inscribir: Ya existe una inscripción para este ciclo." : "Error al inscribir alumno."; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
     if (isset($_POST['EditAlumno'])) {
         $Id = intval($_POST['Id'] ?? 0);
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
+        $MatriculaManual = SgceAdminNormalizarMatricula($_POST['Matricula'] ?? '');
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Id <= 0 || $Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres y selecciona grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
             $GrupoMeta = SgceGrupoObtenerActivoPorId($Pdo, $GrupoId);
             if (!$GrupoMeta) { $_SESSION['Mensaje'] = "El grupo debe pertenecer al ciclo activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
-            $Pdo->prepare("UPDATE Alumnos SET NombreCompleto = ?, NombreBusqueda = ?, GrupoId = ?, Activo = 1 WHERE Id = ?")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId, $Id]);
+            $Pdo->beginTransaction();
+            $Pdo->prepare("UPDATE Alumnos SET NombreCompleto = ?, NombreBusqueda = ?, Matricula = COALESCE(NULLIF(?, ''), Matricula), GrupoId = ?, Activo = 1 WHERE Id = ?")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $GrupoId, $Id]);
+            SgceAsignarMatriculaSiAplica($Pdo, $Id, $CicloActivoAccionId);
             $StmtIns = $Pdo->prepare("SELECT Id FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ? LIMIT 1");
             $StmtIns->execute([$Id, $CicloActivoAccionId]);
             $InsId = (int)$StmtIns->fetchColumn();
             if ($InsId > 0) { $Pdo->prepare("UPDATE AlumnoInscripciones SET GrupoId = ?, OfertaId = ?, ProgramaId = ?, EtapaId = ?, Estado = 'INSCRITO' WHERE Id = ?")->execute([$GrupoId, (int)$GrupoMeta['OfertaId'], (int)$GrupoMeta['ProgramaId'], (int)$GrupoMeta['EtapaId'], $InsId]); }
-            else { SgceAlumnoInscribirEnCiclo($Pdo, $Id, $CicloActivoAccionId, $GrupoId, 'INSCRITO'); }
+            else { if (!SgceAlumnoInscribirEnCiclo($Pdo, $Id, $CicloActivoAccionId, $GrupoId, 'INSCRITO')) { throw new RuntimeException('No se pudo crear la inscripción del alumno en el ciclo activo.'); } }
             RegistrarBitacora($Pdo, $UserSession, 'EDITAR_ALUMNO', 'Alumnos', $Id, 'ALUMNO ACTUALIZADO EN CICLO ACTIVO');
+            $Pdo->commit();
             $_SESSION['Mensaje'] = "Alumno Actualizado";
-        } catch (PDOException $Ex) { $_SESSION['Mensaje'] = "Error al actualizar alumno."; }
+        } catch (Throwable $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = "Error al actualizar alumno."; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
@@ -327,12 +342,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['Mensaje'] = "Esa materia ya tiene docente asignado para ese grupo. Usa editar para relevo/interinato.";
                 SgceRedirectAdminTab($TabPost, $UserSession);
             }
+            $Pdo->beginTransaction();
             if ($AsignacionExistente) {
                 $NuevaAsignacionId = (int)$AsignacionExistente['Id'];
                 $Pdo->prepare('UPDATE Asignaciones SET MaestroId = ?, CicloId = ?, GrupoId = ?, MateriaId = ?, MateriaNombre = ?, MateriaBusqueda = ?, HorasSemana = ?, Activo = 1 WHERE Id = ?')
                     ->execute([$MaestroId, $CicloActivoAccionId, (int)$MateriaGrupo['GrupoId'], (int)$MateriaGrupo['MateriaId'], (string)$MateriaGrupo['MateriaNombre'], SgceTextoBusquedaNormalizado((string)$MateriaGrupo['MateriaNombre']), (int)$MateriaGrupo['HorasSemana'], $NuevaAsignacionId]);
                 SgceRegistrarDocenteAsignacionActual($Pdo, $NuevaAsignacionId, $MaestroId, (int)($UserSession['Id'] ?? 0), 'TITULAR', 'REACTIVACIÓN DE ASIGNACIÓN DESDE MATERIA DISPONIBLE');
                 RegistrarBitacora($Pdo, $UserSession, 'REACTIVAR_ASIGNACION', 'Asignaciones', $NuevaAsignacionId, 'DOCENTE VINCULADO A MATERIA DE GRUPO REACTIVADA');
+                $Pdo->commit();
                 $_SESSION['Mensaje'] = "Asignación reactivada.";
             } else {
                 $Pdo->prepare('INSERT INTO Asignaciones (CicloId, MaestroId, GrupoId, MateriaGrupoId, MateriaId, MateriaNombre, MateriaBusqueda, HorasSemana, Activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)')
@@ -340,9 +357,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $NuevaAsignacionId = (int)$Pdo->lastInsertId();
                 SgceRegistrarDocenteAsignacionActual($Pdo, $NuevaAsignacionId, $MaestroId, (int)($UserSession['Id'] ?? 0), 'TITULAR', 'ALTA DE ASIGNACIÓN DESDE MATERIA DISPONIBLE');
                 RegistrarBitacora($Pdo, $UserSession, 'ALTA_ASIGNACION', 'Asignaciones', $NuevaAsignacionId, 'DOCENTE VINCULADO A MATERIA DE GRUPO');
+                $Pdo->commit();
                 $_SESSION['Mensaje'] = "Docente asignado a la materia.";
             }
-        } catch (PDOException $Ex) { $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Esa materia ya tiene asignación activa." : "Error al asignar materia."; $_SESSION['MensajeTipo'] = 'danger'; }
+        } catch (PDOException $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex->getCode() === '23000' ? "Esa materia ya tiene asignación activa." : "Error al asignar materia."; $_SESSION['MensajeTipo'] = 'danger'; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 
@@ -361,16 +379,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SgceRedirectAdminTab($TabPost, $UserSession);
             }
             if (!SgceMaestroExisteActivo($Pdo, $MaestroId)) { $_SESSION['Mensaje'] = "Selecciona un docente activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            $Pdo->beginTransaction();
             if ((int)$AsignacionActual['MaestroId'] !== $MaestroId) {
                 SgceRelevarDocenteAsignacion($Pdo, $Id, $MaestroId, (int)($UserSession['Id'] ?? 0), $MotivoRelevo !== '' ? $MotivoRelevo : 'RELEVO DOCENTE / INTERINATO');
                 RegistrarBitacora($Pdo, $UserSession, 'RELEVO_DOCENTE_ASIGNACION', 'Asignaciones', $Id, 'RELEVO/INTERINATO SOBRE MATERIA DE GRUPO');
+                $Pdo->commit();
                 $_SESSION['Mensaje'] = "Relevo docente registrado.";
             } else {
                 SgceRegistrarDocenteAsignacionActual($Pdo, $Id, $MaestroId, (int)($UserSession['Id'] ?? 0), 'TITULAR', 'CONFIRMACIÓN DE DOCENTE ACTUAL');
+                $Pdo->commit();
                 $_SESSION['Mensaje'] = "Asignación sin cambios estructurales.";
             }
-        } catch (RuntimeException $Ex) { $_SESSION['Mensaje'] = $Ex->getMessage(); $_SESSION['MensajeTipo'] = 'danger'; }
-        catch (PDOException $Ex) { $_SESSION['Mensaje'] = "Error al modificar asignación."; $_SESSION['MensajeTipo'] = 'danger'; }
+        } catch (RuntimeException $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex->getMessage(); $_SESSION['MensajeTipo'] = 'danger'; }
+        catch (PDOException $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = "Error al modificar asignación."; $_SESSION['MensajeTipo'] = 'danger'; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 }

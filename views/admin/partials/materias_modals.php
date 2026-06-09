@@ -2,7 +2,7 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 ?>
 <?php foreach($MateriasGrupo as $Mat): ?>
-<div class="modal fade" id="EMat<?= $Mat['Id'] ?>" tabindex="-1">
+<div class="modal fade" id="EMat<?= (int)$Mat['Id'] ?>" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <form method="POST">
@@ -11,7 +11,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                     <h6 class="mb-3 border-bottom pb-2">Modificar Materia</h6>
                     <input type="hidden" name="EditMateriaGrupo">
                     <input type="hidden" name="Tab" value="materias">
-                    <input type="hidden" name="Id" value="<?= $Mat['Id'] ?>">
+                    <input type="hidden" name="Id" value="<?= (int)$Mat['Id'] ?>">
                     <label class="small text-muted">Grupo</label>
                     <select name="GrupoId" class="form-select form-select-sm mb-2" required>
                         <?php foreach($Grupos as $G): ?>

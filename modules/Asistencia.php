@@ -31,7 +31,7 @@ if ($AsignacionId <= 0) {
 
 $Mensaje = "";
 $YaSeRegistro = false;
-$EstadosPermitidos = ['A', 'F', 'R', 'J'];
+$EstadosPermitidos = SgceAsistenciaEstadosPermitidos();
 
 
 $StmtInfo = $Pdo->prepare("
@@ -157,9 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             $AlumnoId = (int)$Alumno['Id'];
             $Estado = $_POST['estado'][$AlumnoId] ?? 'A';
 
-            if (!in_array($Estado, $EstadosPermitidos, true)) {
-                $Estado = 'A';
-            }
+            $Estado = SgceAsistenciaEstadoSeguro($Estado);
 
             $StmtExiste->execute([
                 $CicloClaseId,
@@ -214,7 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         header('Location: Asistencia.php?' . http_build_query([
             'id' => $AsignacionId,
             'Fecha' => $FechaConsulta,
-            'Success' => 1
+            'Success' => 1,
+            'Tipo' => $YaSeRegistro ? 'actualizada' : 'registrada'
         ]));
         exit;
 
@@ -229,10 +228,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 }
 
 if (isset($_GET['Success'])) {
+    $TipoMensaje = strtolower(trim((string)($_GET['Tipo'] ?? '')));
+    $TextoMensaje = SgceAsistenciaMensajeResultado($TipoMensaje);
+
     $Mensaje = '
         <div class="alert alert-success border-0 shadow-sm mb-4">
             <i class="fa-solid fa-circle-check me-2"></i>
-            Asistencia guardada/actualizada correctamente.
+            ' . HGlobal($TextoMensaje) . '
         </div>
     ';
 }
@@ -258,9 +260,7 @@ $StmtEstados = $Pdo->prepare("
 $StmtEstados->execute([$CicloClaseId, $AsignacionId, $FechaConsulta]);
 foreach ($StmtEstados->fetchAll() as $RowEstado) {
     $EstadoGuardado = $RowEstado['Estado'];
-    if (!in_array($EstadoGuardado, $EstadosPermitidos, true)) {
-        $EstadoGuardado = 'A';
-    }
+    $EstadoGuardado = SgceAsistenciaEstadoSeguro($EstadoGuardado);
     $EstadosRegistrados[(int)$RowEstado['AlumnoId']] = $EstadoGuardado;
 }
 
@@ -305,95 +305,6 @@ foreach ($Alumnos as $AlumnoResumen) {
 <?= SgceEstilosTema($Pdo) ?>
 
 
-<style>
-    :root { --SgceVino:var(--SgceGuinda); --SgceVinoOscuro:var(--SgceGuindaOscuro); --SgceVerde:#149447; --SgceBorde:#e6ebf2; --SgceTexto:#111827; }
-    body { background: radial-gradient(circle at top left, rgba(155,0,27,.08), transparent 34%), #f4f7fb; font-family:'Poppins', sans-serif; }
-    .SgcePage { max-width:1080px; }
-    .TopHeader { position:relative; overflow:hidden; border-radius:24px; padding:22px 26px; background:linear-gradient(135deg, var(--SgceVino), var(--SgceVinoOscuro)); box-shadow:0 18px 45px rgba(80,0,14,.18); color:#fff; display:block !important; }
-    .TopHeader > .d-flex { width:100%; }
-    .TopHeader h2 { margin:0; font-weight:800; letter-spacing:.3px; font-size:clamp(1.45rem,2.6vw,2.1rem); line-height:1.05; }
-    .HeaderIcon { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; background:rgba(255,255,255,.16); font-size:1.55rem; flex:0 0 auto; }
-    .BadgeGlass { display:inline-flex; align-items:center; gap:7px; padding:5px 12px; border-radius:999px; background:rgba(255,255,255,.16); color:#fff; font-weight:800; font-size:.76rem; text-transform:uppercase; }
-    .Card, .StatsCard, .MainCard { border:0; border-radius:18px; box-shadow:0 12px 32px rgba(15,23,42,.08); overflow:hidden; background:#fff; }
-    .StatsCard .card-body { padding:16px 18px !important; min-height:78px; }
-    .StatsIcon { width:42px; height:42px; min-width:42px; border-radius:15px; display:grid; place-items:center; flex:0 0 auto; }
-    html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon {
-        width:42px !important;
-        height:42px !important;
-        min-width:42px !important;
-        margin-right:0 !important;
-        border-radius:15px !important;
-        display:grid !important;
-        place-items:center !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(15,23,42,.055) !important;
-        border:1px solid rgba(15,23,42,.045) !important;
-        opacity:1 !important;
-        pointer-events:auto !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.StatsAsistencia {
-        background:linear-gradient(135deg, rgba(5,150,105,.095) 0%, rgba(16,185,129,.17) 100%) !important;
-        color:#047857 !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.StatsRetardo {
-        background:linear-gradient(135deg, rgba(245,158,11,.105) 0%, rgba(251,191,36,.18) 100%) !important;
-        color:#B45309 !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.StatsFalta {
-        background:linear-gradient(135deg, rgba(220,38,38,.075) 0%, rgba(248,113,113,.145) 100%) !important;
-        color:#B91C1C !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.StatsJustificante {
-        background:linear-gradient(135deg, rgba(47,111,236,.095) 0%, rgba(14,165,233,.16) 100%) !important;
-        color:#2563EB !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.SgceAsistenciaStatIcon .SgceColorIcon {
-        width:100% !important;
-        height:100% !important;
-        margin:0 !important;
-        font-size:1.22rem !important;
-        line-height:1 !important;
-        color:inherit !important;
-        filter:drop-shadow(0 1px 0 rgba(255,255,255,.85)) !important;
-    }
-    .StatsCard h3 { font-size:1.45rem; }
-    .MainCard .card-header { padding:16px 18px !important; }
-    .MainCard h4 { font-size:1.05rem; }
-    table.table { table-layout:fixed; }
-    table.table thead th { background:#f7f9fc; color:#64748b; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:9px 14px; border-bottom:1px solid var(--SgceBorde); }
-    table.table tbody td { padding:7px 14px; border-color:#eef2f7; vertical-align:middle; }
-    .AlumnoAvatar { width:30px; height:30px; border-radius:11px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.92rem; flex:0 0 auto; }
-    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji {
-        width:30px !important;
-        height:30px !important;
-        min-width:30px !important;
-        border-radius:11px !important;
-        display:grid !important;
-        place-items:center !important;
-        background:linear-gradient(135deg, rgba(47,111,236,.10) 0%, rgba(14,165,233,.18) 100%) !important;
-        color:#1D4ED8 !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(47,111,236,.08) !important;
-        border:1px solid rgba(47,111,236,.13) !important;
-        opacity:1 !important;
-        pointer-events:auto !important;
-    }
-    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
-        color:inherit !important;
-        line-height:1 !important;
-        font-size:1rem !important;
-        filter:drop-shadow(0 1px 0 rgba(255,255,255,.75)) !important;
-    }
-    .AlumnoNombre { font-size:.88rem; font-weight:800; line-height:1.15; color:var(--SgceTexto); }
-    .EstadoSelect { width:190px; height:36px; margin-left:auto; border-radius:12px; font-weight:800; font-size:.85rem; }
-    .EstadoSelect.SgceEstadoA { background-color:rgba(16,185,129,.08) !important; border-color:rgba(5,150,105,.36) !important; color:#065F46 !important; }
-    .EstadoSelect.SgceEstadoF { background-color:rgba(248,113,113,.08) !important; border-color:rgba(220,38,38,.32) !important; color:#991B1B !important; }
-    .EstadoSelect.SgceEstadoR { background-color:rgba(251,191,36,.13) !important; border-color:rgba(217,119,6,.34) !important; color:#92400E !important; }
-    .EstadoSelect.SgceEstadoJ { background-color:rgba(59,130,246,.08) !important; border-color:rgba(37,99,235,.30) !important; color:#1E40AF !important; }
-    .SgceStickyActions { position:sticky; bottom:0; z-index:5; padding:12px 16px !important; background:rgba(248,250,252,.96) !important; backdrop-filter:blur(8px); display:flex; justify-content:flex-end; }
-    .BtnGuardar { border:0 !important; border-radius:14px; padding:11px 22px; background:linear-gradient(135deg, var(--SgceVerde), #20bf63) !important; color:#fff !important; font-weight:900; box-shadow:0 12px 24px rgba(20,148,71,.22) !important; min-width:250px; }
-    .BtnPrimary { border:0; border-radius:14px; padding:10px 16px; background:linear-gradient(135deg,var(--SgceVino),var(--SgceVinoOscuro)); color:#fff; font-weight:800; }
-    @media (max-width:991px) { .TopHeader { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
-    @media (max-width:576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .EstadoSelect { width:160px; } .BtnGuardar { width:100%; min-width:0; } }
-</style>
 <?= SgceCss('assets/css/asistencia-botones-metalicos.css') ?>
 
 </head>
@@ -438,7 +349,7 @@ foreach ($Alumnos as $AlumnoResumen) {
 
                             <span aria-hidden="true">🕒</span>
 
-                            <?= date('h:i A') ?>
+                            <?= HGlobal(date('h:i A')) ?>
 
                         </span>
 
@@ -477,7 +388,7 @@ foreach ($Alumnos as $AlumnoResumen) {
 
     <?= $Mensaje ?>
 
-    <?php if ($YaSeRegistro): ?>
+    <?php if ($YaSeRegistro && !isset($_GET['Success']) && !isset($_GET['Error'])): ?>
 
         <div class="alert alert-warning border-0 shadow-sm mb-4">
 
@@ -567,7 +478,7 @@ foreach ($Alumnos as $AlumnoResumen) {
 
                 <div class="badge bg-dark rounded-pill px-4 py-3">
 
-                    <?= count($Alumnos) ?> Alumnos
+                    <?= (int)count($Alumnos) ?> Alumnos
 
                 </div>
 
@@ -580,7 +491,7 @@ foreach ($Alumnos as $AlumnoResumen) {
             <form method="POST">
                     <?php echo CampoCsrf(); ?>
 
-                <input type="hidden" name="asignacion_id" value="<?= $AsignacionId ?>"><input type="hidden" name="Fecha" value="<?= htmlspecialchars($FechaConsulta, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="asignacion_id" value="<?= (int)$AsignacionId ?>"><input type="hidden" name="Fecha" value="<?= htmlspecialchars($FechaConsulta, ENT_QUOTES, 'UTF-8') ?>">
 
                 <div class="table-responsive">
 
@@ -642,7 +553,7 @@ foreach ($Alumnos as $AlumnoResumen) {
 
                                                     <div class="AlumnoNombre">
 
-                                                        <?= htmlspecialchars($a['NombreCompleto']) ?>
+                                                        <?= HGlobal($a['NombreCompleto']) ?>
 
                                                     </div>
 
@@ -655,7 +566,7 @@ foreach ($Alumnos as $AlumnoResumen) {
                                         <td>
 
                                             <select
-                                                name="estado[<?= $a['Id'] ?>]"
+                                                name="estado[<?= (int)$a['Id'] ?>]"
                                                 class="form-select EstadoSelect"
                                                 
                                             >

@@ -63,8 +63,9 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                     <label>Turno</label>
                                     <select name="Turno" class="form-select form-select-sm MaestrosInput GruposInput" required>
                                         <option value="">SELECCIONA TURNO...</option>
-                                        <option value="MATUTINO">MATUTINO</option>
-                                        <option value="VESPERTINO">VESPERTINO</option>
+                                        <?php foreach($TurnosDisponiblesAdmin as $TurnoOpcion): ?>
+                                            <option value="<?= htmlspecialchars($TurnoOpcion, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($TurnoOpcion, ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
 
@@ -97,7 +98,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="SgceImportActions">
-                                    <button type="submit" id="BtnImportarGrupoAzulMetalico" class="BtnGrupoImportarMetalico SgceImportMainBtn">
+<button type="submit" id="BtnImportarGrupoAzulMetalico" class="BtnGrupoImportarMetalico SgceImportMainBtn">
                                         <span class="SgceColorIcon" aria-hidden="true">☁️</span> Cargar Archivo
                                     </button>
                                 </div>
@@ -167,21 +168,21 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                     <?php foreach($GruposTabla as $G): ?>
                                     <tr data-etapa="<?= htmlspecialchars((string)($G['Grado'] ?? $G['EtapaOrden'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-grupo="<?= htmlspecialchars(SgceNormalizarMayusculas((string)($G['Grupo'] ?? '')), ENT_QUOTES, 'UTF-8') ?>" data-turno="<?= htmlspecialchars(SgceNormalizarMayusculas((string)($G['Turno'] ?? '')), ENT_QUOTES, 'UTF-8') ?>">
                                         <td class="searchable"><?= htmlspecialchars(SgceEtapaNombreVisual($G, $TipoPeriodizacionAdmin), ENT_QUOTES, 'UTF-8') ?></td>
-                                        <?php if (!empty($OfertaActiva['UsaProgramas'])): ?><td class="searchable"><?= htmlspecialchars($G['ProgramaNombre'] ?? 'GENERAL') ?></td><?php endif; ?>
-                                        <td class="searchable"><span class="GruposGrupoBadge"><?= htmlspecialchars($G['Grupo']) ?></span></td>
+                                        <?php if (!empty($OfertaActiva['UsaProgramas'])): ?><td class="searchable"><?= htmlspecialchars($G['ProgramaNombre'] ?? 'GENERAL', ENT_QUOTES, 'UTF-8') ?></td><?php endif; ?>
+                                        <td class="searchable"><span class="GruposGrupoBadge"><?= htmlspecialchars($G['Grupo'], ENT_QUOTES, 'UTF-8') ?></span></td>
 
                                         <td class="searchable">
                                             <span class="GruposTurnoBadge">
-                                                <?= htmlspecialchars($G['Turno']) ?>
+                                                <?= htmlspecialchars($G['Turno'], ENT_QUOTES, 'UTF-8') ?>
                                             </span>
                                         </td>
 
                                         <td class="text-center">
                                             <div class="ExportIcons">
-                                                <a class="ExportIcon ExportExcel" target="_blank" rel="noopener noreferrer" title="Calificaciones del grupo en Excel" href="ExportarCalificaciones.php?GrupoId=<?= $G['Id'] ?>&Tipo=Excel">
+                                                <a class="ExportIcon ExportExcel" target="_blank" rel="noopener noreferrer" title="Calificaciones del grupo en Excel" href="ExportarCalificaciones.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Excel">
                                                     <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                                 </a>
-                                                <a class="ExportIcon ExportPdf" target="_blank" rel="noopener noreferrer" title="Calificaciones del grupo en PDF" href="ExportarCalificaciones.php?GrupoId=<?= $G['Id'] ?>&Tipo=Pdf">
+                                                <a class="ExportIcon ExportPdf" target="_blank" rel="noopener noreferrer" title="Calificaciones del grupo en PDF" href="ExportarCalificaciones.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Pdf">
                                                     <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                                 </a>
                                             </div>
@@ -189,10 +190,10 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                         <td class="text-center">
                                             <div class="ExportIcons">
-                                                <a class="ExportIcon ExportExcel ExportHoy" target="_blank" rel="noopener noreferrer" title="Asistencias de hoy del grupo en Excel" href="ExportarAsistencia.php?GrupoId=<?= $G['Id'] ?>&Tipo=Excel&Rango=Hoy">
+                                                <a class="ExportIcon ExportExcel ExportHoy" target="_blank" rel="noopener noreferrer" title="Asistencias de hoy del grupo en Excel" href="ExportarAsistencia.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Excel&Rango=Hoy">
                                                     <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                                 </a>
-                                                <a class="ExportIcon ExportPdf ExportHoy" target="_blank" rel="noopener noreferrer" title="Asistencias de hoy del grupo en PDF" href="ExportarAsistencia.php?GrupoId=<?= $G['Id'] ?>&Tipo=Pdf&Rango=Hoy">
+                                                <a class="ExportIcon ExportPdf ExportHoy" target="_blank" rel="noopener noreferrer" title="Asistencias de hoy del grupo en PDF" href="ExportarAsistencia.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Pdf&Rango=Hoy">
                                                     <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                                 </a>
                                             </div>
@@ -200,10 +201,10 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                         <td class="text-center">
                                             <div class="ExportIcons">
-                                                <a class="ExportIcon ExportExcel ExportTodas" target="_blank" rel="noopener noreferrer" title="Todas las asistencias del grupo en Excel" href="ExportarAsistencia.php?GrupoId=<?= $G['Id'] ?>&Tipo=Excel&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
+                                                <a class="ExportIcon ExportExcel ExportTodas" target="_blank" rel="noopener noreferrer" title="Todas las asistencias del grupo en Excel" href="ExportarAsistencia.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Excel&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
                                                     <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                                 </a>
-                                                <a class="ExportIcon ExportPdf ExportTodas" target="_blank" rel="noopener noreferrer" title="Todas las asistencias del grupo en PDF" href="ExportarAsistencia.php?GrupoId=<?= $G['Id'] ?>&Tipo=Pdf&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
+                                                <a class="ExportIcon ExportPdf ExportTodas" target="_blank" rel="noopener noreferrer" title="Todas las asistencias del grupo en PDF" href="ExportarAsistencia.php?GrupoId=<?= (int)$G['Id'] ?>&Tipo=Pdf&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
                                                     <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                                 </a>
                                             </div>
@@ -211,14 +212,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                         <td class="text-center">
                                             <div class="AdminActions">
-                                                <button class="ActionBtn ActionEdit BtnGroupEdit" data-bs-toggle="modal" data-bs-target="#EG<?= $G['Id'] ?>">
+                                                <button class="ActionBtn ActionEdit BtnGroupEdit" data-bs-toggle="modal" data-bs-target="#EG<?= (int)$G['Id'] ?>">
                                                     <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                                 </button>
 
                                                 <form method="POST" class="m-0 p-0" data-confirm-delete="GRUPO" data-confirm-message="¿DESEAS ELIMINAR ESTE GRUPO? SI TIENE DATOS RELACIONADOS, EL SISTEMA PUEDE IMPEDIRLO.">
                     <?php echo CampoCsrf(); ?>
                                                     <input type="hidden" name="Tab" value="grupos">
-                                                    <button type="submit" name="DelGrupo" value="<?= $G['Id'] ?>" class="ActionBtn ActionDelete BtnGroupDelete">
+                                                    <button type="submit" name="DelGrupo" value="<?= (int)$G['Id'] ?>" class="ActionBtn ActionDelete BtnGroupDelete">
                                                         <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
                                                     </button>
                                                 </form>
@@ -236,7 +237,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                 </div>
 
                 <?php foreach($GruposTabla as $G): ?>
-                <div class="modal fade" id="EG<?= $G['Id'] ?>" tabindex="-1">
+                <div class="modal fade" id="EG<?= (int)$G['Id'] ?>" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered modal-sm">
                         <div class="modal-content">
 
@@ -248,7 +249,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                     <input type="hidden" name="EditGrupo">
                                     <input type="hidden" name="Tab" value="grupos">
-                                    <input type="hidden" name="Id" value="<?= $G['Id'] ?>">
+                                    <input type="hidden" name="Id" value="<?= (int)$G['Id'] ?>">
 
                                     <?php if (!empty($EtapasAcademicas)): ?>
                                     <label class="small text-muted">Etapa académica</label>
@@ -275,15 +276,16 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                     <label class="small text-muted">Grupo</label>
                                     <input type="text"
                                            name="Grupo"
-                                           value="<?= htmlspecialchars($G['Grupo']) ?>"
+                                           value="<?= htmlspecialchars($G['Grupo'], ENT_QUOTES, 'UTF-8') ?>"
                                            class="form-control form-control-sm mb-2 InputUpperAscii"
                                            required
                                            pattern="^[A-Z]+$">
 
                                     <label class="small text-muted">Turno</label>
                                     <select name="Turno" class="form-select form-select-sm mb-3" required>
-                                        <option value="MATUTINO" <?= strtoupper((string)$G['Turno']) === 'MATUTINO' ? 'selected' : '' ?>>MATUTINO</option>
-                                        <option value="VESPERTINO" <?= strtoupper((string)$G['Turno']) === 'VESPERTINO' ? 'selected' : '' ?>>VESPERTINO</option>
+                                        <?php foreach($TurnosDisponiblesAdmin as $TurnoOpcion): ?>
+                                            <option value="<?= htmlspecialchars($TurnoOpcion, ENT_QUOTES, 'UTF-8') ?>" <?= strtoupper((string)$G['Turno']) === $TurnoOpcion ? 'selected' : '' ?>><?= htmlspecialchars($TurnoOpcion, ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
                                     </select>
 
                                     <button class="btn btn-sm btn-success w-100"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>

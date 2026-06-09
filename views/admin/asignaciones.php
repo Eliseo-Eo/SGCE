@@ -24,7 +24,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <select name="MaestroId" class="form-select SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar docente..." required>
                                 <option value="">Elegir profesor...</option>
                                 <?php foreach($Maestros as $M): ?>
-                                    <option value="<?= $M['Id'] ?>"><?= htmlspecialchars($M['NombreCompleto']) ?></option>
+                                    <option value="<?= (int)$M['Id'] ?>"><?= htmlspecialchars($M['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -34,7 +34,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <select name="MateriaGrupoId" class="form-select SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar materia, grupo o etapa..." required>
                                 <option value="">Elegir materia registrada...</option>
                                 <?php foreach($MateriasDisponiblesAsignacion as $MD): ?>
-                                    <option value="<?= $MD['Id'] ?>">
+                                    <option value="<?= (int)$MD['Id'] ?>">
                                         <?= htmlspecialchars($MD['MateriaNombre'].' · '.SgceGrupoNombreVisual($MD, $TipoPeriodizacionAdmin).' · '.$MD['HorasSemana'].' h', ENT_QUOTES, 'UTF-8') ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -42,7 +42,6 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                         </div>
 
                         <div class="col-md-2 AsignacionButtonCol">
-                            <label class="small fw-bold text-muted d-block">Acción</label>
                             <button type="submit" id="BtnVincularAsignacionVerdeMetalico" class="w-100 fw-bold BtnAsignacionVincularMetalico" aria-label="Vincular asignación académica">
                                 <i class="fa-solid fa-link"></i><span>Vincular</span>
                             </button>
@@ -106,7 +105,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <tbody data-sgce-partial-tbody="asignaciones">
         <?php foreach($Asignaciones as $Asg): ?>
                                 <tr>
-                                    <td class="searchable fw-medium"><?= htmlspecialchars($Asg['Maestro']) ?></td>
+                                    <td class="searchable fw-medium"><?= htmlspecialchars($Asg['Maestro'], ENT_QUOTES, 'UTF-8') ?></td>
 
                                     <td class="searchable">
                                         <span class="AsignacionMateriaTexto" title="<?= htmlspecialchars($Asg['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($Asg['MateriaNombre'], ENT_QUOTES, 'UTF-8') ?></span>
@@ -130,14 +129,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                             <a class="ExportIcon ExportExcel"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar calificaciones en Excel"
-                                               href="ExportarCalificaciones.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Excel">
+                                               href="ExportarCalificaciones.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Excel">
                                                 <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                             </a>
 
                                             <a class="ExportIcon ExportPdf"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar calificaciones en PDF"
-                                               href="ExportarCalificaciones.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Pdf">
+                                               href="ExportarCalificaciones.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Pdf">
                                                 <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                             </a>
                                         </div>
@@ -149,14 +148,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                             <a class="ExportIcon ExportExcel ExportHoy"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar asistencias de hoy en Excel"
-                                               href="ExportarAsistencia.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Excel&Rango=Hoy">
+                                               href="ExportarAsistencia.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Excel&Rango=Hoy">
                                                 <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                             </a>
 
                                             <a class="ExportIcon ExportPdf ExportHoy"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar asistencias de hoy en PDF"
-                                               href="ExportarAsistencia.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Pdf&Rango=Hoy">
+                                               href="ExportarAsistencia.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Pdf&Rango=Hoy">
                                                 <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                             </a>
                                         </div>
@@ -168,14 +167,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                             <a class="ExportIcon ExportExcel ExportTodas"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar todas las asistencias en Excel"
-                                               href="ExportarAsistencia.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Excel&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
+                                               href="ExportarAsistencia.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Excel&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
                                                 <i class="fa-solid fa-file-excel"></i><span class="ExportText">Excel</span>
                                             </a>
 
                                             <a class="ExportIcon ExportPdf ExportTodas"
                                                target="_blank" rel="noopener noreferrer"
                                                title="Exportar todas las asistencias en PDF"
-                                               href="ExportarAsistencia.php?AsignacionId=<?= $Asg['Id'] ?>&Tipo=Pdf&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
+                                               href="ExportarAsistencia.php?AsignacionId=<?= (int)$Asg['Id'] ?>&Tipo=Pdf&Rango=Todas<?= $QueryCicloActivoAsistencia ?>">
                                                 <i class="fa-solid fa-file-pdf"></i><span class="ExportText">PDF</span>
                                             </a>
                                         </div>
@@ -183,14 +182,14 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                     <td class="text-center">
                                             <div class="AdminActions">
-<button class="ActionBtn ActionEdit BtnAsignacionEdit" data-bs-toggle="modal" data-bs-target="#EAsg<?= $Asg['Id'] ?>">
+<button class="ActionBtn ActionEdit BtnAsignacionEdit" data-bs-toggle="modal" data-bs-target="#EAsg<?= (int)$Asg['Id'] ?>">
                                             <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                         </button>
 
                                         <form method="POST" class="m-0 p-0" data-confirm-delete="ASIGNACIÓN" data-confirm-message="¿DESEAS DESACTIVAR ESTA ASIGNACIÓN? SI YA TIENE CALIFICACIONES O ASISTENCIAS EL SISTEMA LA PROTEGERÁ.">
                     <?php echo CampoCsrf(); ?>
                                             <input type="hidden" name="Tab" value="asignaciones">
-                                            <button type="submit" name="DelAsignacion" value="<?= $Asg['Id'] ?>" class="ActionBtn ActionDelete BtnAsignacionDelete">
+                                            <button type="submit" name="DelAsignacion" value="<?= (int)$Asg['Id'] ?>" class="ActionBtn ActionDelete BtnAsignacionDelete">
                                                 <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
                                             </button>
                                         </form>
@@ -220,7 +219,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
         <div class="SgceAjaxModals" data-sgce-partial-modals="asignaciones">
         <?php foreach($Asignaciones as $Asg): ?>
-        <div class="modal fade" id="EAsg<?= $Asg['Id'] ?>" tabindex="-1">
+        <div class="modal fade" id="EAsg<?= (int)$Asg['Id'] ?>" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered ModalEditarPro">
                 <div class="modal-content">
 
@@ -232,13 +231,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                             <input type="hidden" name="EditAsignacion">
                             <input type="hidden" name="Tab" value="asignaciones">
-                            <input type="hidden" name="Id" value="<?= $Asg['Id'] ?>">
+                            <input type="hidden" name="Id" value="<?= (int)$Asg['Id'] ?>">
 
                             <label class="small text-muted">Docente</label>
                             <select name="MaestroId" class="form-select mb-2 SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar docente..." required>
                                 <?php foreach($Maestros as $M): ?>
-                                    <option value="<?= $M['Id'] ?>" <?= $M['Id'] == $Asg['MaestroId'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($M['NombreCompleto']) ?>
+                                    <option value="<?= (int)$M['Id'] ?>" <?= (int)$M['Id'] === (int)$Asg['MaestroId'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($M['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

@@ -58,7 +58,7 @@ function RedirectRestaurar($Mensaje, $Tipo = 'success') {
 function QTablaRest($Tabla) { return '`' . str_replace('`','``',$Tabla) . '`'; }
 
 function TablasSistemaRest($Pdo) {
-    $Preferidas = ['IntentosSeguridad','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','KardexDetalle','KardexAlumno','AsignacionDocenteHistorial','PeriodosEvaluacion','Asignaciones','MateriasGrupo','AlumnoInscripciones','Alumnos','Grupos','EtapasAcademicas','ProgramasEducativos','ConfiguracionesAcademicas','OfertasEducativas','MateriasCatalogo','CiclosEscolares','Usuarios','ConfiguracionSistema'];
+    $Preferidas = ['IntentosSeguridad','MigracionesCiclo','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','KardexDetalle','KardexAlumno','AsignacionDocenteHistorial','PeriodosEvaluacion','Asignaciones','MateriasGrupo','AlumnoInscripciones','Alumnos','Grupos','EtapasAcademicas','ProgramasEducativos','ConfiguracionesAcademicas','OfertasEducativas','MateriasCatalogo','CiclosEscolares','Usuarios','ConfiguracionSistema'];
     $Existentes = array_map(function($R){ return $R[0]; }, $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM));
     $Tablas = [];
     foreach ($Preferidas as $Tabla) {
@@ -73,7 +73,7 @@ function TablasSistemaRest($Pdo) {
 function VaciarTablasRest($Pdo, $IncluirUsuarios = false, $ConservarCicloPeriodo = true) {
     $Tablas = TablasSistemaRest($Pdo);
     $ConservarEscolar = $ConservarCicloPeriodo
-        ? ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'OfertasEducativas', 'ConfiguracionesAcademicas', 'ProgramasEducativos', 'EtapasAcademicas', 'PeriodosEvaluacion', 'IntentosSeguridad']
+        ? ['Usuarios', 'ConfiguracionSistema', 'CiclosEscolares', 'OfertasEducativas', 'ConfiguracionesAcademicas', 'ProgramasEducativos', 'EtapasAcademicas', 'PeriodosEvaluacion', 'MigracionesCiclo', 'IntentosSeguridad']
         : ['Usuarios', 'ConfiguracionSistema', 'IntentosSeguridad'];
 
     $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
@@ -85,13 +85,13 @@ function VaciarTablasRest($Pdo, $IncluirUsuarios = false, $ConservarCicloPeriodo
 }
 
 function GarantizarSesionDespuesRestaurar($Pdo, $UserSession) {
-    $Token = $_COOKIE['AuthToken'] ?? '';
-    $Token = is_string($Token) ? trim($Token) : '';
-    if ($Token !== '' && preg_match('/^[a-f0-9]{64}$/i', $Token)) {
+    $Token = SgceNormalizarTokenSesion($_COOKIE['AuthToken'] ?? '');
+    $TokenHash = SgceHashTokenSesion($Token);
+    if ($TokenHash !== '') {
         $Username = (string)($UserSession['Username'] ?? '');
         if ($Username !== '') {
             $Stmt = $Pdo->prepare('UPDATE Usuarios SET SessionToken = ?, SessionTokenExpira = DATE_ADD(NOW(), INTERVAL 1 DAY) WHERE Username = ? AND Activo = 1 LIMIT 1');
-            $Stmt->execute([$Token, $Username]);
+            $Stmt->execute([$TokenHash, $Username]);
         }
     }
 
@@ -154,11 +154,18 @@ function PartirSqlRest($Sql) {
     return $Sentencias;
 }
 
+function SentenciaSetPermitidaRest($Sql): bool {
+    $Normalizada = strtoupper(trim(preg_replace('/\s+/', ' ', (string)$Sql)));
+    $Normalizada = rtrim($Normalizada, ';');
+    return preg_match('/^SET FOREIGN_KEY_CHECKS\s*=\s*[01]$/', $Normalizada) === 1
+        || preg_match('/^SET NAMES UTF8MB4$/', $Normalizada) === 1;
+}
+
 function SentenciaPermitidaRest($Sql) {
     $Limpia = ltrim($Sql);
-    if (preg_match('/^SET\s+/i', $Limpia)) { return true; }
+    if (preg_match('/^SET\s+/i', $Limpia)) { return SentenciaSetPermitidaRest($Limpia); }
     if (preg_match('/^(INSERT|REPLACE)\s+INTO\s+`?([A-Za-z0-9_]+)`?/i', $Limpia, $M)) {
-        $TablasPermitidas = ['ConfiguracionSistema','Usuarios','CiclosEscolares','OfertasEducativas','ConfiguracionesAcademicas','ProgramasEducativos','EtapasAcademicas','Grupos','Alumnos','AlumnoInscripciones','MateriasCatalogo','MateriasGrupo','Asignaciones','AsignacionDocenteHistorial','PeriodosEvaluacion','Calificaciones','Asistencias','KardexAlumno','KardexDetalle','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad'];
+        $TablasPermitidas = ['ConfiguracionSistema','Usuarios','CiclosEscolares','OfertasEducativas','ConfiguracionesAcademicas','ProgramasEducativos','EtapasAcademicas','Grupos','Alumnos','AlumnoInscripciones','MateriasCatalogo','MateriasGrupo','Asignaciones','AsignacionDocenteHistorial','PeriodosEvaluacion','MigracionesCiclo','Calificaciones','Asistencias','KardexAlumno','KardexDetalle','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad'];
         return in_array($M[2], $TablasPermitidas, true);
     }
     return false;
@@ -306,10 +313,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-lg-6">
             <div class="Card SgceRestoreCard p-4 h-100">
                 <div class="SgceRestoreCardHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📤</span></div><div><h4>Exportar respaldos</h4><p>Usa este respaldo para restaurar desde esta misma pantalla. No toca la estructura de la base de datos.</p></div></div>
+                <div class="SgceRestoreInfo mb-3"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> Este es el respaldo correcto para volver a importar desde el sistema.</span></div>
                 <div class="d-grid gap-3">
                     <a id="BtnExportarSoloDatosVerdeMetalico" href="ExportarDatosBD.php" class="ActionBtn BtnRespaldosExportarVerdeMetalico"><span class="SgceColorIcon" aria-hidden="true">📤</span> EXPORTAR SOLO DATOS</a>
-                    </div>
-                <div class="SgceRestoreInfo"><i class="fa-solid fa-circle-info"></i><span><strong>Recomendado:</strong> Este es el respaldo correcto para volver a importar desde el sistema.</span></div>
+                </div>
             </div>
         </div>
 

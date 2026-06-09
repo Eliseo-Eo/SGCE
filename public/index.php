@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             $Token = bin2hex(random_bytes(32));
+            $TokenHash = SgceHashTokenSesion($Token);
 
             $Stmt = $Pdo->prepare("
                 UPDATE Usuarios 
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 WHERE Id = ?
             ");
 
-            $Stmt->execute([$Token, $User['Id']]);
+            $Stmt->execute([$TokenHash, $User['Id']]);
 
             setcookie('AuthToken', $Token, [
                 'expires' => time() + 86400,

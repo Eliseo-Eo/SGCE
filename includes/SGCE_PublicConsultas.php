@@ -103,7 +103,7 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $ProgramaId, $Grado, $
         $Error = 'ESCRIBE EL NOMBRE COMPLETO DEL ALUMNO COMO APARECE EN LA ESCUELA.';
         return null;
     }
-    if (!SgceValidarGrado($Grado) || $Grupo === '' || !in_array($Turno, ['MATUTINO', 'VESPERTINO'], true)) {
+    if (!SgceValidarGrado($Grado) || $Grupo === '' || $Turno === '') {
         $Error = 'SELECCIONA ETAPA/GRADO, GRUPO Y TURNO PARA VALIDAR LA CONSULTA.';
         return null;
     }

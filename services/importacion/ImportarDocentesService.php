@@ -14,6 +14,11 @@ function SgceImportarDocentesService(PDO $Pdo, array $UserSession, int $CicloAct
             RedirectAdminImportar('maestros', $E->getMessage(), true);
         }
 
+        $ErrorFormatoPrevio = SgceValidarImportacionDocentesPrevia($Filas);
+        if ($ErrorFormatoPrevio !== '') {
+            RedirectAdminImportar('maestros', $ErrorFormatoPrevio, true);
+        }
+
         $Insertados = 0;
         $Reactivados = 0;
         $Duplicados = 0;

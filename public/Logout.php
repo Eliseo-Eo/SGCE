@@ -13,17 +13,19 @@ $UsuarioActivoLogout = VerificarSesionCookie($Pdo);
 
 if (isset($_COOKIE['AuthToken'])) {
 
-    $Token = trim($_COOKIE['AuthToken']);
+    $Token = SgceNormalizarTokenSesion($_COOKIE['AuthToken']);
 
     if ($Token !== '') {
 
+        $TokenHash = SgceHashTokenSesion($Token);
         $Stmt = $Pdo->prepare("
             UPDATE Usuarios
             SET SessionToken = NULL, SessionTokenExpira = NULL
-            WHERE SessionToken = ?
+            WHERE SessionToken IN (?, ?)
         ");
 
         $Stmt->execute([
+            $TokenHash,
             $Token
         ]);
 

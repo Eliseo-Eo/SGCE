@@ -23,7 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Activo = isset($_POST['Activo']) ? 1 : 0;
 
         if ($Nombre !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin)) {
-            $Stmt = $Pdo->prepare("
+            try {
+                $CicloActivoAnterior = SgceCicloActivo($Pdo);
+                $CicloActivoAnteriorId = (int)($CicloActivoAnterior['Id'] ?? 0);
+                $Pdo->beginTransaction();
+                $Stmt = $Pdo->prepare("
                 INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo)
                 VALUES (?, ?, ?, 0)
                 ON DUPLICATE KEY UPDATE
@@ -31,13 +35,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     FechaFin = VALUES(FechaFin)
             ");
             $Stmt->execute([$Nombre, $FechaInicio, $FechaFin]);
-            if ($Activo === 1) {
-                $StmtCicloActivar = $Pdo->prepare('SELECT Id FROM CiclosEscolares WHERE Nombre = ? LIMIT 1');
-                $StmtCicloActivar->execute([$Nombre]);
-                SgceActivarCicloUnico($Pdo, (int)$StmtCicloActivar->fetchColumn());
+                $NuevoCicloId = (int)$Pdo->lastInsertId();
+                if ($NuevoCicloId <= 0) {
+                    $StmtCicloBuscar = $Pdo->prepare('SELECT Id FROM CiclosEscolares WHERE Nombre = ? LIMIT 1');
+                    $StmtCicloBuscar->execute([$Nombre]);
+                    $NuevoCicloId = (int)$StmtCicloBuscar->fetchColumn();
+                }
+                $PeriodosCopiadosTexto = '';
+                if ($Activo === 1 && $NuevoCicloId > 0) {
+                    SgceActivarCicloUnico($Pdo, $NuevoCicloId);
+                    if ($CicloActivoAnteriorId > 0 && $CicloActivoAnteriorId !== $NuevoCicloId) {
+                        try {
+                            $CopiaPeriodos = SgceMigracionCopiarPeriodosDesdeOrigen($Pdo, $CicloActivoAnteriorId, $NuevoCicloId);
+                            $TotalCopiados = (int)$CopiaPeriodos['Creados'] + (int)$CopiaPeriodos['Actualizados'];
+                            if ($TotalCopiados > 0) { $PeriodosCopiadosTexto = ' Periodos copiados automáticamente: ' . $TotalCopiados . '.'; }
+                        } catch (Throwable $EPeriodos) {
+                            $PeriodosCopiadosTexto = ' No se pudieron copiar periodos automáticamente: ' . $EPeriodos->getMessage();
+                        }
+                    }
+                }
+                RegistrarBitacora($Pdo, $UserSession, 'GUARDAR_CICLO_ESCOLAR', 'CiclosEscolares', $NuevoCicloId, $Nombre . $PeriodosCopiadosTexto);
+                $Pdo->commit();
+                $_SESSION['MensajePeriodos'] = 'Ciclo escolar guardado correctamente.' . $PeriodosCopiadosTexto;
+            } catch (Throwable $E) {
+                if ($Pdo->inTransaction()) { $Pdo->rollBack(); }
+                $_SESSION['MensajePeriodos'] = 'No se pudo guardar el ciclo escolar: ' . $E->getMessage();
             }
-            RegistrarBitacora($Pdo, $UserSession, 'GUARDAR_CICLO_ESCOLAR', 'CiclosEscolares', null, $Nombre);
-            $_SESSION['MensajePeriodos'] = 'Ciclo escolar guardado correctamente.';
         } else {
             $_SESSION['MensajePeriodos'] = 'Datos de ciclo inválidos.';
         }

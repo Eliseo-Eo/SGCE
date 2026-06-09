@@ -3,7 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 
 function SgceVersion(): string {
-    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.91';
+    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.122';
 }
 
 

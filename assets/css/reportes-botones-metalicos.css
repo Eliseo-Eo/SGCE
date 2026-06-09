@@ -128,8 +128,3 @@ html body.SgceReportsPage .SgceReportCard::before{
   background:linear-gradient(90deg,rgba(var(--SgceGuindaRGB),.45),rgba(var(--SgceGuindaRGB),.18),rgba(var(--SgceGuindaRGB),.055),rgba(var(--SgceGuindaRGB),.28))!important;
   opacity:.72!important;
 }
-
-/* SGCE 1.0.91: Estilos específicos extraídos de sgce-base para reducir herencia global. */
-button,.btn,.Btn,.ReporteBtn,.ActionBtn{border-radius:999px;font-weight:900;letter-spacing:.25px}
-.BtnGuinda,.ReporteBtn,.BtnExport,.ActionSuccess,.ActionInfo,.ActionDanger,button[type="submit"]:not(.btn-close){background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.18)!important;}
-.BtnGuinda:hover,.ReporteBtn:hover,.BtnExport:hover,button[type="submit"]:not(.btn-close):hover{filter:brightness(.96);transform:translateY(-1px)}

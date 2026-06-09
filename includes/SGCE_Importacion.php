@@ -6,6 +6,7 @@ $SgceImportacionFiles = [
     'importacion/SGCE_ImportacionXlsx.php',
     'importacion/SGCE_ImportacionArchivos.php',
     'importacion/SGCE_ImportacionValidadores.php',
+    'importacion/SGCE_ImportacionPrevia.php',
     'importacion/SGCE_ImportacionDocentes.php',
     'importacion/SGCE_ImportacionReportesFinales.php',
 ];

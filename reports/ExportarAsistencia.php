@@ -33,6 +33,18 @@ if ($AsignacionId <= 0 && $GrupoId <= 0) { http_response_code(400); exit('Selecc
 function HAsis($Texto){ return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
 function ArchivoSeguroAsis($Texto){ $Texto=preg_replace('/[^A-Za-z0-9_\-]/','',str_replace(' ','_', (string)$Texto)); return $Texto!==''?$Texto:'Reporte'; }
 function EstadoAsis($E){ return ['A'=>'ASISTENCIA','F'=>'FALTA','R'=>'RETARDO','J'=>'JUSTIFICANTE'][$E] ?? $E; }
+function SgceAsistenciaPrepararSalidaMasiva(): void {
+    @set_time_limit(180);
+    @ini_set('memory_limit', '512M');
+    @ini_set('zlib.output_compression', '0');
+    if (!headers_sent()) { header('X-Accel-Buffering: no'); }
+}
+function SgceAsistenciaValidarPdfMasivo(array $FilasPdf, int $Limite = 5000): void {
+    if (count($FilasPdf) <= $Limite) { return; }
+    http_response_code(413);
+    exit('El reporte es demasiado grande para PDF. Usa Excel o reduce el rango de fechas.');
+}
+SgceAsistenciaPrepararSalidaMasiva();
 $ConfigReporte = SgceObtenerConfiguracion($Pdo);
 $ColorReporte = SgceColorInstitucional($Pdo);
 function EstilosAsis($Landscape=false){ global $ColorReporte; ?>
@@ -75,6 +87,7 @@ if ($Tipo === 'Pdf') {
         } else {
             $FilasPdf[] = [$R['FechaTexto'], $R['NombreCompleto'], EstadoAsis($R['Estado'])];
         }
+        SgceAsistenciaValidarPdfMasivo($FilasPdf);
     }
     $SubtituloPdf = ($Modo === 'Grupo')
         ? 'Grupo: ' . $Info['Grado'] . ' ' . $Info['Grupo'] . ' ' . $Info['Turno'] . ' | Rango: ' . $TextoRango

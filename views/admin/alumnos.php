@@ -32,11 +32,16 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="MaestrosFieldGroup AlumnosFieldGroup">
+                                    <label>Matrícula <small class="text-muted">(opcional)</small></label>
+                                    <input type="text" name="Matricula" class="form-control form-control-sm MaestrosInput AlumnosInput InputUpperAscii" placeholder="AUTOMÁTICA" maxlength="40" autocomplete="off">
+                                </div>
+
+                                <div class="MaestrosFieldGroup AlumnosFieldGroup">
                                     <label>Grupo</label>
                                     <select name="GrupoId" class="form-select form-select-sm MaestrosInput AlumnosInput" required>
                                         <option value="">SELECCIONAR...</option>
                                         <?php foreach($Grupos as $G): ?>
-                                            <option value="<?= $G['Id'] ?>">
+                                            <option value="<?= (int)$G['Id'] ?>">
                                                 <?= htmlspecialchars(SgceGrupoNombreVisual($G, $TipoPeriodizacionAdmin), ENT_QUOTES, 'UTF-8') ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -67,7 +72,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                     <select name="GrupoId" class="form-select form-select-sm MaestrosInput AlumnosInput">
                                         <option value="">USAR GRUPO DEL ARCHIVO...</option>
                                         <?php foreach($Grupos as $G): ?>
-                                            <option value="<?= $G['Id'] ?>">
+                                            <option value="<?= (int)$G['Id'] ?>">
                                                 <?= htmlspecialchars(SgceGrupoNombreVisual($G, $TipoPeriodizacionAdmin), ENT_QUOTES, 'UTF-8') ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -80,7 +85,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="SgceImportActions">
-                                    <button type="submit" id="BtnImportarAlumnoAzulMetalico" class="BtnAlumnoImportarMetalico SgceImportMainBtn">
+<button type="submit" id="BtnImportarAlumnoAzulMetalico" class="BtnAlumnoImportarMetalico SgceImportMainBtn">
                                         <span class="SgceColorIcon" aria-hidden="true">☁️</span> Cargar Archivo
                                     </button>
                                 </div>
@@ -137,6 +142,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                 <thead>
                                     <tr>
+                                        <th>Matrícula</th>
                                         <th>Nombre del Alumno</th>
                                         <th class="text-center">Grupo</th>
                                         <th class="text-center">Acciones</th>
@@ -146,7 +152,8 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 <tbody data-sgce-partial-tbody="alumnos">
                                     <?php foreach($Alumnos as $Al): ?>
                                     <tr data-etapa="<?= htmlspecialchars((string)($Al['Grado'] ?? $Al['EtapaOrden'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-grupo="<?= htmlspecialchars(SgceNormalizarMayusculas((string)($Al['Grupo'] ?? '')), ENT_QUOTES, 'UTF-8') ?>" data-turno="<?= htmlspecialchars(SgceNormalizarMayusculas((string)($Al['Turno'] ?? '')), ENT_QUOTES, 'UTF-8') ?>">
-                                        <td class="searchable"><?= htmlspecialchars($Al['NombreCompleto']) ?></td>
+                                        <td class="searchable"><span class="badge bg-light text-dark border"><?= htmlspecialchars($Al['Matricula'] ?: 'AUTOMÁTICA', ENT_QUOTES, 'UTF-8') ?></span></td>
+                                        <td class="searchable"><?= htmlspecialchars($Al['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></td>
 
                                         <td class="searchable text-center">
                                             <?= $Al['Grado']
@@ -156,18 +163,18 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                         <td class="text-center">
                                             <div class="AdminActions AlumnosActions">
-                                                <a class="ActionBtn BtnStudentFile" href="HistorialAlumno.php?AlumnoId=<?= $Al['Id'] ?>">
+                                                <a class="ActionBtn BtnStudentFile" href="HistorialAlumno.php?AlumnoId=<?= (int)$Al['Id'] ?>">
                                                     <span class="SgceColorIcon" aria-hidden="true">🗂️</span><span>Expediente</span>
                                                 </a>
 
-                                                <button class="ActionBtn BtnStudentEdit" data-bs-toggle="modal" data-bs-target="#EAl<?= $Al['Id'] ?>">
+                                                <button class="ActionBtn BtnStudentEdit" data-bs-toggle="modal" data-bs-target="#EAl<?= (int)$Al['Id'] ?>">
                                                     <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                                 </button>
 
                                                 <form method="POST" class="m-0 p-0" data-confirm-delete="ALUMNO" data-confirm-message="¿DESEAS DAR DE BAJA A ESTE ALUMNO? ESTA ACCIÓN NO SE PUEDE DESHACER.">
                     <?php echo CampoCsrf(); ?>
                                                     <input type="hidden" name="Tab" value="alumnos">
-                                                    <button type="submit" name="DelAlumno" value="<?= $Al['Id'] ?>" class="ActionBtn BtnStudentDelete">
+                                                    <button type="submit" name="DelAlumno" value="<?= (int)$Al['Id'] ?>" class="ActionBtn BtnStudentDelete">
                                                         <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
                                                     </button>
                                                 </form>
@@ -197,7 +204,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
         <div class="SgceAjaxModals" data-sgce-partial-modals="alumnos">
         <?php foreach($Alumnos as $Al): ?>
-        <div class="modal fade" id="EAl<?= $Al['Id'] ?>" tabindex="-1">
+        <div class="modal fade" id="EAl<?= (int)$Al['Id'] ?>" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
 
@@ -209,13 +216,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                             <input type="hidden" name="EditAlumno">
                             <input type="hidden" name="Tab" value="alumnos">
-                            <input type="hidden" name="Id" value="<?= $Al['Id'] ?>">
+                            <input type="hidden" name="Id" value="<?= (int)$Al['Id'] ?>">
 
                             <div class="mb-3">
                                 <label class="small">Nombre</label>
                                 <input type="text"
                                        name="Nombre"
-                                       value="<?= htmlspecialchars($Al['NombreCompleto']) ?>"
+                                       value="<?= htmlspecialchars($Al['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?>"
                                        class="form-control SoloLetrasMayus"
                                        maxlength="160"
                                        required
@@ -225,10 +232,15 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             </div>
 
                             <div class="mb-3">
+                                <label class="small">Matrícula</label>
+                                <input type="text" name="Matricula" value="<?= htmlspecialchars((string)($Al['Matricula'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="form-control InputUpperAscii" maxlength="40" placeholder="AUTOMÁTICA">
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="small">Grupo</label>
                                 <select name="GrupoId" class="form-select" required>
                                     <?php foreach($Grupos as $G): ?>
-                                        <option value="<?= $G['Id'] ?>" <?= $G['Id'] == $Al['GrupoId'] ? 'selected' : '' ?>>
+                                        <option value="<?= (int)$G['Id'] ?>" <?= (int)$G['Id'] === (int)$Al['GrupoId'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars(SgceGrupoNombreVisual($G, $TipoPeriodizacionAdmin), ENT_QUOTES, 'UTF-8') ?>
                                         </option>
                                     <?php endforeach; ?>

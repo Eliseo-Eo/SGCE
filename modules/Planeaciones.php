@@ -23,7 +23,7 @@ $CantidadPlaneaciones = SgceCantidadPlaneaciones($Pdo);
 $OfertaActivaPlaneacion = SgceOfertaActiva($Pdo);
 $OfertaIdPlaneacion = (int)($OfertaActivaPlaneacion['Id'] ?? 0);
 $ConfigAcademicaPlaneacion = SgceConfiguracionAcademicaPorOferta($Pdo, $OfertaIdPlaneacion);
-$TipoPlaneacionActiva = SgceTipoPlaneacionValido((string)($ConfigAcademicaPlaneacion['TipoPlaneacion'] ?? 'PERIODO'));
+$TipoPlaneacionActiva = SgceTipoPlaneacionValido((string)($ConfigAcademicaPlaneacion['TipoPlaneacion'] ?? 'CICLO'));
 $PeriodosPlaneacion = [];
 if ($CicloId > 0 && $OfertaIdPlaneacion > 0) {
     $StmtPeriodosPlaneacion = $Pdo->prepare('SELECT Id, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Orden ASC');

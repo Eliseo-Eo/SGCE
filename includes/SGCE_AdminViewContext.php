@@ -5,6 +5,7 @@ $TipoPeriodizacionAdmin = (string)($OfertaActiva['TipoPeriodizacion'] ?? 'ANUAL'
 $EtiquetaEtapaAdmin = SgceEtiquetaEtapaActual($Pdo);
 $EtiquetaEtapaAdminMayus = SgceNormalizarMayusculas($EtiquetaEtapaAdmin);
 $EjemploEtapaImportacion = !empty($EtapasAcademicas[0]) ? SgceEtapaNombreVisual($EtapasAcademicas[0], $TipoPeriodizacionAdmin) : SgceEtiquetaEtapaAcademica(1, $TipoPeriodizacionAdmin);
+$TurnosDisponiblesAdmin = function_exists('SgceTurnosDisponibles') ? SgceTurnosDisponibles($Pdo) : ['MATUTINO','VESPERTINO'];
 
 $SgceFiltroOrdenNatural = static function (array &$Opciones): void {
     uasort($Opciones, static function ($A, $B) {

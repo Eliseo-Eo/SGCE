@@ -14,6 +14,11 @@ function SgceImportarGruposService(PDO $Pdo, array $UserSession, int $CicloActiv
             RedirectAdminImportar('grupos', $E->getMessage(), true);
         }
 
+        $ErrorFormatoPrevio = SgceValidarImportacionGruposPrevia($Filas);
+        if ($ErrorFormatoPrevio !== '') {
+            RedirectAdminImportar('grupos', $ErrorFormatoPrevio, true);
+        }
+
         $Insertados = 0;
         $Reactivados = 0;
         $Duplicados = 0;

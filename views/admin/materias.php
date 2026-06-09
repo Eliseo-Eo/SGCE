@@ -67,7 +67,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="SgceImportActions">
-                                    <button type="submit" id="BtnImportarMateriaAzulMetalico" class="BtnMateriaImportarMetalico SgceImportMainBtn">
+<button type="submit" id="BtnImportarMateriaAzulMetalico" class="BtnMateriaImportarMetalico SgceImportMainBtn">
                                         <span class="SgceColorIcon" aria-hidden="true">☁️</span> Cargar Archivo
                                     </button>
                                 </div>
@@ -158,13 +158,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                         </td>
                                         <td class="text-center">
                                             <div class="AdminActions">
-                                                <button class="ActionBtn ActionEdit BtnMateriaEdit" data-bs-toggle="modal" data-bs-target="#EMat<?= $Mat['Id'] ?>">
+                                                <button class="ActionBtn ActionEdit BtnMateriaEdit" data-bs-toggle="modal" data-bs-target="#EMat<?= (int)$Mat['Id'] ?>">
                                                     <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                                 </button>
                                                 <form method="POST" class="m-0 p-0" data-confirm-delete="MATERIA" data-confirm-message="¿DESEAS DESACTIVAR ESTA MATERIA DEL GRUPO?">
                                                     <?php echo CampoCsrf(); ?>
                                                     <input type="hidden" name="Tab" value="materias">
-                                                    <button type="submit" name="DelMateriaGrupo" value="<?= $Mat['Id'] ?>" class="ActionBtn ActionDelete BtnMateriaDelete">
+                                                    <button type="submit" name="DelMateriaGrupo" value="<?= (int)$Mat['Id'] ?>" class="ActionBtn ActionDelete BtnMateriaDelete">
                                                         <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
                                                     </button>
                                                 </form>
@@ -189,7 +189,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                 <div class="SgceAjaxModals" data-sgce-partial-modals="materias">
         <?php foreach($MateriasGrupo as $Mat): ?>
-                <div class="modal fade" id="EMat<?= $Mat['Id'] ?>" tabindex="-1">
+                <div class="modal fade" id="EMat<?= (int)$Mat['Id'] ?>" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered modal-sm">
                         <div class="modal-content">
                             <form method="POST">
@@ -198,7 +198,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                     <h6 class="mb-3 border-bottom pb-2">Modificar Materia</h6>
                                     <input type="hidden" name="EditMateriaGrupo">
                                     <input type="hidden" name="Tab" value="materias">
-                                    <input type="hidden" name="Id" value="<?= $Mat['Id'] ?>">
+                                    <input type="hidden" name="Id" value="<?= (int)$Mat['Id'] ?>">
 
                                     <label class="small text-muted">Grupo</label>
                                     <select name="GrupoId" class="form-select form-select-sm mb-2" required>

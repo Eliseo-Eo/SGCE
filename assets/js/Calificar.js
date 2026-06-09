@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }, 3000);
     });
 
+    const FormCalificaciones = document.getElementById('FormCalificaciones');
+    const CalMin = FormCalificaciones ? parseFloat(FormCalificaciones.getAttribute('data-calificacion-min') || '5') : 5;
+    const CalMax = FormCalificaciones ? parseFloat(FormCalificaciones.getAttribute('data-calificacion-max') || '10') : 10;
+    const CalAprobatoria = FormCalificaciones ? parseFloat(FormCalificaciones.getAttribute('data-calificacion-aprobatoria') || '6') : 6;
     const Inputs = document.querySelectorAll('.InputNota');
 
     function PintarCalificacion(Input) {
@@ -29,9 +33,9 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        if (Valor >= 8) {
+        if (Valor >= Math.max(CalAprobatoria, CalMax - ((CalMax - CalMin) * 0.25))) {
             Input.classList.add('border-success');
-        } else if (Valor >= 6) {
+        } else if (Valor >= CalAprobatoria) {
             Input.classList.add('border-warning');
         } else {
             Input.classList.add('border-danger');
@@ -45,8 +49,6 @@ document.addEventListener("DOMContentLoaded", function() {
             PintarCalificacion(this);
         });
     });
-
-    const FormCalificaciones = document.getElementById('FormCalificaciones');
 
     if (FormCalificaciones) {
         FormCalificaciones.addEventListener('submit', function(Evento) {
@@ -62,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const ValorNumero = parseFloat(ValorTexto);
 
-                if (Number.isNaN(ValorNumero) || ValorNumero < 5 || ValorNumero > 10) {
+                if (Number.isNaN(ValorNumero) || ValorNumero < CalMin || ValorNumero > CalMax) {
                     TieneCalificacionInvalida = true;
                 }
             });
@@ -74,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     Alerta.innerHTML = `
                         <i class="fa-solid fa-circle-exclamation me-2"></i>
                         <strong>Calificación inválida:</strong>
-                        Usa valores de 5 a 10 o deja el campo vacío para borrar la calificación.
+                        Usa valores de ${CalMin} a ${CalMax} o deja el campo vacío para borrar la calificación.
                     `;
 
                     Alerta.classList.remove('d-none');

@@ -17,6 +17,19 @@ function ArchivoSeguroCal($Texto) {
     return $Texto !== '' ? $Texto : 'Reporte';
 }
 function FormatoCal($Valor) { return $Valor !== null && $Valor !== '' ? number_format((float)$Valor, 2) : '-'; }
+function SgceCalificacionesPrepararSalidaMasiva(): void {
+    @set_time_limit(180);
+    @ini_set('memory_limit', '512M');
+    @ini_set('zlib.output_compression', '0');
+    if (!headers_sent()) { header('X-Accel-Buffering: no'); }
+}
+SgceCalificacionesPrepararSalidaMasiva();
+function SgceCalificacionesValidarPdfMasivo(int $Unidades, int $Limite = 5000): void {
+    if ($Unidades <= $Limite) { return; }
+    http_response_code(413);
+    exit('El reporte es demasiado grande para PDF. Usa Excel o reduce el filtro.');
+}
+
 function SgceCalificacionesEmitirExcel($TituloArchivo) {
     header('Content-Type: application/vnd.ms-excel; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $TituloArchivo . '.xls');
@@ -71,6 +84,7 @@ if ($Modo === 'General') {
         foreach ($Rows as $R) {
             $FilasPdf[] = [(string)$Npdf++, $R['Grado'] . $R['Grupo'] . ' ' . $R['Turno'], $R['MateriaNombre'], $R['Maestro'], (string)(int)$R['Alumnos'], (string)(int)$R['Capturadas'], FormatoCal($R['Promedio'])];
         }
+        SgceCalificacionesValidarPdfMasivo(count($FilasPdf), 1200);
         $SubtituloPdf = 'Periodo: ' . $Periodo['Nombre'] . ' ' . $Periodo['Ciclo'] . ' | Resumen general por asignación';
         SgcePdfRespuestaTabla($Pdo, 'Reporte general de calificaciones', $SubtituloPdf, ['#', 'Grupo', 'Materia', 'Docente', 'Alumnos', 'Capturadas', 'Promedio'], $FilasPdf, $TituloArchivo, 'L', [34, 88, 160, 170, 70, 80, 80]);
     }
@@ -126,6 +140,7 @@ if ($Modo === 'Grupo') {
             $FilaPdf[] = $CuentaPdf > 0 ? number_format($SumaPdf / $CuentaPdf, 2) : '-';
             $FilasPdf[] = $FilaPdf;
         }
+        SgceCalificacionesValidarPdfMasivo(count($Alumnos) * max(1, count($Asignaciones)), 6000);
         $Disponible = 720;
         $AnchosPdf = [34, 190];
         $Restantes = max(1, count($ColumnasPdf) - 3);
@@ -166,6 +181,7 @@ if ($Tipo === 'Pdf') {
     $FilasPdf = [];
     $Npdf = 1;
     foreach ($Alumnos as $Al) { $FilasPdf[] = [(string)$Npdf++, $Al['NombreCompleto'], FormatoCal($Al['Calificacion'])]; }
+    SgceCalificacionesValidarPdfMasivo(count($FilasPdf), 1500);
     $SubtituloPdf = 'Materia: ' . $Info['MateriaNombre'] . ' | Grupo: ' . $Info['Grado'] . ' ' . $Info['Grupo'] . ' ' . $Info['Turno'] . ' | Docente: ' . $Info['Maestro'] . ' | Periodo: ' . $Periodo['Nombre'] . ' ' . $Periodo['Ciclo'];
     SgcePdfRespuestaTabla($Pdo, 'Reporte de calificaciones', $SubtituloPdf, ['#', 'Alumno', 'Calificación'], $FilasPdf, $TituloArchivo, 'P', [45, 390, 100]);
 }

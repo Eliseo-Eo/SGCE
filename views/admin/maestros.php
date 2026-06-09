@@ -69,7 +69,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="SgceImportActions">
-                                    <button type="submit" id="BtnImportarMaestroAzulMetalico" class="BtnMaestroImportarMetalico SgceImportMainBtn">
+<button type="submit" id="BtnImportarMaestroAzulMetalico" class="BtnMaestroImportarMetalico SgceImportMainBtn">
                                         <span class="SgceColorIcon" aria-hidden="true">☁️</span> Cargar Archivo
                                     </button>
                                 </div>
@@ -111,19 +111,19 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                     <?php foreach($MaestrosTabla as $M): ?>
                                     <tr>
-                                        <td class="text-start searchable"><?= htmlspecialchars($M['NombreCompleto']) ?></td>
-                                        <td class="searchable"><?= htmlspecialchars($M['Username']) ?></td>
+                                        <td class="text-start searchable"><?= htmlspecialchars($M['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="searchable"><?= htmlspecialchars($M['Username'], ENT_QUOTES, 'UTF-8') ?></td>
 
                                         <td class="text-center">
                                             <div class="AdminActions">
-<button class="ActionBtn ActionEdit BtnTeacherEdit" data-bs-toggle="modal" data-bs-target="#EM<?= $M['Id'] ?>">
+<button class="ActionBtn ActionEdit BtnTeacherEdit" data-bs-toggle="modal" data-bs-target="#EM<?= (int)$M['Id'] ?>">
                                                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                             </button>
 
                                             <form method="POST" class="m-0 p-0" data-confirm-delete="DOCENTE" data-confirm-message="¿DESEAS DESACTIVAR ESTE DOCENTE? SI TIENE ASIGNACIONES ACTIVAS EL SISTEMA LO BLOQUEARÁ HASTA HACER RELEVO/INTERINATO.">
                     <?php echo CampoCsrf(); ?>
                                                 <input type="hidden" name="Tab" value="maestros">
-                                                <button type="submit" name="DelMaestro" value="<?= $M['Id'] ?>" class="ActionBtn ActionDelete BtnTeacherDelete">
+                                                <button type="submit" name="DelMaestro" value="<?= (int)$M['Id'] ?>" class="ActionBtn ActionDelete BtnTeacherDelete">
                                                     <i class="fa-solid fa-trash-can"></i><span>Desactivar</span>
                                                 </button>
                                             </form>
@@ -148,7 +148,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
             </div>
 
             <?php foreach($MaestrosTabla as $M): ?>
-            <div class="modal fade" id="EM<?= $M['Id'] ?>" tabindex="-1">
+            <div class="modal fade" id="EM<?= (int)$M['Id'] ?>" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-sm">
                     <div class="modal-content">
 
@@ -160,12 +160,12 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
                                 <input type="hidden" name="EditMaestro">
                                 <input type="hidden" name="Tab" value="maestros">
-                                <input type="hidden" name="Id" value="<?= $M['Id'] ?>">
+                                <input type="hidden" name="Id" value="<?= (int)$M['Id'] ?>">
 
                                 <label class="small text-muted">Nombre</label>
                                 <input type="text"
                                        name="Nombre"
-                                       value="<?= htmlspecialchars($M['NombreCompleto']) ?>"
+                                       value="<?= htmlspecialchars($M['NombreCompleto'], ENT_QUOTES, 'UTF-8') ?>"
                                        class="form-control form-control-sm mb-2 SoloLetrasMayus"
                                        required
                                        pattern="^[A-ZÁÉÍÓÚÜÑ\s]+$"
@@ -175,7 +175,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 <label class="small text-muted">USUARIO</label>
                                 <input type="text"
                                        name="User"
-                                       value="<?= htmlspecialchars($M['Username']) ?>"
+                                       value="<?= htmlspecialchars($M['Username'], ENT_QUOTES, 'UTF-8') ?>"
                                        class="form-control form-control-sm mb-2 TextoLibre"
                                        required
                                        autocomplete="off">

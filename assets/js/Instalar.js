@@ -96,6 +96,28 @@ document.addEventListener('DOMContentLoaded', function () {
         ActualizarColor();
     }
 
+    var CampoMatriculaAutomatica = document.querySelector('input[type="checkbox"][name="MatriculaAutomatica"]');
+    var CampoPrefijoMatricula = document.querySelector('input[name="MatriculaPrefijo"]');
+    var CampoEjemploMatricula = document.getElementById('SgceInstallerMatriculaEjemplo');
+    var AyudaMatricula = document.querySelector('.SgceMatriculaHelp');
+    var ActualizarEjemploMatricula = function () {
+        if (!CampoPrefijoMatricula || !CampoEjemploMatricula) { return; }
+        var MatriculaHabilitada = !CampoMatriculaAutomatica || CampoMatriculaAutomatica.checked === true;
+        var Prefijo = String(CampoPrefijoMatricula.value || 'SGCE').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12) || 'SGCE';
+        if (!CampoPrefijoMatricula.disabled) { CampoPrefijoMatricula.value = Prefijo; }
+        CampoPrefijoMatricula.disabled = !MatriculaHabilitada;
+        CampoPrefijoMatricula.required = MatriculaHabilitada;
+        CampoEjemploMatricula.disabled = !MatriculaHabilitada;
+        CampoEjemploMatricula.value = MatriculaHabilitada ? (Prefijo + '-' + new Date().getFullYear() + '-000001') : 'No aplica';
+        if (!MatriculaHabilitada) { CampoPrefijoMatricula.setCustomValidity(''); }
+        if (AyudaMatricula) { AyudaMatricula.classList.toggle('SgceMuted', !MatriculaHabilitada); }
+    };
+    if (CampoPrefijoMatricula && CampoEjemploMatricula) {
+        CampoPrefijoMatricula.addEventListener('input', ActualizarEjemploMatricula);
+        if (CampoMatriculaAutomatica) { CampoMatriculaAutomatica.addEventListener('change', ActualizarEjemploMatricula); }
+        ActualizarEjemploMatricula();
+    }
+
 
 
     var FormInstaladorPassword = document.getElementById('SgceInstallerForm');
@@ -127,6 +149,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var NivelEducativoSelect = FormPlaneaciones.querySelector('select[name="NivelEducativo"]');
         var ProgramasTextarea = FormPlaneaciones.querySelector('textarea[name="ProgramasIniciales"]');
         var ProgramasAyuda = FormPlaneaciones.querySelector('.SgceProgramasHelp');
+        var PeriodosModoSelect = FormPlaneaciones.querySelector('select[name="PeriodosModo"]');
+        var PeriodosPersonalizadosTextarea = FormPlaneaciones.querySelector('textarea[name="PeriodosPersonalizados"]');
+        var PeriodosPersonalizadosAyuda = FormPlaneaciones.querySelector('.SgcePeriodosPersonalizadosHelp');
         var NivelesConProgramasObligatorios = ['UNIVERSIDAD', 'MAESTRIA', 'DOCTORADO'];
         var ActualizarProgramasEducativos = function () {
             if (!UsaProgramasSwitch || !ProgramasTextarea) { return; }
@@ -145,6 +170,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!Habilitado) { ProgramasTextarea.setCustomValidity(''); }
             if (ProgramasAyuda) { ProgramasAyuda.classList.toggle('SgceMuted', !Habilitado); }
         };
+        var ActualizarPeriodosPersonalizados = function () {
+            if (!PeriodosModoSelect || !PeriodosPersonalizadosTextarea) { return; }
+            var Personalizado = String(PeriodosModoSelect.value || 'AUTOMATICO').toUpperCase() === 'PERSONALIZADO';
+            PeriodosPersonalizadosTextarea.disabled = !Personalizado;
+            PeriodosPersonalizadosTextarea.required = Personalizado;
+            PeriodosPersonalizadosTextarea.classList.toggle('SgceCampoBloqueado', !Personalizado);
+            if (!Personalizado) {
+                PeriodosPersonalizadosTextarea.value = '';
+                PeriodosPersonalizadosTextarea.setCustomValidity('');
+            }
+            if (PeriodosPersonalizadosAyuda) { PeriodosPersonalizadosAyuda.classList.toggle('SgceMuted', !Personalizado); }
+        };
         var ActualizarPlaneaciones = function () {
             if (!UsaPlaneacionesSwitch) { return; }
             var Habilitado = UsaPlaneacionesSwitch.checked === true;
@@ -155,17 +192,56 @@ document.addEventListener('DOMContentLoaded', function () {
                 Campo.classList.toggle('SgceCampoBloqueado', !Habilitado);
                 if (!Habilitado) { Campo.setCustomValidity(''); }
             });
-            if (!Habilitado && PlaneacionesCantidadInput) { PlaneacionesCantidadInput.value = ''; }
+            if (!Habilitado) {
+                if (PlaneacionesCantidadInput) { PlaneacionesCantidadInput.value = ''; }
+            } else {
+                var TipoPlaneacion = TipoPlaneacionSelect ? String(TipoPlaneacionSelect.value || 'CICLO').toUpperCase() : 'CICLO';
+                var CantidadPeriodosInput = FormPlaneaciones.querySelector('input[name="PeriodosCantidad"]');
+                var CantidadPeriodos = CantidadPeriodosInput ? parseInt(CantidadPeriodosInput.value || '0', 10) : 0;
+                if (PlaneacionesCantidadInput) {
+                    if (TipoPlaneacion === 'CICLO') {
+                        PlaneacionesCantidadInput.placeholder = 'Ej. 1';
+                        PlaneacionesCantidadInput.required = false;
+                        PlaneacionesCantidadInput.setCustomValidity('');
+                    } else if (TipoPlaneacion === 'PERIODO') {
+                        PlaneacionesCantidadInput.placeholder = 'Ej. 3';
+                        PlaneacionesCantidadInput.required = true;
+                    } else {
+                        PlaneacionesCantidadInput.placeholder = 'Ej. 1';
+                        PlaneacionesCantidadInput.required = true;
+                    }
+                }
+                if (PlaneacionesAyuda) {
+                    var AyudasPlaneacion = {
+                        CICLO: 'Se solicitará una planeación por materia durante todo el ciclo escolar.',
+                        PERIODO: 'Se solicitará una planeación por cada periodo de evaluación configurado.',
+                        UNIDAD: 'Útil cuando cada materia trabaja por unidades, bloques, temas o proyectos.',
+                        SEMANA: 'Útil para escuelas que piden planeaciones semanales.'
+                    };
+                    PlaneacionesAyuda.textContent = AyudasPlaneacion[TipoPlaneacion] || 'Se usa para el control de entregas por materia.';
+                }
+            }
             if (PlaneacionesAyuda) {
                 PlaneacionesAyuda.classList.toggle('SgceMuted', !Habilitado);
             }
         };
+        if (PeriodosModoSelect && PeriodosPersonalizadosTextarea) {
+            PeriodosModoSelect.addEventListener('change', ActualizarPeriodosPersonalizados);
+            ActualizarPeriodosPersonalizados();
+            window.setTimeout(ActualizarPeriodosPersonalizados, 60);
+            window.addEventListener('pageshow', ActualizarPeriodosPersonalizados);
+        }
         if (UsaPlaneacionesSwitch) {
             ['change', 'input', 'click'].forEach(function (EventoNombre) {
                 UsaPlaneacionesSwitch.addEventListener(EventoNombre, function () {
                     window.setTimeout(ActualizarPlaneaciones, 0);
                 });
             });
+            if (TipoPlaneacionSelect) { TipoPlaneacionSelect.addEventListener('change', ActualizarPlaneaciones); }
+            var PeriodosCantidadPlaneacion = FormPlaneaciones.querySelector('input[name="PeriodosCantidad"]');
+            if (PeriodosCantidadPlaneacion) { PeriodosCantidadPlaneacion.addEventListener('input', function () {
+                if (TipoPlaneacionSelect && String(TipoPlaneacionSelect.value || '').toUpperCase() === 'PERIODO') { ActualizarPlaneaciones(); }
+            }); }
             ActualizarPlaneaciones();
             window.setTimeout(ActualizarPlaneaciones, 60);
             window.addEventListener('pageshow', ActualizarPlaneaciones);
@@ -203,7 +279,21 @@ document.addEventListener('DOMContentLoaded', function () {
             var UsaProgramas = Form.querySelector('input[type="checkbox"][name="UsaProgramas"]');
             var ProgramasIniciales = Form.querySelector('textarea[name="ProgramasIniciales"]');
             var NivelEducativo = Form.querySelector('select[name="NivelEducativo"]');
+            var TurnosDisponibles = Form.querySelector('textarea[name="TurnosDisponibles"]');
+            var CalificacionMinima = Form.querySelector('input[name="CalificacionMinima"]');
+            var CalificacionMaxima = Form.querySelector('input[name="CalificacionMaxima"]');
+            var CalificacionAprobatoria = Form.querySelector('input[name="CalificacionAprobatoria"]');
+            var MatriculaAutomatica = Form.querySelector('input[type="checkbox"][name="MatriculaAutomatica"]');
+            var MatriculaPrefijo = Form.querySelector('input[name="MatriculaPrefijo"]');
+            var PeriodosModo = Form.querySelector('select[name="PeriodosModo"]');
+            var PeriodosPersonalizados = Form.querySelector('textarea[name="PeriodosPersonalizados"]');
 
+            if (PeriodosModo && PeriodosPersonalizados && String(PeriodosModo.value || 'AUTOMATICO').toUpperCase() !== 'PERSONALIZADO') {
+                PeriodosPersonalizados.disabled = true;
+                PeriodosPersonalizados.required = false;
+                PeriodosPersonalizados.value = '';
+                PeriodosPersonalizados.setCustomValidity('');
+            }
 
             if (NombreEscuela && NombreEscuela.value.trim().length < 3) {
                 Evento.preventDefault();
@@ -278,6 +368,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
+            if (TurnosDisponibles) {
+                var Turnos = TurnosDisponibles.value.split(/[\n,;]+/).map(function (Turno) { return Turno.trim(); }).filter(Boolean);
+                if (Turnos.length === 0) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'Captura al menos un turno disponible. Ejemplo: MATUTINO.');
+                    TurnosDisponibles.focus();
+                    return;
+                }
+            }
+
+            if (CalificacionMinima && CalificacionMaxima && CalificacionAprobatoria) {
+                var MinCal = parseFloat(CalificacionMinima.value);
+                var MaxCal = parseFloat(CalificacionMaxima.value);
+                var AprobCal = parseFloat(CalificacionAprobatoria.value);
+                if (isNaN(MinCal) || isNaN(MaxCal) || isNaN(AprobCal) || MinCal < 0 || MaxCal > 100 || MinCal >= MaxCal || AprobCal < MinCal || AprobCal > MaxCal) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'Revisa la escala de calificaciones: la mínima debe ser menor que la máxima y la aprobatoria debe estar dentro del rango.');
+                    CalificacionMinima.focus();
+                    return;
+                }
+            }
+
+            if (MatriculaAutomatica && MatriculaAutomatica.checked && MatriculaPrefijo && !/^[A-Z0-9]{2,12}$/.test(MatriculaPrefijo.value.trim().toUpperCase())) {
+                Evento.preventDefault();
+                MostrarMensaje(Form, 'El prefijo de matrícula debe usar solo letras y números, de 2 a 12 caracteres.');
+                MatriculaPrefijo.disabled = false;
+                MatriculaPrefijo.focus();
+                return;
+            }
+
             if (UsaProgramas && ProgramasIniciales) {
                 var NivelActual = NivelEducativo ? String(NivelEducativo.value || '').toUpperCase() : '';
                 var RequiereProgramas = ['UNIVERSIDAD', 'MAESTRIA', 'DOCTORADO'].indexOf(NivelActual) !== -1;
@@ -291,12 +411,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (PlaneacionesCantidad && UsaPlaneaciones && UsaPlaneaciones.checked) {
-                var Cantidad = parseInt(PlaneacionesCantidad.value || '0', 10);
-                if (!Cantidad || Cantidad < 1 || Cantidad > 12) {
-                    Evento.preventDefault();
-                    MostrarMensaje(Form, 'La cantidad de planeaciones debe estar entre 1 y 12.');
-                    PlaneacionesCantidad.focus();
-                    return;
+                var TipoPlaneacionActual = Form.querySelector('select[name="TipoPlaneacion"]');
+                var TipoPlaneacionValor = TipoPlaneacionActual ? String(TipoPlaneacionActual.value || 'CICLO').toUpperCase() : 'CICLO';
+                var ValorPlaneaciones = String(PlaneacionesCantidad.value || '').trim();
+                if (ValorPlaneaciones !== '' || TipoPlaneacionValor !== 'CICLO') {
+                    var Cantidad = parseInt(ValorPlaneaciones || '0', 10);
+                    if (!Cantidad || Cantidad < 1 || Cantidad > 12) {
+                        Evento.preventDefault();
+                        MostrarMensaje(Form, 'La cantidad de planeaciones debe estar entre 1 y 12.');
+                        PlaneacionesCantidad.focus();
+                        return;
+                    }
                 }
             }
 

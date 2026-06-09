@@ -66,6 +66,16 @@ function HGlobal($Texto) {
     return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8');
 }
 
+function SgceNormalizarTokenSesion($Token): string {
+    $Token = strtolower(trim((string)$Token));
+    return preg_match('/^[a-f0-9]{64}$/', $Token) ? $Token : '';
+}
+
+function SgceHashTokenSesion($Token): string {
+    $Token = SgceNormalizarTokenSesion($Token);
+    return $Token !== '' ? hash('sha256', $Token) : '';
+}
+
 function SgceSalirConError($Mensaje, $Codigo = 400) {
     $Codigo = max(400, min(599, (int)$Codigo));
     http_response_code($Codigo);
@@ -183,12 +193,18 @@ function SgceTienePermiso($UserSession, $Permiso) {
     return in_array($Permiso, $Mapa[$Rol] ?? [], true);
 }
 
+function SgceSeguridadAssetUrl(string $Ruta): string {
+    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.122';
+    $Separador = str_contains($Ruta, '?') ? '&' : '?';
+    return $Ruta . $Separador . 'v=' . rawurlencode($Version);
+}
+
 function SgceDenegarAcceso($Mensaje = 'No tienes permiso para entrar a esta sección.') {
     http_response_code(403);
     $MensajeSeguro = HGlobal($Mensaje);
     $Inicio = 'index.php';
-    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="assets/css/sgce-base.min.css?v=1.0.91">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=1.0.91"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
+    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-base.min.css')) . '">
+<link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-soft-motion.css')) . '"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
     exit;
 }
 
@@ -246,12 +262,27 @@ function SgceRedirectAdminTab($Tab, $UserSession = null) {
 
 function VerificarSesionCookie($Pdo) {
     if (empty($_COOKIE['AuthToken'])) { return false; }
-    $Token = trim((string)$_COOKIE['AuthToken']);
-    if ($Token === '' || !preg_match('/^[a-f0-9]{64}$/i', $Token)) { return false; }
-    $Stmt = $Pdo->prepare('SELECT Id, Username, NombreCompleto, Rol FROM Usuarios WHERE SessionToken = ? AND Activo = 1 AND SessionTokenExpira >= NOW() LIMIT 1');
-    $Stmt->execute([$Token]);
+    $Token = SgceNormalizarTokenSesion($_COOKIE['AuthToken']);
+    if ($Token === '') { return false; }
+
+    $TokenHash = SgceHashTokenSesion($Token);
+    if ($TokenHash === '') { return false; }
+
+    $Stmt = $Pdo->prepare('SELECT Id, Username, NombreCompleto, Rol, SessionToken FROM Usuarios WHERE SessionToken IN (?, ?) AND Activo = 1 AND SessionTokenExpira >= NOW() LIMIT 1');
+    $Stmt->execute([$TokenHash, $Token]);
     $User = $Stmt->fetch() ?: false;
-    if ($User) { $User['Rol'] = SgceNormalizarRolSistema($User['Rol'] ?? ''); }
+
+    if ($User) {
+        if (hash_equals((string)($User['SessionToken'] ?? ''), $Token)) {
+            try {
+                $UpdateToken = $Pdo->prepare('UPDATE Usuarios SET SessionToken = ? WHERE Id = ? AND SessionToken = ? LIMIT 1');
+                $UpdateToken->execute([$TokenHash, (int)$User['Id'], $Token]);
+            } catch (Exception $E) {}
+        }
+        unset($User['SessionToken']);
+        $User['Rol'] = SgceNormalizarRolSistema($User['Rol'] ?? '');
+    }
+
     return $User;
 }
 

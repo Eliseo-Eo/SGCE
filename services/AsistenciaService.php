@@ -13,3 +13,24 @@ function SgceAsistenciaResumenHoy(PDO $Pdo): array {
         'Faltas' => (int)($Row['Faltas'] ?? 0),
     ];
 }
+
+
+function SgceAsistenciaEstadosPermitidos(): array {
+    return ['A', 'F', 'R', 'J'];
+}
+
+function SgceAsistenciaEstadoSeguro($Estado): string {
+    $Estado = SgceNormalizarMayusculas((string)$Estado);
+    return in_array($Estado, SgceAsistenciaEstadosPermitidos(), true) ? $Estado : 'A';
+}
+
+function SgceAsistenciaMensajeResultado(string $Tipo): string {
+    $Tipo = strtolower(trim($Tipo));
+    if ($Tipo === 'actualizada') {
+        return 'Pase de lista actualizado correctamente. Los cambios quedaron guardados para la fecha seleccionada.';
+    }
+    if ($Tipo === 'registrada') {
+        return 'Pase de lista registrado correctamente para la fecha seleccionada.';
+    }
+    return 'Pase de lista guardado correctamente.';
+}

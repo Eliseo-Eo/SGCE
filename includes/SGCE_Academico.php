@@ -154,7 +154,7 @@ function SgceCrearOfertaAcademica(PDO $Pdo, string $Nivel, string $Tipo, int $To
     return $OfertaId;
 }
 
-function SgceConfigurarEstructuraAcademicaInicial(PDO $Pdo, string $Nivel, string $Tipo, int $TotalEtapas, bool $UsaProgramas, string $ProgramasTexto = '', string $NombreOferta = '', string $EtiquetaEtapa = '', int $CantidadPeriodos = 3, string $NombreBasePeriodo = 'PARCIAL', string $ModoPeriodos = 'AUTOMATICO', string $PeriodosPersonalizados = '', bool $UsaPlaneaciones = true, string $TipoPlaneacion = 'PERIODO', int $PlaneacionesCantidad = 3): int {
+function SgceConfigurarEstructuraAcademicaInicial(PDO $Pdo, string $Nivel, string $Tipo, int $TotalEtapas, bool $UsaProgramas, string $ProgramasTexto = '', string $NombreOferta = '', string $EtiquetaEtapa = '', int $CantidadPeriodos = 3, string $NombreBasePeriodo = 'PARCIAL', string $ModoPeriodos = 'AUTOMATICO', string $PeriodosPersonalizados = '', bool $UsaPlaneaciones = true, string $TipoPlaneacion = 'CICLO', int $PlaneacionesCantidad = 1): int {
     $OfertaId = SgceCrearOfertaAcademica($Pdo, $Nivel, $Tipo, $TotalEtapas, $UsaProgramas, $NombreOferta, $EtiquetaEtapa);
     SgceGuardarConfiguracionAcademica($Pdo, $OfertaId, $CantidadPeriodos, $NombreBasePeriodo, $ModoPeriodos, $PeriodosPersonalizados, $UsaPlaneaciones, $TipoPlaneacion, $PlaneacionesCantidad);
     SgceProgramaGeneralId($Pdo, $OfertaId);

@@ -1,6 +1,0 @@
-# SGCE 1.0.91 - Archivos útiles para desarrollo/GitHub, no necesarios en producción
-tests/
-tools/
-docs/INFORME_DEPURACION_1.0.91.md
-docs/INFORME_ENDURECIMIENTO_1.0.91.md
-.gitignore

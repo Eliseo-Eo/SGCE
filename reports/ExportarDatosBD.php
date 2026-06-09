@@ -60,6 +60,7 @@ $TablasPreferidas = [
     'Asignaciones',
     'AsignacionDocenteHistorial',
     'PeriodosEvaluacion',
+    'MigracionesCiclo',
     'Calificaciones',
     'Asistencias',
     'KardexAlumno',

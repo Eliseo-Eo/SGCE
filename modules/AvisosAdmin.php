@@ -192,23 +192,10 @@ $Avisos = $StmtAvisos->fetchAll();
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SGCE | Avisos</title>
-
-    
-    <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
+<?= SgceLayoutHeadBase('SGCE | Avisos', $Pdo, [
+    'assets/css/admin-paginacion-busqueda.css',
+    'assets/css/avisos-botones-metalicos.css',
+]) ?>
 </head>
 <body class="AvisosBody">
 
@@ -451,7 +438,7 @@ $Avisos = $StmtAvisos->fetchAll();
 </div>
 <?php endif; ?>
 <?php endforeach; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?= SgceLayoutCdnJsTags() ?>
 
 <?php ImprimirCsrfScript(); ?>
 <?= SgceJs('assets/js/sgce-shared.js') ?>

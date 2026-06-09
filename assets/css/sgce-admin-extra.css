@@ -1,0 +1,392 @@
+/* Reglas administrativas separadas del CSS base.
+   Archivo generado para reducir sgce-base.min.css sin alterar el diseño estable. */
+.DashboardTopSplit{display:grid;grid-template-columns:40% 60%;gap:18px;margin:0 0 18px!important}
+.DashboardTopSplit>[class*="col-"]{width:100%;max-width:none;padding:0}
+.DashboardPanelCard,.DashboardStatsCard{height:100%;padding:18px!important}
+.DashboardModuleGrid{display:grid;grid-template-columns:repeat(4,110px);gap:14px;justify-content:center;align-content:center}
+.DashboardModuleCard{width:110px;height:82px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18);position:relative;overflow:hidden;transition:.22s ease}
+.DashboardModuleCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.22),transparent 28%);pointer-events:none}
+.DashboardModuleCard:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)}
+.DashboardModuleCard i{font-size:1.25rem;width:31px;height:31px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);margin-bottom:6px}
+.DashboardModuleCard span{font-size:.78rem;font-weight:900;text-transform:uppercase;line-height:1}
+.DashboardModuleCard small{font-size:.58rem;font-weight:800;opacity:.95;line-height:1.1;margin-top:3px}
+.DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important}
+.DashboardStatsGrid,.StatsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#TableGrupos th:nth-child(4),#TableGrupos th:nth-child(5),#TableGrupos th:nth-child(6),#TableAsig th:nth-child(4),#TableAsig th:nth-child(5),#TableAsig th:nth-child(6){min-width:150px!important}
+#TableGrupos td:nth-child(4),#TableGrupos td:nth-child(5),#TableGrupos td:nth-child(6),#TableAsig td:nth-child(4),#TableAsig td:nth-child(5),#TableAsig td:nth-child(6){min-width:150px!important;white-space:nowrap!important}
+.SgceBitacoraCard{border:0!important;border-radius:24px!important;padding:26px!important;background:#fff!important;box-shadow:0 22px 46px rgba(15,23,42,.08)!important;}
+.SgceBitacoraHead{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:22px!important;margin-bottom:18px!important;}
+.SgceBitacoraTitle{display:flex!important;align-items:flex-start!important;gap:14px!important;min-width:0!important;}
+.SgceBitacoraIcon{width:48px!important;height:48px!important;min-width:48px!important;border-radius:16px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(135deg,rgba(var(--SgceGuindaRGB),.14),rgba(var(--SgceGuindaRGB),.06))!important;color:var(--SgceGuinda)!important;font-size:1.25rem!important;}
+.SgceBitacoraTitle h4{margin:0 0 6px!important;color:var(--SgceGuinda)!important;font-size:1.45rem!important;font-weight:900!important;letter-spacing:.2px!important;}
+.SgceBitacoraTitle p{margin:0!important;color:#64748B!important;line-height:1.45!important;max-width:760px!important;font-size:.95rem!important;}
+.SgceBitacoraTools{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:12px!important;flex-wrap:wrap!important;min-width:min(100%,520px)!important;}
+#TableBitacora .badge{border-radius:999px!important;padding:.42rem .65rem!important;font-weight:900!important;letter-spacing:.2px!important;}
+.MaestrosSideCard{padding:0!important;border-left:0!important;overflow:hidden;}
+.MaestrosSideCard .card-body{padding:18px 18px 20px!important;}
+.MaestrosCardTitle{display:flex;align-items:center;gap:9px;min-height:48px;padding:16px 18px 0!important;color:var(--SgceGuindaOscuro)!important;font-size:.98rem;font-weight:900;text-transform:uppercase;letter-spacing:.2px;}
+.MaestrosCardTitle i{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:11px;background:#FDE8EE;color:var(--SgceGuinda)!important;}
+.MaestrosImportTitle i{background:#E8F7EE;color:#159447!important;}
+.MaestrosFormStack{display:flex;flex-direction:column;gap:13px;}
+.MaestrosFieldGroup{display:flex;flex-direction:column;gap:6px;}
+.MaestrosFieldGroup label{margin:0;font-size:.74rem;font-weight:900;text-transform:uppercase;color:#64748B;letter-spacing:.25px;}
+.MaestrosInput,.MaestrosSideCard .form-control,.MaestrosSideCard .form-select{width:100%!important;min-height:45px!important;height:45px!important;border-radius:14px!important;border:2px solid #E2E8F0!important;font-size:.88rem!important;font-weight:700!important;padding:9px 12px!important;}
+.MaestrosFileInput{padding:8px 12px!important;line-height:1.5!important;}
+.MaestrosHelpText{margin:0;color:#64748B;font-size:.78rem;line-height:1.55;font-weight:700;}
+.MaestrosHelpText code{color:#E11D48;background:#FFF1F2;border-radius:8px;padding:2px 5px;font-weight:900;}
+.BtnTeacherPrimary,.MaestrosSideCard .BtnTeacherPrimary{min-height:46px!important;height:46px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;font-size:.88rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20)!important;transition:.2s ease!important;}
+.BtnTeacherPrimary:hover{transform:translateY(-1px);filter:brightness(.97);box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.26)!important;}
+.BtnTeacherPrimary i{color:#fff!important;}
+.MaestrosLayoutRow{align-items:stretch!important;--bs-gutter-x:1.4rem!important;}
+.MaestrosSideCol,.MaestrosTableCol{display:flex!important;flex-direction:column!important;}
+.MaestrosSideCol{gap:16px!important;}
+.MaestrosSideCol .MaestrosSideCard{margin-bottom:0!important;}
+.MaestrosRegisterCard{flex:0 0 auto!important;}
+.MaestrosImportCard{flex:1 1 auto!important;}
+.MaestrosTableCard{min-height:625px!important;height:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.MaestrosTableCard .table-responsive{flex:1 1 auto!important;min-height:435px!important;}
+.MaestrosTableCard .SgcePagerServer{margin-top:auto!important;padding-top:12px!important;}
+.MaestrosTableTop h6{color:#334155!important;font-weight:800!important;}
+.GruposLayoutRow{align-items:stretch!important;--bs-gutter-x:1.4rem!important;}
+.GruposSideCol,.GruposTableCol{display:flex!important;flex-direction:column!important;}
+.GruposSideCol{gap:16px!important;}
+.GruposSideCol .GruposSideCard{margin-bottom:0!important;}
+.GruposSideCard{padding:0!important;border-left:0!important;overflow:hidden!important;}
+.GruposSideCard .card-body{padding:18px 18px 20px!important;}
+.GruposCardTitle{color:var(--SgceGuindaOscuro)!important;}
+.GruposCardTitle i{background:#EAF2FF!important;color:#1D4ED8!important;}
+.GruposImportTitle i{background:#E8F7EE!important;color:#159447!important;}
+.GruposRegisterCard{flex:0 0 auto!important;}
+.GruposImportCard{flex:1 1 auto!important;}
+.GruposInput,.GruposSideCard .form-control,.GruposSideCard .form-select{width:100%!important;min-height:45px!important;height:45px!important;border-radius:14px!important;border:2px solid #E2E8F0!important;font-size:.88rem!important;font-weight:700!important;padding:9px 12px!important;}
+.GruposHelpText{margin-bottom:2px!important;}
+.BtnGroupPrimary,.GruposSideCard .BtnGroupPrimary{min-height:46px!important;height:46px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;border:0!important;font-size:.88rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(37,99,235,.20)!important;transition:.2s ease!important;}
+.BtnGroupPrimary:hover{transform:translateY(-1px);filter:brightness(1.02) saturate(1.04);box-shadow:0 18px 32px rgba(37,99,235,.28)!important;}
+.GruposTableCard{min-height:568px!important;height:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.GruposTableCard .table-responsive{flex:1 1 auto!important;min-height:395px!important;}
+.GruposTableCard .SgcePagerServer{margin-top:auto!important;padding-top:12px!important;}
+.GruposTableTop h6{color:#334155!important;font-weight:800!important;}
+#TableGrupos{margin-bottom:0!important;}
+#TableGrupos thead th{height:42px!important;}
+#TableGrupos tbody td{height:56px!important;}
+#TableGrupos .AdminActions{gap:10px!important;}
+#TableGrupos .ActionBtn.BtnGroupEdit,#TableGrupos .ActionBtn.BtnGroupDelete{position:relative!important;overflow:hidden!important;min-height:38px!important;padding:9px 14px!important;border-radius:999px!important;border:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;font-size:.78rem!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 12px 22px rgba(15,23,42,.12)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+#TableGrupos .ActionBtn.BtnGroupEdit::before,#TableGrupos .ActionBtn.BtnGroupDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 100%);opacity:.72;pointer-events:none;}
+#TableGrupos .ActionBtn.BtnGroupEdit::after,#TableGrupos .ActionBtn.BtnGroupDelete::after{content:"";position:absolute;width:38px;height:120%;top:-10%;left:-52px;transform:skewX(-20deg);background:rgba(255,255,255,.42);filter:blur(3px);transition:left .45s ease;pointer-events:none;}
+#TableGrupos .ActionBtn.BtnGroupEdit:hover::after,#TableGrupos .ActionBtn.BtnGroupDelete:hover::after{left:120%;}
+#TableGrupos .ActionBtn.BtnGroupEdit:hover,#TableGrupos .ActionBtn.BtnGroupDelete:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+#TableGrupos .ActionBtn.BtnGroupEdit i,#TableGrupos .ActionBtn.BtnGroupEdit span,#TableGrupos .ActionBtn.BtnGroupDelete i,#TableGrupos .ActionBtn.BtnGroupDelete span{position:relative;z-index:1;margin:0!important;}
+#TableGrupos .ActionBtn.BtnGroupEdit{background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(37,99,235,.22)!important;}
+#TableGrupos .ActionBtn.BtnGroupEdit:hover{box-shadow:0 16px 28px rgba(37,99,235,.30)!important;}
+#TableGrupos .ActionBtn.BtnGroupDelete{background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;}
+#TableGrupos .ActionBtn.BtnGroupDelete:hover{box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;}
+.AlumnosLayoutRow{align-items:stretch!important;--bs-gutter-x:1.4rem!important;}
+.AlumnosSideCol,.AlumnosTableCol{display:flex!important;flex-direction:column!important;}
+.AlumnosSideCol{gap:16px!important;}
+.AlumnosSideCol .AlumnosSideCard{margin-bottom:0!important;}
+.AlumnosSideCard{padding:0!important;border-left:0!important;overflow:hidden!important;}
+.AlumnosSideCard .card-body{padding:18px 18px 20px!important;}
+.AlumnosCardTitle{color:var(--SgceGuindaOscuro)!important;}
+.AlumnosCardTitle i{background:#FFF7ED!important;color:#F97316!important;}
+.AlumnosImportTitle i{background:#E8F7EE!important;color:#159447!important;}
+.AlumnosRegisterCard{flex:0 0 auto!important;}
+.AlumnosImportCard{flex:1 1 auto!important;}
+.AlumnosInput,.AlumnosSideCard .form-control,.AlumnosSideCard .form-select{width:100%!important;min-height:45px!important;height:45px!important;border-radius:14px!important;border:2px solid #E2E8F0!important;font-size:.88rem!important;font-weight:700!important;padding:9px 12px!important;}
+.AlumnosFileInput{padding:8px 12px!important;line-height:1.5!important;}
+.AlumnosHelpText{margin-bottom:2px!important;}
+.BtnStudentPrimary,.AlumnosSideCard .BtnStudentPrimary{min-height:46px!important;height:46px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;border:0!important;font-size:.88rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.20)!important;transition:.2s ease!important;}
+.BtnStudentPrimary:hover{transform:translateY(-1px);filter:brightness(.99) saturate(1.04);box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.28)!important;}
+.AlumnosTableCard{min-height:568px!important;height:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.AlumnosTableCard .table-responsive{flex:1 1 auto!important;min-height:395px!important;}
+.AlumnosTableCard .SgcePagerServer{margin-top:auto!important;padding-top:12px!important;}
+.AlumnosTableTop h6{color:#334155!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.2px!important;}
+.AlumnosTableTop small{display:block!important;margin-top:3px!important;}
+#TableAlumnos{margin-bottom:0!important;}
+#TableAlumnos thead th{height:42px!important;color:#64748B!important;font-size:.76rem!important;font-weight:900!important;text-transform:uppercase!important;}
+#TableAlumnos tbody td{height:56px!important;vertical-align:middle!important;}
+.AlumnosGroupBadge{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:40px!important;border-radius:10px!important;padding:5px 10px!important;background:#F8FAFC!important;color:#0F172A!important;border:1px solid #E2E8F0!important;font-weight:900!important;}
+#TableAlumnos .AlumnosActions{gap:9px!important;justify-content:center!important;flex-wrap:nowrap!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile,#TableAlumnos .ActionBtn.BtnStudentEdit,#TableAlumnos .ActionBtn.BtnStudentDelete{position:relative!important;overflow:hidden!important;min-height:38px!important;padding:9px 14px!important;border-radius:999px!important;border:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;font-size:.78rem!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 12px 22px rgba(15,23,42,.12)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile::before,#TableAlumnos .ActionBtn.BtnStudentEdit::before,#TableAlumnos .ActionBtn.BtnStudentDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.44) 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.18) 100%);opacity:.74;pointer-events:none;}
+#TableAlumnos .ActionBtn.BtnStudentFile::after,#TableAlumnos .ActionBtn.BtnStudentEdit::after,#TableAlumnos .ActionBtn.BtnStudentDelete::after{content:"";position:absolute;width:38px;height:120%;top:-10%;left:-52px;transform:skewX(-20deg);background:rgba(255,255,255,.44);filter:blur(3px);transition:left .45s ease;pointer-events:none;}
+#TableAlumnos .ActionBtn.BtnStudentFile:hover::after,#TableAlumnos .ActionBtn.BtnStudentEdit:hover::after,#TableAlumnos .ActionBtn.BtnStudentDelete:hover::after{left:120%;}
+#TableAlumnos .ActionBtn.BtnStudentFile:hover,#TableAlumnos .ActionBtn.BtnStudentEdit:hover,#TableAlumnos .ActionBtn.BtnStudentDelete:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile i,#TableAlumnos .ActionBtn.BtnStudentFile span,#TableAlumnos .ActionBtn.BtnStudentEdit i,#TableAlumnos .ActionBtn.BtnStudentEdit span,#TableAlumnos .ActionBtn.BtnStudentDelete i,#TableAlumnos .ActionBtn.BtnStudentDelete span{position:relative;z-index:1;margin:0!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile{background:linear-gradient(135deg,#7C2D12 0%,#C2410C 46%,#EA580C 100%)!important;color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.28)!important;box-shadow:0 12px 22px rgba(194,65,12,.28),inset 0 1px 0 rgba(255,255,255,.34)!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile:hover{box-shadow:0 16px 30px rgba(194,65,12,.38),inset 0 1px 0 rgba(255,255,255,.38)!important;}
+#TableAlumnos .ActionBtn.BtnStudentFile i,#TableAlumnos .ActionBtn.BtnStudentFile span{color:#fff!important;}
+#TableAlumnos .ActionBtn.BtnStudentEdit{background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(37,99,235,.22)!important;}
+#TableAlumnos .ActionBtn.BtnStudentEdit:hover{box-shadow:0 16px 28px rgba(37,99,235,.30)!important;}
+#TableAlumnos .ActionBtn.BtnStudentDelete{background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;}
+#TableAlumnos .ActionBtn.BtnStudentDelete:hover{box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;}
+.DashboardTopPro{display:grid;grid-template-columns:minmax(430px,45%) minmax(520px,55%);gap:18px;align-items:stretch;margin-bottom:18px;}
+.DashboardAccessPanel,.DashboardSummaryPanel,.DashboardRiskPro{background:rgba(255,255,255,.96);border:1px solid rgba(226,232,240,.9);border-radius:24px;box-shadow:0 20px 45px rgba(15,23,42,.08);padding:18px;position:relative;overflow:hidden;}
+.DashboardAccessPanel::before,.DashboardSummaryPanel::before,.DashboardRiskPro::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 8%,rgba(var(--SgceGuindaRGB),.06),transparent 32%),radial-gradient(circle at 90% 0,rgba(59,130,246,.055),transparent 30%);pointer-events:none;}
+.DashboardAccessPanel>*,.DashboardSummaryPanel>*,.DashboardRiskPro>*{position:relative;z-index:1}
+.DashboardSectionHeader,.DashboardRiskHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;}
+.DashboardSectionKicker{display:inline-flex;align-items:center;gap:8px;color:var(--SgceGuinda);font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.045em;margin-bottom:4px;}
+.DashboardSectionHeader h2,.DashboardRiskHeader h2{margin:0;color:#8A001A;font-size:1.12rem;line-height:1.1;font-weight:950;text-transform:uppercase;}
+.DashboardRiskHeader h2{font-size:1.2rem;color:#E11D48}
+.DashboardRiskHeader p{margin:7px 0 0;color:#667085;font-weight:700;font-size:.86rem;}
+.DashboardMiniBadge,.DashboardRiskCount{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:7px 12px;border-radius:999px;background:linear-gradient(180deg,#FFFFFF,#F8FAFC);border:1px solid #E5EAF2;color:#667085;font-size:.73rem;font-weight:900;text-transform:uppercase;box-shadow:0 8px 18px rgba(15,23,42,.055);}
+.DashboardCycleBadge{max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8A001A}
+.DashboardModuleGridPro{display:grid;grid-template-columns:repeat(4,112px);gap:13px;justify-content:center;align-content:center;padding:2px 0 0;}
+.DashboardModuleGridPro .DashboardModuleCard{width:112px;height:84px;border-radius:19px;}
+.DashboardTodayStrip{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px;margin-bottom:14px;border-radius:20px;background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuindaOscuro));color:#fff;box-shadow:0 16px 32px rgba(var(--SgceGuindaRGB),.18);overflow:hidden;position:relative;}
+.DashboardTodayStrip::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.28),transparent 28%),linear-gradient(90deg,rgba(255,255,255,.08),transparent 45%);pointer-events:none;}
+.DashboardTodayStrip>*{position:relative;z-index:1}
+.DashboardTodayIcon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);color:#fff;font-size:1.25rem;}
+.DashboardTodayText span,.DashboardTodayText small{display:block;color:rgba(255,255,255,.82);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+.DashboardTodayText strong{display:block;font-size:1.15rem;font-weight:950;line-height:1.15;}
+.DashboardTodayText small{text-transform:none;letter-spacing:0;font-size:.74rem;margin-top:2px;}
+.DashboardStatusPill{padding:9px 12px;border-radius:999px;font-size:.72rem;font-weight:950;text-transform:uppercase;white-space:nowrap;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff;}
+.DashboardStatusPill.StatusOk{background:rgba(16,185,129,.25)}
+.DashboardStatusPill.StatusWarning{background:rgba(245,158,11,.25)}
+.DashboardStatusPill.StatusNeutral{background:rgba(255,255,255,.16)}
+.DashboardKpiGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.DashboardKpiCard{min-height:126px;border-radius:20px;padding:14px 12px;text-align:center;background:linear-gradient(180deg,#fff,#F8FAFC);border:1px solid #EEF2F7;box-shadow:0 10px 22px rgba(15,23,42,.055);position:relative;overflow:hidden;transition:.2s ease;}
+.DashboardKpiCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 28% 16%,rgba(255,255,255,.95),transparent 25%),radial-gradient(circle at 78% 0,var(--KpiSoft),transparent 36%);pointer-events:none;}
+.DashboardKpiCard>*{position:relative;z-index:1}
+.DashboardKpiCard:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(15,23,42,.09)}
+.DashboardKpiIcon{width:40px;height:40px;margin:0 auto 8px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--KpiColor);background:var(--KpiSoft);font-size:1.05rem;}
+.DashboardKpiValue{font-size:1.7rem;line-height:1;font-weight:950;color:#101828;margin-bottom:5px;}
+.DashboardKpiLabel{font-size:.72rem;font-weight:950;text-transform:uppercase;color:#344054;line-height:1.08;}
+.DashboardKpiHint{margin-top:5px;font-size:.66rem;color:#667085;font-weight:800;line-height:1.1;}
+.DashboardRiskRow{margin-top:0!important}
+.DashboardRiskPro{padding:18px 18px 14px!important}
+.DashboardRiskCount{color:#E11D48;background:#FFF1F2;border-color:#FFE4E6}
+.DashboardRiskEmpty{min-height:116px;display:flex;align-items:center;justify-content:center;gap:16px;border-radius:20px;border:1px dashed #BBF7D0;background:linear-gradient(135deg,#F0FDF4,#FFFFFF);color:#166534;text-align:left;}
+.DashboardRiskEmptyIcon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:#DCFCE7;color:#16A34A;font-size:1.55rem;}
+.DashboardRiskEmpty strong{display:block;font-size:1.02rem;font-weight:950}
+.DashboardRiskEmpty span{display:block;color:#475467;font-size:.86rem;font-weight:700;margin-top:3px}
+.DashboardRiskTableWrap{border-radius:18px;overflow:hidden;border:1px solid #EEF2F7;background:#fff}
+.DashboardRiskTable{margin:0!important}
+.DashboardRiskTable thead th{background:#F8FAFC!important;color:#667085!important;font-size:.72rem!important}
+.AsignacionesTableCard{min-height:700px!important;max-height:none!important;height:auto!important;display:flex!important;flex-direction:column!important;overflow:visible!important;}
+.AsignacionesHeaderCard{flex:0 0 auto!important;}
+.AsignacionesCardBody{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;}
+.AsignacionForm .form-control,.AsignacionForm .form-select,.AsignacionForm .BtnAsignacionPrimary{min-height:46px!important;height:46px!important;border-radius:14px!important;}
+.BtnAsignacionPrimary{position:relative!important;overflow:hidden!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:0!important;background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;font-size:.9rem!important;font-weight:900!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.22)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+.BtnAsignacionPrimary::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.15) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.15) 100%);opacity:.7;pointer-events:none;}
+.BtnAsignacionPrimary i,.BtnAsignacionPrimary span{position:relative;z-index:1;}
+.BtnAsignacionPrimary:hover{transform:translateY(-1px)!important;filter:saturate(1.07) brightness(1.03)!important;box-shadow:0 18px 32px rgba(var(--SgceGuindaRGB),.30)!important;}
+.AsignacionesTableCard .d-flex.justify-content-between.align-items-center{flex:0 0 auto!important;margin-bottom:12px!important;padding-top:16px!important;border-top:0!important;}
+.AsignacionesTableWrap{flex:1 1 auto!important;min-height:380px!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;}
+.AsignacionesTableCard .SgcePagerServer{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:100%!important;margin-top:14px!important;padding-top:12px!important;padding-bottom:2px!important;flex:0 0 auto!important;position:relative!important;z-index:2!important;}
+#TableAsig{margin-bottom:0!important;}
+#TableAsig thead th{height:42px!important;vertical-align:middle!important;color:#64748B!important;font-weight:900!important;font-size:.74rem!important;text-transform:uppercase!important;}
+#TableAsig tbody td{height:56px!important;vertical-align:middle!important;}
+#TableAsig .AdminActions{gap:10px!important;justify-content:center!important;flex-wrap:nowrap!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit,#TableAsig .ActionBtn.BtnAsignacionDelete{position:relative!important;overflow:hidden!important;min-height:38px!important;padding:9px 14px!important;border-radius:999px!important;border:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;font-size:.78rem!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 12px 22px rgba(15,23,42,.12)!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit::before,#TableAsig .ActionBtn.BtnAsignacionDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,0) 44%,rgba(255,255,255,.16) 100%);opacity:.72;pointer-events:none;}
+#TableAsig .ActionBtn.BtnAsignacionEdit::after,#TableAsig .ActionBtn.BtnAsignacionDelete::after{content:"";position:absolute;width:38px;height:120%;top:-10%;left:-52px;transform:skewX(-20deg);background:rgba(255,255,255,.42);filter:blur(3px);transition:left .45s ease;pointer-events:none;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover::after,#TableAsig .ActionBtn.BtnAsignacionDelete:hover::after{left:120%;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover,#TableAsig .ActionBtn.BtnAsignacionDelete:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit i,#TableAsig .ActionBtn.BtnAsignacionEdit span,#TableAsig .ActionBtn.BtnAsignacionDelete i,#TableAsig .ActionBtn.BtnAsignacionDelete span{position:relative;z-index:1;margin:0!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit{background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 48%,#60A5FA 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(37,99,235,.22)!important;}
+#TableAsig .ActionBtn.BtnAsignacionEdit:hover{box-shadow:0 16px 28px rgba(37,99,235,.30)!important;}
+#TableAsig .ActionBtn.BtnAsignacionDelete{background:linear-gradient(135deg,var(--SgceGuindaOscuro) 0%,var(--SgceGuinda) 48%,var(--SgceGuinda) 100%)!important;color:#fff!important;box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.24)!important;}
+#TableAsig .ActionBtn.BtnAsignacionDelete:hover{box-shadow:0 16px 28px rgba(var(--SgceGuindaRGB),.32)!important;}
+#asignaciones .AsignacionesTableCard{min-height:700px!important;max-height:none!important;overflow:visible!important;}
+#asignaciones .AsignacionesCardBody{overflow:visible!important;}
+#asignaciones .AsignacionesTableWrap{min-height:380px!important;max-height:none!important;overflow-x:auto!important;overflow-y:visible!important;}
+#asignaciones .BtnAsignacionEdit,#asignaciones .BtnAsignacionDelete{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;border:0!important;border-radius:999px!important;min-height:36px!important;padding:8px 15px!important;color:#fff!important;font-weight:900!important;box-shadow:0 13px 25px rgba(15,23,42,.16)!important;position:relative!important;overflow:hidden!important;}
+#asignaciones .BtnAsignacionEdit::before,#asignaciones .BtnAsignacionDelete::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.42),rgba(255,255,255,.12) 32%,transparent 54%,rgba(255,255,255,.14));pointer-events:none;}
+#asignaciones .BtnAsignacionEdit{background:linear-gradient(135deg,#2563EB,#3B82F6 55%,#60A5FA)!important;}
+#asignaciones .BtnAsignacionDelete{background:linear-gradient(135deg,var(--SgceGuinda),var(--SgceGuindaOscuro) 55%,#E11D48)!important;}
+#asignaciones .BtnAsignacionEdit i,#asignaciones .BtnAsignacionEdit span,#asignaciones .BtnAsignacionDelete i,#asignaciones .BtnAsignacionDelete span{position:relative;z-index:1;}
+.ExpedientesCard{min-height:568px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.ExpedientesCardBody{padding:26px 26px 22px!important;display:flex!important;flex-direction:column!important;min-height:568px!important;}
+.ExpedientesTop{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;margin-bottom:22px!important;}
+.ExpedientesTitleBlock{display:flex!important;align-items:center!important;gap:14px!important;}
+.ExpedientesTitleIcon{width:48px!important;height:48px!important;border-radius:16px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;color:#F97316!important;background:#FFF7ED!important;box-shadow:0 12px 24px rgba(249,115,22,.12)!important;font-size:1.35rem!important;}
+.ExpedientesTitleBlock h4{margin:0!important;color:#E11D48!important;font-weight:950!important;letter-spacing:.2px!important;text-transform:uppercase!important;}
+.ExpedientesTitleBlock p{margin:3px 0 0!important;color:#64748B!important;font-size:.9rem!important;font-weight:700!important;}
+.ExpedientesFilterForm{margin-bottom:20px!important;padding-bottom:18px!important;border-bottom:1px solid #E5E7EB!important;}
+.ExpedientesFilterGrid{display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important;gap:14px!important;align-items:end!important;}
+.ExpedientesFilterGrid.HasCleanButton{grid-template-columns:minmax(0,1fr) 220px 220px!important;}
+.ExpedientesGroupField label,.ExpedientesActionField label{display:block!important;margin-bottom:7px!important;color:#475569!important;font-size:.78rem!important;font-weight:950!important;letter-spacing:.15px!important;}
+.ExpedientesGroupField .form-select{min-height:46px!important;height:46px!important;border-radius:14px!important;border:2px solid #E2E8F0!important;font-weight:700!important;color:#0F172A!important;padding:9px 14px!important;}
+.ExpedientesEmptyState{flex:1 1 auto!important;min-height:300px!important;border:1px dashed rgba(37,99,235,.22)!important;border-radius:20px!important;background:linear-gradient(135deg,#F8FAFC,#EFF6FF)!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:16px!important;padding:28px!important;color:#0F172A!important;}
+.ExpedientesEmptyState>span{width:52px!important;height:52px!important;border-radius:18px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:#DBEAFE!important;color:#2563EB!important;font-size:1.3rem!important;}
+.ExpedientesEmptyState strong{display:block!important;font-size:1rem!important;font-weight:950!important;color:#0F172A!important}
+.ExpedientesEmptyState p{margin:4px 0 0!important;color:#64748B!important;font-weight:700!important}
+.ExpedientesTools{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;margin-bottom:14px!important;flex-wrap:wrap!important;}
+.ExpedientesSelectedGroup{display:flex!important;align-items:center!important;gap:8px!important;color:var(--SgceGuinda)!important;font-weight:900!important;}
+.ExpedientesSelectedGroup i{color:var(--SgceGuinda)!important}
+.ExpedientesSelectedGroup span{color:var(--SgceTextoSuave)!important}
+.ExpedientesSelectedGroup strong{color:var(--SgceGuinda)!important}
+.ExpedientesSearch{max-width:360px!important;min-width:280px!important}
+.ExpedientesTableWrap{flex:1 1 auto!important;min-height:335px!important;}
+.ExpedientesGroupBadge,.ExpedientesTurnBadge{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:999px!important;min-height:25px!important;padding:4px 10px!important;font-size:.72rem!important;font-weight:950!important;line-height:1!important;}
+.ExpedientesGroupBadge{background:#FFF7ED!important;color:#C2410C!important;border:1px solid #FED7AA!important}
+.ExpedientesTurnBadge{background:#111827!important;color:#fff!important;box-shadow:0 8px 14px rgba(17,24,39,.12)!important}
+.ExpedientesNoData{text-align:center!important;color:#64748B!important;font-weight:900!important;padding:28px!important;}
+.ExpedientesPager{margin-top:auto!important;padding-top:14px!important;display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;}
+.DashboardModuleBlue,.DashboardModuleWine,.DashboardModuleGridPro .DashboardModuleCard{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18)!important;}
+.DashboardModuleGridPro .DashboardModuleCard:hover{box-shadow:0 18px 34px rgba(var(--SgceGuindaRGB),.25)!important;}
+.SgceModuleWrap .card-header-custom,.SgceModuleWrap .AsignacionesHeaderCard{background:transparent!important;border:0!important;padding:4px 0 16px!important;margin-bottom:10px!important;}
+.SgceModuleWrap .MaestrosTableTop h6,.SgceModuleWrap .GruposTableTop h6,.SgceModuleWrap .AlumnosTableTop h6{display:flex!important;align-items:center!important;gap:12px!important;color:var(--SgceGuindaOscuro)!important;font-size:1.05rem!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.02em!important;}
+.SgceModuleWrap .MaestrosTableTop h6::before,.SgceModuleWrap .GruposTableTop h6::before,.SgceModuleWrap .AlumnosTableTop h6::before{content:"\f0ca";font-family:"Font Awesome 6 Free";font-weight:900;width:44px;height:44px;min-width:44px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda));box-shadow:0 12px 22px rgba(var(--SgceGuindaRGB),.22);}
+.SgceModuleWrap .GruposTableTop h6::before{content:"\f0c0";}
+.SgceModuleWrap .AlumnosTableTop h6::before{content:"\f501";}
+.SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard i{background:rgba(255,255,255,.18)!important;color:#fff!important;}
+.SgceModuleWrap .DashboardKpiCard .DashboardKpiIcon{background:var(--SgceGuindaSuave)!important;color:var(--SgceGuinda)!important;box-shadow:none!important;}
+.SgceModuleWrap .DashboardKpiCard .DashboardKpiIcon i{color:var(--SgceGuinda)!important;}
+.SgceModuleWrap .DashboardModuleCard,.SgceModuleWrap .DashboardModuleWine,.SgceModuleWrap .DashboardModuleBlue{background:linear-gradient(135deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;box-shadow:0 12px 26px rgba(var(--SgceGuindaRGB),.18)!important;}
+.SgceModuleWrap .DashboardModuleCard i{background:rgba(255,255,255,.18)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)!important;}
+html body .SgceModuleWrap .MaestrosTableTop,html body .SgceModuleWrap .GruposTableTop,html body .SgceModuleWrap .AlumnosTableTop,html body .SgceModuleWrap .AvisosTableTop{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;margin:0 0 18px!important;padding:0!important;}
+html body .SgceModuleWrap .MaestrosTableTop h6,html body .SgceModuleWrap .GruposTableTop h6,html body .SgceModuleWrap .AlumnosTableTop h6,html body .SgceModuleWrap .AvisosTableTop h6{display:flex!important;align-items:center!important;gap:13px!important;margin:0!important;color:var(--SgceGuindaOscuro)!important;font-size:1.05rem!important;font-weight:900!important;line-height:1.15!important;text-transform:uppercase!important;letter-spacing:.02em!important;}
+html body .SgceModuleWrap .MaestrosTableTop h6::before,html body .SgceModuleWrap .GruposTableTop h6::before,html body .SgceModuleWrap .AlumnosTableTop h6::before,html body .SgceModuleWrap .AvisosTableTop h6::before{position:static!important;transform:none!important;margin:0!important;flex:0 0 48px!important;width:48px!important;height:48px!important;min-width:48px!important;border-radius:17px!important;display:inline-grid!important;place-items:center!important;color:#fff!important;background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.24),inset 0 1px 0 rgba(255,255,255,.22)!important;font-size:1.08rem!important;line-height:1!important;}
+html body .SgceModuleWrap .MaestrosTableCard,html body .SgceModuleWrap .GruposTableCard,html body .SgceModuleWrap .AlumnosTableCard{min-height:560px!important;}
+html body .SgceModuleWrap .MaestrosTableCard .table-responsive,html body .SgceModuleWrap .GruposTableCard .table-responsive,html body .SgceModuleWrap .AlumnosTableCard .table-responsive{min-height:360px!important;}
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard{min-height:616px!important;}
+html body .SgcePageWrap.SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{min-height:396px!important;}
+.SgceModuleWrap .DashboardSectionKicker,.SgceModuleWrap .DashboardRiskKicker,.SgceModuleWrap .DashboardSectionKicker i,.SgceModuleWrap .DashboardRiskKicker i{color:var(--SgceGuinda)!important;}
+.SgceModuleWrap .DashboardSectionHeader h2,.SgceModuleWrap .DashboardRiskHeader h2{color:var(--SgceGuindaOscuro)!important;}
+.SgceModuleWrap .DashboardCycleBadge,.SgceModuleWrap .DashboardMiniBadge,.SgceModuleWrap .DashboardRiskCount{color:var(--SgceGuindaOscuro)!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;border:1px solid rgba(var(--SgceGuindaRGB),.14)!important;}
+.SgceModuleWrap .DashboardRiskPro .DashboardRiskHeader p{color:#475467!important;}
+.SgceModuleWrap .DashboardRiskPro::before,.SgceModuleWrap .DashboardAccessPanel::before,.SgceModuleWrap .DashboardSummaryPanel::before{background:linear-gradient(90deg,var(--SgceGuindaOscuro),var(--SgceGuinda),var(--SgceGuindaSuave),var(--SgceGuindaOscuro))!important;height:4px!important;inset:0 0 auto 0!important;opacity:1!important;}
+.SgceModuleWrap .DashboardRiskEmptyIcon{background:linear-gradient(145deg,var(--SgceGuindaOscuro),var(--SgceGuinda))!important;color:#fff!important;box-shadow:0 14px 24px rgba(var(--SgceGuindaRGB),.22),inset 0 1px 0 rgba(255,255,255,.22)!important;}
+.SgceModuleWrap .DashboardRiskEmptyIcon i{color:#fff!important;}
+html body .ActionBtn.ActionDelete,html body .ActionDelete,html body .BtnDisable,html body .BtnSmall.BtnDisable,html body .BtnTeacherDelete,html body .BtnGroupDelete,html body .BtnStudentDelete,html body .BtnAsignacionDelete,html body #TableMaestros .ActionBtn.BtnTeacherDelete,html body #TableGrupos .ActionBtn.BtnGroupDelete,html body #TableAlumnos .ActionBtn.BtnStudentDelete,html body #TableAsig .ActionBtn.BtnAsignacionDelete,html body #asignaciones .BtnAsignacionDelete,html body .SgceUsersPage .SgceUsersTable .BtnDisable,html body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable,html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate,html body.AvisosBody .BtnAvisoDeactivate,html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar),html body .modal .BtnConfirmDesactivar,html body .modal .BtnAvisoModalDeactivate,html body .modal .BtnConfirmarBajaUsuario{background:linear-gradient(135deg,var(--SgceDangerProfundo) 0%,var(--SgceDangerOscuro) 34%,var(--SgceDanger) 62%,var(--SgceDangerClaro) 100%)!important;color:#fff!important;border:0!important;box-shadow:var(--SgceDangerSombra)!important;}
+html body .ActionBtn.ActionDelete::before,html body .BtnTeacherDelete::before,html body .BtnGroupDelete::before,html body .BtnStudentDelete::before,html body .BtnAsignacionDelete::before,html body .BtnDisable::before,html body .BtnAvisoDeactivate::before,html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar)::before{background:linear-gradient(115deg,rgba(255,255,255,.44) 0%,rgba(255,255,255,.15) 28%,transparent 52%,rgba(255,255,255,.18) 100%)!important;}
+html body .ActionBtn.ActionDelete:hover,html body .ActionDelete:hover,html body .BtnDisable:hover,html body .BtnSmall.BtnDisable:hover,html body .BtnTeacherDelete:hover,html body .BtnGroupDelete:hover,html body .BtnStudentDelete:hover,html body .BtnAsignacionDelete:hover,html body #TableMaestros .ActionBtn.BtnTeacherDelete:hover,html body #TableGrupos .ActionBtn.BtnGroupDelete:hover,html body #TableAlumnos .ActionBtn.BtnStudentDelete:hover,html body #TableAsig .ActionBtn.BtnAsignacionDelete:hover,html body #asignaciones .BtnAsignacionDelete:hover,html body .SgceUsersPage .SgceUsersTable .BtnDisable:hover,html body .SgceUsersPage .SgceUsersTable .BtnSmall.BtnDisable:hover,html body.AvisosBody .AccionesAviso .ActionBtn.BtnAvisoDeactivate:hover,html body.AvisosBody .BtnAvisoDeactivate:hover,html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar):hover,html body .modal .BtnConfirmDesactivar:hover,html body .modal .BtnAvisoModalDeactivate:hover,html body .modal .BtnConfirmarBajaUsuario:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;box-shadow:0 16px 30px rgba(var(--SgceDangerRGB),.32)!important;}
+html body .ActionBtn.ActionDelete i,html body .ActionBtn.ActionDelete span,html body .BtnDisable i,html body .BtnDisable span,html body .BtnTeacherDelete i,html body .BtnTeacherDelete span,html body .BtnGroupDelete i,html body .BtnGroupDelete span,html body .BtnStudentDelete i,html body .BtnStudentDelete span,html body .BtnAsignacionDelete i,html body .BtnAsignacionDelete span,html body .BtnAvisoDeactivate i,html body .BtnAvisoDeactivate span,html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) i,html body .modal .BtnConfirmDelete:not(.BtnAvisoModalActivate):not(.BtnConfirmActivar) span{color:#fff!important;position:relative;z-index:1;}
+html body .SgceModuleWrap #TableExpedientes .ExpedientesTurnBadge,html body .SgceModuleWrap .ExpedientesTurnBadge{background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.10)!important;text-shadow:none!important;}
+html body .SgceModuleWrap #TableExpedientes .ExpedientesGroupBadge,html body .SgceModuleWrap .ExpedientesGroupBadge{background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;}
+html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge,html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:25px!important;padding:4px 10px!important;border-radius:999px!important;font-size:.72rem!important;font-weight:950!important;line-height:1!important;letter-spacing:.01em!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;text-shadow:none!important;white-space:nowrap!important;}
+html body .SgceModuleWrap #TableGrupos .GruposGrupoBadge{min-width:34px!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableGrupos .GruposTurnoBadge{min-width:78px!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,html body #TableAsig .AsignacionMateriaTexto{display:inline-flex!important;align-items:center!important;color:var(--SgceGuindaOscuro)!important;font-weight:950!important;letter-spacing:.01em!important;text-transform:uppercase!important;text-shadow:none!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,html body #TableAsig .AsignacionGrupoChips{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;flex-wrap:wrap!important;white-space:normal!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChip,html body #TableAsig .AsignacionGrupoChip{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:25px!important;padding:4px 10px!important;border-radius:999px!important;font-size:.72rem!important;font-weight:950!important;line-height:1!important;letter-spacing:.01em!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;text-shadow:none!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGradoChip,html body #TableAsig .AsignacionGradoChip,html body .SgceModuleWrap #TableAsig .AsignacionGrupoChipLetra,html body #TableAsig .AsignacionGrupoChipLetra{min-width:34px!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionTurnoChip,html body #TableAsig .AsignacionTurnoChip{min-width:78px!important;}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple,html body #TableAsig .GrupoTextoSimple{color:var(--SgceGuindaOscuro)!important;}
+html body .SgceModuleWrap #TableAsig .GrupoTextoSimple i,html body #TableAsig .GrupoTextoSimple i{display:none!important;}
+html body button:not(.btn-close),html body .btn:not(.btn-close),html body .BtnPrimary,html body .BtnGuinda,html body .BtnFilter,html body .BtnPrincipal,html body .BtnConsultaPadre,html body .BtnLogin,html body .SgceReportBtn,html body .ReporteBtn,html body .ActionBtn,html body .BtnSmall,html body .BtnGuardar,html body .SgceConfigSave,html body .SgceInstallerBtn,html body .BtnExpedienteLoad,html body .BtnExpedienteClean,html body .BtnExpedienteOpen,html body .BtnAsignacionPrimary,html body .AvisosSubmit,html body .BtnSaveEdit,html body .BtnConfirmDelete,html body .BtnConfirmActivar,html body .BtnConfirmDesactivar{position:relative!important;overflow:hidden!important;isolation:isolate!important;border-radius:999px!important;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,background .18s ease!important;box-shadow:0 14px 30px var(--SgceMetalShadow),inset 0 1px 0 var(--SgceMetalEdge)!important;}
+html body button:not(.btn-close)::after,html body .btn:not(.btn-close)::after,html body .BtnPrimary::after,html body .BtnGuinda::after,html body .BtnFilter::after,html body .BtnPrincipal::after,html body .BtnConsultaPadre::after,html body .BtnLogin::after,html body .SgceReportBtn::after,html body .ReporteBtn::after,html body .ActionBtn::after,html body .BtnSmall::after,html body .BtnGuardar::after,html body .SgceConfigSave::after,html body .SgceInstallerBtn::after,html body .BtnExpedienteLoad::after,html body .BtnExpedienteClean::after,html body .BtnExpedienteOpen::after,html body .BtnAsignacionPrimary::after,html body .AvisosSubmit::after,html body .BtnSaveEdit::after,html body .BtnConfirmDelete::after,html body .BtnConfirmActivar::after,html body .BtnConfirmDesactivar::after{content:""!important;position:absolute!important;top:-40%!important;left:-85%!important;width:54%!important;height:190%!important;background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.12) 24%,var(--SgceMetalHighlight) 50%,rgba(255,255,255,.10) 74%,transparent 100%)!important;transform:rotate(18deg)!important;transition:left .55s ease!important;pointer-events:none!important;z-index:0!important;}
+html body button:not(.btn-close):hover::after,html body .btn:not(.btn-close):hover::after,html body .BtnPrimary:hover::after,html body .BtnGuinda:hover::after,html body .BtnFilter:hover::after,html body .BtnPrincipal:hover::after,html body .BtnConsultaPadre:hover::after,html body .BtnLogin:hover::after,html body .SgceReportBtn:hover::after,html body .ReporteBtn:hover::after,html body .ActionBtn:hover::after,html body .BtnSmall:hover::after,html body .BtnGuardar:hover::after,html body .SgceConfigSave:hover::after,html body .SgceInstallerBtn:hover::after,html body .BtnExpedienteLoad:hover::after,html body .BtnExpedienteClean:hover::after,html body .BtnExpedienteOpen:hover::after,html body .BtnAsignacionPrimary:hover::after,html body .AvisosSubmit:hover::after,html body .BtnSaveEdit:hover::after,html body .BtnConfirmDelete:hover::after,html body .BtnConfirmActivar:hover::after,html body .BtnConfirmDesactivar:hover::after{left:130%!important;}
+html body button:not(.btn-close):hover,html body .btn:not(.btn-close):hover,html body .BtnPrimary:hover,html body .BtnGuinda:hover,html body .BtnFilter:hover,html body .BtnPrincipal:hover,html body .BtnConsultaPadre:hover,html body .BtnLogin:hover,html body .SgceReportBtn:hover,html body .ReporteBtn:hover,html body .ActionBtn:hover,html body .BtnSmall:hover,html body .BtnGuardar:hover,html body .SgceConfigSave:hover,html body .SgceInstallerBtn:hover,html body .BtnExpedienteLoad:hover,html body .BtnExpedienteClean:hover,html body .BtnExpedienteOpen:hover,html body .BtnAsignacionPrimary:hover,html body .AvisosSubmit:hover,html body .BtnSaveEdit:hover,html body .BtnConfirmDelete:hover,html body .BtnConfirmActivar:hover,html body .BtnConfirmDesactivar:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
+html body button:not(.btn-close):active,html body .btn:not(.btn-close):active,html body .BtnPrimary:active,html body .BtnGuinda:active,html body .BtnFilter:active,html body .BtnPrincipal:active,html body .BtnConsultaPadre:active,html body .BtnLogin:active,html body .SgceReportBtn:active,html body .ReporteBtn:active,html body .ActionBtn:active,html body .BtnSmall:active,html body .BtnGuardar:active,html body .SgceConfigSave:active,html body .SgceInstallerBtn:active,html body .BtnExpedienteLoad:active,html body .BtnExpedienteClean:active,html body .BtnExpedienteOpen:active,html body .BtnAsignacionPrimary:active,html body .AvisosSubmit:active,html body .BtnSaveEdit:active,html body .BtnConfirmDelete:active,html body .BtnConfirmActivar:active,html body .BtnConfirmDesactivar:active{transform:translateY(1px) scale(.985)!important;filter:saturate(1.05) brightness(.96)!important;}
+html body .BtnPrimary,html body .BtnGuinda,html body .BtnFilter,html body .BtnPrincipal,html body .BtnConsultaPadre,html body .BtnLogin,html body .SgceReportBtn,html body .ReporteBtn,html body .BtnExport,html body .SgceConfigSave,html body .SgceInstallerBtn,html body .BtnGuardar,html body .BtnTeacherPrimary,html body .BtnGroupPrimary,html body .BtnStudentPrimary,html body .BtnAsignacionPrimary,html body .AvisosSubmit.BtnAvisoPublish,html body .BtnExpedienteLoad,html body .BtnExpedienteClean,html body button.btn-guinda,html body .btn.btn-guinda,html body button.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),html body .btn.btn-success:not(.ActionDelete):not(.BtnDisable):not(.BtnReactivate),html body button[type="submit"]:not(.btn-close):not(.BtnCancelDelete):not(.BtnCancelEdit):not(.BtnConfirmDelete):not(.BtnSaveEdit):not(.BtnUserSave):not(.BtnConfirmActivar):not(.BtnAvisoModalActivate):not(.ActionDelete):not(.BtnDisable):not(.BtnStudentDelete):not(.BtnAsignacionDelete):not(.BtnTeacherDelete):not(.BtnGroupDelete){background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro,var(--SgceGuinda)) 100%)!important;color:#fff!important;border:0!important;box-shadow:0 15px 32px rgba(var(--SgceGuindaRGB),.32),inset 0 1px 0 rgba(255,255,255,.28)!important;}
+html body .ActionBtn.BtnStudentFile,html body .ActionBtn.BtnExpedienteOpen,html body .BtnExpedienteOpen,html body #TableAlumnos .ActionBtn.BtnStudentFile,html body #TablaExpedientes .ActionBtn.BtnExpedienteOpen{background:linear-gradient(135deg,#92400E 0%,#C2410C 38%,#EA580C 72%,#FDBA74 100%)!important;color:#fff!important;border:0!important;box-shadow:0 16px 32px rgba(194,65,12,.34),inset 0 1px 0 rgba(255,255,255,.30)!important;}
+html body .SgceModuleWrap button.BtnPrimary i,html body .SgceModuleWrap button.BtnPrimary span,html body .SgceModuleWrap .BtnTeacherPrimary i,html body .SgceModuleWrap .BtnTeacherPrimary span,html body .SgceModuleWrap .BtnGroupPrimary i,html body .SgceModuleWrap .BtnGroupPrimary span,html body .SgceModuleWrap .BtnStudentPrimary i,html body .SgceModuleWrap .BtnStudentPrimary span,html body .SgceModuleWrap .BtnAsignacionPrimary i,html body .SgceModuleWrap .BtnAsignacionPrimary span,html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish i,html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish span{color:#fff!important;position:relative!important;z-index:1!important;}
+html body .SgceModuleWrap button.BtnPrimary:disabled,html body .SgceModuleWrap .BtnPrimary.disabled,html body .SgceModuleWrap .BtnTeacherPrimary:disabled,html body .SgceModuleWrap .BtnGroupPrimary:disabled,html body .SgceModuleWrap .BtnStudentPrimary:disabled,html body .SgceModuleWrap .BtnAsignacionPrimary:disabled,html body .SgceModuleWrap .AvisosSubmit.BtnAvisoPublish:disabled,html body .SgceModuleWrap .SgceConfigSave:disabled{background:linear-gradient(135deg,var(--SgceGuindaProfundo) 0%,var(--SgceGuindaOscuro) 38%,var(--SgceGuinda) 68%,var(--SgceGuindaClaro,var(--SgceGuinda)) 100%)!important;color:#fff!important;opacity:.72!important;cursor:not-allowed!important;filter:saturate(.82) brightness(1.04)!important;box-shadow:0 10px 22px rgba(var(--SgceGuindaRGB),.20),inset 0 1px 0 rgba(255,255,255,.20)!important;}
+html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios,html body .SgceModuleWrap .DashboardModuleCard.DashboardModuleAnuncios,html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios{background:linear-gradient(135deg,#0B2F6B 0%,#1D4ED8 40%,#2563EB 72%,#38BDF8 100%)!important;box-shadow:0 15px 32px rgba(37,99,235,.34),inset 0 1px 0 rgba(255,255,255,.28)!important;}
+html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios:hover,html body .SgceModuleWrap .DashboardModuleCard.DashboardModuleAnuncios:hover,html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios:hover{box-shadow:0 20px 40px rgba(37,99,235,.42),inset 0 1px 0 rgba(255,255,255,.32)!important;filter:saturate(1.08) brightness(1.03)!important;}
+html body .DashboardModuleGridPro .DashboardModuleCard.DashboardModuleAnuncios i{background:rgba(255,255,255,.20)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.24)!important;}
+html body .SgceModuleWrap #TableAsig{table-layout:auto!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(1),html body .SgceModuleWrap #TableAsig td:nth-child(1){min-width:190px!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(2),html body .SgceModuleWrap #TableAsig td:nth-child(2){min-width:150px!important;width:150px!important;}
+html body .SgceModuleWrap #TableAsig th:nth-child(3),html body .SgceModuleWrap #TableAsig td:nth-child(3){min-width:142px!important;width:142px!important;white-space:nowrap!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionMateriaTexto,html body #TableAsig .AsignacionMateriaTexto{display:inline-block!important;max-width:150px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:.78rem!important;line-height:1.15!important;vertical-align:middle!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoTd,html body #TableAsig .AsignacionGrupoTd{white-space:nowrap!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoBadgeFull,html body #TableAsig .AsignacionGrupoBadgeFull{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:26px!important;max-width:142px!important;padding:5px 11px!important;border-radius:999px!important;font-size:.68rem!important;font-weight:950!important;line-height:1!important;letter-spacing:.005em!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;background:linear-gradient(180deg,#FFFFFF,var(--SgceGuindaSuave))!important;color:var(--SgceGuindaOscuro)!important;border:1px solid rgba(var(--SgceGuindaRGB),.22)!important;box-shadow:0 8px 16px rgba(var(--SgceGuindaRGB),.08)!important;text-shadow:none!important;text-transform:uppercase!important;}
+html body .SgceModuleWrap #TableAsig .AsignacionGrupoChips,html body #TableAsig .AsignacionGrupoChips{flex-wrap:nowrap!important;white-space:nowrap!important;}
+html body .SgceModuleWrap .SgceBitacoraCard{padding:22px!important;}
+html body .SgceModuleWrap .SgceBitacoraHead{gap:16px!important;margin-bottom:14px!important;}
+html body .SgceModuleWrap .SgceBitacoraIcon{width:42px!important;height:42px!important;min-width:42px!important;border-radius:15px!important;font-size:.98rem!important;}
+html body .SgceModuleWrap .SgceBitacoraTitle h4{font-size:1.18rem!important;margin-bottom:3px!important;line-height:1.08!important;}
+html body .SgceModuleWrap .SgceBitacoraTitle p{font-size:.82rem!important;line-height:1.28!important;max-width:680px!important;}
+html body .SgceModuleWrap #TableBitacora{table-layout:fixed!important;width:100%!important;font-size:.76rem!important;margin-bottom:0!important;}
+html body .SgceModuleWrap #TableBitacora thead th{font-size:.58rem!important;letter-spacing:.045em!important;padding:.42rem .34rem!important;white-space:nowrap!important;}
+html body .SgceModuleWrap #TableBitacora tbody td{padding:.42rem .34rem!important;font-size:.76rem!important;line-height:1.18!important;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColFecha{width:12.5%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColUsuario{width:12%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColRol{width:7%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColAccion{width:17%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColTabla{width:11%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColRegistro{width:6%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColDetalle{width:23.5%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitColIp{width:11%;}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellFecha,html body .SgceModuleWrap #TableBitacora .SgceBitCellUsuario,html body .SgceModuleWrap #TableBitacora .SgceBitCellTabla,html body .SgceModuleWrap #TableBitacora .SgceBitCellIp{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellRegistro{white-space:nowrap!important;}
+html body .SgceModuleWrap #TableBitacora .SgceBitCellDetalle{font-size:.73rem!important;color:#0F172A!important;max-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;display:table-cell!important;}
+html body .SgceModuleWrap #TableBitacora .badge,html body .SgceModuleWrap #TableBitacora .SgceBitBadgeRol,html body .SgceModuleWrap #TableBitacora .SgceBitBadgeAccion{display:inline-block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;padding:.28rem .46rem!important;border-radius:999px!important;font-size:.62rem!important;line-height:1.1!important;letter-spacing:.01em!important;vertical-align:middle!important;}
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeRol{font-size:.58rem!important;padding:.25rem .42rem!important;}
+html body .SgceModuleWrap #TableBitacora .SgceBitBadgeAccion{font-size:.57rem!important;}
+.DashboardModuleGridPro .DashboardModuleCard>.SgceColorIcon,.DashboardModuleCard>.SgceColorIcon{width:34px!important;height:34px!important;min-width:34px!important;margin:0 0 6px!important;border-radius:13px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(255,255,255,.18)!important;color:#fff!important;font-size:1.42rem!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;}
+.DashboardKpiIcon .SgceColorIcon,.DashboardTodayIcon .SgceColorIcon,.DashboardRiskEmptyIcon .SgceColorIcon{width:100%!important;height:100%!important;margin:0!important;font-size:1.32rem!important;}
+.DashboardRiskEmptyIcon .SgceColorIcon{font-size:1.7rem!important;}
+html body .SgceModuleWrap .MaestrosTableTop h6.SgceInlineTitle::before,html body .SgceModuleWrap .GruposTableTop h6.SgceInlineTitle::before,html body .SgceModuleWrap .AlumnosTableTop h6.SgceInlineTitle::before{content:none!important;display:none!important;flex:0 0 0!important;width:0!important;height:0!important;min-width:0!important;margin:0!important;padding:0!important;}
+html body .SgceModuleWrap .MaestrosTableTop h6.SgceInlineTitle .SgceTitleIcon,html body .SgceModuleWrap .GruposTableTop h6.SgceInlineTitle .SgceTitleIcon,html body .SgceModuleWrap .AlumnosTableTop h6.SgceInlineTitle .SgceTitleIcon{width:44px!important;height:44px!important;min-width:44px!important;margin:0!important;border-radius:16px!important;background:rgba(var(--SgceGuindaRGB),.10)!important;box-shadow:0 10px 20px rgba(var(--SgceGuindaRGB),.12),inset 0 1px 0 rgba(255,255,255,.42)!important;font-size:1.45rem!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard{min-height:auto!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard{padding:0 0 6px!important;margin:0!important;min-height:0!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesHeaderCard h6{margin:0!important;min-height:44px!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesCardBody{padding-top:10px!important;}
+html body .SgceModuleWrap #asignaciones .AsignacionesTableCard .d-flex.justify-content-between.align-items-center{padding-top:14px!important;}
+html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,html body .SgceModuleWrap .SgceRestoreCardHead .IconBox,html body .SgceModuleWrap .SgceBitacoraIcon,html body .SgceModuleWrap .ExpedientesTitleIcon,html body .SgceModuleWrap .SgceConfigHead>span{width:48px!important;height:48px!important;min-width:48px!important;border-radius:17px!important;display:inline-grid!important;place-items:center!important;background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;color:#334155!important;border:1px solid #E2E8F0!important;box-shadow:0 12px 24px rgba(15,23,42,.06)!important;}
+html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon .SgceColorIcon,html body .SgceModuleWrap .SgceRestoreCardHead .IconBox .SgceColorIcon,html body .SgceModuleWrap .SgceBitacoraIcon .SgceColorIcon,html body .SgceModuleWrap .ExpedientesTitleIcon .SgceColorIcon,html body .SgceModuleWrap .SgceConfigHead>span .SgceColorIcon{width:auto!important;height:auto!important;min-width:0!important;margin:0!important;border-radius:0!important;background:transparent!important;color:inherit!important;box-shadow:none!important;display:inline!important;font-size:1.35rem!important;line-height:1!important;}
+html body .SgceModuleWrap .ExpedientesTitleIcon{background:linear-gradient(135deg,#FFFBEB,#FEF3C7)!important;border-color:#FDE68A!important;color:#D97706!important;}
+html body .SgceModuleWrap .SgceBitacoraIcon{background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;border-color:#BFDBFE!important;color:#2563EB!important;}
+
+
+/* Iconos internos institucionales suaves.
+   Homologa encabezados de tarjetas y títulos secundarios en módulos administrativos.
+   Usa el color institucional, pero con baja intensidad para evitar saturación visual. */
+html body .SgcePageWrap.SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceInlineTitle .SgceTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap h2 .SgceTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap h5 .SgceTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap h6 .SgceTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceRestoreCardHead .IconBox,
+html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraIcon,
+html body .SgcePageWrap.SgceModuleWrap .ExpedientesTitleIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceConfigHead > span{
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    border-radius:16px!important;
+    display:inline-grid!important;
+    place-items:center!important;
+    background:linear-gradient(135deg,rgba(var(--SgceGuindaRGB),.105),rgba(var(--SgceGuindaRGB),.045))!important;
+    border:1px solid rgba(var(--SgceGuindaRGB),.13)!important;
+    color:var(--SgceGuindaOscuro)!important;
+    box-shadow:0 8px 18px rgba(var(--SgceGuindaRGB),.065),inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon .SgceColorIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceRestoreCardHead .IconBox .SgceColorIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraIcon .SgceColorIcon,
+html body .SgcePageWrap.SgceModuleWrap .ExpedientesTitleIcon .SgceColorIcon,
+html body .SgcePageWrap.SgceModuleWrap .SgceConfigHead > span .SgceColorIcon{
+    width:auto!important;
+    height:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    color:inherit!important;
+    box-shadow:none!important;
+    display:inline!important;
+    font-size:1.32rem!important;
+    line-height:1!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .SgceTitleIcon.SgceColorIcon{
+    font-size:1.34rem!important;
+    line-height:1!important;
+    vertical-align:middle!important;
+}
+
+/* Alumnos: Contenedores más altos para aprovechar mejor la pantalla.
+   Causa revisada: La altura venía de AlumnosTableCard y table-responsive en sgce-admin-extra.css.
+   Ajuste seguro: Solo se aumenta el alto mínimo del módulo Alumnos sin tocar otros módulos. */
+html body .SgceModuleWrap #alumnos .AlumnosLayoutRow{
+    align-items: stretch !important;
+}
+html body .SgceModuleWrap #alumnos .AlumnosSideCol{
+    min-height: 653px !important;
+}
+html body .SgceModuleWrap #alumnos .AlumnosTableCard{
+    min-height: 653px !important;
+}
+html body .SgceModuleWrap #alumnos .AlumnosTableCard .table-responsive{
+    min-height: 455px !important;
+}
+html body .SgceModuleWrap #alumnos .AlumnosImportCard{
+    flex: 1 1 auto !important;
+}
+

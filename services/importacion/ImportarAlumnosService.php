@@ -35,6 +35,11 @@ function SgceImportarAlumnosService(PDO $Pdo, array $UserSession, int $CicloActi
             RedirectAdminImportar('alumnos', 'Primero configura la estructura académica.', true);
         }
 
+        $ErrorFormatoPrevio = SgceValidarImportacionAlumnosPrevia($Filas, $GrupoId > 0, !empty($OfertaImportacion['UsaProgramas']));
+        if ($ErrorFormatoPrevio !== '') {
+            RedirectAdminImportar('alumnos', $ErrorFormatoPrevio, true);
+        }
+
         $EtapasImportacion = SgceEtapasAcademicasListar($Pdo, $OfertaImportacionId, true);
         $MapaEtapasPorOrden = [];
         $MapaEtapasPorNombre = [];
@@ -56,7 +61,7 @@ function SgceImportarAlumnosService(PDO $Pdo, array $UserSession, int $CicloActi
 
         $Check = $Pdo->prepare("SELECT A.Id, A.Activo FROM Alumnos A INNER JOIN AlumnoInscripciones AI ON AI.AlumnoId = A.Id WHERE A.NombreCompleto = ? AND AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' LIMIT 1");
         $CheckBase = $Pdo->prepare("SELECT Id, Activo FROM Alumnos WHERE NombreCompleto = ? AND GrupoId = ? LIMIT 1");
-        $StmtReactivar = $Pdo->prepare("UPDATE Alumnos SET Activo = 1, GrupoId = ?, NombreBusqueda = NombreCompleto WHERE Id = ?");
+        $StmtReactivar = $Pdo->prepare("UPDATE Alumnos SET Activo = 1, GrupoId = ?, NombreBusqueda = ? WHERE Id = ?");
         $Stmt = $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, NombreBusqueda, GrupoId, Activo) VALUES (?, ?, ?, 1)");
 
         try {
@@ -121,14 +126,17 @@ function SgceImportarAlumnosService(PDO $Pdo, array $UserSession, int $CicloActi
                 $AlumnoBase = $CheckBase->fetch();
                 if ($AlumnoBase) {
                     $AlumnoId = (int)$AlumnoBase['Id'];
-                    $StmtReactivar->execute([$GrupoDestinoId, $AlumnoId]);
+                    $StmtReactivar->execute([$GrupoDestinoId, SgceTextoBusquedaNormalizado($Nombre), $AlumnoId]);
+                    SgceAsignarMatriculaSiAplica($Pdo, $AlumnoId, $CicloActivoImportacionId);
                     SgceAlumnoInscribirEnCiclo($Pdo, $AlumnoId, $CicloActivoImportacionId, $GrupoDestinoId, 'INSCRITO');
                     $Reactivados++;
                     continue;
                 }
 
                 $Stmt->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoDestinoId]);
-                SgceAlumnoInscribirEnCiclo($Pdo, (int)$Pdo->lastInsertId(), $CicloActivoImportacionId, $GrupoDestinoId, 'INSCRITO');
+                $NuevoAlumnoId = (int)$Pdo->lastInsertId();
+                SgceAsignarMatriculaSiAplica($Pdo, $NuevoAlumnoId, $CicloActivoImportacionId);
+                SgceAlumnoInscribirEnCiclo($Pdo, $NuevoAlumnoId, $CicloActivoImportacionId, $GrupoDestinoId, 'INSCRITO');
                 $Insertados++;
             }
 

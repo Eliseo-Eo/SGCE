@@ -33,7 +33,8 @@ function SgceNormalizarNombre($Valor) {
 
 function SgceNormalizarGrupo($Valor) {
     $Valor = SgceNormalizarMayusculas($Valor);
-    return preg_match('/^[A-ZÁÉÍÓÚÜÑ]{1,3}$/u', $Valor) ? $Valor : '';
+    $Valor = str_replace(' ', '', $Valor);
+    return preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ._\-\/]{1,10}$/u', $Valor) ? $Valor : '';
 }
 
 
@@ -54,7 +55,7 @@ function SgceNormalizarEtapaAcademica($Valor) {
 
 function SgceNormalizarTurno($Valor) {
     $Valor = SgceNormalizarMayusculas($Valor);
-    return in_array($Valor, ['MATUTINO', 'VESPERTINO'], true) ? $Valor : '';
+    return preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ ._\-\/]{1,40}$/u', $Valor) ? $Valor : '';
 }
 
 

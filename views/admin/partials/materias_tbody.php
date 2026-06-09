@@ -18,13 +18,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
     </td>
     <td class="text-center">
         <div class="AdminActions">
-            <button class="ActionBtn ActionEdit BtnMateriaEdit" data-bs-toggle="modal" data-bs-target="#EMat<?= $Mat['Id'] ?>">
+            <button class="ActionBtn ActionEdit BtnMateriaEdit" data-bs-toggle="modal" data-bs-target="#EMat<?= (int)$Mat['Id'] ?>">
                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
             </button>
             <form method="POST" class="m-0 p-0" data-confirm-delete="MATERIA" data-confirm-message="¿DESEAS DESACTIVAR ESTA MATERIA DEL GRUPO?">
                 <?php echo CampoCsrf(); ?>
                 <input type="hidden" name="Tab" value="materias">
-                <button type="submit" name="DelMateriaGrupo" value="<?= $Mat['Id'] ?>" class="ActionBtn ActionDelete BtnMateriaDelete">
+                <button type="submit" name="DelMateriaGrupo" value="<?= (int)$Mat['Id'] ?>" class="ActionBtn ActionDelete BtnMateriaDelete">
                     <i class="fa-solid fa-trash-can"></i><span>Eliminar</span>
                 </button>
             </form>

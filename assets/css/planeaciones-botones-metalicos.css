@@ -151,96 +151,97 @@
     }
 }
 
-/* SGCE 1.0.91: Estilos específicos extraídos de sgce-base para reducir herencia global. */
-.PlaneacionesStatsGrid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:16px;margin-bottom:18px}
-.PlaneacionesMateriaGrid{display:grid;grid-template-columns:1fr;gap:22px}
-.PlaneacionMateriaCard{background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(248,250,252,.95));border:1px solid rgba(226,232,240,.92);border-top:4px solid var(--SgceGuinda);border-radius:24px;padding:24px;box-shadow:0 22px 46px rgba(15,23,42,.09)}
-.PlaneacionMateriaHeader{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(226,232,240,.95)}
-.PlaneacionMateriaIcon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 15px 30px rgba(var(--SgceGuindaRGB),.24);font-size:1.05rem}
-.PlaneacionMateriaHeader h2{margin:0;color:var(--SgceGuindaProfundo);font-size:1.25rem;font-weight:900;text-transform:uppercase;letter-spacing:.25px}
-.PlaneacionMateriaHeader p{margin:3px 0 0;color:#64748B;font-size:.84rem;font-weight:800}
-.PlaneacionesEntregaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-.PlaneacionEntregaItem{border:1px solid rgba(226,232,240,.95);border-radius:20px;background:#fff;padding:16px;box-shadow:0 14px 28px rgba(15,23,42,.06);position:relative;overflow:hidden}
-.PlaneacionEntregaItem::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--SgceGuinda)}
-.PlaneacionEntregaTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.PlaneacionEntregaTop strong{display:block;font-size:.96rem;font-weight:900;color:#111827;text-transform:uppercase}
-.PlaneacionEntregaTop small{display:block;font-size:.72rem;font-weight:900;color:#64748B;text-transform:uppercase;margin-top:2px}
-.PlaneacionEntregaTop span{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda));box-shadow:0 12px 24px rgba(var(--SgceGuindaRGB),.20)}
-.PlaneacionEntregaItem.EstadoPendiente::before{background:#94A3B8}
-.PlaneacionEntregaItem.EstadoPendiente .PlaneacionEntregaTop span{background:linear-gradient(135deg,#CBD5E1,#64748B)}
-.PlaneacionEntregaItem.EstadoSubida::before{background:#2563EB}
-.PlaneacionEntregaItem.EstadoSubida .PlaneacionEntregaTop span{background:linear-gradient(135deg,#60A5FA,#2563EB)}
-.PlaneacionEntregaItem.EstadoAprobada::before{background:#059669}
-.PlaneacionEntregaItem.EstadoAprobada .PlaneacionEntregaTop span{background:linear-gradient(135deg,#34D399,#059669)}
-.PlaneacionEntregaItem.EstadoDevuelta::before{background:#BE123C}
-.PlaneacionEntregaItem.EstadoDevuelta .PlaneacionEntregaTop span{background:linear-gradient(135deg,#FB7185,#BE123C)}
-.PlaneacionArchivoInfo{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:800;color:#334155;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:9px 10px;margin-bottom:8px;word-break:break-word}
-.PlaneacionFecha{font-size:.72rem;font-weight:800;color:#64748B;margin-bottom:8px}
-.PlaneacionNota{font-size:.78rem;font-weight:700;color:#7F1D1D;background:#FFF1F2;border:1px solid #FECDD3;border-radius:14px;padding:10px;margin-bottom:10px}
-.PlaneacionPendienteTexto{font-size:.82rem;font-weight:800;color:#64748B;background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;padding:10px;margin-bottom:12px}
-.PlaneacionUploadForm{display:grid;gap:10px;margin-top:12px}
-.PlaneacionUploadBtn{width:100%;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0}
-.BtnPlaneacionDownload{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border-radius:999px;padding:9px 14px;font-size:.78rem;font-weight:900;color:#fff!important;background:linear-gradient(135deg,#F59E0B,#EA580C);box-shadow:0 12px 26px rgba(234,88,12,.24);transition:.18s ease;margin-bottom:8px}
-.BtnPlaneacionDownload:hover{filter:brightness(.98);transform:translateY(-1px);color:#fff!important}
-.PlaneacionEstadoBadge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:7px 10px;font-size:.72rem;font-weight:900;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
-.PlaneacionEstadoBadge.EstadoPendiente{background:#F1F5F9;color:#475569;border-color:#CBD5E1}
-.PlaneacionEstadoBadge.EstadoSubida{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
-.PlaneacionEstadoBadge.EstadoAprobada{background:#ECFDF5;color:#047857;border-color:#A7F3D0}
-.PlaneacionEstadoBadge.EstadoDevuelta{background:#FFF1F2;color:#BE123C;border-color:#FECDD3}
-.BtnPlaneacionesDocente{background:linear-gradient(135deg,var(--SgceGuindaClaro),var(--SgceGuinda))!important;color:#fff!important;box-shadow:0 14px 28px rgba(var(--SgceGuindaRGB),.24)!important;border:0!important}
-@media (max-width:992px){.PlaneacionesStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:576px){.PlaneacionesStatsGrid{grid-template-columns:1fr}.PlaneacionMateriaCard{padding:18px}.PlaneacionesEntregaGrid{grid-template-columns:1fr}}
-.PlaneacionVersionChip{margin-left:6px!important;font-size:.72rem!important;}
-.PlaneacionesStatsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
-.PlaneacionesMateriaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;}
-.PlaneacionMateriaCard,.PlaneacionEntregaItem{min-width:0!important;}
-.PlaneacionMateriaHeader,.PlaneacionEntregaTop{display:flex;align-items:center;gap:12px;}
-.PlaneacionArchivoInfo span{word-break:break-word;overflow-wrap:anywhere;}
-.PlaneacionReviewModal{--ReviewMain:#2563EB;--ReviewAlt:#60A5FA;--ReviewDeep:#1E3A8A;--ReviewSoft:#EFF6FF;--ReviewBorder:#BFDBFE;--ReviewGlow:rgba(37,99,235,.26);border:0!important;border-radius:30px!important;overflow:hidden;box-shadow:0 34px 95px rgba(15,23,42,.34)!important;position:relative;background:linear-gradient(145deg,#fff,#f8fafc)!important}
-.PlaneacionReviewModal::before{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:linear-gradient(90deg,var(--ReviewAlt),var(--ReviewMain),var(--ReviewDeep));z-index:2}
-.PlaneacionReviewModal.EstadoAprobada{--ReviewMain:#059669;--ReviewAlt:#34D399;--ReviewDeep:#065F46;--ReviewSoft:#ECFDF5;--ReviewBorder:#A7F3D0;--ReviewGlow:rgba(5,150,105,.26)}
-.PlaneacionReviewModal.EstadoDevuelta{--ReviewMain:#BE123C;--ReviewAlt:#FB7185;--ReviewDeep:#7F1D1D;--ReviewSoft:#FFF1F2;--ReviewBorder:#FECDD3;--ReviewGlow:rgba(190,18,60,.28)}
-.PlaneacionReviewModal.EstadoSubida,.PlaneacionReviewModal.EstadoPendiente{--ReviewMain:#2563EB;--ReviewAlt:#60A5FA;--ReviewDeep:#1E3A8A;--ReviewSoft:#EFF6FF;--ReviewBorder:#BFDBFE;--ReviewGlow:rgba(37,99,235,.26)}
-.PlaneacionReviewHeader{border:0!important;padding:26px 28px 22px!important;background:linear-gradient(135deg,var(--ReviewMain),var(--ReviewDeep))!important;color:#fff!important;position:relative;overflow:hidden}
-.PlaneacionReviewHeader::after{content:"";position:absolute;width:230px;height:230px;border-radius:999px;background:rgba(255,255,255,.14);right:-90px;top:-105px;filter:blur(.2px)}
-.PlaneacionReviewIcon{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;background:rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 18px 38px rgba(0,0,0,.15);font-size:1.55rem;flex:0 0 auto;position:relative;z-index:1}
-.PlaneacionReviewTitle{position:relative;z-index:1;min-width:0}
-.PlaneacionReviewKicker{display:inline-flex;margin-bottom:4px;font-size:.72rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase;opacity:.82}
-.PlaneacionReviewTitle h5{font-size:1.42rem;font-weight:900;margin:0;text-transform:none}
-.PlaneacionReviewTitle small{display:block;margin-top:4px;font-weight:700;opacity:.88;white-space:normal}
-.PlaneacionReviewClose{filter:invert(1) grayscale(1) brightness(2);opacity:.9;position:relative;z-index:3;background-color:rgba(255,255,255,.16);border-radius:999px;padding:12px!important}
-.PlaneacionReviewBody{padding:24px 28px!important;background:linear-gradient(180deg,#fff,#f8fafc)}
-.PlaneacionReviewPreview{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding:16px 18px;border-radius:22px;background:var(--ReviewSoft);border:1px solid var(--ReviewBorder);box-shadow:0 16px 32px var(--ReviewGlow)}
-.PlaneacionReviewPreviewIcon{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ReviewAlt),var(--ReviewMain));color:#fff;font-size:1.2rem;box-shadow:0 14px 28px var(--ReviewGlow);flex:0 0 auto}
-.PlaneacionReviewPreview strong{display:block;color:var(--ReviewDeep);font-weight:900;font-size:1rem}
-.PlaneacionReviewPreview p{margin:3px 0 0;color:#334155;font-weight:700;font-size:.86rem;line-height:1.35}
-.PlaneacionReviewModal .FormControl:focus{border-color:var(--ReviewMain)!important;box-shadow:0 0 0 .2rem var(--ReviewGlow)!important}
-.PlaneacionReviewSelect{font-weight:900;text-transform:uppercase}
-.PlaneacionReviewNote{min-height:138px;resize:vertical}
-.PlaneacionReviewInfoBox{height:100%;display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:14px 16px;color:#172033;font-size:.82rem;font-weight:700;box-shadow:0 14px 30px rgba(15,23,42,.06)}
-.PlaneacionReviewInfoBox i{color:var(--ReviewMain);font-size:1.15rem;margin-top:2px}
-.PlaneacionReviewInfoBox b{color:var(--ReviewDeep)}
-.PlaneacionReviewInfoBox span{color:#64748b;font-size:.76rem;font-weight:800}
-.PlaneacionReviewHint{display:flex;align-items:center;gap:8px;margin-top:9px;color:#64748b;font-size:.78rem;font-weight:800}
-.PlaneacionReviewHint i{color:var(--ReviewMain)}
-.PlaneacionReviewFooter{border-top:1px solid rgba(226,232,240,.95)!important;background:linear-gradient(180deg,#fff,#f8fafc)!important;padding:18px 28px 24px!important;gap:12px}
-.PlaneacionReviewCancel,.PlaneacionReviewSave{border:0;border-radius:999px;padding:12px 20px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;transition:.18s ease}
-.PlaneacionReviewCancel{background:#f1f5f9;color:#334155}
-.PlaneacionReviewCancel:hover{background:#e2e8f0;color:#172033}
-.PlaneacionReviewSave{background:linear-gradient(135deg,var(--ReviewAlt),var(--ReviewMain),var(--ReviewDeep));color:#fff;box-shadow:0 18px 36px var(--ReviewGlow)}
-.PlaneacionReviewSave:hover{filter:brightness(.98);transform:translateY(-1px);color:#fff}
-.PlaneacionReviewSave:active,.PlaneacionReviewCancel:active{transform:scale(.98)}
-@media (max-width:768px){.modal-dialog.modal-lg{max-width:calc(100% - 18px)!important;margin:.75rem auto!important}.PlaneacionReviewHeader{padding:24px 20px 18px!important;align-items:flex-start!important}.PlaneacionReviewIcon{width:54px;height:54px;border-radius:18px}.PlaneacionReviewTitle h5{font-size:1.18rem}.PlaneacionReviewBody{padding:20px!important}.PlaneacionReviewPreview{padding:14px}.PlaneacionReviewFooter{padding:16px 20px 20px!important;flex-direction:column-reverse}.PlaneacionReviewCancel,.PlaneacionReviewSave{width:100%}}
-.PlaneacionesPagerWrap .pagination{margin-bottom:6px!important;}
-.PlaneacionesPagerWrap .page-link{min-width:34px!important;min-height:34px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-weight:900!important;}
-.SgceModuleWrap .MaestroAccionesGrid .BtnPlaneacionesDocente{background:linear-gradient(135deg,#B45309 0%,#F59E0B 52%,#FBBF24 100%)!important;box-shadow:0 14px 28px rgba(245,158,11,.30)!important;}
-.SgceModuleWrap .MaestroAccionesGrid .BtnCalificaciones:hover,.SgceModuleWrap .MaestroAccionesGrid .BtnAsistencia:hover,.SgceModuleWrap .MaestroAccionesGrid .BtnPlaneacionesDocente:hover{transform:translateY(-1px)!important;filter:saturate(1.08) brightness(1.02)!important;}
-html body .PlaneacionMateriaHeader .PlaneacionMateriaIcon{background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;border:1px solid #BFDBFE!important;color:#2563EB!important;box-shadow:0 14px 28px rgba(37,99,235,.12)!important;}
-html body .PlaneacionEntregaTop>span.PlaneacionEstadoIcono{width:42px!important;height:42px!important;border-radius:14px!important;display:grid!important;place-items:center!important;border:1px solid #CBD5E1!important;background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;color:#475569!important;box-shadow:0 12px 24px rgba(15,23,42,.06)!important;font-size:1.05rem!important;}
-html body .PlaneacionEntregaItem.EstadoPendiente .PlaneacionEntregaTop>span.PlaneacionEstadoIcono{background:linear-gradient(135deg,#F8FAFC,#F1F5F9)!important;border-color:#CBD5E1!important;color:#64748B!important;}
-html body .PlaneacionEntregaItem.EstadoSubida .PlaneacionEntregaTop>span.PlaneacionEstadoIcono{background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;border-color:#BFDBFE!important;color:#2563EB!important;}
-html body .PlaneacionEntregaItem.EstadoAprobada .PlaneacionEntregaTop>span.PlaneacionEstadoIcono{background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;border-color:#A7F3D0!important;color:#059669!important;}
-html body .PlaneacionEntregaItem.EstadoDevuelta .PlaneacionEntregaTop>span.PlaneacionEstadoIcono{background:linear-gradient(135deg,#FFF1F2,#FFE4E6)!important;border-color:#FECDD3!important;color:#BE123C!important;}
-html body .PlaneacionUploadForm .PlaneacionUploadBtn,html body .PlaneacionUploadForm .PlaneacionUploadBtn.BtnPrimary{background:linear-gradient(135deg,#38BDF8 0%,#2563EB 52%,#1D4ED8 100%)!important;color:#fff!important;border:0!important;border-radius:999px!important;box-shadow:0 16px 34px rgba(37,99,235,.26),inset 0 1px 0 rgba(255,255,255,.20)!important;font-weight:900!important;letter-spacing:.2px!important;}
-html body .PlaneacionUploadForm .PlaneacionUploadBtn:hover,html body .PlaneacionUploadForm .PlaneacionUploadBtn.BtnPrimary:hover{filter:saturate(1.06) brightness(1.03)!important;transform:translateY(-1px)!important;box-shadow:0 20px 40px rgba(37,99,235,.32),inset 0 1px 0 rgba(255,255,255,.24)!important;}
-html body .PlaneacionUploadForm .PlaneacionUploadBtn .SgceColorIcon{width:24px!important;height:24px!important;border-radius:999px!important;display:grid!important;place-items:center!important;background:rgba(255,255,255,.18)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;}
+/* Corrección visual segura de tarjetas de Planeaciones.
+   Mantiene los iconos tipo emoji, pero evita que los cuadros recuperen fondos tintos fuertes. */
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard{
+    border-top:4px solid rgba(var(--SgceGuindaRGB),.62)!important;
+    box-shadow:0 12px 28px rgba(15,23,42,.055)!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard>span:first-child{
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    border-radius:15px!important;
+    display:grid!important;
+    place-items:center!important;
+    border:1px solid rgba(148,163,184,.24)!important;
+    box-shadow:0 10px 22px rgba(15,23,42,.055)!important;
+    color:#334155!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(1)>span:first-child{
+    background:linear-gradient(135deg,#FFF7ED,#FFEDD5)!important;
+    border-color:#FED7AA!important;
+    color:#EA580C!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(2)>span:first-child{
+    background:linear-gradient(135deg,#EEF2FF,#E0E7FF)!important;
+    border-color:#C7D2FE!important;
+    color:#4F46E5!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(3)>span:first-child{
+    background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;
+    border-color:#BFDBFE!important;
+    color:#2563EB!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard:nth-child(4)>span:first-child{
+    background:linear-gradient(135deg,#ECFDF5,#D1FAE5)!important;
+    border-color:#A7F3D0!important;
+    color:#059669!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesStatsGrid .PlaneacionStatCard>span:first-child .SgceColorIcon{
+    width:auto!important;
+    height:auto!important;
+    min-width:0!important;
+    display:inline!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:inherit!important;
+    border-radius:0!important;
+    font-size:1.34rem!important;
+    line-height:1!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesPagerWrap .SgcePagerInfo{
+    display:none!important;
+}
+
+/* Planeaciones: Iconos light en encabezados internos.
+   Causa corregida: PlaneacionesAdmin no carga sgce-admin-extra.css; por eso heredaba el cuadro tinto fuerte de sgce-base. */
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesFiltroCard .SgceConfigHead > span,
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .SgceConfigHead > span{
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    border-radius:17px!important;
+    display:inline-grid!important;
+    place-items:center!important;
+    color:#334155!important;
+    background:linear-gradient(135deg,#F8FAFC 0%,#EFF6FF 100%)!important;
+    border:1px solid rgba(148,163,184,.28)!important;
+    box-shadow:0 10px 22px rgba(15,23,42,.055)!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesFiltroCard .SgceConfigHead > span{
+    background:linear-gradient(135deg,#F8FAFC 0%,#E0F2FE 100%)!important;
+    border-color:#BAE6FD!important;
+    color:#0F766E!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .SgceConfigHead > span{
+    background:linear-gradient(135deg,#FFFBEB 0%,#FEF3C7 100%)!important;
+    border-color:#FDE68A!important;
+    color:#B45309!important;
+}
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesFiltroCard .SgceConfigHead > span .SgceColorIcon,
+html body .SgcePageWrap.SgceModuleWrap .PlaneacionesSeguimientoCard .SgceConfigHead > span .SgceColorIcon{
+    width:auto!important;
+    height:auto!important;
+    min-width:0!important;
+    margin:0!important;
+    display:inline!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    color:inherit!important;
+    filter:none!important;
+    font-size:1.34rem!important;
+    line-height:1!important;
+}

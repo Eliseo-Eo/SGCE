@@ -15,6 +15,8 @@ if (!$UserSession || $UserSession['Rol'] !== 'maestro') {
 $AsignacionId = intval($_GET['AsignacionId'] ?? ($_POST['AsignacionId'] ?? 0));
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? ($_POST['PeriodoId'] ?? 0));
 $PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
+$ConfigCalificacion = SgceCalificacionConfig($Pdo);
+$TextoRangoCalificacion = SgceCalificacionTextoRango($Pdo);
 
 $Stmt = $Pdo->prepare("
     SELECT A.*, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre
@@ -106,14 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['GuardarNotes'])) {
                 continue;
             }
 
-            if (!is_numeric($Calificacion)) {
+            $CalificacionFloat = SgceCalificacionNormalizar($Pdo, $Calificacion);
+
+            if ($CalificacionFloat === null) {
                 continue;
             }
-
-            $CalificacionFloat = round((float)$Calificacion, 2);
-
-            if ($CalificacionFloat < 5) { $CalificacionFloat = 5; }
-            if ($CalificacionFloat > 10) { $CalificacionFloat = 10; }
 
             $StmtBuscarCalificacion->execute([
                 $AlumnoId,
@@ -248,93 +247,7 @@ if ($Calificados > 0) {
 <?= SgceCss('assets/css/sgce-soft-motion.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
 
-<style>
-    :root { --SgceVino:var(--SgceGuinda); --SgceVinoOscuro:var(--SgceGuindaOscuro); --SgceAzul:#2f6fec; --SgceVerde:#149447; --SgceBorde:#e6ebf2; --SgceTexto:#111827; }
-    body { background: radial-gradient(circle at top left, rgba(155,0,27,.08), transparent 34%), #f4f7fb; font-family: 'Poppins', sans-serif; }
-    .SgcePage { max-width: 1080px; }
-    .TopBar { position: relative; overflow: hidden; border-radius: 24px; padding: 22px 26px; background: linear-gradient(135deg, var(--SgceVino), var(--SgceVinoOscuro)); box-shadow: 0 18px 45px rgba(80,0,14,.18); color:#fff; display:block !important; }
-    .TopBar > .d-flex { width:100%; }
-    .TopBar h2 { margin:0; font-weight:800; letter-spacing:.3px; font-size: clamp(1.45rem, 2.6vw, 2.2rem); max-width: 620px; line-height: 1.05; }
-    .IconBox { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; background:rgba(255,255,255,.16); font-size:1.55rem; flex:0 0 auto; }
-    .InfoBadge { display:inline-flex; align-items:center; gap:7px; margin-top:8px; padding:5px 12px; border-radius:999px; background:rgba(255,255,255,.16); color:#fff; font-weight:800; font-size:.76rem; text-transform:uppercase; }
-    .StatsCard, .MainCard { border:0; border-radius:18px; box-shadow: 0 12px 32px rgba(15,23,42,.08); overflow:hidden; }
-    .StatsCard .card-body { padding:16px 18px !important; min-height:78px; }
-    .StatsIcon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; flex:0 0 auto; }
-    html body .SgceModuleWrap .StatsIcon.SgceStatsIconSoft {
-        width:42px !important;
-        height:42px !important;
-        min-width:42px !important;
-        margin-right:0 !important;
-        border-radius:15px !important;
-        display:grid !important;
-        place-items:center !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.90), 0 8px 18px rgba(15,23,42,.055) !important;
-        border:1px solid rgba(15,23,42,.045) !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.SgceStatsAlumnos {
-        background:linear-gradient(135deg, rgba(47,111,236,.095) 0%, rgba(14,165,233,.16) 100%) !important;
-        color:#2563EB !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.SgceStatsCalificados {
-        background:linear-gradient(135deg, rgba(5,150,105,.095) 0%, rgba(16,185,129,.17) 100%) !important;
-        color:#047857 !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.SgceStatsPromedio {
-        background:linear-gradient(135deg, rgba(245,158,11,.105) 0%, rgba(251,191,36,.18) 100%) !important;
-        color:#B45309 !important;
-    }
-    html body .SgceModuleWrap .StatsIcon.SgceStatsIconSoft .SgceColorIcon {
-        font-size:1.22rem !important;
-        line-height:1 !important;
-        filter:drop-shadow(0 1px 0 rgba(255,255,255,.85)) !important;
-    }
-    .StatsCard h3 { font-size:1.45rem; }
-    .MainCard .card-header { background:#fff; border-bottom:1px solid var(--SgceBorde); padding:16px 18px; }
-    .SgcePeriodoBox { padding:14px 16px 8px; margin:0 !important; background:#fff; border-bottom:1px solid var(--SgceBorde); }
-    .SgcePeriodoBox label { display:block; margin-bottom:6px; font-size:.78rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.04em; }
-    .SgcePeriodoBox .form-select { height:40px; border-radius:12px; font-weight:600; }
-    table.table { table-layout:fixed; }
-    table.table thead th { background:#f7f9fc; color:#64748b; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:9px 14px; border-bottom:1px solid var(--SgceBorde); }
-    table.table tbody td { padding:7px 14px; border-color:#eef2f7; vertical-align:middle; }
-    .AlumnoAvatar { width:30px; height:30px; border-radius:11px; display:grid; place-items:center; background:#eef2ff; color:#3158df; font-size:.95rem; flex:0 0 auto; }
-    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji {
-        background:linear-gradient(135deg, rgba(47,111,236,.12) 0%, rgba(14,165,233,.20) 100%) !important;
-        color:#1D4ED8 !important;
-        box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px rgba(47,111,236,.10) !important;
-        border:1px solid rgba(47,111,236,.14) !important;
-    }
-    html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
-        color:inherit !important;
-        line-height:1 !important;
-        font-size:1rem !important;
-        filter:drop-shadow(0 1px 0 rgba(255,255,255,.75));
-    }
-    .AlumnoNombre { font-size:.88rem; font-weight:800; line-height:1.15; color:var(--SgceTexto); }
-    .InputNota { width:112px; height:36px; margin-left:auto; border-radius:12px; font-weight:800; }
-    .SgceStickyActions { position:sticky; bottom:0; z-index:5; padding:12px 16px !important; background:rgba(248,250,252,.96) !important; backdrop-filter: blur(8px); }
-    .BtnGuardar { border:0 !important; border-radius:14px; padding:11px 22px; background:linear-gradient(135deg, var(--SgceVerde), #20bf63) !important; color:#fff !important; font-weight:900; box-shadow:0 12px 24px rgba(20,148,71,.22) !important; min-width:250px; }
-    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico {
-        background:#047857 !important;
-        background-image:linear-gradient(135deg,#064E3B 0%,#047857 48%,#059669 74%,#10B981 100%) !important;
-        color:#FFFFFF !important;
-        border:0 !important;
-        box-shadow:0 18px 36px rgba(4,120,87,.30), inset 0 1px 0 rgba(255,255,255,.26) !important;
-        text-shadow:0 1px 2px rgba(0,0,0,.30) !important;
-    }
-    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico:hover {
-        background-image:linear-gradient(135deg,#065F46 0%,#059669 48%,#10B981 78%,#34D399 100%) !important;
-        box-shadow:0 22px 42px rgba(4,120,87,.36), inset 0 1px 0 rgba(255,255,255,.30) !important;
-        transform:translateY(-1px) !important;
-        filter:saturate(1.10) brightness(1.02) !important;
-    }
-    html body .SgceModuleWrap #BtnGuardarCalificacionesVerdeMetalico.BtnGuardarCalificacionesVerdeMetalico span {
-        color:#FFFFFF !important;
-        position:relative !important;
-        z-index:1 !important;
-    }
-    @media (max-width: 991px) { .TopBar { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
-    @media (max-width: 576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .InputNota { width:95px; } .BtnGuardar { width:100%; min-width:0; } }
-</style>
+<?= SgceCss('assets/css/calificar-botones-metalicos.css') ?>
 
 </head>
 
@@ -352,16 +265,16 @@ if ($Calificados > 0) {
 
                 <div>
                     <h2>
-                        <?= htmlspecialchars($InfoClase['MateriaNombre']) ?>
+                        <?= HGlobal($InfoClase['MateriaNombre']) ?>
                     </h2>
 
                     <div class="text-light opacity-75 mt-1">
-                        Grupo <?= $InfoClase['Grado'] ?> "<?= $InfoClase['Grupo'] ?>"
+                        Grupo <?= HGlobal($InfoClase['Grado']) ?> "<?= HGlobal($InfoClase['Grupo']) ?>"
                     </div>
 
                     <div class="InfoBadge">
                         <i class="fa-solid <?= strtoupper((string)$InfoClase['Turno']) === 'MATUTINO' ? 'fa-sun' : 'fa-moon' ?>"></i>
-                        Turno <?= $InfoClase['Turno'] ?>
+                        Turno <?= HGlobal($InfoClase['Turno']) ?>
                     </div>
                 </div>
 
@@ -390,7 +303,7 @@ if ($Calificados > 0) {
                         </div>
 
                         <h3 class="fw-bold mb-0">
-                            <?= $TotalAlumnos ?>
+                            <?= (int)$TotalAlumnos ?>
                         </h3>
                     </div>
 
@@ -414,7 +327,7 @@ if ($Calificados > 0) {
                         </div>
 
                         <h3 class="fw-bold mb-0">
-                            <?= $Calificados ?>
+                            <?= (int)$Calificados ?>
                         </h3>
                     </div>
 
@@ -438,7 +351,7 @@ if ($Calificados > 0) {
                         </div>
 
                         <h3 class="fw-bold mb-0">
-                            <?= $PromedioGrupo ?>
+                            <?= HGlobal($PromedioGrupo) ?>
                         </h3>
                     </div>
 
@@ -471,19 +384,19 @@ if ($Calificados > 0) {
                 </h5>
 
                 <span class="text-muted small">
-                    Captura Las Calificaciones Del Grupo
+                    Captura Las Calificaciones Del Grupo · Escala <?= HGlobal($TextoRangoCalificacion) ?>
                 </span>
             </div>
 
             <div class="badge bg-dark px-3 py-2 rounded-pill">
-                <?= $TotalAlumnos ?> Alumnos
+                <?= (int)$TotalAlumnos ?> Alumnos
             </div>
 
         </div>
 
         <div class="card-body p-0">
 
-            <form method="POST" id="FormCalificaciones">
+            <form method="POST" id="FormCalificaciones" data-calificacion-min="<?= HGlobal((string)$ConfigCalificacion['Minima']) ?>" data-calificacion-max="<?= HGlobal((string)$ConfigCalificacion['Maxima']) ?>" data-calificacion-aprobatoria="<?= HGlobal((string)$ConfigCalificacion['Aprobatoria']) ?>">
                         <input type="hidden" name="AsignacionId" value="<?= (int)$AsignacionId ?>">
                         <input type="hidden" name="PeriodoId" value="<?= (int)$PeriodoId ?>">
                         <div class="SgcePeriodoBox mb-3">
@@ -553,7 +466,7 @@ if ($Calificados > 0) {
                                                 <div>
 
                                                     <div class="AlumnoNombre">
-                                                        <?= htmlspecialchars($Al['NombreCompleto']) ?>
+                                                        <?= HGlobal($Al['NombreCompleto']) ?>
                                                     </div>
 
                                                 </div>
@@ -566,14 +479,14 @@ if ($Calificados > 0) {
 
                                             <input
                                                 type="number"
-                                                name="Notas[<?= $Al['AlumnoId'] ?>]"
+                                                name="Notas[<?= (int)$Al['AlumnoId'] ?>]"
                                                 class="form-control text-center InputNota"
-                                                step="0.1"
-                                                min="5"
-                                                max="10"
+                                                step="<?= !empty($ConfigCalificacion['Decimales']) ? '0.01' : '1' ?>"
+                                                min="<?= HGlobal((string)$ConfigCalificacion['Minima']) ?>"
+                                                max="<?= HGlobal((string)$ConfigCalificacion['Maxima']) ?>"
                                                 placeholder="-"
-                                                data-original="<?= $Al['Calificacion'] !== null ? $Al['Calificacion'] : '' ?>"
-                                                value="<?= $Al['Calificacion'] !== null ? $Al['Calificacion'] : '' ?>"
+                                                data-original="<?= HGlobal($Al['Calificacion'] !== null ? $Al['Calificacion'] : '') ?>"
+                                                value="<?= HGlobal($Al['Calificacion'] !== null ? $Al['Calificacion'] : '') ?>"
                                             >
 
                                         </td>

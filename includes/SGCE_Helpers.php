@@ -7,6 +7,7 @@ $SgceHelperFiles = [
     'SGCE_BaseDatos.php',
     'SGCE_Configuracion.php',
     'SGCE_UI.php',
+    'SGCE_Layout.php',
     'SGCE_Archivos.php',
     'SGCE_Bitacora.php',
     'SGCE_PlaneacionesHelper.php',

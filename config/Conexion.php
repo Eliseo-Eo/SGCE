@@ -6,7 +6,7 @@ ini_set('log_errors', '1');
 ini_set('expose_php', '0');
 error_reporting(E_ALL);
 
-if (!defined('SGCE_VERSION')) { define('SGCE_VERSION', '1.0.91'); }
+if (!defined('SGCE_VERSION')) { define('SGCE_VERSION', '1.0.122'); }
 
 ini_set('session.use_strict_mode', '1');
 ini_set('session.use_only_cookies', '1');
@@ -45,11 +45,9 @@ try {
 }
 
 require_once dirname(__DIR__) . '/includes/SGCE_Helpers.php';
-require_once dirname(__DIR__) . '/includes/SGCE_Migraciones.php';
 require_once dirname(__DIR__) . '/includes/SGCE_SearchHelpers.php';
 require_once dirname(__DIR__) . '/includes/SGCE_ImportacionReportes.php';
 require_once dirname(__DIR__) . '/includes/SGCE_Mantenimiento.php';
-// El esquema se crea desde el instalador y los cambios técnicos se aplican con herramientas CLI.
 $SgceServiceLoader = dirname(__DIR__) . '/services/SGCE_ServiceLoader.php';
 if (is_file($SgceServiceLoader)) { require_once $SgceServiceLoader; }
 

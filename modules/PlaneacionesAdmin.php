@@ -224,7 +224,7 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
         <div class="PlaneacionStatCard"><span><span class="SgceColorIcon" aria-hidden="true">⏰</span></span><div><strong><?= $TotalPendientes ?></strong><small>Pendientes filtradas</small></div></div>
     </section>
 
-    <section class="SgceConfigCard p-4 mb-4">
+    <section class="SgceConfigCard p-4 mb-4 PlaneacionesFiltroCard">
         <div class="SgceConfigHead"><span><span class="SgceColorIcon" aria-hidden="true">🔍</span></span><div><h2>Filtros de búsqueda</h2><p>Consulta por docente, materia, grupo, entrega o estado.</p></div></div>
         <form method="get" class="row g-3 align-items-end PlaneacionesFiltroForm">
             <div class="col-md-3"><label class="SgceFieldLabel">Docente</label><select class="form-select FormControl" name="MaestroId"><option value="0">TODOS</option><?php foreach($Maestros as $M): ?><option value="<?= (int)$M['Id'] ?>" <?= $FiltroMaestro === (int)$M['Id'] ? 'selected' : '' ?>><?= HPlanAdmin($M['NombreCompleto']) ?></option><?php endforeach; ?></select></div>
@@ -244,8 +244,8 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
                 <tbody>
                     <?php foreach($Filas as $Index => $Fila): $C=$Fila['combo']; $R=$Fila['registro']; $Estado=$Fila['estado']; ?>
                     <tr>
-                        <td class="fw-bold"><?= HPlanAdmin($C['NombreCompleto']) ?></td>
-                        <td class="small fw-bold"><?= HPlanAdmin($C['ProgramaNombre'] ?? 'GENERAL') ?></td>
+                        <td><?= HPlanAdmin($C['NombreCompleto']) ?></td>
+                        <td class="small"><?= HPlanAdmin($C['ProgramaNombre'] ?? 'GENERAL') ?></td>
                         <td><span class="SgceChipInstitucional"><?= HPlanAdmin($C['MateriaNombre']) ?></span></td>
                         <td class="small text-muted fw-semibold"><?= HPlanAdmin($C['Grupos']) ?></td>
                         <td><span class="SgceChipInstitucional">No. <?= (int)$Fila['numero'] ?></span><?php if($R): ?><span class="SgceChipInstitucional PlaneacionVersionChip">V<?= (int)($R['VersionArchivo'] ?? 1) ?></span><?php endif; ?></td>

@@ -10,3 +10,13 @@ function SgceCalificacionPromedioGeneralCiclo(PDO $Pdo, int $CicloId): string {
     $Promedio = $Stmt->fetchColumn();
     return $Promedio !== null ? (string)$Promedio : '0.0';
 }
+
+
+function SgceCalificacionCssClase(PDO $Pdo, $Valor): string {
+    if ($Valor === null || $Valor === '') { return ''; }
+    $Cfg = SgceCalificacionConfig($Pdo);
+    $Valor = (float)$Valor;
+    if ($Valor < $Cfg['Aprobatoria']) { return 'border-danger'; }
+    $Alto = max($Cfg['Aprobatoria'], $Cfg['Maxima'] - (($Cfg['Maxima'] - $Cfg['Minima']) * 0.25));
+    return $Valor >= $Alto ? 'border-success' : 'border-warning';
+}

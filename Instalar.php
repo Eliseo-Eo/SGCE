@@ -3,6 +3,13 @@ ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
+if (!defined('SGCE_VERSION')) { define('SGCE_VERSION', '1.0.122'); }
+
+function InstalarAssetUrl(string $Ruta): string {
+    $Separador = str_contains($Ruta, '?') ? '&' : '?';
+    return $Ruta . $Separador . 'v=' . rawurlencode((string)SGCE_VERSION);
+}
+
 if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
@@ -28,6 +35,30 @@ class InstalarMensajeUsuario extends Exception {}
 class InstalarErrorSql extends Exception {}
 
 function HInst($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
+
+function InstalarCadenaMayusculas($Texto) {
+    $Texto = (string)$Texto;
+    if (function_exists('mb_strtoupper')) { return mb_strtoupper($Texto, 'UTF-8'); }
+    $Texto = strtr($Texto, ['á'=>'Á','é'=>'É','í'=>'Í','ó'=>'Ó','ú'=>'Ú','ü'=>'Ü','ñ'=>'Ñ']);
+    return strtoupper($Texto);
+}
+
+function InstalarNormalizarMayusculas($Texto) {
+    $Texto = trim(preg_replace('/\s+/u', ' ', (string)$Texto));
+    return InstalarCadenaMayusculas($Texto);
+}
+
+function InstalarTurnosTextoSeguro($Texto) {
+    $Turnos = [];
+    foreach (preg_split('/[,;\n]+/u', (string)$Texto) as $Turno) {
+        $Turno = InstalarNormalizarMayusculas($Turno);
+        if ($Turno !== '' && preg_match('/^[0-9A-ZÁÉÍÓÚÜÑ ._\-\/]{1,40}$/u', $Turno) && !in_array($Turno, $Turnos, true)) {
+            $Turnos[] = $Turno;
+        }
+    }
+    return implode(PHP_EOL, $Turnos ?: ['MATUTINO','VESPERTINO']);
+}
+
 
 function InstalarCsrfToken() {
     if (empty($_SESSION['InstalarCsrfToken']) || !is_string($_SESSION['InstalarCsrfToken'])) {
@@ -545,6 +576,7 @@ $Valores = [
     'MunicipioEstado' => $_POST['MunicipioEstado'] ?? '',
     'TelefonoEscuela' => $_POST['TelefonoEscuela'] ?? '',
     'CorreoEscuela' => $_POST['CorreoEscuela'] ?? '',
+    'LemaInstitucional' => $_POST['LemaInstitucional'] ?? '',
     'ColorInstitucional' => $_POST['ColorInstitucional'] ?? '#97051E',
     'CicloNombre' => $_POST['CicloNombre'] ?? '',
     'FechaInicio' => $_POST['FechaInicio'] ?? '',
@@ -554,8 +586,15 @@ $Valores = [
     'PeriodosModo' => $_POST['PeriodosModo'] ?? 'AUTOMATICO',
     'PeriodosPersonalizados' => $_POST['PeriodosPersonalizados'] ?? '',
     'UsaPlaneaciones' => $_POST['UsaPlaneaciones'] ?? '',
-    'TipoPlaneacion' => $_POST['TipoPlaneacion'] ?? 'PERIODO',
+    'TipoPlaneacion' => $_POST['TipoPlaneacion'] ?? 'CICLO',
     'PlaneacionesCantidad' => $_POST['PlaneacionesCantidad'] ?? '',
+    'TurnosDisponibles' => $_POST['TurnosDisponibles'] ?? "MATUTINO\nVESPERTINO",
+    'CalificacionMinima' => $_POST['CalificacionMinima'] ?? '5',
+    'CalificacionMaxima' => $_POST['CalificacionMaxima'] ?? '10',
+    'CalificacionAprobatoria' => $_POST['CalificacionAprobatoria'] ?? '6',
+    'CalificacionDecimales' => $_POST['CalificacionDecimales'] ?? '1',
+    'MatriculaAutomatica' => $_POST['MatriculaAutomatica'] ?? '1',
+    'MatriculaPrefijo' => $_POST['MatriculaPrefijo'] ?? 'SGCE',
     'NivelEducativo' => $_POST['NivelEducativo'] ?? 'SECUNDARIA',
     'NombreOfertaAcademica' => $_POST['NombreOfertaAcademica'] ?? '',
     'TipoPeriodizacion' => $_POST['TipoPeriodizacion'] ?? 'ANUAL',
@@ -602,6 +641,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
         $MunicipioEstado = InstalarNormalizarTexto($Valores['MunicipioEstado'], true);
         $TelefonoEscuela = InstalarNormalizarTexto($Valores['TelefonoEscuela']);
         $CorreoEscuela = InstalarNormalizarTexto($Valores['CorreoEscuela']);
+        $LemaInstitucional = InstalarNormalizarTexto($Valores['LemaInstitucional']);
         $ColorInstitucional = strtoupper(trim((string)($Valores['ColorInstitucional'] ?? '#97051E')));
         $CicloNombre = InstalarNormalizarTexto($Valores['CicloNombre'], true);
         $FechaInicio = trim((string)$Valores['FechaInicio']);
@@ -615,10 +655,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
         $PeriodosPersonalizados = InstalarNormalizarTexto($Valores['PeriodosPersonalizados'] ?? '', true);
         $PeriodosFinales = InstalarGenerarNombresPeriodos($PeriodosCantidad, $PeriodosNombreBase, $PeriodosModo, $PeriodosPersonalizados);
         $UsaPlaneaciones = !empty($Valores['UsaPlaneaciones']);
-        $TipoPlaneacion = InstalarTipoPlaneacionValido($Valores['TipoPlaneacion'] ?? 'PERIODO');
+        $TipoPlaneacion = InstalarTipoPlaneacionValido($Valores['TipoPlaneacion'] ?? 'CICLO');
         $PlaneacionesCantidadTexto = trim((string)($Valores['PlaneacionesCantidad'] ?? ''));
+        $TurnosDisponiblesTexto = InstalarTurnosTextoSeguro((string)($Valores['TurnosDisponibles'] ?? "MATUTINO\nVESPERTINO"));
+        $CalificacionMinima = max(0, min(100, (float)($Valores['CalificacionMinima'] ?? 5)));
+        $CalificacionMaxima = max(0, min(100, (float)($Valores['CalificacionMaxima'] ?? 10)));
+        if ($CalificacionMinima >= $CalificacionMaxima) { throw new Exception('La escala de calificaciones no es válida.'); }
+        $CalificacionAprobatoria = max($CalificacionMinima, min($CalificacionMaxima, (float)($Valores['CalificacionAprobatoria'] ?? 6)));
+        $CalificacionDecimales = !empty($Valores['CalificacionDecimales']) ? '1' : '0';
+        $MatriculaAutomatica = !empty($Valores['MatriculaAutomatica']) ? '1' : '0';
+        $MatriculaPrefijo = InstalarNormalizarMayusculas((string)($Valores['MatriculaPrefijo'] ?? 'SGCE'));
+        if ($MatriculaAutomatica === '1' && !preg_match('/^[A-Z0-9]{2,12}$/', $MatriculaPrefijo)) { $MatriculaPrefijo = 'SGCE'; }
+        if ($MatriculaAutomatica !== '1') { $MatriculaPrefijo = 'SGCE'; }
+        if ($UsaPlaneaciones && $TipoPlaneacion === 'CICLO' && $PlaneacionesCantidadTexto === '') {
+            $PlaneacionesCantidadTexto = '1';
+        }
         if ($UsaPlaneaciones && ($PlaneacionesCantidadTexto === '' || !ctype_digit($PlaneacionesCantidadTexto))) { throw new Exception('Escribe la cantidad de planeaciones.'); }
         $PlaneacionesCantidad = $UsaPlaneaciones ? max(1, min(12, (int)$PlaneacionesCantidadTexto)) : 0;
+        if ($UsaPlaneaciones && $TipoPlaneacion === 'CICLO') { $PlaneacionesCantidad = 1; }
         $NivelEducativo = InstalarNivelValido($Valores['NivelEducativo'] ?? 'SECUNDARIA');
         $TipoPeriodizacion = InstalarTipoPeriodizacionValido($Valores['TipoPeriodizacion'] ?? 'ANUAL');
         $TotalEtapasTexto = trim((string)($Valores['TotalEtapas'] ?? ''));
@@ -649,6 +703,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             InstalarValidarCorreoOpcional($CorreoEscuela),
         ] as $ValidacionCampo) {
             if ($ValidacionCampo !== true) { throw new Exception($ValidacionCampo); }
+        }
+        if (InstalarLongitud($LemaInstitucional) > 180) {
+            throw new Exception('El lema institucional no debe exceder 180 caracteres.');
         }
         if (!preg_match('/^#[0-9A-F]{6}$/', $ColorInstitucional)) {
             throw new Exception('Selecciona un color institucional válido.');
@@ -742,7 +799,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             'MunicipioEstado' => $MunicipioEstado,
             'TelefonoEscuela' => $TelefonoEscuela,
             'CorreoEscuela' => $CorreoEscuela,
-            'LemaInstitucional' => '',
+            'LemaInstitucional' => $LemaInstitucional,
             'ColorInstitucional' => $ColorInstitucional,
             'SistemaNombre' => 'SGCE',
             'PeriodosCantidad' => (string)$PeriodosCantidad,
@@ -752,6 +809,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
             'UsaPlaneaciones' => $UsaPlaneaciones ? '1' : '0',
             'TipoPlaneacion' => $TipoPlaneacion,
             'PlaneacionesCantidad' => (string)$PlaneacionesCantidad,
+            'TurnosDisponibles' => $TurnosDisponiblesTexto,
+            'CalificacionMinima' => (string)$CalificacionMinima,
+            'CalificacionMaxima' => (string)$CalificacionMaxima,
+            'CalificacionAprobatoria' => (string)$CalificacionAprobatoria,
+            'CalificacionDecimales' => $CalificacionDecimales,
+            'MatriculaAutomatica' => $MatriculaAutomatica,
+            'MatriculaPrefijo' => $MatriculaPrefijo,
             'NivelEducativo' => $NivelEducativo,
             'NombreOfertaAcademica' => $NombreOfertaAcademica,
             'TipoPeriodizacion' => $TipoPeriodizacion,
@@ -846,10 +910,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/sgce-base.min.css?v=1.0.91">
-<link rel="stylesheet" href="assets/css/sgce-soft-motion.css?v=1.0.91">
+<link rel="stylesheet" href="<?= HInst(InstalarAssetUrl('assets/css/sgce-base.min.css')) ?>">
+<link rel="stylesheet" href="<?= HInst(InstalarAssetUrl('assets/css/sgce-soft-motion.css')) ?>">
 <style>
-.SgceInstallerToggleWrap{display:flex;flex-direction:column;justify-content:flex-start}.SgceInstallerToggleSpacer{display:block;visibility:hidden;pointer-events:none}.SgceInstallerToggle{display:flex;align-items:center;gap:12px;width:100%;height:46px;min-height:46px;padding:7px 16px;border:2px solid #E2E8F0;border-radius:14px;background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.035);cursor:pointer;user-select:none;margin:0}.SgceInstallerToggle input{width:20px!important;height:20px!important;min-height:20px!important;flex:0 0 20px;margin:0!important}.SgceInstallerToggleText{display:flex;flex-direction:column;justify-content:center;line-height:1.05}.SgceInstallerToggleText strong{font-size:.92rem;color:#1F2937}.SgceInstallerToggleText small{font-size:.74rem;color:#667085;font-weight:700;margin-top:2px}.SgceInstallerToggle:has(input:checked){border-color:rgba(151,5,30,.42);background:#FFF7FA}.SgcePlaneacionesDependiente:disabled,.SgceProgramasDependiente:disabled{background:#F3F4F6;color:#6B7280;border-color:#E5E7EB;cursor:not-allowed;box-shadow:none}.SgcePlaneacionesHelp,.SgceProgramasHelp{transition:opacity .15s ease}.SgcePlaneacionesHelp.SgceMuted,.SgceProgramasHelp.SgceMuted{opacity:.55}
+.SgceInstallerToggleWrap{display:flex;flex-direction:column;justify-content:flex-start}.SgceInstallerToggleSpacer{display:block;visibility:hidden;pointer-events:none}.SgceInstallerToggle{display:flex;align-items:center;gap:12px;width:100%;height:46px;min-height:46px;padding:7px 16px;border:2px solid #E2E8F0;border-radius:14px;background:#fff;box-shadow:0 8px 18px rgba(15,23,42,.035);cursor:pointer;user-select:none;margin:0}.SgceInstallerToggle input{width:20px!important;height:20px!important;min-height:20px!important;flex:0 0 20px;margin:0!important}.SgceInstallerToggleText{display:flex;flex-direction:column;justify-content:center;line-height:1.05}.SgceInstallerToggleText strong{font-size:.92rem;color:#1F2937}.SgceInstallerToggleText small{font-size:.74rem;color:#667085;font-weight:700;margin-top:2px}.SgceInstallerToggle:has(input:checked){border-color:rgba(151,5,30,.42);background:#FFF7FA}.SgceInstallerFieldLabel{display:flex;align-items:flex-end;min-height:38px;line-height:1.18}.SgceMatriculaDependiente:disabled,.SgcePlaneacionesDependiente:disabled,.SgceProgramasDependiente:disabled{background:#F3F4F6!important;color:#6B7280!important;border-color:#E5E7EB!important;cursor:not-allowed;box-shadow:none!important}.SgceMatriculaHelp,.SgcePlaneacionesHelp,.SgceProgramasHelp{transition:opacity .15s ease}.SgceMatriculaHelp.SgceMuted,.SgcePlaneacionesHelp.SgceMuted,.SgceProgramasHelp.SgceMuted{opacity:.55}
 </style>
 </head>
 <body class="SgceBody SgceInstallerPage">
@@ -913,13 +977,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                 <div class="col-12"><label class="fw-bold mb-2">Carpeta de respaldos</label><input class="form-control FormControl" name="BackupDir" value="<?= HInst($Valores['BackupDir']) ?>" required></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">🏫</span> Datos oficiales de la escuela</h3></div>
-                <div class="col-12"><label class="fw-bold mb-2">Nombre oficial de la escuela</label><input class="form-control FormControl InputUpper" name="NombreEscuela" value="<?= HInst($Valores['NombreEscuela']) ?>" required minlength="3" maxlength="150" placeholder="Nombre de la escuela"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">CCT / Clave</label><input class="form-control FormControl InputUpper" name="ClaveCentroTrabajo" value="<?= HInst($Valores['ClaveCentroTrabajo']) ?>" maxlength="30" pattern="[A-Z0-9\-]{0,30}" title="Solo letras, números o guion." placeholder="Opcional"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Municipio y estado</label><input class="form-control FormControl InputUpper" name="MunicipioEstado" value="<?= HInst($Valores['MunicipioEstado']) ?>" maxlength="120" placeholder="Opcional"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Correo institucional</label><input class="form-control FormControl" type="email" name="CorreoEscuela" value="<?= HInst($Valores['CorreoEscuela']) ?>" maxlength="120" autocomplete="email" placeholder="Opcional"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Director(a)</label><input class="form-control FormControl InputUpper" name="DirectorNombre" value="<?= HInst($Valores['DirectorNombre']) ?>" maxlength="120" pattern="[A-ZÁÉÍÓÚÜÑ .'-]*" title="Solo letras y espacios." placeholder="Opcional"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Teléfono</label><input class="form-control FormControl InputDigits" type="tel" name="TelefonoEscuela" value="<?= HInst($Valores['TelefonoEscuela']) ?>" inputmode="numeric" autocomplete="tel" minlength="7" maxlength="15" pattern="\d{7,15}" title="Solo números, mínimo 7 y máximo 15 dígitos." placeholder="Opcional"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Color institucional</label><div class="SgceColorControl"><input class="form-control FormControl" type="color" name="ColorInstitucional" id="ColorInstitucional" value="<?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?>"><span id="ColorInstitucionalTexto"><?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?></span></div></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Nombre oficial de la escuela</label><input class="form-control FormControl InputUpper" name="NombreEscuela" value="<?= HInst($Valores['NombreEscuela']) ?>" required minlength="3" maxlength="150" placeholder="Nombre de la escuela"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">CCT / Clave</label><input class="form-control FormControl InputUpper" name="ClaveCentroTrabajo" value="<?= HInst($Valores['ClaveCentroTrabajo']) ?>" maxlength="30" pattern="[A-Z0-9\-]{0,30}" title="Solo letras, números o guion." placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Director(a)</label><input class="form-control FormControl InputUpper" name="DirectorNombre" value="<?= HInst($Valores['DirectorNombre']) ?>" maxlength="120" pattern="[A-ZÁÉÍÓÚÜÑ .'-]*" title="Solo letras y espacios." placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Municipio y estado</label><input class="form-control FormControl InputUpper" name="MunicipioEstado" value="<?= HInst($Valores['MunicipioEstado']) ?>" maxlength="120" placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Teléfono</label><input class="form-control FormControl InputDigits" type="tel" name="TelefonoEscuela" value="<?= HInst($Valores['TelefonoEscuela']) ?>" inputmode="numeric" autocomplete="tel" minlength="7" maxlength="15" pattern="\d{7,15}" title="Solo números, mínimo 7 y máximo 15 dígitos." placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Correo institucional</label><input class="form-control FormControl" type="email" name="CorreoEscuela" value="<?= HInst($Valores['CorreoEscuela']) ?>" maxlength="120" autocomplete="email" placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Lema o leyenda inferior</label><input class="form-control FormControl" name="LemaInstitucional" value="<?= HInst($Valores['LemaInstitucional'] ?? '') ?>" maxlength="180" placeholder="Opcional"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Color institucional</label><div class="SgceColorControl"><input class="form-control FormControl" type="color" name="ColorInstitucional" id="ColorInstitucional" value="<?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?>"><span id="ColorInstitucionalTexto"><?= HInst($Valores['ColorInstitucional'] ?: '#97051E') ?></span></div></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">🧭</span> Configuración académica inicial</h3></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Nivel educativo</label><select class="form-select FormControl" name="NivelEducativo" required>
@@ -928,15 +993,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                     <?php endforeach; ?>
                 </select><small class="text-muted fw-semibold">Define la lógica académica principal.</small></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Nombre específico de la oferta educativa <span class="text-muted">(opcional)</span></label><input class="form-control FormControl InputUpper" name="NombreOfertaAcademica" value="<?= HInst($Valores['NombreOfertaAcademica']) ?>" maxlength="140" placeholder="Ej. Secundaria Técnica / Bachillerato Tecnológico"><small class="text-muted fw-semibold">Si lo dejas vacío, SGCE usará el nivel educativo como nombre.</small></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Organización académica</label><select class="form-select FormControl" name="TipoPeriodizacion" required>
+                <div class="col-md-6"><label class="fw-bold mb-2">Organización académica</label><select class="form-select FormControl" name="TipoPeriodizacion" required>
                     <?php foreach(['ANUAL'=>'Años / grados','SEMESTRAL'=>'Semestres','CUATRIMESTRAL'=>'Cuatrimestres','TRIMESTRAL'=>'Trimestres','MODULAR'=>'Módulos / niveles'] as $ClaveTipo=>$TextoTipo): ?>
                     <option value="<?= HInst($ClaveTipo) ?>" <?= InstalarTipoPeriodizacionValido($Valores['TipoPeriodizacion']) === $ClaveTipo ? 'selected' : '' ?>><?= HInst($TextoTipo) ?></option>
                     <?php endforeach; ?>
                 </select></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Cantidad de etapas académicas</label><input class="form-control FormControl InputDigits" name="TotalEtapas" value="<?= HInst($Valores['TotalEtapas']) ?>" required min="1" max="20" maxlength="2" inputmode="numeric" placeholder="Ej. 3, 6, 8"></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Cantidad de etapas académicas</label><input class="form-control FormControl InputDigits" name="TotalEtapas" value="<?= HInst($Valores['TotalEtapas']) ?>" required min="1" max="20" maxlength="2" inputmode="numeric" placeholder="Ej. 3, 6, 8"></div>
                 <?php $ProgramasHabilitados = !empty($Valores['UsaProgramas']) || InstalarRequiereProgramasEducativos($Valores['NivelEducativo'] ?? 'SECUNDARIA'); ?>
-                <div class="col-md-4 SgceInstallerToggleWrap"><label class="fw-bold mb-2 SgceInstallerToggleSpacer" aria-hidden="true">Opción</label><label class="SgceInstallerToggle"><input class="form-check-input" type="checkbox" name="UsaProgramas" value="1" <?= $ProgramasHabilitados ? 'checked' : '' ?> <?= InstalarRequiereProgramasEducativos($Valores['NivelEducativo'] ?? 'SECUNDARIA') ? 'disabled' : '' ?>><span class="SgceInstallerToggleText"><strong>Usa programas educativos</strong><small>Programas, especialidades o posgrados</small></span></label></div>
+                <div class="col-12 SgceInstallerToggleWrap"><label class="fw-bold mb-2 SgceInstallerToggleSpacer" aria-hidden="true">Opción</label><label class="SgceInstallerToggle"><input class="form-check-input" type="checkbox" name="UsaProgramas" value="1" <?= $ProgramasHabilitados ? 'checked' : '' ?> <?= InstalarRequiereProgramasEducativos($Valores['NivelEducativo'] ?? 'SECUNDARIA') ? 'disabled' : '' ?>><span class="SgceInstallerToggleText"><strong>Usa programas educativos</strong><small>Programas, especialidades o posgrados</small></span></label></div>
                 <div class="col-12"><label class="fw-bold mb-2">Programas educativos o programas iniciales</label><textarea class="form-control FormControl InputUpper SgceProgramasDependiente" name="ProgramasIniciales" rows="2" placeholder="Ej. Informática, Contabilidad, Enfermería" <?= $ProgramasHabilitados ? '' : 'disabled' ?>><?= HInst($Valores['ProgramasIniciales']) ?></textarea><small class="text-muted fw-semibold SgceProgramasHelp <?= $ProgramasHabilitados ? '' : 'SgceMuted' ?>">Activa “Usa programas educativos” para capturar programas. En universidad, maestría y doctorado es obligatorio.</small></div>
+
+                <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">🧩</span> Parámetros multinivel</h3></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">Turnos disponibles</label><textarea class="form-control FormControl InputUpper" name="TurnosDisponibles" rows="4" placeholder="MATUTINO
+VESPERTINO
+NOCTURNO
+SABATINO"><?= HInst($Valores['TurnosDisponibles']) ?></textarea><small class="text-muted fw-semibold">Escribe un turno por línea. Ejemplo: MATUTINO, VESPERTINO, NOCTURNO, SABATINO, EN LÍNEA o SIN TURNO.</small></div>
+                <div class="col-md-6"><div class="row g-3">
+                    <div class="col-md-4"><label class="fw-bold mb-2 SgceInstallerFieldLabel">Calificación mínima</label><input class="form-control FormControl" type="number" step="0.01" min="0" max="100" name="CalificacionMinima" value="<?= HInst($Valores['CalificacionMinima']) ?>" required></div>
+                    <div class="col-md-4"><label class="fw-bold mb-2 SgceInstallerFieldLabel">Calificación aprobatoria</label><input class="form-control FormControl" type="number" step="0.01" min="0" max="100" name="CalificacionAprobatoria" value="<?= HInst($Valores['CalificacionAprobatoria']) ?>" required></div>
+                    <div class="col-md-4"><label class="fw-bold mb-2 SgceInstallerFieldLabel">Calificación máxima</label><input class="form-control FormControl" type="number" step="0.01" min="0" max="100" name="CalificacionMaxima" value="<?= HInst($Valores['CalificacionMaxima']) ?>" required></div>
+                    <div class="col-md-6"><input type="hidden" name="CalificacionDecimales" value="0"><label class="SgceInstallerToggle"><input class="form-check-input" type="checkbox" name="CalificacionDecimales" value="1" <?= !empty($Valores['CalificacionDecimales']) ? 'checked' : '' ?>><span class="SgceInstallerToggleText"><strong>Permitir decimales</strong><small>Ej. 8.5 o 92.75</small></span></label></div>
+                    <div class="col-md-6"><input type="hidden" name="MatriculaAutomatica" value="0"><label class="SgceInstallerToggle"><input class="form-check-input" type="checkbox" name="MatriculaAutomatica" id="SgceInstallerMatriculaAutomatica" value="1" <?= !empty($Valores['MatriculaAutomatica']) ? 'checked' : '' ?>><span class="SgceInstallerToggleText"><strong>Matrícula automática</strong><small>Si no se captura, SGCE genera una</small></span></label></div>
+                    <div class="col-md-6"><label class="fw-bold mb-2">Prefijo de matrícula</label><input class="form-control FormControl InputUpperAscii SgceMatriculaDependiente" name="MatriculaPrefijo" value="<?= HInst($Valores['MatriculaPrefijo']) ?>" maxlength="12" pattern="[A-Z0-9]{2,12}" placeholder="SGCE" data-sgce-matricula-campo="1"></div>
+                    <div class="col-md-6"><label class="fw-bold mb-2">Formato generado</label><input class="form-control FormControl SgceMatriculaDependiente" id="SgceInstallerMatriculaEjemplo" value="<?= HInst((string)$Valores['MatriculaPrefijo'] . '-' . date('Y') . '-000001') ?>" readonly data-sgce-matricula-campo="1"><small class="text-muted fw-semibold SgceMatriculaHelp">Solo se usa si Matrícula automática está activada.</small></div>
+                </div></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">📅</span> Ciclo, periodos y planeaciones</h3></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Nombre del ciclo</label><input class="form-control FormControl InputUpper" name="CicloNombre" value="<?= HInst($Valores['CicloNombre']) ?>" required maxlength="40" placeholder="Ej. 2026-2027 / 2026-A"></div>
@@ -944,12 +1024,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
                 <div class="col-md-4"><label class="fw-bold mb-2">Fecha de fin</label><input class="form-control FormControl" type="date" name="FechaFin" value="<?= HInst($Valores['FechaFin']) ?>" required></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Cantidad de periodos de evaluación</label><input class="form-control FormControl InputDigits" name="PeriodosCantidad" value="<?= HInst($Valores['PeriodosCantidad']) ?>" required min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Ej. 3"></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Nombre base del periodo</label><input class="form-control FormControl InputUpper" name="PeriodosNombreBase" value="<?= HInst($Valores['PeriodosNombreBase']) ?>" required maxlength="60" placeholder="Parcial / Trimestre / Unidad"></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Modo de periodos</label><select class="form-select FormControl" name="PeriodosModo"><option value="AUTOMATICO" <?= ($Valores['PeriodosModo'] ?? '') === 'AUTOMATICO' ? 'selected' : '' ?>>Automático</option><option value="PERSONALIZADO" <?= ($Valores['PeriodosModo'] ?? '') === 'PERSONALIZADO' ? 'selected' : '' ?>>Personalizado</option></select></div>
-                <div class="col-12"><label class="fw-bold mb-2">Periodos personalizados</label><textarea class="form-control FormControl InputUpper" name="PeriodosPersonalizados" rows="2" placeholder="Opcional. Ej. Parcial 1, Parcial 2, Ordinario, Extraordinario"><?= HInst($Valores['PeriodosPersonalizados']) ?></textarea><small class="text-muted fw-semibold">Si lo dejas vacío, SGCE genera automáticamente: PARCIAL 1, PARCIAL 2, etc.</small></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">Modo de periodos</label><select class="form-select FormControl" name="PeriodosModo" id="SgceInstallerPeriodosModo"><option value="AUTOMATICO" <?= ($Valores['PeriodosModo'] ?? '') === 'AUTOMATICO' ? 'selected' : '' ?>>Automático</option><option value="PERSONALIZADO" <?= ($Valores['PeriodosModo'] ?? '') === 'PERSONALIZADO' ? 'selected' : '' ?>>Personalizado</option></select></div>
+                <div class="col-12"><label class="fw-bold mb-2">Periodos personalizados</label><textarea class="form-control FormControl InputUpper SgcePeriodosPersonalizadosDependiente" name="PeriodosPersonalizados" rows="2" placeholder="Opcional. Ej. Parcial 1, Parcial 2, Ordinario, Extraordinario" <?= (($Valores['PeriodosModo'] ?? 'AUTOMATICO') === 'PERSONALIZADO') ? '' : 'disabled' ?>><?= HInst((($Valores['PeriodosModo'] ?? 'AUTOMATICO') === 'PERSONALIZADO') ? $Valores['PeriodosPersonalizados'] : '') ?></textarea><small class="text-muted fw-semibold SgcePeriodosPersonalizadosHelp <?= (($Valores['PeriodosModo'] ?? 'AUTOMATICO') === 'PERSONALIZADO') ? '' : 'SgceMuted' ?>">Solo se captura cuando el modo de periodos está en personalizado.</small></div>
                 <?php $PlaneacionesHabilitadas = !empty($Valores['UsaPlaneaciones']); ?>
                 <div class="col-md-4 SgceInstallerToggleWrap"><label class="fw-bold mb-2 SgceInstallerToggleSpacer" aria-hidden="true">Opción</label><label class="SgceInstallerToggle"><input type="hidden" name="UsaPlaneaciones" value="0"><input class="form-check-input" type="checkbox" name="UsaPlaneaciones" value="1" <?= $PlaneacionesHabilitadas ? 'checked' : '' ?>><span class="SgceInstallerToggleText"><strong>Usa planeaciones</strong><small>Control de entregas docentes</small></span></label></div>
                 <div class="col-md-4"><label class="fw-bold mb-2">Tipo de planeación</label><select class="form-select FormControl SgcePlaneacionesDependiente" name="TipoPlaneacion" data-sgce-planeacion-campo="1" <?= $PlaneacionesHabilitadas ? '' : 'disabled' ?>><option value="CICLO" <?= ($Valores['TipoPlaneacion'] ?? '') === 'CICLO' ? 'selected' : '' ?>>Por ciclo</option><option value="PERIODO" <?= ($Valores['TipoPlaneacion'] ?? '') === 'PERIODO' ? 'selected' : '' ?>>Por periodo de evaluación</option><option value="UNIDAD" <?= ($Valores['TipoPlaneacion'] ?? '') === 'UNIDAD' ? 'selected' : '' ?>>Por unidad/tema</option><option value="SEMANA" <?= ($Valores['TipoPlaneacion'] ?? '') === 'SEMANA' ? 'selected' : '' ?>>Semanal</option></select></div>
-                <div class="col-md-4"><label class="fw-bold mb-2">Planeaciones a entregar</label><input class="form-control FormControl InputDigits SgcePlaneacionesDependiente" name="PlaneacionesCantidad" data-sgce-planeacion-campo="1" value="<?= HInst($Valores['PlaneacionesCantidad']) ?>" min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Ej. 3" <?= $PlaneacionesHabilitadas ? '' : 'disabled' ?>><small class="text-muted fw-semibold SgcePlaneacionesHelp <?= $PlaneacionesHabilitadas ? '' : 'SgceMuted' ?>">Se usa para el control de entregas por materia.</small></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">Planeaciones a entregar</label><input class="form-control FormControl InputDigits SgcePlaneacionesDependiente" name="PlaneacionesCantidad" data-sgce-planeacion-campo="1" value="<?= HInst($Valores['PlaneacionesCantidad']) ?>" min="1" max="12" maxlength="2" inputmode="numeric" placeholder="Ej. 1" <?= $PlaneacionesHabilitadas ? '' : 'disabled' ?>><small class="text-muted fw-semibold SgcePlaneacionesHelp <?= $PlaneacionesHabilitadas ? '' : 'SgceMuted' ?>">Se solicitará una planeación por materia durante todo el ciclo escolar.</small></div>
 
                 <div class="col-12"><h3 class="SgceInstallerSectionTitle"><span class="SgceColorIcon" aria-hidden="true">👤</span> Administrador inicial</h3></div>
                 <div class="col-md-6"><label class="fw-bold mb-2">Nombre del administrador</label><input class="form-control FormControl InputUpper" name="AdminNombre" value="<?= HInst($Valores['AdminNombre']) ?>" required minlength="3" maxlength="120" pattern="[A-ZÁÉÍÓÚÜÑ .'-]+" title="Solo letras y espacios." placeholder="NOMBRE COMPLETO"></div>
@@ -963,7 +1043,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$YaInstalado) {
     <?php endif; ?>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sgce-shared.js?v=1.0.91"></script>
-<script src="assets/js/Instalar.js?v=1.0.91"></script>
+<script src="<?= HInst(InstalarAssetUrl('assets/js/sgce-shared.js')) ?>"></script>
+<script src="<?= HInst(InstalarAssetUrl('assets/js/Instalar.js')) ?>"></script>
 </body>
 </html>

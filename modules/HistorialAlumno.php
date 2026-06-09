@@ -12,7 +12,52 @@ SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para consultar ex
 $AlumnoId = intval($_GET['AlumnoId'] ?? 0);
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
 $PeriodoInfo = SgcePeriodoInfo($Pdo, $PeriodoId);
-if (!$PeriodoInfo) { SgceSalirConError('Periodo inválido.', 400); }
+if (!$PeriodoInfo) {
+    $CicloActivoSinPeriodo = SgceCicloActivo($Pdo);
+    http_response_code(400);
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SGCE | Periodos no configurados</title>
+        <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <?= SgceCss('assets/css/sgce-base.min.css') ?>
+        <?= SgceCss('assets/css/sgce-soft-motion.css') ?>
+        <?= SgceEstilosTema($Pdo) ?>
+    </head>
+    <body>
+    <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-5">
+        <section class="SgceHero mb-4">
+            <div class="SgceHeroInfo">
+                <div class="SgceHeroIcon"><span class="SgceColorIcon" aria-hidden="true">📅</span></div>
+                <div>
+                    <h1>PERIODOS NO CONFIGURADOS</h1>
+                    <p>El ciclo activo no tiene periodos de evaluación disponibles.</p>
+                </div>
+            </div>
+            <div class="SgceHeroActions">
+                <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
+            </div>
+        </section>
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h2 class="h5 fw-bold text-danger">No se puede abrir el expediente todavía</h2>
+            <p class="mb-3">El ciclo activo <?= htmlspecialchars((string)($CicloActivoSinPeriodo['Nombre'] ?? 'actual'), ENT_QUOTES, 'UTF-8') ?> no tiene periodos configurados. Registra o copia los periodos antes de consultar calificaciones, boletas o expedientes.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-success rounded-pill fw-bold px-4" href="PeriodosAdmin.php"><i class="fa-solid fa-calendar-days me-2"></i>Ir a ciclos y periodos</a>
+                <a class="btn btn-outline-secondary rounded-pill fw-bold px-4" href="MigracionAdmin.php"><i class="fa-solid fa-rotate me-2"></i>Ir a migración</a>
+            </div>
+        </div>
+    </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 $FechaInicioCiclo = $PeriodoInfo['FechaInicio'];
 $FechaFinCiclo = $PeriodoInfo['FechaFin'];
 $PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
@@ -83,6 +128,7 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <?= SgceCss('assets/css/sgce-base.min.css') ?>
 <?= SgceCss('assets/css/sgce-soft-motion.css') ?>
+<?= SgceCss('assets/css/expediente-alumno.css') ?>
 <?= SgceEstilosTema($Pdo) ?>
 </head>
 <body class="ExpedienteAlumnoBody">
@@ -96,13 +142,13 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
             </div>
         </div>
         <div class="SgceHeroActions ExpedienteAlumnoActions">
-            <a href="ExportarAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&PeriodoId=<?= (int)$PeriodoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnBoletaPdf">
+            <a href="ExportarAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&PeriodoId=<?= (int)$PeriodoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnExpedientePdf">
                 <i class="fa-solid fa-file-pdf"></i>
-                <span>BOLETA PDF</span>
+                <span>Boleta PDF</span>
             </a>
-            <a href="ExportarHistorialAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnBoletaPdf">
+            <a href="ExportarHistorialAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnExpedientePdf">
                 <i class="fa-solid fa-scroll"></i>
-                <span>HISTORIAL PDF</span>
+                <span>Historial PDF</span>
             </a>
             <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
         </div>
