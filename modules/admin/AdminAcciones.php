@@ -367,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['EditAsignacion'])) {
         $Id = intval($_POST['Id'] ?? 0);
         $MaestroId = intval($_POST['MaestroId'] ?? 0);
-        $MotivoRelevo = trim((string)($_POST['MotivoRelevo'] ?? 'RELEVO DOCENTE / INTERINATO'));
+        $MotivoRelevo = trim((string)($_POST['MotivoRelevo'] ?? ''));
         if ($Id <= 0 || $MaestroId <= 0 || $CicloActivoAccionId <= 0) {
             $_SESSION['Mensaje'] = "Datos de asignación inválidos.";
             SgceRedirectAdminTab($TabPost, $UserSession);
@@ -379,9 +379,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SgceRedirectAdminTab($TabPost, $UserSession);
             }
             if (!SgceMaestroExisteActivo($Pdo, $MaestroId)) { $_SESSION['Mensaje'] = "Selecciona un docente activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
+            if ((int)$AsignacionActual['MaestroId'] !== $MaestroId && $MotivoRelevo === '') {
+                $_SESSION['Mensaje'] = "Captura el motivo del cambio docente.";
+                $_SESSION['MensajeTipo'] = 'warning';
+                SgceRedirectAdminTab($TabPost, $UserSession);
+            }
             $Pdo->beginTransaction();
             if ((int)$AsignacionActual['MaestroId'] !== $MaestroId) {
-                SgceRelevarDocenteAsignacion($Pdo, $Id, $MaestroId, (int)($UserSession['Id'] ?? 0), $MotivoRelevo !== '' ? $MotivoRelevo : 'RELEVO DOCENTE / INTERINATO');
+                SgceRelevarDocenteAsignacion($Pdo, $Id, $MaestroId, (int)($UserSession['Id'] ?? 0), $MotivoRelevo);
                 RegistrarBitacora($Pdo, $UserSession, 'RELEVO_DOCENTE_ASIGNACION', 'Asignaciones', $Id, 'RELEVO/INTERINATO SOBRE MATERIA DE GRUPO');
                 $Pdo->commit();
                 $_SESSION['Mensaje'] = "Relevo docente registrado.";

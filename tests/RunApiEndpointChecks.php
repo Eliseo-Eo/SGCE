@@ -29,14 +29,14 @@ else {
     }
 }
 
-$Js = $Root . '/assets/js/Admin.js';
+$Js = $Root . '/assets/js/admin/AdminServerFilters.js';
 $Revisiones++;
-if (!is_file($Js)) { $Errores[] = 'Falta assets/js/Admin.js'; }
+if (!is_file($Js)) { $Errores[] = 'Falta assets/js/admin/AdminServerFilters.js'; }
 else {
     $Contenido = file_get_contents($Js);
     foreach (['api/admin/alumnos.php','api/admin/materias.php','api/admin/asignaciones.php','api/admin/bitacora.php','fetch('] as $Needle) {
         $Revisiones++;
-        if (!str_contains($Contenido, $Needle)) { $Errores[] = "Admin.js no referencia [$Needle]"; }
+        if (!str_contains($Contenido, $Needle)) { $Errores[] = "AdminServerFilters.js no referencia [$Needle]"; }
     }
 }
 

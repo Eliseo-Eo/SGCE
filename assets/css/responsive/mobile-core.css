@@ -1,0 +1,205 @@
+/* SGCE 1.0.140 - Capa responsive centralizada
+   Breakpoints normalizados:
+   430px: Celular pequeño | 576px: Celular estándar | 768px: Tablet vertical | 992px: Tablet horizontal */
+
+@media (max-width: 992px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body { -webkit-text-size-adjust: 100%; }
+  .container,
+  .container-fluid,
+  .SgcePageWrap,
+  .SgceModuleWrap,
+  .PublicContainer,
+  .ConsultaWrap,
+  .InstallerWrap {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .SgceModuleWrap,
+  .SgcePageWrap { padding-left: 16px !important; padding-right: 16px !important; }
+  .row { --bs-gutter-x: 1rem; }
+  img, svg, video, canvas { max-width: 100%; height: auto; }
+}
+
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .SgceHero,
+  .Top,
+  .TopBar,
+  .TopHeader,
+  .MaestroHero,
+  .SgcePeriodosHero,
+  .ExpedienteAlumnoHero,
+  .SgceMigrationHero,
+  .PublicHero,
+  .LoginHero,
+  .InstallerHero {
+    border-radius: 20px !important;
+    padding: 18px !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+  .SgceHero,
+  .MaestroHero,
+  .TopHeader,
+  .TopBar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    text-align: left !important;
+  }
+  .SgceHeroInfo,
+  .MaestroHero .SgceHeroInfo,
+  .TopHeader > div,
+  .TopBar > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  .SgceHero h1,
+  .MaestroHero h1,
+  .TopHeader h1,
+  .TopBar h1,
+  .PublicHero h1,
+  .InstallerHero h1 {
+    font-size: clamp(1.45rem, 7vw, 2rem) !important;
+    line-height: 1.08 !important;
+    margin: 0 !important;
+    letter-spacing: .02em !important;
+    overflow-wrap: anywhere;
+  }
+  .SgceHero p,
+  .MaestroHero p,
+  .TopHeader p,
+  .TopBar p,
+  .PublicHero p,
+  .InstallerHero p {
+    font-size: .88rem !important;
+    line-height: 1.35 !important;
+    margin: .25rem 0 0 !important;
+  }
+  .SgceHeroIcon,
+  .TopIcon,
+  .MaestroHero .SgceHeroIcon,
+  .PublicHeroIcon,
+  .InstallerHeroIcon {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    border-radius: 16px !important;
+  }
+  .SgceHeroActions,
+  .MaestroHero .SgceHeroActions,
+  .TopActions,
+  .TopBarActions,
+  .HeaderActions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .SgceHeroBtn,
+  .MaestroHeroStat,
+  .MaestroHeroLink,
+  .TopActions .btn,
+  .TopBarActions .btn,
+  .HeaderActions .btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .card,
+  .card-custom,
+  .MainCard,
+  .MaestrosSideCard,
+  .MaestrosTableCard,
+  .GruposSideCard,
+  .GruposTableCard,
+  .MateriasSideCard,
+  .MateriasTableCard,
+  .AsignacionesFormCard,
+  .AsignacionesTableCard,
+  .SgceConfigCard,
+  .SgceUsersCard,
+  .SgcePeriodCard,
+  .SgceMigrationCard {
+    border-radius: 18px !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+  .card-body,
+  .card-header,
+  .p-4 { padding: 16px !important; }
+  .btn,
+  button,
+  input,
+  select,
+  textarea,
+  .form-control,
+  .form-select { font-size: 16px; }
+  .btn,
+  .SgceBtn,
+  .BotonAccion,
+  .BtnGuardar,
+  .BtnLimpiar,
+  .BtnExport,
+  .SgceHeroBtn {
+    min-height: 44px !important;
+    border-radius: 14px !important;
+    touch-action: manipulation;
+  }
+  .form-control,
+  .form-select,
+  textarea {
+    min-height: 44px !important;
+    border-radius: 14px !important;
+  }
+  .SgceStickyActions {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 30 !important;
+    background: rgba(255,255,255,.96) !important;
+    backdrop-filter: blur(10px) !important;
+    padding: 12px !important;
+  }
+  .SgceStickyActions .btn { width: 100% !important; }
+}
+
+@media (max-width: 576px) {
+  .SgceModuleWrap,
+  .SgcePageWrap { padding: 12px !important; }
+  .SgceHero,
+  .Top,
+  .TopBar,
+  .TopHeader,
+  .MaestroHero { padding: 16px !important; border-radius: 18px !important; }
+  .SgceHero h1,
+  .MaestroHero h1,
+  .TopHeader h1,
+  .TopBar h1 { font-size: 1.55rem !important; }
+  .SgceHeroIcon,
+  .TopIcon,
+  .MaestroHero .SgceHeroIcon { width: 44px !important; height: 44px !important; min-width: 44px !important; }
+  .card-body,
+  .card-header,
+  .p-4 { padding: 14px !important; }
+}
+
+@media (max-width: 430px) {
+  .SgceModuleWrap,
+  .SgcePageWrap { padding: 10px !important; }
+  .SgceHero h1,
+  .MaestroHero h1,
+  .TopHeader h1,
+  .TopBar h1 { font-size: 1.38rem !important; }
+  .SgceHero p,
+  .MaestroHero p { font-size: .82rem !important; }
+  .btn,
+  .SgceBtn,
+  .BotonAccion,
+  .BtnGuardar,
+  .BtnLimpiar,
+  .BtnExport { min-height: 46px !important; }
+}

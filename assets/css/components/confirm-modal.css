@@ -1,0 +1,34 @@
+/* SGCE 1.0.140 - Confirmaciones globales */
+.SgceConfirmBackdropHelper .modal-backdrop.show{
+    background-color:#000!important;
+    opacity:.50!important;
+}
+.SgceConfirmModal .SgceConfirmContent{
+    box-shadow:0 24px 58px rgba(15,23,42,.22),0 0 0 1px rgba(15,23,42,.06)!important;
+}
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmHeader{
+    background:radial-gradient(circle at 12% 0%,rgba(255,255,255,.24),transparent 34%),linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%)!important;
+}
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmCancel:hover,
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmCancel:focus,
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmCancel:focus-visible,
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmCancel:active{
+    color:#047857!important;
+    border-color:rgba(4,120,87,.30)!important;
+    box-shadow:0 8px 18px rgba(15,23,42,.07)!important;
+}
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmAccept:hover,
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmAccept:focus,
+.SgceConfirmModal:not(.SgceConfirmModalDanger) .SgceConfirmAccept:focus-visible{
+    transform:none!important;
+    filter:none!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 14px 28px rgba(4,120,87,.30)!important;
+}
+.SgceConfirmModalDanger .SgceConfirmContent{
+    box-shadow:0 24px 58px rgba(15,23,42,.25),0 0 0 1px rgba(220,38,38,.16)!important;
+}
+@media (max-width:575.98px){
+    .SgceConfirmDialog{padding:0 12px!important;}
+    .SgceConfirmHeader{padding:22px 18px 18px!important;}
+    .SgceConfirmBody{padding:20px 18px 22px!important;}
+}

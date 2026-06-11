@@ -5,12 +5,31 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 function SgcePublicoUrlRaizProyecto(): string {
+    global $Pdo;
+    $UrlConfigurada = '';
+    if (defined('SGCE_BASE_URL')) { $UrlConfigurada = SgceNormalizarUrlBaseSistema(SGCE_BASE_URL); }
+    if ($UrlConfigurada === '' && $Pdo instanceof PDO && function_exists('SgceObtenerConfiguracion')) {
+        $ConfigPublica = SgceObtenerConfiguracion($Pdo);
+        $UrlConfigurada = SgceNormalizarUrlBaseSistema($ConfigPublica['UrlBaseSistema'] ?? '');
+    }
+    if ($UrlConfigurada !== '') { return $UrlConfigurada; }
+
     $Script = (string)($_SERVER['SCRIPT_NAME'] ?? '/');
     $Dir = str_replace('\\', '/', dirname($Script));
     if ($Dir === '.' || $Dir === '/' || $Dir === '\\') { return '/'; }
     if (basename($Dir) === 'public') { $Dir = dirname($Dir); }
     $Dir = '/' . trim($Dir, '/');
     return $Dir === '/' ? '/' : $Dir . '/';
+}
+
+function SgcePublicoLimiteDetalleAsistencia(PDO $Pdo = null): int {
+    $Limite = 600;
+    if ($Pdo instanceof PDO && function_exists('SgceObtenerConfiguracion')) {
+        $ConfigPublica = SgceObtenerConfiguracion($Pdo);
+        $Valor = (int)($ConfigPublica['ConsultaPublicaAsistenciaLimiteDetalle'] ?? $Limite);
+        if ($Valor > 0) { $Limite = $Valor; }
+    }
+    return max(100, min(5000, $Limite));
 }
 
 function SgcePublicoNormalizarGrupo($Valor) {
@@ -211,9 +230,7 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
         $StmtTotalMaterias->execute([$CicloId, (int)$GrupoId]);
         $TotalMaterias = (int)$StmtTotalMaterias->fetchColumn();
 
-        $StmtDetalle = $Pdo->prepare("
-            SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asis.Estado,
-                   Asg.MateriaNombre, U.NombreCompleto AS Maestro
+        $SqlBaseAsistencia = "
             FROM Asistencias Asis
             INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId
             INNER JOIN Usuarios U ON U.Id = Asg.MaestroId
@@ -223,19 +240,34 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
               AND Asis.FechaDia BETWEEN ? AND ?
               AND Asg.GrupoId = ?
               AND Asg.Activo = 1
+        ";
+        $ParamsAsistencia = [(int)$AlumnoId, $CicloId, $FechaInicio, $FechaFin, (int)$GrupoId];
+
+        $StmtConteos = $Pdo->prepare("SELECT Asis.Estado, COUNT(*) AS Total " . $SqlBaseAsistencia . " GROUP BY Asis.Estado");
+        $StmtConteos->execute($ParamsAsistencia);
+        foreach ($StmtConteos->fetchAll() as $FilaConteo) {
+            $EstadoConteo = (string)($FilaConteo['Estado'] ?? '');
+            if (isset($Conteos[$EstadoConteo])) { $Conteos[$EstadoConteo] = (int)$FilaConteo['Total']; }
+        }
+
+        $LimiteDetalle = SgcePublicoLimiteDetalleAsistencia($Pdo);
+        $LimiteConsulta = $LimiteDetalle + 1;
+        $StmtDetalle = $Pdo->prepare("
+            SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asis.Estado,
+                   Asg.MateriaNombre, U.NombreCompleto AS Maestro
+            " . $SqlBaseAsistencia . "
             ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC
-            LIMIT 600
+            LIMIT {$LimiteConsulta}
         ");
-        $StmtDetalle->execute([(int)$AlumnoId, $CicloId, $FechaInicio, $FechaFin, (int)$GrupoId]);
+        $StmtDetalle->execute($ParamsAsistencia);
         $Detalle = $StmtDetalle->fetchAll();
     }
 
-    foreach ($Detalle as $Fila) {
-        $Estado = (string)$Fila['Estado'];
-        if (isset($Conteos[$Estado])) { $Conteos[$Estado]++; }
-    }
+    $LimiteDetalle = SgcePublicoLimiteDetalleAsistencia($Pdo);
+    $RegistrosTruncados = count($Detalle) > $LimiteDetalle;
+    if ($RegistrosTruncados) { $Detalle = array_slice($Detalle, 0, $LimiteDetalle); }
 
-    $RegistrosCapturados = count($Detalle);
+    $RegistrosCapturados = array_sum($Conteos);
     $EsHoy = ($FechaInicio === date('Y-m-d') && $FechaFin === date('Y-m-d'));
     $SinCapturarHoy = $EsHoy ? max(0, $TotalMaterias - $RegistrosCapturados) : null;
 
@@ -272,6 +304,9 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
         'Conteos' => $Conteos,
         'Detalle' => $Detalle,
         'RegistrosCapturados' => $RegistrosCapturados,
+        'RegistrosDetalleMostrados' => count($Detalle),
+        'RegistrosTruncados' => $RegistrosTruncados,
+        'LimiteDetalle' => $LimiteDetalle,
         'SinCapturarHoy' => $SinCapturarHoy,
         'EstatusGeneral' => $EstatusGeneral,
         'ClaseEstado' => $ClaseEstado,

@@ -1,28 +1,17 @@
-# Plan de rendimiento a 10 años - SGCE 1.0.122
+# Plan de rendimiento a 10 años - SGCE 1.0.140
 
-SGCE debe trabajar siempre por ciclo escolar activo y consultar el historial solo cuando el usuario lo pida. Esta versión refuerza esa estrategia.
+## Volumen esperado
 
-## Tablas que más crecerán
+SGCE está pensado para crecer con ciclos escolares acumulados, historial, asistencias, calificaciones y bitácora.
 
-1. `Asistencias`: puede llegar a millones de filas si se toma asistencia por materia o por clase.
-2. `BitacoraMovimientos`: crece todos los días con acciones administrativas y docentes.
-3. `KardexDetalle`: conserva snapshots históricos.
-4. `Planeaciones`: crece por ciclo, docente y materia.
+## Recomendaciones
 
-## Reglas de rendimiento
+- Mantener índices en alumnos, inscripciones, asignaciones, asistencias, calificaciones y bitácora.
+- Archivar bitácora antigua mediante cron.
+- Respaldar diario y semanalmente.
+- Evitar reportes sin filtros.
+- Mantener búsquedas paginadas.
 
-- Los módulos diarios deben filtrar por `CicloId`.
-- Los reportes grandes deben salir en Excel/CSV; PDF debe reservarse para rangos pequeños.
-- La bitácora activa se archiva con `cron/mantenimiento_diario.php`.
-- Los ciclos cerrados deben consultarse principalmente desde kardex congelado.
-- Los respaldos temporales y sesiones vencidas se limpian automáticamente.
+## Servidor sugerido
 
-## Cron recomendado
-
-```bash
-0 2 * * * php /ruta/SGCE/cron/mantenimiento_diario.php >> /ruta/SGCE/storage/logs/mantenimiento.log 2>&1
-```
-
-## Pruebas de crecimiento
-
-Desarrollo incluye `RunGrowth10CyclesChecks.php`, que revisa estructura, índices y límites esperados para soportar varios ciclos.
+Para una escuela mediana: 2 vCPU, 2 a 4 GB RAM, PHP OPcache, MySQL/MariaDB y almacenamiento SSD/NVMe.

@@ -7,6 +7,7 @@ $Files = [
     $Root . '/modules/Calificar.php',
     $Root . '/assets/js/Calificar.js',
     $Root . '/modules/ConfiguracionAdmin.php',
+    $Root . '/views/admin/configuracion/Index.php',
     $Root . '/assets/js/ConfiguracionAdmin.js',
 ];
 foreach ($Files as $File) {
@@ -29,7 +30,7 @@ foreach (['SgceTurnosDisponibles', 'SgceCalificacionConfig', 'SgceAsignarMatricu
 "); exit(1); }
 }
 
-$ConfigAdmin = file_get_contents($Root . '/modules/ConfiguracionAdmin.php');
+$ConfigAdmin = file_get_contents($Root . '/modules/ConfiguracionAdmin.php') . "\n" . file_get_contents($Root . '/views/admin/configuracion/Index.php');
 foreach (['SgceConfigMatriculaAutomatica', 'SgceConfigMatriculaEjemplo', 'SgceMatriculaDependiente', 'SgceConfigPeriodosModo', 'SgcePeriodosPersonalizadosDependiente'] as $Needle) {
     if (strpos($ConfigAdmin, $Needle) === false) { fwrite(STDERR, "Falta control de matrícula en Configuración: $Needle
 "); exit(1); }

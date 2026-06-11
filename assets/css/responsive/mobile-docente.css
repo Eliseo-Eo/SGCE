@@ -1,0 +1,90 @@
+/* SGCE 1.0.140 - Portal docente, asistencia y calificaciones en celular */
+
+@media (max-width: 768px) {
+  .MaestroClasesGrid,
+  .MaestroAvisosGrid,
+  .MaestroAccionesGrid,
+  .MaestroExportGrid,
+  .PlaneacionesMateriasGrid,
+  .PlaneacionesGrid,
+  .SgcePlanningGrid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .MaestroClaseItem,
+  .CardClase,
+  .PlaneacionCard,
+  .SgcePlanningCard { width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+  .CardHeader,
+  .MaestroCardTop,
+  .InfoGrupo,
+  .SeccionExportar { padding: 14px !important; }
+  .BotonAccion,
+  .BtnExport,
+  .MaestroHeroStat,
+  .MaestroHeroLink { min-height: 48px !important; }
+
+  .MainCard .table-responsive table.SgceTable tr,
+  .MainCard .table-responsive table.table tr.AlumnoRow {
+    position: relative;
+    padding: 14px !important;
+  }
+  .MainCard .AlumnoNombre {
+    font-size: .98rem !important;
+    line-height: 1.25 !important;
+    overflow-wrap: anywhere;
+  }
+  .MainCard .AlumnoAvatar {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+  }
+  .EstadoSelect,
+  .InputNota {
+    width: 100% !important;
+    min-height: 48px !important;
+    font-size: 16px !important;
+    border-radius: 14px !important;
+  }
+  .InputNota {
+    text-align: center !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+  }
+  .SgcePeriodoBox {
+    margin: 12px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+  .SgcePeriodoBox label { font-size: .78rem !important; }
+  .MainCard > .card-header {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    align-items: start !important;
+  }
+  .MainCard > .card-header .badge { width: max-content; max-width: 100%; }
+}
+
+@media (max-width: 430px) {
+  .MaestroHeroStat,
+  .MaestroHeroLink,
+  .BotonAccion,
+  .BtnExport { font-size: .82rem !important; }
+  .MainCard .AlumnoNombre { font-size: .9rem !important; }
+}
+
+@media (max-width: 768px) {
+  .SgceAttendanceMobileTable td:first-child::before,
+  .SgceGradesMobileTable td:first-child::before { content: none !important; }
+  .SgceAttendanceMobileTable td:first-child,
+  .SgceGradesMobileTable td:first-child {
+    padding-bottom: 12px !important;
+    border-bottom: 1px dashed rgba(148,163,184,.32) !important;
+  }
+  .SgceAttendanceMobileTable td:nth-child(2)::before { content: "Estado" !important; }
+  .SgceGradesMobileTable td:nth-child(2)::before { content: "Calificación" !important; }
+  .SgceAttendanceMobileTable .EstadoSelect,
+  .SgceGradesMobileTable .InputNota { margin-top: 6px; }
+}

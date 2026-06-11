@@ -121,19 +121,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= HCP($NombreEscuelaConsulta) ?> | Consulta De Asistencia</title>
-    <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-    <?= SgceEstilosTema($Pdo) ?>
-    <?= SgceCss('assets/css/consulta-publica-botones-metalicos.css') ?>
+<?= SgceLayoutHeadBase($NombreEscuelaConsulta . ' | Consulta de asistencia', $Pdo, ['assets/css/consulta-publica-botones-metalicos.css']) ?>
 </head>
 <body class="ConsultaPublicaBody">
 
@@ -290,6 +278,10 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
                         <div class="AvisoPrivacidad mt-4"><strong>Pendientes de hoy:</strong> <?= (int)$Resultado['SinCapturarHoy'] ?> materia(s) sin pase de lista capturado.</div>
                     <?php endif; ?>
 
+                    <?php if(!empty($Resultado['RegistrosTruncados'])): ?>
+                        <div class="alert alert-warning mt-4 mb-0 fw-semibold rounded-4 border-0"><i class="fa-solid fa-triangle-exclamation me-2"></i>El resumen usa todos los registros encontrados, pero el detalle solo muestra los <?= (int)$Resultado['LimiteDetalle'] ?> registros más recientes para mantener rápida la consulta.</div>
+                    <?php endif; ?>
+
                     <div class="ConsultaPublicActions mt-4">
                         <form method="GET" action="ExportarConsultaAsistencia.php" target="_blank" rel="noopener noreferrer">
                             <input type="hidden" name="ConsultaToken" value="<?= HCP($ConsultaToken) ?>">
@@ -298,7 +290,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
                     </div>
 
                     <div class="ConsultaDetalleTable mt-4">
-                        <div class="ConsultaDetalleHeader"><h4><i class="fa-solid fa-list-check"></i>Detalle de asistencias</h4><span><?= count($Resultado['Detalle']) ?> registros</span></div>
+                        <div class="ConsultaDetalleHeader"><h4><i class="fa-solid fa-list-check"></i>Detalle de asistencias</h4><span><?= count($Resultado['Detalle']) ?><?= !empty($Resultado['RegistrosTruncados']) ? ' de ' . (int)$Resultado['RegistrosCapturados'] : '' ?> registros</span></div>
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
                                 <thead><tr><th>Fecha</th><th>Materia</th><th>Docente</th><th>Estado</th></tr></thead>
@@ -330,9 +322,6 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php ImprimirCsrfScript(); ?>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
-<?= SgceJs('assets/js/ConsultaPadre.js') ?>
+<?= SgceLayoutSharedJs(['assets/js/ConsultaPadre.js'], true, true) ?>
 </body>
 </html>

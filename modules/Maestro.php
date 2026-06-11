@@ -56,22 +56,7 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    
-    <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
-<title><?= htmlspecialchars($NombreEscuelaMaestro, ENT_QUOTES, 'UTF-8') ?> - Portal Docente</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
+<?= SgceLayoutHeadBase($NombreEscuelaMaestro . ' - Portal docente', $Pdo) ?>
 </head>
 
 <body>
@@ -259,11 +244,11 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
                                     <div>
 
-                                        <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Excel"
+                                        <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Excel&TodosPeriodos=1"
                                            class="btn BtnExport ExportCalifExcel w-100">
 
                                             <span class="SgceEmojiIcon" aria-hidden="true">📗</span>
-                                            Calif. Excel
+                                            Kardex Excel
 
                                         </a>
 
@@ -271,12 +256,12 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
                                     <div>
 
-                                        <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Pdf"
+                                        <a href="ExportarCalificaciones.php?AsignacionId=<?= $Clase['AsignacionId'] ?>&Tipo=Pdf&TodosPeriodos=1"
                                            target="_blank" rel="noopener noreferrer"
                                            class="btn BtnExport ExportCalifPdf w-100">
 
                                             <span class="SgceEmojiIcon" aria-hidden="true">📕</span>
-                                            Calif. PDF
+                                            Kardex PDF
 
                                         </a>
 
@@ -328,7 +313,6 @@ $NombreEscuelaMaestro = trim((string)($ConfigSistema['NombreEscuela'] ?? 'SGCE')
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceLayoutSharedJs() ?>
 </body>
 </html>

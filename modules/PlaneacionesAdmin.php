@@ -187,18 +187,7 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planeaciones | SGCE</title>
-<link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
-<?= SgceCss('assets/css/planeaciones-botones-metalicos.css') ?>
-<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
+<?= SgceLayoutHeadBase('Planeaciones | SGCE', $Pdo, ['assets/css/planeaciones-botones-metalicos.css', 'assets/css/modules/planeaciones-admin-review-modal.css', 'assets/css/admin-paginacion-busqueda.css']) ?>
 </head>
 <body>
 <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
@@ -276,18 +265,23 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
                                                 </div>
                                             </div>
                                             <div class="row g-3">
-                                                <div class="col-md-5">
-                                                    <label class="SgceFieldLabel">Resultado de la revisión</label>
-                                                    <select class="form-select FormControl PlaneacionReviewSelect" name="EstadoRevision" required>
-                                                        <option value="SUBIDA" <?= $Estado==='SUBIDA'?'selected':'' ?>>EN REVISIÓN / PENDIENTE</option>
-                                                        <option value="APROBADA" <?= $Estado==='APROBADA'?'selected':'' ?>>APROBADA</option>
-                                                        <option value="DEVUELTA" <?= $Estado==='DEVUELTA'?'selected':'' ?>>DEVUELTA PARA CORRECCIÓN</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-7">
-                                                    <div class="PlaneacionReviewInfoBox">
-                                                        <i class="fa-solid fa-file-lines"></i>
-                                                        <div><b>Archivo:</b> <?= HPlanAdmin($R['ArchivoOriginal'] ?? 'Planeación cargada') ?><br><span>Última actualización: <?= HPlanAdmin(date('d/m/Y H:i', strtotime($R['FechaActualizacion']))) ?></span></div>
+                                                <div class="col-12">
+                                                    <div class="PlaneacionReviewMetaGrid">
+                                                        <div class="PlaneacionReviewFieldBlock">
+                                                            <label class="SgceFieldLabel">Resultado de la revisión</label>
+                                                            <select class="form-select FormControl PlaneacionReviewSelect" name="EstadoRevision" required>
+                                                                <option value="SUBIDA" <?= $Estado==='SUBIDA'?'selected':'' ?>>EN REVISIÓN / PENDIENTE</option>
+                                                                <option value="APROBADA" <?= $Estado==='APROBADA'?'selected':'' ?>>APROBADA</option>
+                                                                <option value="DEVUELTA" <?= $Estado==='DEVUELTA'?'selected':'' ?>>DEVUELTA PARA CORRECCIÓN</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="PlaneacionReviewFileBlock">
+                                                            <label class="SgceFieldLabel">Archivo cargado</label>
+                                                            <div class="PlaneacionReviewInfoBox">
+                                                                <i class="fa-solid fa-file-lines"></i>
+                                                                <div><b>Archivo:</b> <span class="PlaneacionReviewFileName"><?= HPlanAdmin($R['ArchivoOriginal'] ?? 'Planeación cargada') ?></span><span>Última actualización: <?= HPlanAdmin(date('d/m/Y H:i', strtotime($R['FechaActualizacion']))) ?></span></div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
@@ -316,8 +310,6 @@ unset($_SESSION['MensajePlaneacionesAdmin'], $_SESSION['MensajePlaneacionesAdmin
         <div class="SgcePagerInfo mt-2"><?= HPlanAdmin(SgcePagerResumenTexto($PaginaPlaneaciones, $TotalFilas, $PorPaginaPlaneaciones, count($Filas))) ?></div>
     </section>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
-<?= SgceJs('assets/js/PlaneacionesAdmin.js') ?>
+<?= SgceLayoutSharedJs(['assets/js/PlaneacionesAdmin.js']) ?>
 </body>
 </html>

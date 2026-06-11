@@ -1,33 +1,25 @@
-# SGCE 1.0.122 - Rendimiento histórico y consistencia multinivel
+# SGCE 1.0.140 - Versión final pulida
 
-Versión limpia para instalación desde cero.
+SGCE es un Sistema Gestor de Control Escolar para administración, docentes y consulta pública de asistencia/calificaciones.
 
-Esta entrega se enfoca en rendimiento, crecimiento histórico y consistencia multinivel. No incluye archivos de actualización desde versiones anteriores; para probarla, instala en una base nueva y vacía.
+## Instalación limpia
 
-## Enfoque principal
+1. Sube el contenido de `Produccion/` al servidor.
+2. Abre `Instalar.php`.
+3. Revisa el prediagnóstico.
+4. Configura MySQL, URL base, escuela, ciclo escolar y administrador.
+5. Finaliza instalación. El instalador se bloquea al terminar.
 
-- Calificaciones listas para escalas 0-100 con `DECIMAL(5,2)`.
-- Turnos largos conservados en kardex histórico.
-- Grupos más flexibles: letras, números, guion, diagonal, punto y guion bajo.
-- Mantenimiento diario por cron para bitácora, sesiones, intentos de seguridad y respaldos temporales.
-- Límites más claros para PDF grandes; Excel/CSV queda como salida recomendada para reportes masivos.
-- Pruebas de mantenimiento y crecimiento histórico.
-- Documentación de rendimiento a 10 años.
+## Enfoque de la versión 1.0.140
 
-## Instalación
+- Limpieza final de rastros de versiones previas.
+- Hardening de sesión, HTTPS y proxies confiables.
+- URL base editable desde el instalador.
+- Cookie path calculado desde la URL base.
+- Pruebas visuales móviles con sesión autenticada real.
+- Documentación y manuales actualizados a 1.0.140.
+- Producción sin carpetas de pruebas ni herramientas internas.
 
-Sube únicamente el contenido de `Produccion/` y ejecuta `Instalar.php` en una base de datos vacía.
+## Recomendación final
 
-## Mantenimiento recomendado
-
-Configura en cron una ejecución diaria:
-
-```bash
-php /ruta/SGCE/cron/mantenimiento_diario.php
-```
-
-Para verificar que el cron está bien ubicado:
-
-```bash
-php /ruta/SGCE/cron/mantenimiento_diario.php --self-check
-```
+Instala desde cero en un entorno de prueba, importa tus archivos reales y ejecuta las pruebas visuales antes de entregarlo definitivamente.

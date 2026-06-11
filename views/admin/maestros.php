@@ -120,7 +120,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                             </button>
 
-                                            <form method="POST" class="m-0 p-0" data-confirm-delete="DOCENTE" data-confirm-message="¿DESEAS DESACTIVAR ESTE DOCENTE? SI TIENE ASIGNACIONES ACTIVAS EL SISTEMA LO BLOQUEARÁ HASTA HACER RELEVO/INTERINATO.">
+                                            <form method="POST" class="m-0 p-0" data-sgce-confirm="delete" data-sgce-confirm-title="DESACTIVAR DOCENTE" data-sgce-confirm-subtitle="CONTROL DE DOCENTES" data-sgce-confirm-message="¿DESEAS DESACTIVAR ESTE DOCENTE? SI TIENE ASIGNACIONES ACTIVAS EL SISTEMA LO BLOQUEARÁ HASTA HACER RELEVO/INTERINATO." data-sgce-confirm-detail="Si tiene asignaciones activas, el sistema bloqueará la acción hasta hacer relevo o interinato." data-sgce-confirm-button="SÍ, DESACTIVAR" data-sgce-confirm-loading="DESACTIVANDO..." data-sgce-confirm-icon="fa-user-slash">
                     <?php echo CampoCsrf(); ?>
                                                 <input type="hidden" name="Tab" value="maestros">
                                                 <button type="submit" name="DelMaestro" value="<?= (int)$M['Id'] ?>" class="ActionBtn ActionDelete BtnTeacherDelete">

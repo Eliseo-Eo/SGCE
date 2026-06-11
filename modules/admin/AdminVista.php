@@ -84,38 +84,6 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 
-<div class="modal fade" id="ModalConfirmarEliminar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered ModalEliminarFijo">
-        <div class="modal-content DeleteModalContent">
-            <div class="DeleteModalHeader">
-                <div class="DeleteIcon">
-                    <i class="fa-solid fa-trash-can"></i>
-                </div>
-                <h4 class="fw-bold mb-1">CONFIRMAR ELIMINACIÓN</h4>
-                <p class="mb-0 opacity-75" id="DeleteModalTipo">REGISTRO</p>
-            </div>
-            <div class="DeleteModalBody">
-                <p class="fs-6 fw-bold mb-3" id="DeleteModalMensaje">¿DESEAS ELIMINAR ESTE REGISTRO?</p>
-                <div class="DeleteWarningBox mb-4">
-                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                    Revisa bien antes de confirmar. Esta acción puede afectar información relacionada.
-                </div>
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                    <button type="button" class="BtnCancelDelete" data-bs-dismiss="modal">
-                        <i class="fa-solid fa-xmark"></i> CANCELAR
-                    </button>
-                    <button type="button" class="BtnConfirmDelete" id="BtnConfirmarEliminar">
-                        <i class="fa-solid fa-trash"></i> SÍ, ELIMINAR
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<?= SgceLayoutCdnJsTags() ?>
-
-<?php ImprimirCsrfScript(); ?>
-<?= SgceLayoutAdminAppJs() ?>
+<?= SgceLayoutAdminAppJs([], true, true) ?>
 </body>
 </html>

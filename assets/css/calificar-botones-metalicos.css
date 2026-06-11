@@ -1,5 +1,3 @@
-
-
 /* Estilos visuales del módulo Calificar, extraídos del PHP para mantener el layout limpio. */
 :root { --SgceVino:var(--SgceGuinda); --SgceVinoOscuro:var(--SgceGuindaOscuro); --SgceAzul:#2f6fec; --SgceVerde:#149447; --SgceBorde:#e6ebf2; --SgceTexto:#111827; }
     body { background: radial-gradient(circle at top left, rgba(155,0,27,.08), transparent 34%), #f4f7fb; font-family: 'Poppins', sans-serif; }

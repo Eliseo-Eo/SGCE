@@ -59,5 +59,8 @@ foreach ($Resumen['Detalle'] as $D) {
 
 $GrupoTexto = trim((($InfoGrupo['ProgramaNombre'] ?? '') !== '' ? ($InfoGrupo['ProgramaNombre'] . ' / ') : '') . ($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
 $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Rango: ' . date('d/m/Y', strtotime($FechaInicio)) . ' al ' . date('d/m/Y', strtotime($FechaFin)) . ' | A ' . $Resumen['Conteos']['A'] . ' / F ' . $Resumen['Conteos']['F'] . ' / R ' . $Resumen['Conteos']['R'] . ' / J ' . $Resumen['Conteos']['J'];
+if (!empty($Resumen['RegistrosTruncados'])) {
+    $Subtitulo .= ' | Detalle limitado a ' . (int)$Resumen['LimiteDetalle'] . ' registros más recientes';
+}
 RegistrarBitacora($Pdo, ['Id' => null, 'Rol' => 'publico'], 'EXPORTAR_ASISTENCIA_PUBLICA', 'Alumnos', (int)$Alumno['Id'], 'PDF PÚBLICO DE ASISTENCIA');
 SgcePdfRespuestaTabla($Pdo, 'Reporte de asistencia individual', $Subtitulo, ['Fecha', 'Materia', 'Docente', 'Estado'], $FilasPdf, 'Asistencia_' . $Alumno['NombreCompleto'] . '_' . $FechaInicio . '_' . $FechaFin, 'L', [85, 230, 230, 120]);

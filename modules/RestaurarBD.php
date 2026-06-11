@@ -282,18 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGCE | Respaldos e Importación</title>
-<link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-<link rel="shortcut icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-<link rel="apple-touch-icon" href="assets/media/img/favicon.png">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
-<?= SgceCss('assets/css/respaldos-botones-metalicos.css') ?>
+<?= SgceLayoutHeadBase('SGCE | Respaldos e importación', $Pdo, ['assets/css/respaldos-botones-metalicos.css']) ?>
 </head>
 <body class="SgceRestorePage">
 <div class="container py-4 SgceModuleWrap SgceRestoreWrap">
@@ -359,8 +348,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php ImprimirCsrfScript(); ?>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceLayoutSharedJs([], true, true) ?>
 </body>
 </html>

@@ -18,7 +18,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
             <button class="ActionBtn BtnStudentEdit" data-bs-toggle="modal" data-bs-target="#EAl<?= (int)$Al['Id'] ?>">
                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
             </button>
-            <form method="POST" class="m-0 p-0" data-confirm-delete="ALUMNO" data-confirm-message="¿DESEAS DAR DE BAJA A ESTE ALUMNO? ESTA ACCIÓN NO SE PUEDE DESHACER.">
+            <form method="POST" class="m-0 p-0" data-sgce-confirm="delete" data-sgce-confirm-title="DAR DE BAJA ALUMNO" data-sgce-confirm-subtitle="BAJA ADMINISTRATIVA" data-sgce-confirm-message="¿DESEAS DAR DE BAJA A ESTE ALUMNO?" data-sgce-confirm-detail="El alumno será dado de baja administrativamente. Revisa que sea el registro correcto antes de continuar." data-sgce-confirm-button="SÍ, DAR DE BAJA" data-sgce-confirm-loading="DANDO DE BAJA..." data-sgce-confirm-icon="fa-user-slash">
                 <?php echo CampoCsrf(); ?>
                 <input type="hidden" name="Tab" value="alumnos">
                 <button type="submit" name="DelAlumno" value="<?= (int)$Al['Id'] ?>" class="ActionBtn BtnStudentDelete">

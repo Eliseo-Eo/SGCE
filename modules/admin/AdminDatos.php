@@ -2,7 +2,7 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 $PageSizeAdmin = 20;
-$PageSizeAlumnos = SgcePageSizeSeguro($_GET['PageSizeAlumnos'] ?? 7, 7, 7, 100);
+$PageSizeAlumnos = SgcePageSizeSeguro($_GET['PageSizeAlumnos'] ?? 6, 6, 6, 100);
 $PageSizeMaterias = SgcePageSizeSeguro($_GET['PageSizeMaterias'] ?? 7, 7, 7, 100);
 $PageSizeAsignaciones = SgcePageSizeSeguro($_GET['PageSizeAsignaciones'] ?? 7, 7, 7, 100);
 $PageSizeBitacora = SgcePageSizeSeguro($_GET['PageSizeBitacora'] ?? 6, 6, 6, 100);

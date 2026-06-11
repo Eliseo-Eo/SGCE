@@ -1,0 +1,13 @@
+window.SgceAdminInputs = (function(){
+    function NormalizarInputNombre(El) { let Val = El.value || ''; Val = Val.toUpperCase(); Val = Val.replace(/[^A-ZÁÉÍÓÚÜÑ\s]/g, ''); Val = Val.replace(/\s+/g, ' '); El.value = Val; }
+    function InicializarSoloLetras(Root) { (Root || document).querySelectorAll('.SoloLetrasMayus').forEach(function(El){ if (El.dataset.sgceSoloLetrasBound === '1') return; El.dataset.sgceSoloLetrasBound = '1'; El.addEventListener('input', function(){ NormalizarInputNombre(El); }); El.addEventListener('blur', function(){ NormalizarInputNombre(El); }); }); }
+    function DebeRespetarMinusculas(Control) { const Nombre = (Control.getAttribute('name') || '').toLowerCase(); const Id = (Control.getAttribute('id') || '').toLowerCase(); const Tipo = (Control.getAttribute('type') || '').toLowerCase(); if (Control.classList && Control.classList.contains('SgceSearchableSelectInput')) return true; return Tipo === 'password' || Nombre === 'user' || Nombre === 'username' || Nombre === 'pass' || Nombre === 'password' || Id.includes('search'); }
+    function InicializarEntradasGenerales(Root) {
+        (Root || document).querySelectorAll('input:not([type="file"]):not([type="hidden"]), textarea').forEach(function(Control){ if (Control.placeholder) Control.placeholder = Control.placeholder.toUpperCase(); if (!DebeRespetarMinusculas(Control) && Control.dataset.sgceUpperBound !== '1') { Control.dataset.sgceUpperBound = '1'; Control.addEventListener('input', function(){ Control.value = (Control.value || '').toUpperCase(); }); } });
+        (Root || document).querySelectorAll('.InputDigits').forEach(function(Control){ if (Control.dataset.sgceDigitsBound === '1') return; Control.dataset.sgceDigitsBound = '1'; Control.addEventListener('input', function(){ Control.value = (Control.value || '').replace(/[^0-9]/g, ''); }); });
+        (Root || document).querySelectorAll('.InputUpperAscii').forEach(function(Control){ if (Control.dataset.sgceAsciiBound === '1') return; Control.dataset.sgceAsciiBound = '1'; Control.addEventListener('input', function(){ Control.value = (Control.value || '').toUpperCase().replace(/[^A-Z]/g, ''); }); });
+        (Root || document).querySelectorAll('select option').forEach(function(Opcion){ Opcion.textContent = (Opcion.textContent || '').toUpperCase(); });
+    }
+    function Inicializar(Root){ InicializarSoloLetras(Root || document); InicializarEntradasGenerales(Root || document); }
+    return {Inicializar:Inicializar, NormalizarInputNombre:NormalizarInputNombre, InicializarSoloLetras:InicializarSoloLetras, InicializarEntradasGenerales:InicializarEntradasGenerales};
+})();

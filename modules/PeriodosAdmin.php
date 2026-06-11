@@ -129,17 +129,7 @@ $Periodos = $StmtPeriodos->fetchAll();
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGCE | Ciclos y Periodos</title>
-    <link rel="icon" href="assets/media/img/favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
-    <?= SgceCss('assets/css/periodos-verde-metalico.css') ?>
-<?= SgceCss('assets/css/admin-paginacion-busqueda.css') ?>
+<?= SgceLayoutHeadBase('SGCE | Ciclos y periodos', $Pdo, ['assets/css/periodos-verde-metalico.css', 'assets/css/admin-paginacion-busqueda.css']) ?>
 </head>
 <body>
 <div class="SgceModuleWrap SgcePeriodosWrap">
@@ -191,7 +181,7 @@ $Periodos = $StmtPeriodos->fetchAll();
                     <strong>Activo</strong>
                 </label>
 
-                <button id="BtnGuardarCicloVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado w-100" type="submit" style="background:#047857 !important;background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;color:#FFFFFF !important;border:0 !important;box-shadow:0 18px 36px rgba(4,120,87,.30),inset 0 1px 0 rgba(255,255,255,.20) !important;text-shadow:0 1px 2px rgba(0,0,0,.34) !important;"><span class="SgceColorIcon" aria-hidden="true">💾</span> Guardar ciclo</button>
+                <button id="BtnGuardarCicloVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado w-100" type="submit"><span class="SgceColorIcon" aria-hidden="true">💾</span> Guardar ciclo</button>
             </form>
         </article>
 
@@ -244,7 +234,7 @@ $Periodos = $StmtPeriodos->fetchAll();
                     <strong>Activo</strong>
                 </label>
 
-                <button id="BtnGuardarPeriodoVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado SgcePeriodSubmit" type="submit" style="background:#047857 !important;background-image:linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%) !important;color:#FFFFFF !important;border:0 !important;box-shadow:0 18px 36px rgba(4,120,87,.30),inset 0 1px 0 rgba(255,255,255,.20) !important;text-shadow:0 1px 2px rgba(0,0,0,.34) !important;"><span class="SgceColorIcon" aria-hidden="true">➕</span> Guardar periodo</button>
+                <button id="BtnGuardarPeriodoVerdeMetalico" class="BtnPeriodoVerdeMetalico BtnVerdeMetalicoForzado SgcePeriodSubmit" type="submit"><span class="SgceColorIcon" aria-hidden="true">➕</span> Guardar periodo</button>
             </form>
         </article>
 
@@ -307,6 +297,6 @@ $Periodos = $StmtPeriodos->fetchAll();
         </article>
     </section>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?= SgceLayoutSharedJs() ?>
 </body>
 </html>

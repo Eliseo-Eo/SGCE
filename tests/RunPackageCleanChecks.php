@@ -4,7 +4,7 @@ $Project = dirname($Root);
 $Errores = [];
 $Revisiones = 0;
 
-$VersionActual = '1.0.122';
+$VersionActual = '1.0.140';
 $Raices = ['Produccion', 'Desarrollo'];
 
 foreach ($Raices as $Raiz) {
@@ -52,7 +52,7 @@ foreach ($Iterador as $Archivo) {
     if (str_contains($Rel, 'tests/RunPackageCleanChecks.php')) { continue; }
     $Contenido = file_get_contents($Ruta);
     $Revisiones++;
-    if (preg_match('/1\.0\.(?:11[5-9]|120|121m?)/', $Contenido, $Coincidencia)) {
+    if (preg_match('/1\.0\.(?:11[5-9]|120|121m?|122(?!c))/', $Contenido, $Coincidencia)) {
         $Errores[] = 'Referencia obsoleta ' . $Coincidencia[0] . ' en ' . $Rel;
     }
 }

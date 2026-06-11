@@ -46,8 +46,9 @@ function SgcePrepararDirectoriosSeguros() {
         $Raiz . '/services',
         $Raiz . '/public',
         $Raiz . '/cron',
-        $Raiz . '/tools',
     ];
+    $ToolsDir = $Raiz . '/tools';
+    if (is_dir($ToolsDir)) { $Dirs[] = $ToolsDir; }
     foreach (array_unique($Dirs) as $Dir) { SgceAsegurarCarpetaProtegida($Dir); }
     if (defined('SGCE_LOG_DIR') && is_dir(SGCE_LOG_DIR) && is_writable(SGCE_LOG_DIR)) {
         @ini_set('error_log', rtrim(SGCE_LOG_DIR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'php-runtime.log');

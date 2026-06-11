@@ -1,0 +1,6 @@
+/* SGCE 1.0.140 - Filtros y formularios */
+.SgceFilterBar{display:flex;gap:.75rem;align-items:end;flex-wrap:wrap;background:#fff;border:1px solid rgba(15,23,42,.07);border-radius:var(--sgce-radius-lg);padding:1rem;box-shadow:var(--sgce-shadow-soft);}
+.SgceFilterGroup{display:flex;flex-direction:column;gap:.35rem;min-width:180px;flex:1 1 180px;}
+.SgceFilterGroup label{font-size:.75rem;color:#64748b;font-weight:500;margin:0;}
+.SgceFormControl,.SgceFilterBar .form-control,.SgceFilterBar .form-select{border-radius:.75rem;border:1px solid rgba(15,23,42,.12);box-shadow:none!important;}
+.SgceFormControl:focus,.SgceFilterBar .form-control:focus,.SgceFilterBar .form-select:focus{border-color:rgba(151,5,30,.35);box-shadow:0 0 0 .18rem rgba(151,5,30,.08)!important;}

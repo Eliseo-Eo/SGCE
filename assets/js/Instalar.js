@@ -52,9 +52,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+    function RenderCheckSummary(Checks) {
+        var Panel = document.getElementById('SgceInstallerCheckPanel');
+        if (!Panel) { return; }
+        var Summary = Panel.querySelector('.SgceInstallerCheckSummary');
+        if (!Summary) { return; }
+        var Totales = { ok: 0, warning: 0, error: 0 };
+        Checks.forEach(function (Check) {
+            var Estado = Check.estado || 'warning';
+            if (!Object.prototype.hasOwnProperty.call(Totales, Estado)) { Estado = 'warning'; }
+            Totales[Estado] += 1;
+        });
+        Summary.innerHTML = '<span class="SgceCheckOk">OK: ' + Totales.ok + '</span><span class="SgceCheckWarning">Avisos: ' + Totales.warning + '</span><span class="SgceCheckError">Errores: ' + Totales.error + '</span>';
+    }
+
     function RenderChecks(Contenedor, Checks) {
         if (!Contenedor) { return; }
         Contenedor.innerHTML = '';
+        Contenedor.classList.remove('IsPreloaded');
+        RenderCheckSummary(Checks);
         Checks.forEach(function (Check) {
             var Item = document.createElement('div');
             Item.className = 'SgceInstallerCheckItem SgceInstallerCheck' + (Check.estado || 'warning').toUpperCase();
@@ -66,9 +82,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    var BotonDetalles = document.getElementById('SgceInstallerDetailsBtn');
     var BotonVerificar = document.getElementById('SgceInstallerVerifyBtn');
     var ResultadosVerificar = document.getElementById('SgceInstallerCheckResults');
     var FormInstalador = document.getElementById('SgceInstallerForm');
+
+    function ActualizarEstadoDetalles(Expandir) {
+        if (!ResultadosVerificar || !BotonDetalles) { return; }
+        ResultadosVerificar.hidden = !Expandir;
+        BotonDetalles.setAttribute('aria-expanded', Expandir ? 'true' : 'false');
+        BotonDetalles.innerHTML = Expandir ? '<i class="fa-solid fa-eye-slash"></i> Ocultar detalles' : '<i class="fa-solid fa-list-check"></i> Ver detalles';
+    }
+
+    if (BotonDetalles && ResultadosVerificar) {
+        ActualizarEstadoDetalles(false);
+        BotonDetalles.addEventListener('click', function () {
+            ActualizarEstadoDetalles(ResultadosVerificar.hidden === true);
+        });
+    }
     if (BotonVerificar && ResultadosVerificar && FormInstalador) {
         BotonVerificar.addEventListener('click', function () {
             BotonVerificar.disabled = true;
@@ -76,11 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
             var Datos = new FormData(FormInstalador);
             fetch('Instalar.php?VerificarServidor=1', { method: 'POST', body: Datos, credentials: 'same-origin' })
                 .then(function (Respuesta) { return Respuesta.json(); })
-                .then(function (DatosRespuesta) { RenderChecks(ResultadosVerificar, DatosRespuesta.checks || []); })
+                .then(function (DatosRespuesta) { RenderChecks(ResultadosVerificar, DatosRespuesta.checks || []); ActualizarEstadoDetalles(true); })
                 .catch(function () { MostrarMensaje(FormInstalador, 'No fue posible ejecutar la verificación del servidor. Revisa la conexión y vuelve a intentar.'); })
                 .finally(function () {
                     BotonVerificar.disabled = false;
-                    BotonVerificar.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verificar servidor';
+                    BotonVerificar.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verificar servidor y MySQL';
                 });
         });
     }
@@ -196,24 +227,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (PlaneacionesCantidadInput) { PlaneacionesCantidadInput.value = ''; }
             } else {
                 var TipoPlaneacion = TipoPlaneacionSelect ? String(TipoPlaneacionSelect.value || 'CICLO').toUpperCase() : 'CICLO';
-                var CantidadPeriodosInput = FormPlaneaciones.querySelector('input[name="PeriodosCantidad"]');
-                var CantidadPeriodos = CantidadPeriodosInput ? parseInt(CantidadPeriodosInput.value || '0', 10) : 0;
                 if (PlaneacionesCantidadInput) {
-                    if (TipoPlaneacion === 'CICLO') {
-                        PlaneacionesCantidadInput.placeholder = 'Ej. 1';
-                        PlaneacionesCantidadInput.required = false;
-                        PlaneacionesCantidadInput.setCustomValidity('');
-                    } else if (TipoPlaneacion === 'PERIODO') {
+                    if (TipoPlaneacion === 'PERIODO') {
                         PlaneacionesCantidadInput.placeholder = 'Ej. 3';
-                        PlaneacionesCantidadInput.required = true;
+                    } else if (TipoPlaneacion === 'CICLO') {
+                        PlaneacionesCantidadInput.placeholder = 'Ej. 6';
                     } else {
                         PlaneacionesCantidadInput.placeholder = 'Ej. 1';
-                        PlaneacionesCantidadInput.required = true;
                     }
+                    PlaneacionesCantidadInput.required = true;
+                    PlaneacionesCantidadInput.setCustomValidity('');
                 }
                 if (PlaneacionesAyuda) {
                     var AyudasPlaneacion = {
-                        CICLO: 'Se solicitará una planeación por materia durante todo el ciclo escolar.',
+                        CICLO: 'Se solicitará la cantidad configurada de planeaciones por materia durante el ciclo escolar.',
                         PERIODO: 'Se solicitará una planeación por cada periodo de evaluación configurado.',
                         UNIDAD: 'Útil cuando cada materia trabaja por unidades, bloques, temas o proyectos.',
                         SEMANA: 'Útil para escuelas que piden planeaciones semanales.'
@@ -411,14 +438,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (PlaneacionesCantidad && UsaPlaneaciones && UsaPlaneaciones.checked) {
-                var TipoPlaneacionActual = Form.querySelector('select[name="TipoPlaneacion"]');
-                var TipoPlaneacionValor = TipoPlaneacionActual ? String(TipoPlaneacionActual.value || 'CICLO').toUpperCase() : 'CICLO';
                 var ValorPlaneaciones = String(PlaneacionesCantidad.value || '').trim();
-                if (ValorPlaneaciones !== '' || TipoPlaneacionValor !== 'CICLO') {
-                    var Cantidad = parseInt(ValorPlaneaciones || '0', 10);
-                    if (!Cantidad || Cantidad < 1 || Cantidad > 12) {
+                var Cantidad = parseInt(ValorPlaneaciones || '0', 10);
+                if (ValorPlaneaciones === '' || !Cantidad || Cantidad < 1 || Cantidad > 12) {
+                    Evento.preventDefault();
+                    MostrarMensaje(Form, 'La cantidad de planeaciones debe estar entre 1 y 12.');
+                    PlaneacionesCantidad.focus();
+                    return;
+                }
+                var TipoPlaneacionActual = Form.querySelector('select[name="TipoPlaneacion"]');
+                if (TipoPlaneacionActual && String(TipoPlaneacionActual.value || '').toUpperCase() === 'PERIODO' && PeriodosCantidad) {
+                    var CantidadPeriodosPlaneacion = parseInt(PeriodosCantidad.value || '0', 10);
+                    if (CantidadPeriodosPlaneacion > 0 && Cantidad > CantidadPeriodosPlaneacion) {
                         Evento.preventDefault();
-                        MostrarMensaje(Form, 'La cantidad de planeaciones debe estar entre 1 y 12.');
+                        MostrarMensaje(Form, 'Por periodo no puede superar la cantidad de periodos de evaluación.');
                         PlaneacionesCantidad.focus();
                         return;
                     }

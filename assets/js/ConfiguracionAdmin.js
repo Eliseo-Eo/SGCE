@@ -65,25 +65,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!Habilitado) { PlaneacionesCantidadInput.setCustomValidity(''); }
                 else {
                     var TipoPlaneacion = TipoPlaneacionSelect ? String(TipoPlaneacionSelect.value || 'CICLO').toUpperCase() : 'CICLO';
-                    var PeriodosInput = FormConfiguracion.querySelector('input[name="PeriodosCantidad"]');
-                    var CantidadPeriodos = PeriodosInput ? parseInt(PeriodosInput.value || '0', 10) : 0;
-                    if (TipoPlaneacion === 'CICLO') {
-                        PlaneacionesCantidadInput.placeholder = 'Ej. 1';
-                        PlaneacionesCantidadInput.required = false;
-                        PlaneacionesCantidadInput.setCustomValidity('');
-                    } else if (TipoPlaneacion === 'PERIODO') {
+                    if (TipoPlaneacion === 'PERIODO') {
                         PlaneacionesCantidadInput.placeholder = 'Ej. 3';
-                        PlaneacionesCantidadInput.required = true;
+                    } else if (TipoPlaneacion === 'CICLO') {
+                        PlaneacionesCantidadInput.placeholder = 'Ej. 6';
                     } else {
                         PlaneacionesCantidadInput.placeholder = 'Ej. 1';
-                        PlaneacionesCantidadInput.required = true;
+                    }
+                    PlaneacionesCantidadInput.required = true;
+                    PlaneacionesCantidadInput.setCustomValidity('');
+                    var PeriodosCantidadInput = FormConfiguracion.querySelector('input[name="PeriodosCantidad"]');
+                    var Cantidad = parseInt(PlaneacionesCantidadInput.value || '0', 10);
+                    var Periodos = PeriodosCantidadInput ? parseInt(PeriodosCantidadInput.value || '0', 10) : 0;
+                    if (TipoPlaneacion === 'PERIODO' && Cantidad > 0 && Periodos > 0 && Cantidad > Periodos) {
+                        PlaneacionesCantidadInput.setCustomValidity('Por periodo no puede superar la cantidad de periodos de evaluación.');
                     }
                 }
             }
             if (PlaneacionesAyuda) {
                 var TipoAyuda = TipoPlaneacionSelect ? String(TipoPlaneacionSelect.value || 'CICLO').toUpperCase() : 'CICLO';
                 var Ayudas = {
-                    CICLO: 'Se solicitará una planeación por materia durante todo el ciclo escolar.',
+                    CICLO: 'Se solicitará la cantidad configurada de planeaciones por materia durante el ciclo escolar.',
                     PERIODO: 'Se solicitará una planeación por cada periodo de evaluación configurado.',
                     UNIDAD: 'Útil cuando cada materia trabaja por unidades, bloques, temas o proyectos.',
                     SEMANA: 'Útil para escuelas que piden planeaciones semanales.'

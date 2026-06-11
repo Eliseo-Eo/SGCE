@@ -13,7 +13,7 @@ foreach ($Iterador as $Archivo) {
     if (str_contains($Rel, 'storage/logs/') && !preg_match('/\.htaccess$|index\.html$/', $Rel)) { $Errores[] = "Log real dentro del paquete: $Rel"; }
     if (!str_starts_with(str_replace('\\', '/', $Rel), 'tests/') && preg_match('/\.(php|css|js|md|txt|sql)$/i', $Rel)) {
         $Contenido = file_get_contents($Ruta);
-        foreach (['1.0.90','1.0.91','1.0.92','1.0.93','1.0.94','1.0.95','1.0.96','1.0.97','1.0.98','1.0.99','1.0.100','1.0.101','1.0.102','1.0.103','1.0.104','1.0.105','1.0.106','1.0.107','1.0.108','1.0.109','1.0.110'] as $VersionVieja) {
+        foreach (array_merge(array_map(static fn($N) => '1.0.' . $N, range(90, 134))) as $VersionVieja) {
             if (str_contains($Contenido, $VersionVieja)) { $Errores[] = "Referencia antigua $VersionVieja en $Rel"; break; }
         }
     }
@@ -22,12 +22,12 @@ foreach ($Iterador as $Archivo) {
         if (substr_count($Contenido, '{') !== substr_count($Contenido, '}')) { $Errores[] = "Llaves CSS desbalanceadas: $Rel"; }
     }
 }
-foreach (['assets/css/avisos-botones-metalicos.css','includes/SGCE_Layout.php','docs/GUIA_PRUEBAS_REALES.md','tests/RunMySQLChecks.php','tests/RunBackupRestoreChecks.php','tests/RunImportChecks.php','tests/RunMigrationChecks.php','tests/RunAdminActionChecks.php','tests/RunApiEndpointChecks.php'] as $Necesario) {
+foreach (['assets/css/avisos-botones-metalicos.css','includes/SGCE_Layout.php','docs/GUIA_PRUEBAS_REALES.md','tests/RunMySQLChecks.php','tests/RunBackupRestoreChecks.php','tests/RunImportChecks.php','tests/RunMigrationChecks.php','tests/RunAdminActionChecks.php','tests/RunApiEndpointChecks.php','tests/RunLoginMotionChecks.php','tests/RunCssJsCleanChecks.php','tests/RunArchitectureChecks.php','tests/RunInterfaceComponentChecks.php','tests/RunFunctionalPolishChecks.php','tests/RunSecurityHardeningChecks.php'] as $Necesario) {
     $Revisiones++;
     if (!is_file($Root . '/' . $Necesario)) { $Errores[] = "Falta archivo requerido: $Necesario"; }
 }
 
-foreach (['DescargarPlantilla.php','modules/DescargarPlantilla.php','storage/templates'] as $Retirado) {
+foreach (['DescargarPlantilla.php','modules/DescargarPlantilla.php','storage/templates','assets/js/admin/AdminConfirmaciones.js'] as $Retirado) {
     $Revisiones++;
     if (file_exists($Root . '/' . $Retirado)) { $Errores[] = "Elemento retirado todavía presente: $Retirado"; }
 }

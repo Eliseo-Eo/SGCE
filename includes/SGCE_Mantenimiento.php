@@ -28,6 +28,12 @@ function SgceMantenimientoLimpiarIntentosSeguridad(PDO $Pdo, int $Dias = 30): in
     return (int)$Stmt->rowCount();
 }
 
+function SgceMantenimientoLimpiarBloqueosExpirados(PDO $Pdo): int {
+    $Stmt = $Pdo->prepare("DELETE FROM IntentosSeguridad WHERE BloqueadoHasta IS NOT NULL AND BloqueadoHasta < NOW()");
+    $Stmt->execute();
+    return (int)$Stmt->rowCount();
+}
+
 function SgceMantenimientoLimpiarRespaldosTemporales(int $Dias = 7): int {
     $Dias = max(1, min(90, $Dias));
     $Dir = defined('SGCE_BACKUP_DIR') ? SGCE_BACKUP_DIR : dirname(__DIR__) . '/storage/backups';
@@ -56,6 +62,7 @@ function SgceMantenimientoDiario(PDO $Pdo, array $Opciones = []): array {
         'BitacoraArchivada' => SgceBitacoraArchivarAntigua($Pdo, $DiasBitacora),
         'SesionesExpiradasLimpiadas' => SgceMantenimientoLimpiarSesionesExpiradas($Pdo),
         'IntentosSeguridadLimpiados' => SgceMantenimientoLimpiarIntentosSeguridad($Pdo, $DiasIntentos),
+        'BloqueosExpiradosLimpiados' => SgceMantenimientoLimpiarBloqueosExpirados($Pdo),
         'RespaldosTemporalesEliminados' => SgceMantenimientoLimpiarRespaldosTemporales($DiasRespaldosTemporales),
         'Fecha' => date('Y-m-d H:i:s'),
     ];

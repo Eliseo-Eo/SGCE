@@ -1,0 +1,177 @@
+/* SGCE 1.0.140 - Bitacora Layout */
+/* Bitácora: filtros distribuidos y tabla compacta.
+   Se aprovecha mejor el ancho: búsqueda arriba, filtros y acciones en una sola línea. */
+.SgceModuleWrap .SgceBitacoraHead{
+    display:grid!important;
+    grid-template-columns:minmax(300px,.78fr) minmax(620px,1.22fr)!important;
+    gap:18px!important;
+    align-items:start!important;
+}
+.SgceModuleWrap .SgceBitacoraTitle{
+    min-width:0!important;
+}
+.SgceModuleWrap .SgceBitacoraTitle h4{
+    margin-bottom:4px!important;
+}
+.SgceModuleWrap .SgceBitacoraTitle p{
+    max-width:520px!important;
+    margin-bottom:0!important;
+    line-height:1.25!important;
+    text-align:justify!important;
+    text-justify:inter-word!important;
+    hyphens:auto!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterForm{
+    display:grid!important;
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+    gap:8px 10px!important;
+    align-items:center!important;
+    justify-items:stretch!important;
+    width:100%!important;
+    max-width:100%!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterSearch{
+    grid-column:1 / -1!important;
+    width:100%!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterSearch .SgceSearchBox{
+    width:100%!important;
+    max-width:none!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterRow{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    width:100%!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterRowSelects{
+    grid-column:1 / span 4!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterRowDates{
+    grid-column:5 / span 4!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterActions{
+    grid-column:9 / span 4!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:10px!important;
+    width:100%!important;
+    margin-top:0!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterForm .SgceQuickFilter{
+    width:100%!important;
+    min-width:0!important;
+    height:40px!important;
+    min-height:40px!important;
+    font-size:.82rem!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterForm input[type="date"].SgceQuickFilter{
+    min-width:0!important;
+}
+.SgceModuleWrap .SgceBitacoraFilterActions .SgceClearFiltersBtn,
+.SgceModuleWrap .SgceBitacoraFilterActions .SgceCountPill{
+    min-height:40px!important;
+    height:40px!important;
+    margin:0!important;
+    white-space:nowrap!important;
+}
+.SgceModuleWrap .SgceBitacoraCard .SgceInfoBanner{
+    margin-top:10px!important;
+    margin-bottom:10px!important;
+}
+.SgceModuleWrap .SgceBitacoraCard .SgceTableWrap{
+    flex:0 0 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+}
+.SgceModuleWrap .SgceBitacoraCard #TableBitacora{
+    margin-bottom:0!important;
+}
+.SgceModuleWrap .SgceBitacoraCard #TableBitacora thead th{
+    height:32px!important;
+    padding-top:7px!important;
+    padding-bottom:7px!important;
+}
+.SgceModuleWrap .SgceBitacoraCard #TableBitacora tbody td{
+    height:36px!important;
+    padding-top:6px!important;
+    padding-bottom:6px!important;
+}
+.SgceModuleWrap .SgceBitacoraCard .SgcePartialPager{
+    margin-top:10px!important;
+    padding-top:0!important;
+}
+@media (min-width:993px){
+    html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraCard{
+        min-height:0!important;
+        height:auto!important;
+        max-height:none!important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraCard .SgceTableWrap{
+        flex:0 0 auto!important;
+        min-height:0!important;
+        height:auto!important;
+        max-height:none!important;
+        overflow-x:auto!important;
+        overflow-y:hidden!important;
+        border:1px solid #E7ECF3!important;
+        border-radius:18px!important;
+        background:#FFFFFF!important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraCard .SgcePartialPager{
+        margin-top:10px!important;
+        padding-top:0!important;
+    }
+}
+@media (max-width:1180px) and (min-width:993px){
+    .SgceModuleWrap .SgceBitacoraHead{
+        grid-template-columns:minmax(270px,.72fr) minmax(560px,1.28fr)!important;
+        gap:14px!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterRowSelects{
+        grid-column:1 / span 6!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterRowDates{
+        grid-column:7 / span 6!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterActions{
+        grid-column:1 / -1!important;
+        justify-content:flex-end!important;
+    }
+}
+@media (max-width:992px){
+    .SgceModuleWrap .SgceBitacoraHead{
+        grid-template-columns:1fr!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterForm{
+        grid-template-columns:1fr!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterSearch,
+    .SgceModuleWrap .SgceBitacoraFilterRowSelects,
+    .SgceModuleWrap .SgceBitacoraFilterRowDates,
+    .SgceModuleWrap .SgceBitacoraFilterActions{
+        grid-column:1 / -1!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterRow{
+        grid-template-columns:1fr!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterActions{
+        justify-content:stretch!important;
+        flex-direction:column!important;
+        align-items:stretch!important;
+    }
+    .SgceModuleWrap .SgceBitacoraFilterActions .SgceClearFiltersBtn,
+    .SgceModuleWrap .SgceBitacoraFilterActions .SgceCountPill{
+        width:100%!important;
+        justify-content:center!important;
+    }
+    html body .SgcePageWrap.SgceModuleWrap .SgceBitacoraCard .SgceTableWrap{
+        min-height:0!important;
+        height:auto!important;
+        max-height:none!important;
+    }
+}

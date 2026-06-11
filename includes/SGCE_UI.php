@@ -3,7 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 
 function SgceVersion(): string {
-    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.122';
+    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.140';
 }
 
 
@@ -97,30 +97,71 @@ function SgceRenderPager($NombrePagina, $PaginaActual, $TotalRegistros, $PorPagi
         return $MostrarResumen ? '<div class="SgcePagerServer"><div class="SgcePagerInfo">' . HGlobal(SgcePagerResumenTexto($PaginaActual, $TotalRegistros, $PorPagina)) . '</div></div>' : '';
     }
 
-    $Html = '<nav class="SgcePagerServer" aria-label="Paginación"><ul class="pagination pagination-sm justify-content-center flex-wrap gap-1 mb-0">';
     $Base = $_GET;
-    foreach ($ParametrosExtra as $K => $V) { $Base[$K] = $V; }
-    $Crear = function($Pagina, $Texto, $Disabled = false, $Active = false) use ($Base, $NombrePagina) {
+    foreach ($ParametrosExtra as $K => $V) {
+        if ($V === null) { unset($Base[$K]); }
+        else { $Base[$K] = $V; }
+    }
+
+    $CrearUrl = static function(int $Pagina) use ($Base, $NombrePagina): string {
         $Params = $Base;
-        $Params[$NombrePagina] = $Pagina;
-        $Clase = 'page-item' . ($Disabled ? ' disabled' : '') . ($Active ? ' active' : '');
-        return '<li class="' . $Clase . '"><a class="page-link" href="?' . HGlobal(http_build_query($Params)) . '">' . $Texto . '</a></li>';
+        $Params[$NombrePagina] = max(1, $Pagina);
+        return '?' . HGlobal(http_build_query($Params));
     };
-    $Html .= $Crear(max(1, $PaginaActual - 1), '&laquo;', $PaginaActual <= 1);
+
+    $CrearItem = static function(int $Pagina, string $TextoHtml, bool $Disabled = false, bool $Active = false, string $AriaLabel = '') use ($CrearUrl): string {
+        $Clase = 'page-item' . ($Disabled ? ' disabled' : '') . ($Active ? ' active' : '');
+        $Atributos = $AriaLabel !== '' ? ' aria-label="' . HGlobal($AriaLabel) . '"' : '';
+        if ($Disabled || $Active) {
+            $Extra = $Active ? ' aria-current="page"' : ' aria-disabled="true" tabindex="-1"';
+            return '<li class="' . $Clase . '"><span class="page-link"' . $Atributos . $Extra . '>' . $TextoHtml . '</span></li>';
+        }
+        return '<li class="' . $Clase . '"><a class="page-link" href="' . $CrearUrl($Pagina) . '"' . $Atributos . '>' . $TextoHtml . '</a></li>';
+    };
+
+    $CrearPuntos = static function(): string {
+        return '<li class="page-item disabled SgcePagerDots"><span class="page-link" aria-hidden="true">…</span></li>';
+    };
+
     $Inicio = max(1, $PaginaActual - 2);
     $Fin = min($TotalPaginas, $PaginaActual + 2);
-    if ($Inicio > 1) { $Html .= $Crear(1, '1', false, $PaginaActual === 1); }
-    for ($I = $Inicio; $I <= $Fin; $I++) { $Html .= $Crear($I, (string)$I, false, $I === $PaginaActual); }
-    if ($Fin < $TotalPaginas) { $Html .= $Crear($TotalPaginas, (string)$TotalPaginas, false, $PaginaActual === $TotalPaginas); }
-    $Html .= $Crear(min($TotalPaginas, $PaginaActual + 1), '&raquo;', $PaginaActual >= $TotalPaginas);
+
+    if ($PaginaActual <= 3) {
+        $Fin = min($TotalPaginas, 5);
+    }
+    if ($PaginaActual >= $TotalPaginas - 2) {
+        $Inicio = max(1, $TotalPaginas - 4);
+    }
+
+    $Html = '<nav class="SgcePagerServer" aria-label="Paginación"><ul class="pagination pagination-sm justify-content-center flex-wrap gap-1 mb-0">';
+    $Html .= $CrearItem(1, '&laquo;', $PaginaActual <= 1, false, 'Primera página');
+    $Html .= $CrearItem(max(1, $PaginaActual - 1), '&lsaquo;', $PaginaActual <= 1, false, 'Página anterior');
+
+    if ($Inicio > 1) {
+        $Html .= $CrearItem(1, '1', false, $PaginaActual === 1, 'Página 1');
+        if ($Inicio > 2) { $Html .= $CrearPuntos(); }
+    }
+
+    for ($I = $Inicio; $I <= $Fin; $I++) {
+        $Html .= $CrearItem($I, (string)$I, false, $I === $PaginaActual, 'Página ' . $I);
+    }
+
+    if ($Fin < $TotalPaginas) {
+        if ($Fin < $TotalPaginas - 1) { $Html .= $CrearPuntos(); }
+        $Html .= $CrearItem($TotalPaginas, (string)$TotalPaginas, false, $PaginaActual === $TotalPaginas, 'Página ' . $TotalPaginas);
+    }
+
+    $Html .= $CrearItem(min($TotalPaginas, $PaginaActual + 1), '&rsaquo;', $PaginaActual >= $TotalPaginas, false, 'Página siguiente');
+    $Html .= $CrearItem($TotalPaginas, '&raquo;', $PaginaActual >= $TotalPaginas, false, 'Última página');
     $Html .= '</ul>';
+
     if ($MostrarResumen) {
         $Html .= '<div class="SgcePagerInfo">' . HGlobal(SgcePagerResumenTexto($PaginaActual, $TotalRegistros, $PorPagina)) . '</div>';
     }
+
     $Html .= '</nav>';
     return $Html;
 }
-
 
 function SgceEtiquetaEtapaPorTipoTexto(string $Tipo): string {
     $Tipo = SgceTipoPeriodizacionValido($Tipo);

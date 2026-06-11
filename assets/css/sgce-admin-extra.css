@@ -321,8 +321,6 @@ html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon,html body .SgceModul
 html body .SgceModuleWrap .SgceCardHeaderLine .SgceMiniIcon .SgceColorIcon,html body .SgceModuleWrap .SgceRestoreCardHead .IconBox .SgceColorIcon,html body .SgceModuleWrap .SgceBitacoraIcon .SgceColorIcon,html body .SgceModuleWrap .ExpedientesTitleIcon .SgceColorIcon,html body .SgceModuleWrap .SgceConfigHead>span .SgceColorIcon{width:auto!important;height:auto!important;min-width:0!important;margin:0!important;border-radius:0!important;background:transparent!important;color:inherit!important;box-shadow:none!important;display:inline!important;font-size:1.35rem!important;line-height:1!important;}
 html body .SgceModuleWrap .ExpedientesTitleIcon{background:linear-gradient(135deg,#FFFBEB,#FEF3C7)!important;border-color:#FDE68A!important;color:#D97706!important;}
 html body .SgceModuleWrap .SgceBitacoraIcon{background:linear-gradient(135deg,#EFF6FF,#DBEAFE)!important;border-color:#BFDBFE!important;color:#2563EB!important;}
-
-
 /* Iconos internos institucionales suaves.
    Homologa encabezados de tarjetas y títulos secundarios en módulos administrativos.
    Usa el color institucional, pero con baja intensidad para evitar saturación visual. */
@@ -370,7 +368,6 @@ html body .SgcePageWrap.SgceModuleWrap .SgceTitleIcon.SgceColorIcon{
     line-height:1!important;
     vertical-align:middle!important;
 }
-
 /* Alumnos: Contenedores más altos para aprovechar mejor la pantalla.
    Causa revisada: La altura venía de AlumnosTableCard y table-responsive en sgce-admin-extra.css.
    Ajuste seguro: Solo se aumenta el alto mínimo del módulo Alumnos sin tocar otros módulos. */
@@ -389,4 +386,3 @@ html body .SgceModuleWrap #alumnos .AlumnosTableCard .table-responsive{
 html body .SgceModuleWrap #alumnos .AlumnosImportCard{
     flex: 1 1 auto !important;
 }
-

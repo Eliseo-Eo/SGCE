@@ -117,18 +117,7 @@ $DestinoSinPeriodos = is_array($DiagnosticoCiclo) ? ($DiagnosticoCiclo['DestinoS
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Migración de ciclo escolar | SGCE</title>
-<link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
-<?= SgceCss('assets/css/configuracion-botones-metalicos.css') ?>
-<?= SgceCss('assets/css/migracion-botones-metalicos.css') ?>
+<?= SgceLayoutHeadBase('Migración de ciclo escolar | SGCE', $Pdo, ['assets/css/configuracion-botones-metalicos.css', 'assets/css/migracion-botones-metalicos.css']) ?>
 </head>
 <body>
 <div class="SgcePageWrap SgceModuleWrap container-fluid px-4 py-4">
@@ -298,7 +287,6 @@ $DestinoSinPeriodos = is_array($DiagnosticoCiclo) ? ($DiagnosticoCiclo['DestinoS
         </section>
     </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceLayoutSharedJs() ?>
 </body>
 </html>

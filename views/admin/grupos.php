@@ -216,7 +216,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                                     <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
                                                 </button>
 
-                                                <form method="POST" class="m-0 p-0" data-confirm-delete="GRUPO" data-confirm-message="¿DESEAS ELIMINAR ESTE GRUPO? SI TIENE DATOS RELACIONADOS, EL SISTEMA PUEDE IMPEDIRLO.">
+                                                <form method="POST" class="m-0 p-0" data-sgce-confirm="delete" data-sgce-confirm-title="ELIMINAR GRUPO" data-sgce-confirm-subtitle="CATÁLOGO DE GRUPOS" data-sgce-confirm-message="¿DESEAS ELIMINAR ESTE GRUPO? SI TIENE DATOS RELACIONADOS, EL SISTEMA PUEDE IMPEDIRLO." data-sgce-confirm-detail="Si tiene datos relacionados, el sistema puede impedir la eliminación para proteger la información escolar." data-sgce-confirm-button="SÍ, ELIMINAR" data-sgce-confirm-loading="ELIMINANDO..." data-sgce-confirm-icon="fa-people-group">
                     <?php echo CampoCsrf(); ?>
                                                     <input type="hidden" name="Tab" value="grupos">
                                                     <button type="submit" name="DelGrupo" value="<?= (int)$G['Id'] ?>" class="ActionBtn ActionDelete BtnGroupDelete">

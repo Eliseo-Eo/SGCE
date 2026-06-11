@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             setcookie('AuthToken', $Token, [
                 'expires' => time() + 86400,
-                'path' => '/',
+                'path' => SgceCookiePath(),
                 'httponly' => true,
                 'samesite' => 'Strict',
                 'secure' => EsHttps()
@@ -101,24 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="es">
 
 <head>
-
-    <meta charset="UTF-8">
-
-    
-    
-    <link rel="icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/media/img/favicon.ico">
-    <link rel="apple-touch-icon" href="assets/media/img/favicon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title><?= HGlobal($NombreEscuelaLogin) ?> | Sistema Escolar</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
+<?= SgceLayoutHeadBase($NombreEscuelaLogin . ' | Sistema escolar', $Pdo) ?>
 </head>
 
 <body class="LoginPage">
@@ -357,9 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 
-<?php ImprimirCsrfScript(); ?>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
-<?= SgceJs('assets/js/index.js') ?>
+<?= SgceLayoutSharedJs(['assets/js/index.js'], true, true) ?>
 </body>
 
 </html>

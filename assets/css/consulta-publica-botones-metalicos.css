@@ -1,4 +1,3 @@
-
 #BtnConsultaPublicaAsistenciaVerdeMetalico,
 #BtnConsultaPublicaCalificacionesVerdeMetalico,
 html body.ConsultaPublicaBody #BtnConsultaPublicaAsistenciaVerdeMetalico,
@@ -23,7 +22,6 @@ html body.ConsultaPublicaBody #BtnConsultaPublicaCalificacionesVerdeMetalico:hov
 #BtnConsultaPublicaCalificacionesVerdeMetalico .SgceColorIcon {
     filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
 }
-
 /* Consulta pública de asistencia: icono, aviso y botón verde más equilibrados.
    La corrección es específica para ConsultaPadre.php para no alterar el resto del sistema. */
 html body.ConsultaPublicaBody .ConsultaCard h4 .SgceTitleIcon.SgceColorIcon {
@@ -73,7 +71,6 @@ html body.ConsultaPublicaBody #BtnConsultaPublicaAsistenciaVerdeMetalico:hover {
 #BtnConsultaPublicaAsistenciaVerdeMetalico .SgceColorIcon {
     filter: drop-shadow(0 1px 3px rgba(0,0,0,.14)) !important;
 }
-
 /* Consulta pública: Asistencia y calificaciones comparten el mismo pulido visual.
    El botón verde metálico queda más suave en ambos formularios para padres. */
 #BtnConsultaPublicaAsistenciaVerdeMetalico,

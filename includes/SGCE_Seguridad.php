@@ -1,12 +1,32 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
+function SgceValorBooleano($Valor): bool {
+    if (is_bool($Valor)) { return $Valor; }
+    return in_array(strtolower(trim((string)$Valor)), ['1','true','on','yes','si','sí'], true);
+}
+
+function SgceCookiePath(): string {
+    $Url = defined('SGCE_BASE_URL') ? trim((string)SGCE_BASE_URL) : '';
+    if ($Url !== '') {
+        $Partes = @parse_url($Url);
+        $Path = is_array($Partes) ? (string)($Partes['path'] ?? '') : '';
+        $Path = '/' . trim($Path, '/');
+        return $Path === '/' ? '/' : $Path . '/';
+    }
+    $Script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/'));
+    $Dir = dirname($Script);
+    if ($Dir === '.' || $Dir === '\\') { return '/'; }
+    $Dir = '/' . trim($Dir, '/');
+    return $Dir === '/' ? '/' : $Dir . '/';
+}
+
 function IniciarSesionSegura() {
     if (session_status() === PHP_SESSION_NONE) {
         if (PHP_VERSION_ID >= 70300) {
             session_set_cookie_params([
                 'lifetime' => 0,
-                'path' => '/',
+                'path' => SgceCookiePath(),
                 'secure' => EsHttps(),
                 'httponly' => true,
                 'samesite' => 'Strict',
@@ -16,12 +36,80 @@ function IniciarSesionSegura() {
     }
 }
 
+function SgceIpEnRangoConfiable(string $Ip, string $Entrada): bool {
+    $Entrada = trim($Entrada);
+    if ($Entrada === '') { return false; }
+    if ($Ip === $Entrada) { return true; }
+    if (!str_contains($Entrada, '/')) { return false; }
+    [$Red, $Bits] = array_pad(explode('/', $Entrada, 2), 2, '');
+    if (!filter_var($Ip, FILTER_VALIDATE_IP) || !filter_var($Red, FILTER_VALIDATE_IP)) { return false; }
+    $Bits = (int)$Bits;
+    $IpBin = @inet_pton($Ip);
+    $RedBin = @inet_pton($Red);
+    if ($IpBin === false || $RedBin === false || strlen($IpBin) !== strlen($RedBin)) { return false; }
+    $Bytes = intdiv($Bits, 8);
+    $Resto = $Bits % 8;
+    if ($Bytes > 0 && substr($IpBin, 0, $Bytes) !== substr($RedBin, 0, $Bytes)) { return false; }
+    if ($Resto === 0) { return true; }
+    if ($Bytes >= strlen($IpBin)) { return true; }
+    $Mascara = (0xFF << (8 - $Resto)) & 0xFF;
+    return (ord($IpBin[$Bytes]) & $Mascara) === (ord($RedBin[$Bytes]) & $Mascara);
+}
+
+function SgceProxyConfiable(): bool {
+    if (!defined('SGCE_TRUST_PROXY_HEADERS') || !SgceValorBooleano(SGCE_TRUST_PROXY_HEADERS)) { return false; }
+    $Remoto = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+    if ($Remoto === '' || !defined('SGCE_TRUSTED_PROXIES')) { return false; }
+    $Lista = array_filter(array_map('trim', preg_split('/[,;\s]+/', (string)SGCE_TRUSTED_PROXIES)));
+    if (!$Lista) { return false; }
+    foreach ($Lista as $ProxyConfiable) {
+        if (SgceIpEnRangoConfiable($Remoto, $ProxyConfiable)) { return true; }
+    }
+    return false;
+}
+
 function EsHttps() {
+    if (defined('SGCE_FORCE_HTTPS') && SgceValorBooleano(SGCE_FORCE_HTTPS)) { return true; }
     $HttpsDirecto = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || ((int)($_SERVER['SERVER_PORT'] ?? 0) === 443);
+    if ($HttpsDirecto) { return true; }
+    if (!SgceProxyConfiable()) { return false; }
     $ProtoProxy = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
     $SslProxy = strtolower((string)($_SERVER['HTTP_X_FORWARDED_SSL'] ?? ''));
     $PuertoProxy = (int)($_SERVER['HTTP_X_FORWARDED_PORT'] ?? 0);
-    return $HttpsDirecto || $ProtoProxy === 'https' || $SslProxy === 'on' || $PuertoProxy === 443;
+    return $ProtoProxy === 'https' || $SslProxy === 'on' || $PuertoProxy === 443;
+}
+
+function SgceUrlHttpsActual(): string {
+    $RequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
+    $Base = defined('SGCE_BASE_URL') ? trim((string)SGCE_BASE_URL) : '';
+    if ($Base !== '') {
+        $Partes = @parse_url($Base);
+        if (is_array($Partes) && !empty($Partes['host'])) {
+            $Host = $Partes['host'];
+            $Puerto = isset($Partes['port']) ? ':' . (int)$Partes['port'] : '';
+            return 'https://' . $Host . $Puerto . ($RequestUri !== '' ? $RequestUri : '/');
+        }
+    }
+    $Host = preg_replace('/[^A-Za-z0-9.\-:\[\]]/', '', (string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($Host === '') { $Host = 'localhost'; }
+    return 'https://' . $Host . ($RequestUri !== '' ? $RequestUri : '/');
+}
+
+function SgceForzarHttpsRedirect(): void {
+    if (php_sapi_name() === 'cli' || headers_sent()) { return; }
+    if (!defined('SGCE_FORCE_HTTPS') || !SgceValorBooleano(SGCE_FORCE_HTTPS)) { return; }
+    $HttpsDirecto = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || ((int)($_SERVER['SERVER_PORT'] ?? 0) === 443);
+    $HttpsProxy = false;
+    if (SgceProxyConfiable()) {
+        $ProtoProxy = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+        $SslProxy = strtolower((string)($_SERVER['HTTP_X_FORWARDED_SSL'] ?? ''));
+        $PuertoProxy = (int)($_SERVER['HTTP_X_FORWARDED_PORT'] ?? 0);
+        $HttpsProxy = $ProtoProxy === 'https' || $SslProxy === 'on' || $PuertoProxy === 443;
+    }
+    if ($HttpsDirecto || $HttpsProxy) { return; }
+    http_response_code(308);
+    header('Location: ' . SgceUrlHttpsActual(), true, 308);
+    exit;
 }
 
 function EnviarHeadersSeguridad() {
@@ -194,7 +282,7 @@ function SgceTienePermiso($UserSession, $Permiso) {
 }
 
 function SgceSeguridadAssetUrl(string $Ruta): string {
-    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.122';
+    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.140';
     $Separador = str_contains($Ruta, '?') ? '&' : '?';
     return $Ruta . $Separador . 'v=' . rawurlencode($Version);
 }
@@ -204,7 +292,7 @@ function SgceDenegarAcceso($Mensaje = 'No tienes permiso para entrar a esta secc
     $MensajeSeguro = HGlobal($Mensaje);
     $Inicio = 'index.php';
     echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-base.min.css')) . '">
-<link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-soft-motion.css')) . '"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto" style="max-width:680px"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
+<link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-soft-motion.css')) . '"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto SgceAccessDeniedCard"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
     exit;
 }
 
@@ -260,6 +348,16 @@ function SgceRedirectAdminTab($Tab, $UserSession = null) {
     exit;
 }
 
+function SgceRegenerarSesionRevalidadaPorCookie(int $UsuarioId, string $TokenHash): void {
+    if (session_status() !== PHP_SESSION_ACTIVE || headers_sent()) { return; }
+    $MarcaSesion = hash('sha256', $UsuarioId . '|' . $TokenHash);
+    if (($_SESSION['SgceCookieAuthMarca'] ?? '') !== $MarcaSesion) {
+        session_regenerate_id(true);
+        $_SESSION['SgceCookieAuthMarca'] = $MarcaSesion;
+    }
+    $_SESSION['UsuarioId'] = $UsuarioId;
+}
+
 function VerificarSesionCookie($Pdo) {
     if (empty($_COOKIE['AuthToken'])) { return false; }
     $Token = SgceNormalizarTokenSesion($_COOKIE['AuthToken']);
@@ -268,17 +366,12 @@ function VerificarSesionCookie($Pdo) {
     $TokenHash = SgceHashTokenSesion($Token);
     if ($TokenHash === '') { return false; }
 
-    $Stmt = $Pdo->prepare('SELECT Id, Username, NombreCompleto, Rol, SessionToken FROM Usuarios WHERE SessionToken IN (?, ?) AND Activo = 1 AND SessionTokenExpira >= NOW() LIMIT 1');
-    $Stmt->execute([$TokenHash, $Token]);
+    $Stmt = $Pdo->prepare('SELECT Id, Username, NombreCompleto, Rol, SessionToken FROM Usuarios WHERE SessionToken = ? AND Activo = 1 AND SessionTokenExpira >= NOW() LIMIT 1');
+    $Stmt->execute([$TokenHash]);
     $User = $Stmt->fetch() ?: false;
 
     if ($User) {
-        if (hash_equals((string)($User['SessionToken'] ?? ''), $Token)) {
-            try {
-                $UpdateToken = $Pdo->prepare('UPDATE Usuarios SET SessionToken = ? WHERE Id = ? AND SessionToken = ? LIMIT 1');
-                $UpdateToken->execute([$TokenHash, (int)$User['Id'], $Token]);
-            } catch (Exception $E) {}
-        }
+        SgceRegenerarSesionRevalidadaPorCookie((int)$User['Id'], $TokenHash);
         unset($User['SessionToken']);
         $User['Rol'] = SgceNormalizarRolSistema($User['Rol'] ?? '');
     }

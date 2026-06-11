@@ -12,6 +12,8 @@ function SgceConfiguracionDefault() {
         'LemaInstitucional' => '',
         'ColorInstitucional' => '#97051E',
         'SistemaNombre' => 'SGCE',
+        'UrlBaseSistema' => defined('SGCE_BASE_URL') ? SGCE_BASE_URL : '',
+        'ConsultaPublicaAsistenciaLimiteDetalle' => '600',
         'NombreOfertaAcademica' => '',
         'NivelEducativo' => 'SECUNDARIA',
         'TipoPeriodizacion' => 'ANUAL',
@@ -64,6 +66,24 @@ function SgceGuardarConfiguracion($Pdo, $Datos) {
             $Stmt->execute([$Clave, (string)$Datos[$Clave]]);
         }
     }
+}
+
+function SgceNormalizarUrlBaseSistema($Url): string {
+    $Url = trim((string)$Url);
+    if ($Url === '') { return ''; }
+    if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $Url) && !preg_match('#^https?://#i', $Url)) { return ''; }
+    if (preg_match('#^https?://#i', $Url)) {
+        $Partes = parse_url($Url);
+        if (empty($Partes['host'])) { return ''; }
+        $Scheme = strtolower((string)($Partes['scheme'] ?? 'https'));
+        $Host = strtolower((string)$Partes['host']);
+        $Puerto = isset($Partes['port']) ? ':' . (int)$Partes['port'] : '';
+        $Path = '/' . trim((string)($Partes['path'] ?? ''), '/');
+        $Path = $Path === '/' ? '/' : $Path . '/';
+        return $Scheme . '://' . $Host . $Puerto . $Path;
+    }
+    $Url = '/' . trim($Url, '/');
+    return $Url === '/' ? '/' : $Url . '/';
 }
 
 
@@ -273,7 +293,6 @@ function SgceGuardarConfiguracionAcademica(PDO $Pdo, int $OfertaId, int $Cantida
     $ModoPeriodos = SgceModoPeriodosValido($ModoPeriodos);
     $TipoPlaneacion = SgceTipoPlaneacionValido($TipoPlaneacion);
     $PlaneacionesCantidad = $UsaPlaneaciones ? max(1, min(12, $PlaneacionesCantidad)) : 0;
-    if ($UsaPlaneaciones && $TipoPlaneacion === 'CICLO') { $PlaneacionesCantidad = 1; }
     $Stmt = $Pdo->prepare("INSERT INTO ConfiguracionesAcademicas (OfertaId, CantidadPeriodosEvaluacion, NombreBasePeriodo, ModoPeriodos, PeriodosPersonalizados, UsaPlaneaciones, TipoPlaneacion, PlaneacionesCantidad, Activo)
         VALUES (?, ?, ?, ?, NULLIF(?, ''), ?, ?, ?, 1)
         ON DUPLICATE KEY UPDATE CantidadPeriodosEvaluacion = VALUES(CantidadPeriodosEvaluacion), NombreBasePeriodo = VALUES(NombreBasePeriodo), ModoPeriodos = VALUES(ModoPeriodos), PeriodosPersonalizados = VALUES(PeriodosPersonalizados), UsaPlaneaciones = VALUES(UsaPlaneaciones), TipoPlaneacion = VALUES(TipoPlaneacion), PlaneacionesCantidad = VALUES(PlaneacionesCantidad), Activo = 1");

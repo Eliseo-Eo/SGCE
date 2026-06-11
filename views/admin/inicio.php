@@ -5,9 +5,9 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 <div class="tab-pane fade show active SgceActivePane" id="inicio">
             <?php
                 $TarjetasInicio = [
-                    ['ALUMNOS ACTIVOS', $TotalAlumnosActivos, 'fa-children', 'var(--SgceAzul)'],
                     ['MAESTROS ACTIVOS', $TotalMaestrosActivos, 'fa-chalkboard-user', 'var(--SgceVerde)'],
                     ['GRUPOS ACTIVOS', $TotalGruposActivos, 'fa-users-rectangle', 'var(--SgceAmarillo)'],
+                    ['ALUMNOS ACTIVOS', $TotalAlumnosActivos, 'fa-children', 'var(--SgceAzul)'],
                     ['ASISTENCIAS HOY', $AsistenciasHoy, 'fa-calendar-check', 'var(--SgceGuinda)'],
                     ['FALTAS HOY', $FaltasHoy, 'fa-circle-xmark', 'var(--SgceRojo)'],
                     ['PROMEDIO GENERAL', $PromedioGeneral, 'fa-star', '#7C3AED']
@@ -28,9 +28,9 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                 }
 
                 $DashboardKpis = [
-                    ['Alumnos activos', $TotalAlumnosActivos, '📚', 'KpiBlue', 'Inscritos vigentes'],
                     ['Maestros activos', $TotalMaestrosActivos, '👨‍🏫', 'KpiGreen', 'Docentes disponibles'],
                     ['Grupos activos', $TotalGruposActivos, '👥', 'KpiCyan', 'Etapa académica, grupo y turno'],
+                    ['Alumnos activos', $TotalAlumnosActivos, '📚', 'KpiBlue', 'Inscritos vigentes'],
                     ['Asistencias hoy', $AsistenciasHoy, '✅', 'KpiAttendance', 'Registros del día'],
                     ['Faltas hoy', $FaltasHoy, '❌', 'KpiSoftRed', 'Incidencias actuales'],
                     ['Promedio general', $PromedioGeneral, '⭐', 'KpiGold', 'Ciclo activo']

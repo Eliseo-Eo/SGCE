@@ -89,7 +89,7 @@ function SgceRegistrarDocenteAsignacionActual(PDO $Pdo, int $AsignacionId, int $
     $Stmt->execute([$AsignacionId, $MaestroId, $Tipo, $Motivo, $UsuarioId]);
 }
 
-function SgceRelevarDocenteAsignacion(PDO $Pdo, int $AsignacionId, int $NuevoMaestroId, int $UsuarioId = 0, string $Motivo = 'RELEVO DOCENTE / INTERINATO'): bool {
+function SgceRelevarDocenteAsignacion(PDO $Pdo, int $AsignacionId, int $NuevoMaestroId, int $UsuarioId = 0, string $Motivo = ''): bool {
     $Asignacion = SgceAsignacionObtener($Pdo, $AsignacionId);
     if (!$Asignacion) { throw new RuntimeException('La asignación no existe.'); }
     if ((int)$Asignacion['CicloActivo'] !== 1 || (int)$Asignacion['Activo'] !== 1) { throw new RuntimeException('Solo puedes relevar docentes en asignaciones activas del ciclo activo.'); }

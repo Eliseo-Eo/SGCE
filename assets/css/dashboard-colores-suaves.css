@@ -1,4 +1,3 @@
-
 html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard{
     --ModuleAccent:#2563EB;
     --ModuleSoft:rgba(37,99,235,.12);
@@ -48,7 +47,6 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard small{
     opacity:1!important;
     text-shadow:none!important;
 }
-
 html body .SgceModuleWrap .DashboardModuleAnuncios,
 html body .SgceModuleWrap .DashboardModuleAzul{
     --ModuleAccent:#2563EB;
@@ -142,7 +140,6 @@ html body .SgceModuleWrap .DashboardModuleBitacora{
     --ModuleBorder:rgba(59,130,246,.24);
     --ModuleGlow:rgba(59,130,246,.12);
 }
-
 html body .SgceModuleWrap .KpiBlue{
     --KpiColor:#2563EB!important;
     --KpiSoft:rgba(37,99,235,.12)!important;
@@ -182,7 +179,6 @@ html body .SgceModuleWrap .DashboardTodayIcon{
     background:rgba(255,255,255,.20)!important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28)!important;
 }
-
 html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard{
     --ModuleTopAccent:var(--SgceGuinda);
     border-top-color:var(--ModuleTopAccent)!important;
@@ -204,16 +200,6 @@ html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard>.SgceColo
     border:1px solid var(--ModuleBorder)!important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 8px 18px var(--ModuleGlow)!important;
 }
-html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard span:not(.SgceColorIcon){
-    color:#101828!important;
-    text-shadow:none!important;
-}
-html body .SgceModuleWrap .DashboardModuleGridPro .DashboardModuleCard small{
-    color:#667085!important;
-    opacity:1!important;
-    text-shadow:none!important;
-}
-
 html body .SgceModuleWrap .DashboardRiskEmpty .DashboardRiskEmptyIcon{
     background:rgba(22,163,74,.10)!important;
     color:#16A34A!important;

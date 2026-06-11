@@ -29,32 +29,43 @@ CheckContains($Root, 'Instalar.php', [
     "'TipoPlaneacion' => \$_POST['TipoPlaneacion'] ?? 'CICLO'",
     "'PlaneacionesCantidad' => \$_POST['PlaneacionesCantidad'] ?? ''",
     'Por ciclo',
-    'Se solicitará una planeación por materia durante todo el ciclo escolar.'
+    'Se solicitará la cantidad configurada de planeaciones por materia durante el ciclo escolar.'
+], $Errores, $Revisiones);
+CheckNotContains($Root, 'Instalar.php', [
+    "TipoPlaneacion === 'CICLO') { \$PlaneacionesCantidad = 1;",
+    "PlaneacionesCantidadTexto = '1';"
 ], $Errores, $Revisiones);
 
 CheckContains($Root, 'assets/js/Instalar.js', [
     "TipoPlaneacion === 'CICLO'",
-    "PlaneacionesCantidadInput.placeholder = 'Ej. 1'",
-    'Se solicitará una planeación por materia durante todo el ciclo escolar.'
+    "PlaneacionesCantidadInput.placeholder = 'Ej. 6'",
+    'Se solicitará la cantidad configurada de planeaciones por materia durante el ciclo escolar.',
+    "PlaneacionesCantidadInput.required = true"
 ], $Errores, $Revisiones);
 CheckNotContains($Root, 'assets/js/Instalar.js', [
     "PlaneacionesCantidadInput.value = '1'",
-    "CantidadPeriodos > 0 ? CantidadPeriodos : 3"
+    "CantidadPeriodos > 0 ? CantidadPeriodos : 3",
+    "PlaneacionesCantidadInput.required = false"
 ], $Errores, $Revisiones);
 
 CheckContains($Root, 'assets/js/ConfiguracionAdmin.js', [
     "TipoPlaneacion === 'CICLO'",
-    "PlaneacionesCantidadInput.placeholder = 'Ej. 1'"
+    "PlaneacionesCantidadInput.placeholder = 'Ej. 6'",
+    "PlaneacionesCantidadInput.required = true"
 ], $Errores, $Revisiones);
 CheckNotContains($Root, 'assets/js/ConfiguracionAdmin.js', [
     "PlaneacionesCantidadInput.value = '1'",
-    "CantidadPeriodos > 0 ? CantidadPeriodos : 3"
+    "CantidadPeriodos > 0 ? CantidadPeriodos : 3",
+    "PlaneacionesCantidadInput.required = false"
 ], $Errores, $Revisiones);
 
 CheckContains($Root, 'includes/SGCE_Configuracion.php', [
     "'TipoPlaneacion' => 'CICLO'",
     "'PlaneacionesCantidad' => '1'",
     "return in_array(\$Tipo, ['CICLO','PERIODO','UNIDAD','SEMANA'], true) ? \$Tipo : 'CICLO';"
+], $Errores, $Revisiones);
+CheckNotContains($Root, 'includes/SGCE_Configuracion.php', [
+    "TipoPlaneacion === 'CICLO') { \$PlaneacionesCantidad = 1;"
 ], $Errores, $Revisiones);
 
 CheckContains($Root, 'install/SGCE.sql', [

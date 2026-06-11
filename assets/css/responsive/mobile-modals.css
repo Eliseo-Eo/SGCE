@@ -1,0 +1,84 @@
+/* SGCE 1.0.140 - Modales móviles con alto controlado y footer estable */
+
+@media (max-width: 768px) {
+  .modal-dialog,
+  .SgceConfirmDialog,
+  .SgceAsignacionEditDialog,
+  .PlaneacionReviewDialog {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    margin: 10px auto !important;
+  }
+  .modal-content,
+  .SgceConfirmContent,
+  .SgceAsignacionEditModal,
+  .PlaneacionReviewModal {
+    max-height: 92dvh !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .modal-header,
+  .SgceAsignacionEditHeader,
+  .PlaneacionReviewHeader {
+    flex: 0 0 auto !important;
+    padding: 18px !important;
+  }
+  .modal-body,
+  .SgceAsignacionEditBody,
+  .PlaneacionReviewBody {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+  }
+  .modal-footer,
+  .SgceAsignacionEditFooter,
+  .PlaneacionReviewFooter,
+  .SgceConfirmActions {
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 3 !important;
+    background: rgba(255,255,255,.97) !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 14px 16px !important;
+  }
+  .modal-footer .btn,
+  .SgceAsignacionEditFooter .btn,
+  .PlaneacionReviewFooter .btn,
+  .SgceConfirmActions .btn { width: 100% !important; min-height: 46px !important; }
+  .btn-close,
+  .PlaneacionReviewClose,
+  .SgceAsignacionEditClose {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+  }
+  .SgceSearchableOptions,
+  .SgceSearchableDropdown,
+  .SgceSelectOptions {
+    max-height: 40dvh !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .modal-dialog,
+  .SgceConfirmDialog,
+  .SgceAsignacionEditDialog,
+  .PlaneacionReviewDialog {
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    margin: 6px auto !important;
+  }
+  .modal-content,
+  .SgceConfirmContent,
+  .SgceAsignacionEditModal,
+  .PlaneacionReviewModal { max-height: 94dvh !important; border-radius: 18px !important; }
+}

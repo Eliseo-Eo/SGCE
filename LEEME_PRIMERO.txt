@@ -1,0 +1,16 @@
+SGCE 1.0.140 - LEE PRIMERO
+
+Versión final pulida para instalación limpia.
+
+Usa la carpeta Produccion/ para instalar en servidor.
+Usa Desarrollo/ solo para pruebas, auditoría y herramientas internas.
+
+Cambios principales:
+- Hardening de sesión, HTTPS y proxy confiable.
+- URL base editable en instalador.
+- Cookie path basado en URL base.
+- Limpieza final de documentación y rastros antiguos.
+- Pruebas visuales móviles con sesión autenticada real.
+- Producción sin tests ni tools.
+
+Después de instalar, prueba: login, importaciones, asistencia, calificaciones, reportes, respaldos y consulta pública.

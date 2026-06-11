@@ -10,6 +10,7 @@ $AsignacionId = (int)($_GET['AsignacionId'] ?? 0);
 $GrupoId = (int)($_GET['GrupoId'] ?? 0);
 $Tipo = (($_GET['Tipo'] ?? 'Excel') === 'Pdf') ? 'Pdf' : 'Excel';
 $PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
+$TodosPeriodos = isset($_GET['TodosPeriodos']) && (string)$_GET['TodosPeriodos'] === '1';
 
 function HExpCal($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
 function ArchivoSeguroCal($Texto) {
@@ -170,6 +171,71 @@ if (SgceTieneRol($UserSession, ['maestro'])) {
     if ((int)$UserSession['Id'] !== (int)$Info['MaestroId']) { http_response_code(403); exit('No tienes permiso.'); }
 } elseif (!SgcePuedeAdministrarReportes($UserSession)) {
     http_response_code(403); exit('No tienes permiso.');
+}
+
+if ($TodosPeriodos) {
+    $StmtPeriodos = $Pdo->prepare('SELECT Id, Nombre, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Orden ASC, Id ASC');
+    $StmtPeriodos->execute([(int)$Info['CicloId'], (int)$Periodo['OfertaId']]);
+    $PeriodosReporte = $StmtPeriodos->fetchAll();
+    if (!$PeriodosReporte) { $PeriodosReporte = [$Periodo]; }
+
+    $StmtAlumnos = $Pdo->prepare("SELECT Al.Id AS AlumnoId, Al.NombreCompleto FROM AlumnoInscripciones AI INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1 WHERE AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' ORDER BY Al.NombreCompleto ASC");
+    $StmtAlumnos->execute([(int)$Info['CicloId'], (int)$Info['GrupoId']]);
+    $Alumnos = $StmtAlumnos->fetchAll();
+
+    $CalificacionesPorAlumno = [];
+    if ($Alumnos && $PeriodosReporte) {
+        $PeriodoIds = array_map(static fn($PeriodoRow) => (int)$PeriodoRow['Id'], $PeriodosReporte);
+        $Marcadores = implode(',', array_fill(0, count($PeriodoIds), '?'));
+        $StmtCalificaciones = $Pdo->prepare("SELECT AlumnoId, PeriodoId, Calificacion FROM Calificaciones WHERE AsignacionId = ? AND PeriodoId IN ($Marcadores)");
+        $StmtCalificaciones->execute(array_merge([(int)$AsignacionId], $PeriodoIds));
+        foreach ($StmtCalificaciones->fetchAll() as $CalificacionRow) {
+            $CalificacionesPorAlumno[(int)$CalificacionRow['AlumnoId']][(int)$CalificacionRow['PeriodoId']] = $CalificacionRow['Calificacion'];
+        }
+    }
+
+    $TituloArchivo = 'Kardex_Calificaciones_' . ArchivoSeguroCal($Info['MateriaNombre'].'_'.$Info['Grado'].$Info['Grupo']);
+    if ($Tipo === 'Excel') { SgceCalificacionesEmitirExcel($TituloArchivo); }
+    if ($Tipo === 'Pdf') {
+        $ColumnasPdf = ['#', 'Alumno'];
+        foreach ($PeriodosReporte as $PeriodoReporte) { $ColumnasPdf[] = $PeriodoReporte['Nombre']; }
+        $ColumnasPdf[] = 'Promedio';
+        $FilasPdf = [];
+        $Npdf = 1;
+        foreach ($Alumnos as $Al) {
+            $FilaPdf = [(string)$Npdf++, $Al['NombreCompleto']];
+            $SumaPdf = 0;
+            $CuentaPdf = 0;
+            foreach ($PeriodosReporte as $PeriodoReporte) {
+                $Val = $CalificacionesPorAlumno[(int)$Al['AlumnoId']][(int)$PeriodoReporte['Id']] ?? null;
+                if ($Val !== null && $Val !== '') { $SumaPdf += (float)$Val; $CuentaPdf++; }
+                $FilaPdf[] = $Val !== null && $Val !== '' ? FormatoCal($Val) : 'NC';
+            }
+            $FilaPdf[] = $CuentaPdf > 0 ? number_format($SumaPdf / $CuentaPdf, 2) : 'NC';
+            $FilasPdf[] = $FilaPdf;
+        }
+        SgceCalificacionesValidarPdfMasivo(count($FilasPdf) * max(1, count($PeriodosReporte)), 6000);
+        $DisponiblePdf = 720;
+        $AnchoAlumno = count($PeriodosReporte) > 8 ? 150 : 190;
+        $AnchoPromedio = 60;
+        $AnchoNumero = 30;
+        $AnchoPeriodo = min(85, max(40, floor(($DisponiblePdf - $AnchoNumero - $AnchoAlumno - $AnchoPromedio) / max(1, count($PeriodosReporte)))));
+        $AnchosPdf = [$AnchoNumero, $AnchoAlumno];
+        foreach ($PeriodosReporte as $_PeriodoReporte) { $AnchosPdf[] = $AnchoPeriodo; }
+        $AnchosPdf[] = $AnchoPromedio;
+        $SubtituloPdf = 'Materia: ' . $Info['MateriaNombre'] . ' | Grupo: ' . $Info['Grado'] . ' ' . $Info['Grupo'] . ' ' . $Info['Turno'] . ' | Docente: ' . $Info['Maestro'] . ' | Periodos del ciclo: ' . count($PeriodosReporte);
+        SgcePdfRespuestaTabla($Pdo, 'Kardex de calificaciones', $SubtituloPdf, $ColumnasPdf, $FilasPdf, $TituloArchivo, 'L', $AnchosPdf);
+    }
+    ?>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title><?= HExpCal($TituloArchivo) ?></title><?php EstilosReporteCal(true); ?></head><body>
+<div class="ReportSheet">
+<div class="Header"><div><div class="SchoolName"><?= HExpCal($ConfigReporte['NombreEscuela']) ?></div><div class="SchoolMeta"><?= HExpCal(trim(($ConfigReporte['ClaveCentroTrabajo'] ? 'CCT: '.$ConfigReporte['ClaveCentroTrabajo'].' · ' : '').($ConfigReporte['MunicipioEstado'] ?? ''))) ?></div><h2>Kardex de calificaciones</h2><p>Materia: <?= HExpCal($Info['MateriaNombre']) ?> · Grupo: <?= HExpCal($Info['Grado'].' '.$Info['Grupo'].' '.$Info['Turno']) ?> · Todos los periodos del ciclo</p></div><div class="HeaderTag"><?= HExpCal($Tipo) ?></div></div>
+<div class="TablaWrap"><table><thead><tr><th>#</th><th>Alumno</th><?php foreach($PeriodosReporte as $PeriodoReporte): ?><th><?= HExpCal($PeriodoReporte['Nombre']) ?></th><?php endforeach; ?><th>Promedio</th></tr></thead><tbody>
+<?php $N=1; foreach($Alumnos as $Al): $Suma=0; $Cuenta=0; ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><?php foreach($PeriodosReporte as $PeriodoReporte): $Val=$CalificacionesPorAlumno[(int)$Al['AlumnoId']][(int)$PeriodoReporte['Id']] ?? null; if($Val!==null && $Val!==''){$Suma+=(float)$Val;$Cuenta++;} ?><td class="Centro"><?= $Val !== null && $Val !== '' ? FormatoCal($Val) : 'NC' ?></td><?php endforeach; ?><td class="Centro Negrita"><?= $Cuenta>0 ? number_format($Suma/$Cuenta,2) : 'NC' ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="<?= count($PeriodosReporte)+3 ?>" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?>
+</tbody></table></div>
+</div>
+</body></html><?php
+    exit;
 }
 
 $StmtAlumnos = $Pdo->prepare("SELECT Al.NombreCompleto, C.Calificacion FROM AlumnoInscripciones AI INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1 LEFT JOIN Calificaciones C ON C.AlumnoId = Al.Id AND C.AsignacionId = ? AND C.PeriodoId = ? WHERE AI.CicloId = ? AND AI.GrupoId = ? AND AI.Estado = 'INSCRITO' ORDER BY Al.NombreCompleto ASC");

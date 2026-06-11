@@ -49,7 +49,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
             <button class="ActionBtn ActionEdit BtnAsignacionEdit" data-bs-toggle="modal" data-bs-target="#EAsg<?= (int)$Asg['Id'] ?>">
                 <i class="fa-solid fa-pen-to-square"></i><span>Editar</span>
             </button>
-            <form method="POST" class="m-0 p-0" data-confirm-delete="ASIGNACIÓN" data-confirm-message="¿DESEAS DESACTIVAR ESTA ASIGNACIÓN? SI YA TIENE CALIFICACIONES O ASISTENCIAS EL SISTEMA LA PROTEGERÁ.">
+            <form method="POST" class="m-0 p-0" data-sgce-confirm="delete" data-sgce-confirm-title="DESACTIVAR ASIGNACIÓN" data-sgce-confirm-subtitle="CONTROL ACADÉMICO" data-sgce-confirm-message="¿DESEAS DESACTIVAR ESTA ASIGNACIÓN?" data-sgce-confirm-detail="Si ya tiene calificaciones o asistencias, el sistema protegerá la información relacionada." data-sgce-confirm-button="SÍ, DESACTIVAR" data-sgce-confirm-loading="DESACTIVANDO..." data-sgce-confirm-icon="fa-link-slash">
                 <?php echo CampoCsrf(); ?>
                 <input type="hidden" name="Tab" value="asignaciones">
                 <button type="submit" name="DelAsignacion" value="<?= (int)$Asg['Id'] ?>" class="ActionBtn ActionDelete BtnAsignacionDelete">

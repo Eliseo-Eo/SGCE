@@ -21,13 +21,10 @@ if (isset($_COOKIE['AuthToken'])) {
         $Stmt = $Pdo->prepare("
             UPDATE Usuarios
             SET SessionToken = NULL, SessionTokenExpira = NULL
-            WHERE SessionToken IN (?, ?)
+            WHERE SessionToken = ?
         ");
 
-        $Stmt->execute([
-            $TokenHash,
-            $Token
-        ]);
+        $Stmt->execute([$TokenHash]);
 
         
         if ($UsuarioActivoLogout) {
@@ -42,7 +39,7 @@ if (isset($_COOKIE['AuthToken'])) {
         '',
         [
             'expires' => time() - 3600,
-            'path' => '/',
+            'path' => SgceCookiePath(),
             'httponly' => true,
             'samesite' => 'Strict',
             'secure' => EsHttps()

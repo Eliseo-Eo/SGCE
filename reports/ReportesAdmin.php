@@ -40,16 +40,7 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SGCE | Reportes</title>
-<link rel="icon" href="assets/media/img/favicon.ico">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-<?= SgceCss('assets/css/sgce-base.min.css') ?>
-<?= SgceCss('assets/css/sgce-soft-motion.css') ?>
-<?= SgceEstilosTema($Pdo) ?>
-<?= SgceCss('assets/css/reportes-botones-metalicos.css') ?>
+<?= SgceLayoutHeadBase('SGCE | Reportes', $Pdo, ['assets/css/reportes-botones-metalicos.css']) ?>
 </head>
 <body class="SgceReportsPage">
 <div class="container py-4 SgceReportsWrap">
@@ -211,7 +202,6 @@ if (($BuscarAlumno !== '' || $GrupoAlumno > 0) && $CicloActivoId > 0) {
     </div>
 </div>
 
-<?= SgceJs('assets/js/ReportesAdmin.js') ?>
-<?= SgceJs('assets/js/sgce-shared.js') ?>
+<?= SgceLayoutSharedJs(['assets/js/ReportesAdmin.js']) ?>
 </body>
 </html>

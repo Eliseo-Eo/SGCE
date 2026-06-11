@@ -4,7 +4,7 @@ $Errores = [];
 $Revisiones = 0;
 
 $Seguridad = file_get_contents($Root . '/includes/SGCE_Seguridad.php');
-$Calificar = file_get_contents($Root . '/modules/Calificar.php');
+$Calificar = file_get_contents($Root . '/modules/Calificar.php') . "\n" . file_get_contents($Root . '/services/CalificacionService.php') . "\n" . file_get_contents($Root . '/repositories/CalificacionRepository.php');
 $Asistencia = file_get_contents($Root . '/modules/Asistencia.php');
 $ReportesCal = file_get_contents($Root . '/reports/ExportarCalificaciones.php');
 $ReportesAsis = file_get_contents($Root . '/reports/ExportarAsistencia.php');

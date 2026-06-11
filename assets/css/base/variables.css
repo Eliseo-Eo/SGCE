@@ -1,0 +1,16 @@
+/* SGCE 1.0.140 - Variables visuales globales */
+:root{
+  --sgce-color-primary: var(--ColorInstitucional, #97051E);
+  --sgce-color-primary-dark: #6f0416;
+  --sgce-color-primary-soft: rgba(151,5,30,.10);
+  --sgce-color-success: #16815f;
+  --sgce-color-danger: #7a1020;
+  --sgce-color-warning: #b7791f;
+  --sgce-radius-sm: .55rem;
+  --sgce-radius-md: .85rem;
+  --sgce-radius-lg: 1.15rem;
+  --sgce-shadow-soft: 0 10px 28px rgba(15,23,42,.08);
+  --sgce-shadow-hover: 0 16px 34px rgba(15,23,42,.13);
+  --sgce-transition-fast: .16s ease;
+  --sgce-transition-normal: .24s ease;
+}

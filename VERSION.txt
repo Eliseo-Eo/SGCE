@@ -1,4 +1,1 @@
-SGCE_VERSION=1.0.122
-SGCE_NAME=SGCE 1.0.122 - Rendimiento histórico y consistencia multinivel
-BUILD_DATE=2026-06-09
-INSTALL_MODE=DESDE_CERO
+1.0.140
