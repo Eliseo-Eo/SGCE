@@ -152,3 +152,17 @@ html body .SgceModuleWrap #BtnImportarMaestroAzulMetalico span{
     min-height:356px!important;
   }
 }
+
+
+/* SGCE 1.0.185 - Maestros: evitar scroll vertical innecesario en escritorio. */
+@media (min-width: 992px){
+  html body .SgceModuleWrap #maestros .MaestrosTableCard{
+    overflow:hidden!important;
+  }
+  html body .SgceModuleWrap #maestros .MaestrosTableCard .table-responsive{
+    height:auto!important;
+    max-height:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+  }
+}

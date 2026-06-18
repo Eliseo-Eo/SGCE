@@ -143,15 +143,15 @@
 .DashboardStatusPill.StatusOk{background:rgba(16,185,129,.25)}
 .DashboardStatusPill.StatusWarning{background:rgba(245,158,11,.25)}
 .DashboardStatusPill.StatusNeutral{background:rgba(255,255,255,.16)}
-.DashboardKpiGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
-.DashboardKpiCard{min-height:126px;border-radius:20px;padding:14px 12px;text-align:center;background:linear-gradient(180deg,#fff,#F8FAFC);border:1px solid #EEF2F7;box-shadow:0 10px 22px rgba(15,23,42,.055);position:relative;overflow:hidden;transition:.2s ease;}
+.DashboardKpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.DashboardKpiCard{min-height:104px;border-radius:18px;padding:11px 8px;text-align:center;background:linear-gradient(180deg,#fff,#F8FAFC);border:1px solid #EEF2F7;box-shadow:0 10px 22px rgba(15,23,42,.055);position:relative;overflow:hidden;transition:.2s ease;}
 .DashboardKpiCard::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 28% 16%,rgba(255,255,255,.95),transparent 25%),radial-gradient(circle at 78% 0,var(--KpiSoft),transparent 36%);pointer-events:none;}
 .DashboardKpiCard>*{position:relative;z-index:1}
 .DashboardKpiCard:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(15,23,42,.09)}
-.DashboardKpiIcon{width:40px;height:40px;margin:0 auto 8px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--KpiColor);background:var(--KpiSoft);font-size:1.05rem;}
-.DashboardKpiValue{font-size:1.7rem;line-height:1;font-weight:950;color:#101828;margin-bottom:5px;}
-.DashboardKpiLabel{font-size:.72rem;font-weight:950;text-transform:uppercase;color:#344054;line-height:1.08;}
-.DashboardKpiHint{margin-top:5px;font-size:.66rem;color:#667085;font-weight:800;line-height:1.1;}
+.DashboardKpiIcon{width:34px;height:34px;margin:0 auto 6px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:var(--KpiColor);background:var(--KpiSoft);font-size:.98rem;}
+.DashboardKpiValue{font-size:1.42rem;line-height:1;font-weight:950;color:#101828;margin-bottom:5px;}
+.DashboardKpiLabel{font-size:.66rem;font-weight:950;text-transform:uppercase;color:#344054;line-height:1.08;}
+.DashboardKpiHint{margin-top:4px;font-size:.59rem;color:#667085;font-weight:800;line-height:1.1;}
 .DashboardRiskRow{margin-top:0!important}
 .DashboardRiskPro{padding:18px 18px 14px!important}
 .DashboardRiskCount{color:#E11D48;background:#FFF1F2;border-color:#FFE4E6}
@@ -385,4 +385,57 @@ html body .SgceModuleWrap #alumnos .AlumnosTableCard .table-responsive{
 }
 html body .SgceModuleWrap #alumnos .AlumnosImportCard{
     flex: 1 1 auto !important;
+}
+
+
+/* SGCE 1.0.185 - Dashboard administrativo compacto: 4 contadores arriba y 3 abajo. */
+@media (min-width: 993px) {
+  html body #inicio .DashboardSummaryPanel .DashboardKpiGrid,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiGrid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardKpiCard,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiCard {
+    min-height: 104px !important;
+    padding: 11px 8px !important;
+    border-radius: 18px !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardKpiIcon,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiIcon {
+    width: 34px !important;
+    height: 34px !important;
+    margin-bottom: 6px !important;
+    border-radius: 13px !important;
+    font-size: .98rem !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardKpiValue,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiValue {
+    font-size: 1.42rem !important;
+    margin-bottom: 4px !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardKpiLabel,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiLabel {
+    font-size: .66rem !important;
+    line-height: 1.05 !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardKpiHint,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiHint {
+    margin-top: 4px !important;
+    font-size: .59rem !important;
+    line-height: 1.05 !important;
+  }
+  html body #inicio .DashboardSummaryPanel .DashboardTodayStrip,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardTodayStrip {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+}
+@media (min-width: 993px) and (max-width: 1180px) {
+  html body #inicio .DashboardSummaryPanel .DashboardKpiGrid,
+  html body .SgceModuleWrap #inicio .DashboardSummaryPanel .DashboardKpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }

@@ -16,7 +16,7 @@ function CheckContainsFile(string $Root, string $Archivo, array $Needles, array 
 
 CheckContainsFile($Root, 'modules/admin/AdminAcciones.php', [
     '$StmtAlumnoMismoNombre->execute([$Nombre, $GrupoId]);',
-    "UPDATE Alumnos SET Activo = 1, NombreBusqueda = ?, Matricula = COALESCE(NULLIF(?, ''), Matricula) WHERE Id = ?",
+    "UPDATE Alumnos SET Activo = 1, NombreBusqueda = ? WHERE Id = ?",
     '$Pdo->beginTransaction();',
     '$Pdo->commit();',
     '$Pdo->rollBack();',

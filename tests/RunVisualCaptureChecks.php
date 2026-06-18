@@ -27,5 +27,5 @@ else {
         if (!str_contains($ContenidoChecklist, $Modulo)) { $Errores[] = 'Checklist visual incompleto. Falta: ' . $Modulo; }
     }
 }
-if ($Errores) { echo "SGCE VISUAL CAPTURE 1.0.140 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n"; exit(1); }
-echo "SGCE VISUAL CAPTURE 1.0.140 CHECKS: OK\n";
+if ($Errores) { echo "SGCE VISUAL CAPTURE 1.0.185 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n"; exit(1); }
+echo "SGCE VISUAL CAPTURE 1.0.185 CHECKS: OK\n";

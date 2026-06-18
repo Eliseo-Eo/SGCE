@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Módulo compartido: notifications.js */
+/* SGCE 1.0.185 - Módulo compartido: notifications.js */
 document.addEventListener('DOMContentLoaded', function() {
 
     function OcultarNotificacion(Alerta) {

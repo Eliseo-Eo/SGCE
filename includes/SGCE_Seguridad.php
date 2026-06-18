@@ -264,13 +264,13 @@ function SgcePermisosPorRol() {
         'admin' => [
             'admin.panel', 'admin.dashboard', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes',
             'respaldos', 'bitacora', 'configuracion', 'migracion', 'asistencia', 'asistencia_editar',
-            'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'
+            'asistencia_historica', 'calificaciones', 'importar', 'planeaciones', 'conducta'
         ],
         'administrativo' => [
             'admin.panel', 'admin.dashboard', 'catalogos', 'avisos', 'reportes',
-            'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones'
+            'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones', 'conducta'
         ],
-        'maestro' => ['docente', 'asistencia', 'calificaciones', 'planeaciones'],
+        'maestro' => ['docente', 'asistencia', 'calificaciones', 'planeaciones', 'conducta'],
     ];
 }
 
@@ -282,7 +282,7 @@ function SgceTienePermiso($UserSession, $Permiso) {
 }
 
 function SgceSeguridadAssetUrl(string $Ruta): string {
-    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.140';
+    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.185';
     $Separador = str_contains($Ruta, '?') ? '&' : '?';
     return $Ruta . $Separador . 'v=' . rawurlencode($Version);
 }
@@ -319,6 +319,8 @@ function SgcePuedeConfigurarSistema($UserSession) { return SgceTienePermiso($Use
 function SgcePuedeMigrarCicloEscolar($UserSession) { return SgceTienePermiso($UserSession, 'migracion') && SgceTieneRol($UserSession, ['admin']); }
 
 function SgcePuedeGestionarPlaneaciones($UserSession) { return SgceTienePermiso($UserSession, 'planeaciones') && !SgceTieneRol($UserSession, ['maestro']); }
+
+function SgcePuedeGestionarConducta($UserSession) { return SgceTienePermiso($UserSession, 'conducta') && !SgceTieneRol($UserSession, ['maestro']); }
 
 function SgcePuedeCorregirAsistenciaHistorica($UserSession) { return SgceTienePermiso($UserSession, 'asistencia_historica'); }
 

@@ -1,10 +1,3 @@
-# API interna AJAX — SGCE 1.0.140
+# API interna AJAX - SGCE 1.0.185
 
-Los endpoints internos viven en `api/` y requieren sesión válida, permisos y token CSRF cuando modifican información.
-
-## Principios
-
-- No exponer consultas sin validación de rol.
-- No devolver trazas técnicas al cliente.
-- Registrar errores técnicos en logs.
-- Responder JSON con UTF-8.
+Endpoints internos para administración de alumnos, materias, asignaciones y bitácora. Requieren sesión administrativa y no son API pública.

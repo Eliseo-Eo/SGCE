@@ -1,4 +1,4 @@
--- SGCE 1.0.140 - Datos demo opcionales
+-- SGCE 1.0.185 - Datos demo opcionales
 -- Ejecutar solo en una instalación de prueba recién instalada.
 -- Usuario demo docente: DOCENTEDEMO / Demo_12345
 

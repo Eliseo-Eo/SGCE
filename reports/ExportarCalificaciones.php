@@ -9,7 +9,8 @@ if (!$UserSession) { http_response_code(403); exit('Acceso denegado.'); }
 $AsignacionId = (int)($_GET['AsignacionId'] ?? 0);
 $GrupoId = (int)($_GET['GrupoId'] ?? 0);
 $Tipo = (($_GET['Tipo'] ?? 'Excel') === 'Pdf') ? 'Pdf' : 'Excel';
-$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
+$PeriodoId = (int)($_GET['PeriodoId'] ?? 0);
+if ($PeriodoId <= 0) { $PeriodoId = SgcePeriodoActualId($Pdo, 0); }
 $TodosPeriodos = isset($_GET['TodosPeriodos']) && (string)$_GET['TodosPeriodos'] === '1';
 
 function HExpCal($Texto) { return htmlspecialchars((string)$Texto, ENT_QUOTES, 'UTF-8'); }
@@ -46,7 +47,7 @@ function EstilosReporteCal($Landscape = false) { global $ColorReporte; ?>
 </style>
 <?php }
 
-$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.CicloId, P.OfertaId, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? LIMIT 1');
+$StmtPeriodo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.CicloId, P.OfertaId, C.Nombre AS Ciclo FROM PeriodosEvaluacion P JOIN CiclosEscolares C ON P.CicloId = C.Id WHERE P.Id = ? AND P.Activo = 1 LIMIT 1');
 $StmtPeriodo->execute([$PeriodoId]);
 $Periodo = $StmtPeriodo->fetch();
 if (!$Periodo) { http_response_code(400); exit('Periodo no válido.'); }

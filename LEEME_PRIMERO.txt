@@ -1,16 +1,29 @@
-SGCE 1.0.140 - LEE PRIMERO
+SGCE 1.0.185 - Versión final limpia instalable
 
-Versión final pulida para instalación limpia.
+CARPETA PARA INSTALAR:
+Produccion/
 
-Usa la carpeta Produccion/ para instalar en servidor.
-Usa Desarrollo/ solo para pruebas, auditoría y herramientas internas.
+INSTALACIÓN:
+1. Sube el contenido de Produccion/ al servidor.
+2. Abre Instalar.php.
+3. Configura MySQL, escuela, ciclo, oferta educativa y administrador.
+4. Verifica que se cree storage/install.lock.
+5. Inicia sesión y prueba el sistema completo.
 
-Cambios principales:
-- Hardening de sesión, HTTPS y proxy confiable.
-- URL base editable en instalador.
-- Cookie path basado en URL base.
-- Limpieza final de documentación y rastros antiguos.
-- Pruebas visuales móviles con sesión autenticada real.
-- Producción sin tests ni tools.
+PRUEBA MÍNIMA RECOMENDADA:
+1. Alta o importación de maestros.
+2. Alta o importación de grupos, materias y alumnos.
+3. Crear asignaciones.
+4. Entrar como maestro y tomar asistencia.
+5. Registrar una incidencia de conducta desde pase de lista.
+6. Revisar ConductaAdmin.php como administrador.
+7. Validar el reporte y marcarlo visible para padres solo si corresponde.
+8. Revisar expediente del alumno.
+9. Generar reportes administrativos.
+10. Probar ConsultaPadre.php como vista pública externa.
 
-Después de instalar, prueba: login, importaciones, asistencia, calificaciones, reportes, respaldos y consulta pública.
+REGLAS IMPORTANTES:
+- La matrícula es automática.
+- La conducta normal no genera registros vacíos.
+- La consulta de padres no aparece como módulo administrativo; es una vista pública externa.
+- El kardex puede consultarse por ciclo específico o por todos los ciclos conservados del alumno.

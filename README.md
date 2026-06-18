@@ -1,25 +1,37 @@
-# SGCE 1.0.140 - Versión final pulida
+# SGCE 1.0.185 - Versión final limpia instalable
 
-SGCE es un Sistema Gestor de Control Escolar para administración, docentes y consulta pública de asistencia/calificaciones.
+Versión limpia del Sistema Gestor de Control Escolar preparada para instalación desde cero, pruebas reales y operación prolongada.
 
-## Instalación limpia
+## Carpeta de instalación
 
-1. Sube el contenido de `Produccion/` al servidor.
-2. Abre `Instalar.php`.
-3. Revisa el prediagnóstico.
-4. Configura MySQL, URL base, escuela, ciclo escolar y administrador.
-5. Finaliza instalación. El instalador se bloquea al terminar.
+Sube el contenido de `Produccion/` al servidor o a tu entorno local.
 
-## Enfoque de la versión 1.0.140
+## Alcance funcional
 
-- Limpieza final de rastros de versiones previas.
-- Hardening de sesión, HTTPS y proxies confiables.
-- URL base editable desde el instalador.
-- Cookie path calculado desde la URL base.
-- Pruebas visuales móviles con sesión autenticada real.
-- Documentación y manuales actualizados a 1.0.140.
-- Producción sin carpetas de pruebas ni herramientas internas.
+- Administración escolar: Anuncios, ciclos/periodos, maestros, grupos, materias, alumnos, asignaciones, expedientes, usuarios, respaldos, migración, configuración y bitácora.
+- Portal docente: Clases asignadas, pase de lista, conducta desde asistencia, calificaciones, planeaciones y exportaciones.
+- Conducta y disciplina: Reporte manual, validación administrativa, visibilidad controlada para padres y seguimiento en expediente.
+- Centro de reportes: Asistencia por grupo, asistencia por asignación, asistencia individual, calificaciones por periodo, boleta individual y kardex individual por ciclo o por todos los ciclos conservados.
+- Consulta pública: Vista externa para padres/tutores con asistencia, conducta visible y calificaciones.
 
-## Recomendación final
+## Instalación desde cero
 
-Instala desde cero en un entorno de prueba, importa tus archivos reales y ejecuta las pruebas visuales antes de entregarlo definitivamente.
+1. Copia el contenido de `Produccion/` en la raíz web del sistema.
+2. Verifica permisos de `storage/`, `storage/backups/`, `storage/logs/`, `storage/planeaciones/`, `storage/tmp_uploads/` y `storage/locks/`.
+3. Abre `Instalar.php`.
+4. Captura conexión MySQL, datos de escuela, ciclo inicial, oferta educativa y usuario administrador.
+5. Al finalizar, confirma que exista `storage/install.lock`.
+6. Entra al sistema y prueba el flujo mínimo: maestros, grupos, alumnos, materias, asignaciones, asistencia, conducta, calificaciones, expediente, reportes y consulta pública.
+
+## Notas de limpieza
+
+- Producción no contiene carpetas `tests/` ni `tools/`.
+- Los archivos de cambios de versiones intermedias fueron consolidados.
+- La documentación y constantes internas quedaron homologadas a SGCE 1.0.185.
+- La matrícula de alumnos se genera automáticamente; el formulario de alta ya no solicita matrícula manual.
+
+## Seguridad operativa
+
+- No expongas `config/`, `install/`, `storage/`, `includes/`, `repositories/`, `services/`, `cron/` ni `Desarrollo/` públicamente.
+- Después de instalar, conserva `storage/install.lock`.
+- En producción usa HTTPS, respaldos programados y credenciales MySQL exclusivas para el sistema.

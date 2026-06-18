@@ -3,7 +3,7 @@ import os, sys, html, re
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
-VERSION = "1.0.140"
+VERSION = "1.0.185"
 BASE_URL = os.environ.get("SGCE_VISUAL_BASE_URL", "http://127.0.0.1:8080").rstrip("/") + "/"
 OUT_DIR = Path(os.environ.get("SGCE_VISUAL_OUT_DIR", "tests/visual-mobile-captures"))
 AUTH_TOKEN = os.environ.get("SGCE_VISUAL_AUTH_TOKEN") or os.environ.get("SGCE_VISUAL_COOKIE", "")

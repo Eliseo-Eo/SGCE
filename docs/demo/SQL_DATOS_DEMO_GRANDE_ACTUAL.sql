@@ -1,4 +1,4 @@
--- SGCE 1.0.140 - Datos demo grandes opcionales
+-- SGCE 1.0.185 - Datos demo grandes opcionales
 -- Uso: solo para pruebas en Desarrollo o en una instalación descartable.
 -- No ejecutar en producción real.
 

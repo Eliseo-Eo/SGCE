@@ -9,17 +9,20 @@ if (!$UserSession) { header('Location: index.php'); exit; }
 SgceExigirPermiso($UserSession, 'reportes', 'No tienes permiso para exportar boletas administrativas.');
 
 $AlumnoId = (int)($_GET['AlumnoId'] ?? 0);
-$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? 0);
+$PeriodoId = (int)($_GET['PeriodoId'] ?? 0);
+if ($PeriodoId <= 0) { $PeriodoId = SgcePeriodoActualId($Pdo, 0); }
 if ($AlumnoId <= 0) { http_response_code(400); exit('Alumno inválido.'); }
 
-$PeriodoInfo = SgcePeriodoInfo($Pdo, $PeriodoId);
-if (!$PeriodoInfo) { http_response_code(400); exit('El ciclo activo no tiene periodos configurados. Ve a Ciclos y periodos para registrarlos antes de exportar la boleta.'); }
+$StmtPeriodoInfo = $Pdo->prepare('SELECT P.Id, P.Nombre, P.Orden, P.CicloId, P.OfertaId, C.Nombre AS CicloNombre, C.FechaInicio, C.FechaFin FROM PeriodosEvaluacion P INNER JOIN CiclosEscolares C ON C.Id = P.CicloId WHERE P.Id = ? AND P.Activo = 1 LIMIT 1');
+$StmtPeriodoInfo->execute([$PeriodoId]);
+$PeriodoInfo = $StmtPeriodoInfo->fetch();
+if (!$PeriodoInfo) { http_response_code(400); exit('Selecciona un periodo válido para generar la boleta.'); }
 $CicloId = (int)$PeriodoInfo['CicloId'];
 $FechaInicioCiclo = $PeriodoInfo['FechaInicio'] ?? date('Y-01-01');
 $FechaFinCiclo = $PeriodoInfo['FechaFin'] ?? date('Y-12-31');
 $Periodo = ['Nombre' => $PeriodoInfo['Nombre'] ?? 'PARCIAL ACTUAL', 'Ciclo' => $PeriodoInfo['CicloNombre'] ?? ''];
 
-$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.GrupoId, AI.CicloId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId AND Al.Activo = 1\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
+$StmtAlumno = $Pdo->prepare("\n    SELECT Al.Id, Al.NombreCompleto, AI.GrupoId, AI.CicloId, AI.Estado AS EstadoInscripcion,\n           G.Grado, G.Grupo, G.Turno\n    FROM AlumnoInscripciones AI\n    INNER JOIN Alumnos Al ON Al.Id = AI.AlumnoId\n    INNER JOIN Grupos G ON G.Id = AI.GrupoId AND G.CicloId = AI.CicloId\n    WHERE AI.AlumnoId = ?\n      AND AI.CicloId = ?\n    LIMIT 1\n");
 $StmtAlumno->execute([$AlumnoId, $CicloId]);
 $Alumno = $StmtAlumno->fetch();
 if (!$Alumno) { http_response_code(404); exit('Alumno no encontrado en el ciclo seleccionado.'); }

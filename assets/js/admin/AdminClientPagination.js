@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     
-    SetupSearchPagination('SearchMaestros', 'TableMaestros', 'PagerMaestros', 7);
+    SetupSearchPagination('SearchMaestros', 'TableMaestros', 'PagerMaestros', 9);
     SetupSearchPagination('SearchGrupos',   'TableGrupos',   'PagerGrupos',   7);
     SetupSearchPagination('SearchAlumnos',  'TableAlumnos',  'PagerAlumnos',  7);
     SetupSearchPagination('SearchMaterias', 'TableMaterias', 'PagerMaterias', 7);

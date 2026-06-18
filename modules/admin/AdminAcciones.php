@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['AltaAlumno'])) {
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
-        $MatriculaManual = SgceAdminNormalizarMatricula($_POST['Matricula'] ?? '');
+        $MatriculaManual = ''; // SGCE 1.0.185: matrícula siempre automática.
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres, ciclo activo y grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
@@ -243,9 +243,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $AlumnoBase = $StmtAlumnoMismoNombre->fetch();
             if ($AlumnoBase) {
                 $AlumnoId = (int)$AlumnoBase['Id'];
-                $Pdo->prepare("UPDATE Alumnos SET Activo = 1, NombreBusqueda = ?, Matricula = COALESCE(NULLIF(?, ''), Matricula) WHERE Id = ?")->execute([SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $AlumnoId]);
+                $Pdo->prepare("UPDATE Alumnos SET Activo = 1, NombreBusqueda = ? WHERE Id = ?")->execute([SgceTextoBusquedaNormalizado($Nombre), $AlumnoId]);
             } else {
-                $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, NombreBusqueda, Matricula, GrupoId, Activo) VALUES (?, ?, NULLIF(?, ''), ?, 1)")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $GrupoId]);
+                $Pdo->prepare("INSERT INTO Alumnos (NombreCompleto, NombreBusqueda, Matricula, GrupoId, Activo) VALUES (?, ?, NULL, ?, 1)")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId]);
                 $AlumnoId = (int)$Pdo->lastInsertId();
             }
             SgceAsignarMatriculaSiAplica($Pdo, $AlumnoId, $CicloActivoAccionId);
@@ -260,14 +260,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['EditAlumno'])) {
         $Id = intval($_POST['Id'] ?? 0);
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
-        $MatriculaManual = SgceAdminNormalizarMatricula($_POST['Matricula'] ?? '');
+        $MatriculaManual = ''; // SGCE 1.0.185: matrícula siempre automática.
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Id <= 0 || $Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres y selecciona grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
             $GrupoMeta = SgceGrupoObtenerActivoPorId($Pdo, $GrupoId);
             if (!$GrupoMeta) { $_SESSION['Mensaje'] = "El grupo debe pertenecer al ciclo activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
             $Pdo->beginTransaction();
-            $Pdo->prepare("UPDATE Alumnos SET NombreCompleto = ?, NombreBusqueda = ?, Matricula = COALESCE(NULLIF(?, ''), Matricula), GrupoId = ?, Activo = 1 WHERE Id = ?")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $MatriculaManual, $GrupoId, $Id]);
+            $Pdo->prepare("UPDATE Alumnos SET NombreCompleto = ?, NombreBusqueda = ?, GrupoId = ?, Activo = 1 WHERE Id = ?")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId, $Id]);
             SgceAsignarMatriculaSiAplica($Pdo, $Id, $CicloActivoAccionId);
             $StmtIns = $Pdo->prepare("SELECT Id FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ? LIMIT 1");
             $StmtIns->execute([$Id, $CicloActivoAccionId]);

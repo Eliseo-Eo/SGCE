@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Módulo compartido: theme.js */
+/* SGCE 1.0.185 - Módulo compartido: theme.js */
 window.SgceAjustarColorHex = function (ColorHex, Porcentaje) {
     var Color = String(ColorHex || '#97051E').replace('#', '').trim();
     if (!/^[0-9A-Fa-f]{6}$/.test(Color)) { Color = '97051E'; }

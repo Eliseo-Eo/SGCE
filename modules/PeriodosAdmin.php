@@ -119,7 +119,7 @@ $StmtCiclos->execute();
 $Ciclos = $StmtCiclos->fetchAll();
 
 $PaginaPeriodos = SgcePaginaActual('PagPeriodos', 1);
-$PorPaginaPeriodos = 4;
+$PorPaginaPeriodos = 3;
 [$OffsetPeriodos, $LimitPeriodos] = SgceLimitOffset($PaginaPeriodos, $PorPaginaPeriodos);
 $TotalPeriodos = (int)$Pdo->query("SELECT COUNT(*) FROM PeriodosEvaluacion")->fetchColumn();
 $StmtPeriodos = $Pdo->prepare("\n    SELECT P.*, C.Nombre AS CicloNombre, OE.Nombre AS OfertaNombre\n    FROM PeriodosEvaluacion P\n    JOIN CiclosEscolares C ON P.CicloId = C.Id\n    LEFT JOIN OfertasEducativas OE ON OE.Id = P.OfertaId\n    ORDER BY C.FechaInicio DESC, OE.Nombre ASC, P.Orden ASC, P.Id ASC\n    LIMIT $LimitPeriodos OFFSET $OffsetPeriodos\n");
@@ -254,7 +254,7 @@ $Periodos = $StmtPeriodos->fetchAll();
                     <tbody>
                         <?php foreach ($Ciclos as $C): ?>
                             <tr>
-                                <td class="fw-bold"><?= HPeriodo($C['Nombre']) ?></td>
+                                <td><?= HPeriodo($C['Nombre']) ?></td>
                                 <td><?= HPeriodo($C['FechaInicio']) ?> a <?= HPeriodo($C['FechaFin']) ?></td>
                                 <td><span class="SgceStatusBadge <?= $C['Activo'] ? 'IsActive' : 'IsInactive' ?>"><?= $C['Activo'] ? 'ACTIVO' : 'INACTIVO' ?></span></td>
                             </tr>
@@ -284,7 +284,7 @@ $Periodos = $StmtPeriodos->fetchAll();
                             <tr>
                                 <td><?= HPeriodo($P['CicloNombre']) ?></td>
                                 <td><?= HPeriodo($P['OfertaNombre'] ?? 'GENERAL') ?></td>
-                                <td class="fw-bold"><?= HPeriodo($P['Nombre']) ?></td>
+                                <td><?= HPeriodo($P['Nombre']) ?></td>
                                 <td><?= (int)$P['Orden'] ?></td>
                                 <td><span class="SgceStatusBadge <?= $P['Activo'] ? 'IsActive' : 'IsInactive' ?>"><?= $P['Activo'] ? 'ACTIVO' : 'INACTIVO' ?></span></td>
                             </tr>

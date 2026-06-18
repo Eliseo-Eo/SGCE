@@ -9,6 +9,7 @@ $SgceRepositoryFiles = [
     __DIR__ . '/ReportesRepository.php',
     __DIR__ . '/AsistenciaRepository.php',
     __DIR__ . '/CalificacionRepository.php',
+    __DIR__ . '/ConductaRepository.php',
 ];
 
 foreach ($SgceRepositoryFiles as $SgceRepositoryFile) {

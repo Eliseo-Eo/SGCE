@@ -15,8 +15,8 @@ foreach ($Fixtures as $Archivo => $EncabezadosEsperados) {
     $Revisiones++;
     if (!is_file($Ruta)) { $Errores[] = "No existe fixture: $Archivo"; continue; }
     $Handle = fopen($Ruta, 'r');
-    $Header = fgetcsv($Handle);
-    $Fila = fgetcsv($Handle);
+    $Header = fgetcsv($Handle, 0, ',', '"', '\\');
+    $Fila = fgetcsv($Handle, 0, ',', '"', '\\');
     fclose($Handle);
     if ($Header !== $EncabezadosEsperados) { $Errores[] = "Encabezado incorrecto en $Archivo"; }
     if (!$Fila || count(array_filter($Fila, static fn($Valor) => trim((string)$Valor) !== '')) === 0) { $Errores[] = "Fixture sin datos: $Archivo"; }

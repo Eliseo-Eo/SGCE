@@ -1,11 +1,11 @@
-/* SGCE 1.0.140 - Tablas homologadas */
+/* SGCE 1.0.185 - Tablas homologadas */
 .SgceTable{width:100%;border-collapse:separate;border-spacing:0;}
 .SgceTable thead th{font-size:.76rem;text-transform:none;letter-spacing:.01em;color:#64748b;background:#f8fafc;border-bottom:1px solid rgba(15,23,42,.08);font-weight:600;}
 .SgceTable tbody td{vertical-align:middle;border-bottom:1px solid rgba(15,23,42,.055);}
 .SgceTable tbody tr:hover{background:rgba(151,5,30,.025);}
 .SgceTableActions{display:flex;align-items:center;gap:.45rem;justify-content:flex-end;flex-wrap:wrap;}
 
-/* SGCE 1.0.140 - Limpieza final de estilos inline restantes. */
+/* SGCE 1.0.185 - Limpieza final de estilos inline restantes. */
 .SgceAccessDeniedCard{max-width:680px}
 .SgceAsistenciaEstadoCol{width:300px}
 .SgceCalificacionValorCol{width:180px}

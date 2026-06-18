@@ -341,7 +341,9 @@ document.addEventListener('DOMContentLoaded', function(){
     function SgceBusquedaServidorLista(Control) {
         if (!Control || (Control.type || '').toLowerCase() !== 'text') return true;
         const Valor = (Control.value || '').trim();
-        return Valor.length === 0 || Valor.length >= 2;
+        const Nombre = (Control.name || '').toLowerCase();
+        const Minimo = Number.parseInt(Control.dataset.sgceMinLength || (Nombre === 'buscarasignaciones' ? '1' : '2'), 10) || 2;
+        return Valor.length === 0 || Valor.length >= Minimo;
     }
 
     function InicializarServerFilters(Root) {

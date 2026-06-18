@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Searchable Selects */
+/* SGCE 1.0.185 - Searchable Selects */
 .SgceAjaxModals{display:block;}
 .SgceNativeSelectHidden{
     position:absolute!important;
@@ -237,4 +237,11 @@ html body .SgceModuleWrap #asignaciones .SgceSearchableSelectOption.is-selected:
 html body .SgceSearchableSelectOption.is-selected:hover{
     background:rgba(var(--SgceGuindaRGB),.038)!important;
     border-color:rgba(var(--SgceGuindaRGB),.10)!important;
+}
+
+/* SGCE 1.0.185 - Menús buscables flotantes: cuando el panel se mueve al body
+   debe conservar display:block. Esto corrige el parpadeo en Centro de reportes. */
+html body .SgceSearchableSelectPanel.SgceSearchableSelectPanelPortal{
+    display:block!important;
+    pointer-events:auto!important;
 }

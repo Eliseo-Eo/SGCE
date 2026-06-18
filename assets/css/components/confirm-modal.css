@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Confirmaciones globales */
+/* SGCE 1.0.185 - Confirmaciones globales */
 .SgceConfirmBackdropHelper .modal-backdrop.show{
     background-color:#000!important;
     opacity:.50!important;
@@ -31,4 +31,148 @@
     .SgceConfirmDialog{padding:0 12px!important;}
     .SgceConfirmHeader{padding:22px 18px 18px!important;}
     .SgceConfirmBody{padding:20px 18px 22px!important;}
+}
+
+/* SGCE 1.0.185 - Homologación profesional de modal Cerrar sesión.
+   Mantiene una sola variante verde para Admin, Docente y Planeaciones, con botón metálico. */
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmContent,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmContent{
+    background:linear-gradient(145deg,#ECFDF5 0%,#F0FDF4 46%,#FFFFFF 100%)!important;
+    border:0!important;
+    box-shadow:0 30px 80px rgba(15,23,42,.28),0 0 0 1px rgba(4,120,87,.24)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmHeader,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmHeader{
+    background:
+        radial-gradient(circle at 13% 0%,rgba(255,255,255,.28),transparent 34%),
+        linear-gradient(135deg,#064E3B 0%,#047857 52%,#059669 100%)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmIcon,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmIcon{
+    color:#047857!important;
+    background:linear-gradient(145deg,#FFFFFF 0%,#ECFDF5 46%,#D1FAE5 100%)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.92),0 18px 38px rgba(4,120,87,.22)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmDetail,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmDetail{
+    color:#065F46!important;
+    background:linear-gradient(135deg,#ECFDF5 0%,#F0FDF4 100%)!important;
+    border-color:rgba(4,120,87,.20)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmDetail i,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmDetail i{
+    color:#047857!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept{
+    position:relative!important;
+    overflow:hidden!important;
+    isolation:isolate!important;
+    border-radius:999px!important;
+    transform:none!important;
+    transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,border-color .18s ease,color .18s ease!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel i,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel span,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept i,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept span,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel i,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel span,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept i,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept span{
+    position:relative!important;
+    z-index:3!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel::before,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept::before,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel::before,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept::before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    border-radius:inherit!important;
+    pointer-events:none!important;
+    z-index:1!important;
+    background:linear-gradient(135deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.14) 28%,rgba(255,255,255,0) 50%,rgba(255,255,255,.22) 74%,rgba(255,255,255,.10) 100%)!important;
+    opacity:.86!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel::after,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept::after{
+    content:""!important;
+    position:absolute!important;
+    top:-58%!important;
+    left:-86%!important;
+    width:58%!important;
+    height:218%!important;
+    border-radius:999px!important;
+    pointer-events:none!important;
+    z-index:2!important;
+    background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.10) 22%,rgba(255,255,255,.72) 50%,rgba(255,255,255,.12) 78%,transparent 100%)!important;
+    transform:rotate(18deg)!important;
+    transition:left .55s ease!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:hover::after,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:hover::after,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus-visible::after,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus-visible::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:hover::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:hover::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus-visible::after,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus-visible::after{
+    left:132%!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept{
+    color:#FFFFFF!important;
+    border:1px solid rgba(255,255,255,.34)!important;
+    background:linear-gradient(145deg,#064E3B 0%,#047857 36%,#059669 58%,#10B981 76%,#047857 100%)!important;
+    box-shadow:0 16px 34px rgba(4,120,87,.34),inset 0 1px 0 rgba(255,255,255,.30),inset 0 -12px 22px rgba(6,78,59,.18)!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.28)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:hover,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus-visible,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:hover,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:focus-visible{
+    transform:translateY(-1px)!important;
+    filter:saturate(1.08) brightness(1.02)!important;
+    box-shadow:0 20px 40px rgba(4,120,87,.40),inset 0 1px 0 rgba(255,255,255,.34),inset 0 -12px 22px rgba(6,78,59,.18)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel{
+    color:#475569!important;
+    border:1.5px solid rgba(148,163,184,.42)!important;
+    background:linear-gradient(145deg,#FFFFFF 0%,#F8FAFC 50%,#E2E8F0 100%)!important;
+    box-shadow:0 10px 22px rgba(15,23,42,.08),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:hover,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus-visible,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:hover,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:focus-visible{
+    color:#047857!important;
+    border-color:rgba(4,120,87,.34)!important;
+    background:linear-gradient(145deg,#FFFFFF 0%,#F8FAFC 48%,#E2E8F0 100%)!important;
+    box-shadow:0 14px 28px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.96)!important;
+    transform:translateY(-1px)!important;
+    filter:saturate(1.04) brightness(1.01)!important;
+}
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:active,
+html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:active,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel:active,
+html body .modal.SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept:active{
+    transform:scale(.985)!important;
+}
+@media(max-width:575.98px){
+    html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmAccept,
+    html body .SgceConfirmModal.SgceConfirmModalLogout .SgceConfirmCancel{
+        min-height:46px!important;
+        width:100%!important;
+    }
 }

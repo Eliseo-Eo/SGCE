@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ConsultaToken !== '') {
                 $Alumno = $DatosAlumno['Alumno'];
                 $InfoGrupo = $DatosAlumno['Grupo'];
                 $Resumen = SgcePublicoResumenAsistencia($Pdo, (int)$Alumno['Id'], (int)$InfoGrupo['Id'], $FechaInicio, $FechaFin);
+                $ConductaResumen = SgcePublicoResumenConducta($Pdo, (int)$Alumno['Id'], (int)$InfoGrupo['Id'], $FechaInicio, $FechaFin);
 
                 $Resultado = [
                     'Alumno' => $Alumno['NombreCompleto'],
@@ -65,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ConsultaToken !== '') {
                     'Turno' => $InfoGrupo['Turno'],
                     'FechaInicio' => $FechaInicio,
                     'FechaFin' => $FechaFin,
+                    'Conducta' => $ConductaResumen,
                 ] + $Resumen;
             }
         }
@@ -121,7 +123,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<?= SgceLayoutHeadBase($NombreEscuelaConsulta . ' | Consulta de asistencia', $Pdo, ['assets/css/consulta-publica-botones-metalicos.css']) ?>
+<?= SgceLayoutHeadBase($NombreEscuelaConsulta . ' | Consulta de asistencia y conducta', $Pdo, ['assets/css/consulta-publica-botones-metalicos.css']) ?>
 </head>
 <body class="ConsultaPublicaBody">
 
@@ -132,8 +134,8 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
             <div class="ConsultaHeroIcon"><span class="SgceColorIcon" aria-hidden="true">📅</span></div>
             <div class="ConsultaHeroText">
                 <div class="ConsultaSchoolName"><?= HCP($NombreEscuelaConsulta) ?></div>
-                <h1>Consulta de asistencia</h1>
-                <p>Consulta el estado de asistencia por día, semana, mes o rango personalizado. Solo se muestra el alumno que coincida exactamente con los datos capturados.</p>
+                <h1>Consulta de asistencia y conducta</h1>
+                <p>Consulta asistencia, faltas, retardos y reportes de conducta visibles para padres. Solo se muestra el alumno que coincida exactamente con los datos capturados.</p>
             </div>
         </div>
         <div class="ConsultaHeroActions">
@@ -244,7 +246,7 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
                         <button type="button" data-range="mes">Mes actual</button>
                     </div>
 
-                    <button type="submit" id="BtnConsultaPublicaAsistenciaVerdeMetalico" class="BtnPrincipal BtnConsultaPublicaVerdeMetalico mt-4"><span class="SgceColorIcon" aria-hidden="true">📅</span>CONSULTAR ASISTENCIA</button>
+                    <button type="submit" id="BtnConsultaPublicaAsistenciaVerdeMetalico" class="BtnPrincipal BtnConsultaPublicaVerdeMetalico mt-4"><span class="SgceColorIcon" aria-hidden="true">📅</span>CONSULTAR ASISTENCIA Y CONDUCTA</button>
                 </form>
 
                 <div class="AvisoPrivacidad mt-4"><i class="fa-solid fa-shield-halved me-2"></i>Por seguridad, la consulta requiere coincidencia exacta y no muestra listas completas.</div>
@@ -272,6 +274,8 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
                         <div class="col-6 col-md-4"><div class="MetricCard"><div class="Numero"><?= (int)$Resultado['Conteos']['J'] ?></div><div class="Texto">JUSTIFICANTES</div></div></div>
                         <div class="col-6 col-md-4"><div class="MetricCard"><div class="Numero"><?= (int)$Resultado['RegistrosCapturados'] ?></div><div class="Texto">REGISTROS</div></div></div>
                         <div class="col-6 col-md-4"><div class="MetricCard"><div class="Numero"><?= (int)$Resultado['TotalMaterias'] ?></div><div class="Texto">MATERIAS</div></div></div>
+                        <div class="col-6 col-md-4"><div class="MetricCard"><div class="Numero"><?= (int)($Resultado['Conducta']['Total'] ?? 0) ?></div><div class="Texto">REPORTES CONDUCTA</div></div></div>
+                        <div class="col-6 col-md-4"><div class="MetricCard"><div class="Numero"><?= (int)($Resultado['Conducta']['Graves'] ?? 0) ?></div><div class="Texto">REPORTES GRAVES</div></div></div>
                     </div>
 
                     <?php if($Resultado['SinCapturarHoy'] !== null): ?>
@@ -305,6 +309,29 @@ function FechaHumanaCP($Fecha) { return date('d/m/Y', strtotime((string)$Fecha))
                                     <?php endforeach; ?>
                                     <?php if(empty($Resultado['Detalle'])): ?>
                                         <tr><td colspan="4"><div class="ExpedienteEmptyState"><i class="fa-solid fa-circle-info"></i><span>Sin registros capturados en el rango seleccionado.</span></div></td></tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="ConsultaDetalleTable mt-4">
+                        <div class="ConsultaDetalleHeader"><h4><i class="fa-solid fa-compass"></i>Conducta y disciplina</h4><span><?= (int)($Resultado['Conducta']['Total'] ?? 0) ?> reportes visibles</span></div>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead><tr><th>Fecha</th><th>Materia/Área</th><th>Tipo</th><th>Motivo</th><th>Estado</th></tr></thead>
+                                <tbody>
+                                    <?php foreach(($Resultado['Conducta']['Detalle'] ?? []) as $C): ?>
+                                        <tr>
+                                            <td><?= HCP($C['FechaTexto']) ?></td>
+                                            <td><?= HCP($C['MateriaNombre'] ?: $C['Origen']) ?></td>
+                                            <td><?= HCP(SgceConductaTextoTipo((string)$C['Tipo'])) ?> · <?= HCP(SgceConductaTextoSeveridad((string)$C['Severidad'])) ?></td>
+                                            <td><?= HCP($C['MotivoCorto']) ?><br><small class="text-muted"><?= HCP($C['AccionTomada'] ?? '') ?></small></td>
+                                            <td><?= HCP(SgceConductaTextoEstado((string)$C['Estado'])) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php if(empty($Resultado['Conducta']['Detalle'])): ?>
+                                        <tr><td colspan="5"><div class="ExpedienteEmptyState"><i class="fa-solid fa-circle-info"></i><span>Sin reportes de conducta visibles en el rango seleccionado.</span></div></td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>

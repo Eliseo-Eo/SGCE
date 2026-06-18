@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Responsividad real del dashboard administrativo */
+/* SGCE 1.0.185 - Responsividad real del dashboard administrativo */
 
 @media (max-width: 992px) {
   html body .SgceModuleWrap .DashboardTopPro {
@@ -177,7 +177,7 @@
   }
 }
 
-/* SGCE 1.0.140 - Refuerzo directo del dashboard móvil */
+/* SGCE 1.0.185 - Refuerzo directo del dashboard móvil */
 @media (max-width: 992px) {
   html body #inicio,
   html body #inicio .DashboardTopPro,
@@ -281,5 +281,15 @@
   html body #inicio .DashboardKpiGrid,
   html body .DashboardKpiGrid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* SGCE 1.0.185 - Dashboard móvil mantiene 2 columnas compactas. */
+@media (max-width: 992px) {
+  html body #inicio .DashboardKpiCard,
+  html body .DashboardKpiCard {
+    min-height: 104px !important;
+    padding: 10px 8px !important;
   }
 }

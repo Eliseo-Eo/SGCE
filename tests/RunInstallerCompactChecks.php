@@ -26,8 +26,8 @@ foreach ($Checks as [$Archivo, $Contenido, $Patron, $Mensaje]) {
 }
 
 if ($Errores) {
-    echo "SGCE INSTALLER COMPACT 1.0.140 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n";
+    echo "SGCE INSTALLER COMPACT 1.0.185 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n";
     exit(1);
 }
 
-echo "SGCE INSTALLER COMPACT 1.0.140 CHECKS: OK\nRevisiones ejecutadas: $Revisiones\n";
+echo "SGCE INSTALLER COMPACT 1.0.185 CHECKS: OK\nRevisiones ejecutadas: $Revisiones\n";

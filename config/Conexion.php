@@ -6,7 +6,7 @@ ini_set('log_errors', '1');
 ini_set('expose_php', '0');
 error_reporting(E_ALL);
 
-if (!defined('SGCE_VERSION')) { define('SGCE_VERSION', '1.0.140'); }
+if (!defined('SGCE_VERSION')) { define('SGCE_VERSION', '1.0.185'); }
 
 ini_set('session.use_strict_mode', '1');
 ini_set('session.use_only_cookies', '1');

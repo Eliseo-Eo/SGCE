@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Estilos del instalador separados del PHP. */
+/* SGCE 1.0.185 - Estilos del instalador separados del PHP. */
 
 .SgceInstallerLockedBody {
   font-family: Arial, sans-serif;
@@ -126,7 +126,7 @@
 }
 
 
-/* SGCE 1.0.140 - Prediagnóstico compacto del instalador. */
+/* SGCE 1.0.185 - Prediagnóstico compacto del instalador. */
 .SgceInstallerCheckHeader {
   display: flex;
   justify-content: space-between;
@@ -191,7 +191,7 @@
 }
 
 
-/* SGCE 1.0.140 - Prediagnóstico compacto: los detalles inician ocultos. */
+/* SGCE 1.0.185 - Prediagnóstico compacto: los detalles inician ocultos. */
 .SgceInstallerCheckActions {
   display: flex;
   align-items: center;

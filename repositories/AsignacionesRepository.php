@@ -22,15 +22,25 @@ function SgceRepoAsignacionWhere(PDO $Pdo, array $Filtros, array &$Params): stri
     if (!empty($Filtros['buscar'])) {
         $FullText = SgceFullTextBusqueda($Filtros['buscar']);
         if ($FullText !== '') {
-            $Where[] = '(MATCH(Asn.MateriaBusqueda, Asn.MateriaNombre) AGAINST (? IN BOOLEAN MODE) OR MATCH(U.NombreBusqueda, U.NombreCompleto) AGAINST (? IN BOOLEAN MODE) OR Asn.MateriaBusqueda LIKE ? OR U.NombreBusqueda LIKE ?)';
+            $Where[] = '(MATCH(Asn.MateriaBusqueda, Asn.MateriaNombre) AGAINST (? IN BOOLEAN MODE) OR MATCH(U.NombreBusqueda, U.NombreCompleto) AGAINST (? IN BOOLEAN MODE) OR Asn.MateriaBusqueda LIKE ? OR U.NombreBusqueda LIKE ? OR G.Grado LIKE ? OR G.Grupo LIKE ? OR G.Turno LIKE ? OR EA.Nombre LIKE ?)';
             $Params[] = $FullText;
             $Params[] = $FullText;
-            $Params[] = SgceLikePrefijoBusqueda($Filtros['buscar']);
-            $Params[] = SgceLikePrefijoBusqueda($Filtros['buscar']);
+            $LikeAsignacion = ('%' . SgceTextoBusquedaNormalizado($Filtros['buscar']) . '%');
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
         } else {
-            $Where[] = '(Asn.MateriaBusqueda LIKE ? OR U.NombreBusqueda LIKE ?)';
-            $Params[] = SgceLikePrefijoBusqueda($Filtros['buscar']);
-            $Params[] = SgceLikePrefijoBusqueda($Filtros['buscar']);
+            $Where[] = '(Asn.MateriaBusqueda LIKE ? OR U.NombreBusqueda LIKE ? OR G.Grado LIKE ? OR G.Grupo LIKE ? OR G.Turno LIKE ? OR EA.Nombre LIKE ?)';
+            $LikeAsignacion = ('%' . SgceTextoBusquedaNormalizado($Filtros['buscar']) . '%');
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
+            $Params[] = $LikeAsignacion;
         }
     }
     if (!empty($Filtros['materia'])) { $Where[] = 'Asn.MateriaBusqueda LIKE ?'; $Params[] = SgceLikePrefijoBusqueda($Filtros['materia']); }

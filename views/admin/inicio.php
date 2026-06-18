@@ -28,12 +28,13 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                 }
 
                 $DashboardKpis = [
+                    ['Promedio general', $PromedioGeneral, '⭐', 'KpiGold', 'Ciclo activo'],
                     ['Maestros activos', $TotalMaestrosActivos, '👨‍🏫', 'KpiGreen', 'Docentes disponibles'],
-                    ['Grupos activos', $TotalGruposActivos, '👥', 'KpiCyan', 'Etapa académica, grupo y turno'],
+                    ['Grupos activos', $TotalGruposActivos, '👥', 'KpiCyan', 'Etapa académica y turno'],
                     ['Alumnos activos', $TotalAlumnosActivos, '📚', 'KpiBlue', 'Inscritos vigentes'],
                     ['Asistencias hoy', $AsistenciasHoy, '✅', 'KpiAttendance', 'Registros del día'],
                     ['Faltas hoy', $FaltasHoy, '❌', 'KpiSoftRed', 'Incidencias actuales'],
-                    ['Promedio general', $PromedioGeneral, '⭐', 'KpiGold', 'Ciclo activo']
+                    ['Reportes hoy', $ConductaHoy, '🧭', 'KpiAttendance', 'Conducta y disciplina']
                 ];
             ?>
 
@@ -90,6 +91,12 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <span>Expedientes</span>
                             <small>Alumnos</small>
                         </a>
+
+                        <a href="ConductaAdmin.php" class="DashboardModuleCard DashboardModuleConducta">
+                            <span class="SgceColorIcon" aria-hidden="true">🧭</span>
+                            <span>Conducta</span>
+                            <small>Disciplina</small>
+                        </a>
                         <a href="ReportesAdmin.php" class="DashboardModuleCard DashboardModuleReportes">
                             <span class="SgceColorIcon" aria-hidden="true">📈</span>
                             <span>Reportes</span>
@@ -99,11 +106,6 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <span class="SgceColorIcon" aria-hidden="true">☁️</span>
                             <span>Planeaciones</span>
                             <small>Docentes</small>
-                        </a>
-                        <a href="ConsultaPadre.php" class="DashboardModuleCard DashboardModuleAsistencias">
-                            <span class="SgceColorIcon" aria-hidden="true">📅</span>
-                            <span>Asistencias</span>
-                            <small>Consulta individual</small>
                         </a>
                         <?php if (SgcePuedeGestionarUsuarios($UserSession)): ?>
                         <a href="UsuariosAdmin.php" class="DashboardModuleCard DashboardModuleUsuarios">

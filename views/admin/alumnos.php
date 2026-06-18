@@ -32,11 +32,6 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                 </div>
 
                                 <div class="MaestrosFieldGroup AlumnosFieldGroup">
-                                    <label>Matrícula <small class="text-muted">(opcional)</small></label>
-                                    <input type="text" name="Matricula" class="form-control form-control-sm MaestrosInput AlumnosInput InputUpperAscii" placeholder="AUTOMÁTICA" maxlength="40" autocomplete="off">
-                                </div>
-
-                                <div class="MaestrosFieldGroup AlumnosFieldGroup">
                                     <label>Grupo</label>
                                     <select name="GrupoId" class="form-select form-select-sm MaestrosInput AlumnosInput" required>
                                         <option value="">SELECCIONAR...</option>
@@ -229,11 +224,6 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                                        pattern="^[A-ZÁÉÍÓÚÜÑ\s]+$"
                                        title="Solo letras y espacios"
                                        autocomplete="off">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="small">Matrícula</label>
-                                <input type="text" name="Matricula" value="<?= htmlspecialchars((string)($Al['Matricula'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="form-control InputUpperAscii" maxlength="40" placeholder="AUTOMÁTICA">
                             </div>
 
                             <div class="mb-3">

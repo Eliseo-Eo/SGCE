@@ -325,6 +325,21 @@ function SgcePublicoResumenAsistencia(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInici
     ];
 }
 
+function SgcePublicoResumenConducta(PDO $Pdo, $AlumnoId, $GrupoId, $FechaInicio, $FechaFin) {
+    $Resultado = ['Total' => 0, 'Graves' => 0, 'Detalle' => []];
+    if (!SgceDbTablaExiste($Pdo, 'ConductaRegistros')) { return $Resultado; }
+    $GrupoInfo = SgceGrupoObtenerPorId($Pdo, (int)$GrupoId);
+    $CicloId = (int)($GrupoInfo['CicloId'] ?? 0);
+    if ($CicloId <= 0) { return $Resultado; }
+    $Stmt = $Pdo->prepare("\n        SELECT CR.*, DATE_FORMAT(CR.FechaDia, '%d/%m/%Y') AS FechaTexto,\n               Asg.MateriaNombre, U.NombreCompleto AS ReportaNombre\n        FROM ConductaRegistros CR\n        LEFT JOIN Asignaciones Asg ON Asg.Id = CR.AsignacionId\n        LEFT JOIN Usuarios U ON U.Id = CR.ReportaUsuarioId\n        WHERE CR.AlumnoId = ?\n          AND CR.CicloId = ?\n          AND CR.GrupoId = ?\n          AND CR.FechaDia BETWEEN ? AND ?\n          AND CR.VisiblePadre = 1\n          AND CR.Estado IN ('VALIDADO','EN_SEGUIMIENTO','CERRADO')\n        ORDER BY CR.FechaIncidente DESC, CR.Id DESC\n        LIMIT 100\n    ");
+    $Stmt->execute([(int)$AlumnoId, $CicloId, (int)$GrupoId, $FechaInicio, $FechaFin]);
+    $Detalle = $Stmt->fetchAll();
+    $Resultado['Detalle'] = $Detalle;
+    $Resultado['Total'] = count($Detalle);
+    foreach ($Detalle as $D) { if (($D['Severidad'] ?? '') === 'GRAVE') { $Resultado['Graves']++; } }
+    return $Resultado;
+}
+
 function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
     $GrupoInfo = SgceGrupoObtenerPorId($Pdo, (int)$GrupoId);
     $CicloId = (int)($GrupoInfo['CicloId'] ?? 0);

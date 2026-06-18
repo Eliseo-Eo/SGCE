@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Módulo compartido: confirm-modal.js */
+/* SGCE 1.0.185 - Módulo compartido: confirm-modal.js */
 document.addEventListener('DOMContentLoaded', function(){
     var ModalActual = null;
     var FormularioPendiente = null;
@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', function(){
     function ConfigurarModalDesde(Elemento) {
         var Modal = CrearModalConfirmacion();
         var TipoConfirmacion = TextoSeguro(Elemento.dataset.sgceConfirm, 'normal').toLowerCase();
+        var EsLogout = TipoConfirmacion === 'logout' || TipoConfirmacion === 'salir' || TipoConfirmacion === 'cerrar-sesion';
         var TiposPeligrosos = ['danger', 'delete', 'remove', 'trash', 'eliminar', 'borrar', 'destroy'];
-        Modal.classList.toggle('SgceConfirmModalDanger', TiposPeligrosos.indexOf(TipoConfirmacion) !== -1);
+        var EsPeligroso = TiposPeligrosos.indexOf(TipoConfirmacion) !== -1;
+        Modal.classList.toggle('SgceConfirmModalLogout', EsLogout);
+        Modal.classList.toggle('SgceConfirmModalDanger', EsPeligroso && !EsLogout);
         var Icono = TextoSeguro(Elemento.dataset.sgceConfirmIcon, Elemento.dataset.sgceConfirm === 'logout' ? 'fa-right-from-bracket' : 'fa-file-import');
         var Titulo = TextoSeguro(Elemento.dataset.sgceConfirmTitle, 'CONFIRMAR ACCIÓN');
         var Subtitulo = TextoSeguro(Elemento.dataset.sgceConfirmSubtitle, Elemento.dataset.sgceConfirm === 'logout' ? 'SALIDA DEL SISTEMA' : 'IMPORTACIÓN DE DATOS');

@@ -51,10 +51,14 @@ if (!$DatosAlumno) {
 $Alumno = $DatosAlumno['Alumno'];
 $InfoGrupo = $DatosAlumno['Grupo'];
 $Resumen = SgcePublicoResumenAsistencia($Pdo, (int)$Alumno['Id'], (int)$InfoGrupo['Id'], $FechaInicio, $FechaFin);
+$ConductaResumen = SgcePublicoResumenConducta($Pdo, (int)$Alumno['Id'], (int)$InfoGrupo['Id'], $FechaInicio, $FechaFin);
 
 $FilasPdf = [];
 foreach ($Resumen['Detalle'] as $D) {
     $FilasPdf[] = [$D['FechaTexto'], $D['MateriaNombre'], $D['Maestro'], SgcePublicoTextoEstado($D['Estado'])];
+}
+foreach (($ConductaResumen['Detalle'] ?? []) as $C) {
+    $FilasPdf[] = [$C['FechaTexto'], $C['MateriaNombre'] ?: $C['Origen'], 'CONDUCTA: ' . SgceConductaTextoTipo((string)$C['Tipo']), SgceConductaTextoEstado((string)$C['Estado']) . ' - ' . ($C['MotivoCorto'] ?? '')];
 }
 
 $GrupoTexto = trim((($InfoGrupo['ProgramaNombre'] ?? '') !== '' ? ($InfoGrupo['ProgramaNombre'] . ' / ') : '') . ($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
@@ -62,5 +66,5 @@ $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto
 if (!empty($Resumen['RegistrosTruncados'])) {
     $Subtitulo .= ' | Detalle limitado a ' . (int)$Resumen['LimiteDetalle'] . ' registros más recientes';
 }
-RegistrarBitacora($Pdo, ['Id' => null, 'Rol' => 'publico'], 'EXPORTAR_ASISTENCIA_PUBLICA', 'Alumnos', (int)$Alumno['Id'], 'PDF PÚBLICO DE ASISTENCIA');
-SgcePdfRespuestaTabla($Pdo, 'Reporte de asistencia individual', $Subtitulo, ['Fecha', 'Materia', 'Docente', 'Estado'], $FilasPdf, 'Asistencia_' . $Alumno['NombreCompleto'] . '_' . $FechaInicio . '_' . $FechaFin, 'L', [85, 230, 230, 120]);
+RegistrarBitacora($Pdo, ['Id' => null, 'Rol' => 'publico'], 'EXPORTAR_ASISTENCIA_PUBLICA', 'Alumnos', (int)$Alumno['Id'], 'PDF PÚBLICO DE ASISTENCIA Y CONDUCTA');
+SgcePdfRespuestaTabla($Pdo, 'Reporte de asistencia y conducta individual', $Subtitulo, ['Fecha', 'Materia', 'Docente', 'Estado'], $FilasPdf, 'Asistencia_Conducta_' . $Alumno['NombreCompleto'] . '_' . $FechaInicio . '_' . $FechaFin, 'L', [85, 230, 230, 120]);

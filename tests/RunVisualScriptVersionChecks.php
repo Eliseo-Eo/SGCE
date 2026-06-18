@@ -6,7 +6,7 @@ foreach (['tools/visual-mobile-smoke.sh','tools/visual-mobile-smoke.py'] as $Rel
     $Path = $Root . DIRECTORY_SEPARATOR . $Rel;
     if (!is_file($Path)) { $Errores[] = "Falta $Rel"; continue; }
     $Contenido = file_get_contents($Path);
-    if (!str_contains($Contenido, '1.0.140')) { $Errores[] = "$Rel no declara versión 1.0.140"; }
+    if (!str_contains($Contenido, '1.0.185')) { $Errores[] = "$Rel no declara versión 1.0.185"; }
     $PatronViejo = '/' . '1\\.0\\.(?:13[0-9]|12[0-9])' . '|' . '138' . 'c' . '|' . '138' . 'b' . '/';
     if (preg_match($PatronViejo, $Contenido)) { $Errores[] = "$Rel conserva versión previa"; }
 }

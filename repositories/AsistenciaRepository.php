@@ -17,6 +17,24 @@ function SgceAsistenciaRepoObtenerAsignacionActiva(PDO $Pdo, int $AsignacionId):
     return $Info ?: null;
 }
 
+
+function SgceAsistenciaRepoObtenerAsignacionContexto(PDO $Pdo, int $AsignacionId): ?array {
+    if ($AsignacionId <= 0) { return null; }
+    $Stmt = $Pdo->prepare("
+        SELECT A.Id, A.MaestroId, A.GrupoId, A.CicloId, A.MateriaNombre, A.Activo AS AsignacionActiva,
+               G.Grado, G.Grupo, G.Turno, G.Activo AS GrupoActivo,
+               C.Nombre AS CicloNombre, C.FechaInicio, C.FechaFin, C.Activo AS CicloActivo
+        FROM Asignaciones A
+        JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId
+        JOIN CiclosEscolares C ON C.Id = A.CicloId
+        WHERE A.Id = ?
+        LIMIT 1
+    ");
+    $Stmt->execute([$AsignacionId]);
+    $Info = $Stmt->fetch(PDO::FETCH_ASSOC);
+    return $Info ?: null;
+}
+
 function SgceAsistenciaRepoObtenerAlumnos(PDO $Pdo, int $GrupoId, int $CicloId): array {
     $Stmt = $Pdo->prepare("
         SELECT A.Id, A.NombreCompleto

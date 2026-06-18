@@ -35,3 +35,52 @@ body .modal .BtnConfirmDelete.BtnAvisoModalActivate i,
 body .modal .BtnConfirmDelete.BtnAvisoModalActivate span{
     color:#FFFFFF!important;
 }
+
+/* SGCE 1.0.185 - Ajuste fino de aire superior en Avisos.
+   Solo afecta el módulo de Avisos para igualar el respiro visual de las tarjetas
+   con el resto de módulos administrativos sin tocar la capa global. */
+html body.AvisosBody .AvisosWrap .AvisosLayout{
+    margin-top:0!important;
+}
+html body.AvisosBody .AvisosFormCard,
+html body.AvisosBody .AvisosTableCard{
+    padding-top:30px!important;
+}
+html body.AvisosBody .AvisosFormCard > .SgceCardHeaderLine,
+html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine{
+    margin-top:2px!important;
+    margin-bottom:20px!important;
+}
+@media (max-width:768px){
+    html body.AvisosBody .AvisosWrap .AvisosLayout{
+        margin-top:0!important;
+    }
+    html body.AvisosBody .AvisosFormCard,
+    html body.AvisosBody .AvisosTableCard{
+        padding-top:24px!important;
+    }
+    html body.AvisosBody .AvisosFormCard > .SgceCardHeaderLine,
+    html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine{
+        margin-top:0!important;
+        margin-bottom:18px!important;
+    }
+}
+
+/* SGCE 1.0.185 - Corrección de encabezado visual en Avisos.
+   Alcance: Solo el título del contenedor "Avisos registrados".
+   Motivo: El ajuste anterior centraba columnas correctamente, pero la regla base
+   .AvisosTableHeader { justify-content: space-between; } empujaba el título del
+   contenedor hacia la derecha. Aquí se restaura el encabezado de la tarjeta:
+   icono + título alineados a la izquierda, sin tocar los TH de la tabla. */
+html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine.AvisosTableHeader,
+html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine.AvisosTableHeaderClean{
+    justify-content:flex-start!important;
+    align-items:center!important;
+    gap:12px!important;
+    text-align:left!important;
+}
+html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine.AvisosTableHeader h2,
+html body.AvisosBody .AvisosTableCard > .SgceCardHeaderLine.AvisosTableHeaderClean h2{
+    text-align:left!important;
+    margin:0!important;
+}

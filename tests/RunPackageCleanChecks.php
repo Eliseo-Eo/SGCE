@@ -4,7 +4,7 @@ $Project = dirname($Root);
 $Errores = [];
 $Revisiones = 0;
 
-$VersionActual = '1.0.140';
+$VersionActual = '1.0.185';
 $Raices = ['Produccion', 'Desarrollo'];
 
 foreach ($Raices as $Raiz) {
@@ -14,7 +14,7 @@ foreach ($Raices as $Raiz) {
         $Revisiones++;
         if (!is_file($Base . DIRECTORY_SEPARATOR . $Relativo)) { $Errores[] = "Falta archivo limpio en $Raiz: $Relativo"; }
     }
-    foreach (glob($Base . DIRECTORY_SEPARATOR . 'CAMBIOS_1.0.11*.md') ?: [] as $ArchivoCambio) {
+    foreach (glob($Base . DIRECTORY_SEPARATOR . 'CAMBIOS_1.0.185*.md') ?: [] as $ArchivoCambio) {
         $Revisiones++;
         if (!str_ends_with($ArchivoCambio, 'CAMBIOS_' . $VersionActual . '.md')) {
             $Errores[] = 'Changelog viejo no permitido: ' . str_replace($Project . DIRECTORY_SEPARATOR, '', $ArchivoCambio);

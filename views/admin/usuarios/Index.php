@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<?= SgceLayoutHeadBase('Usuarios y Roles | SGCE', $Pdo, ['assets/css/usuarios-botones-metalicos.css', 'assets/css/components/pagination.css', 'assets/css/components/filter-bars.css', 'assets/css/modules/config-users-layout.css']) ?>
+<?= SgceLayoutHeadBase('Usuarios y Roles | SGCE', $Pdo, ['assets/css/usuarios-botones-metalicos.css', 'assets/css/components/pagination.css', 'assets/css/components/filter-bars.css', 'assets/css/modules/config-users-layout.css', 'assets/css/components/admin-table-layout.css']) ?>
 </head>
 <body>
 <div class="MainWrap SgceModuleWrap SgceUsersPage">

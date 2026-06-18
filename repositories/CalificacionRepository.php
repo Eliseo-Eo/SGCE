@@ -3,7 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 function SgceCalificacionRepoObtenerAsignacionDocente(PDO $Pdo, int $AsignacionId, int $MaestroId): ?array {
     $Stmt = $Pdo->prepare("
-        SELECT A.*, G.Grado, G.Grupo, G.Turno, C.Nombre AS CicloNombre
+        SELECT A.*, G.Grado, G.Grupo, G.Turno, G.OfertaId, C.Nombre AS CicloNombre
         FROM Asignaciones A
         JOIN Grupos G ON A.GrupoId = G.Id AND G.CicloId = A.CicloId
         JOIN CiclosEscolares C ON C.Id = A.CicloId AND C.Activo = 1

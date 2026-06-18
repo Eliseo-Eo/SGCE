@@ -1,7 +1,7 @@
 <?php
 $Root = dirname(__DIR__);
 $Errores = [];
-$VersionActual = '1.0.140';
+$VersionActual = '1.0.185';
 foreach (glob($Root . '/CAMBIOS_1.0.*.md') ?: [] as $Archivo) { if (!str_ends_with($Archivo, 'CAMBIOS_' . $VersionActual . '.md')) { $Errores[] = 'Archivo de cambios antiguo detectado: ' . basename($Archivo); } }
 foreach (glob($Root . '/AUDITORIA_1.0.*.md') ?: [] as $Archivo) { if (!str_ends_with($Archivo, 'AUDITORIA_' . $VersionActual . '.md')) { $Errores[] = 'Archivo de auditoría antiguo detectado: ' . basename($Archivo); } }
 $Produccion = dirname($Root) . DIRECTORY_SEPARATOR . 'Produccion';

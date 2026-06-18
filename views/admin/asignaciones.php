@@ -56,7 +56,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
                             <input type="hidden" name="PagAsig" value="1">
                             <div class="input-group search-container SgceFilterSearch">
                                 <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-                                <input type="text" id="SearchAsig" name="BuscarAsignaciones" value="<?= htmlspecialchars((string)($FiltroAsignaciones['buscar'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="form-control border-start-0" placeholder="Buscar carga...">
+                                <input type="text" id="SearchAsig" name="BuscarAsignaciones" data-sgce-min-length="1" value="<?= htmlspecialchars((string)($FiltroAsignaciones['buscar'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" class="form-control border-start-0" placeholder="Buscar carga...">
                             </div>
                             <select name="MateriaFiltro" class="form-select form-select-sm SgceQuickFilter" aria-label="Filtrar asignaciones por materia">
                                 <option value="">Materia</option>

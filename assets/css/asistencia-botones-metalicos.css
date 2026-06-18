@@ -168,3 +168,650 @@ html body .SgceModuleWrap .AlumnoAvatar.AlumnoAvatarEmoji .SgceAlumnoEmoji {
     .BtnPrimary { border:0; border-radius:14px; padding:10px 16px; background:linear-gradient(135deg,var(--SgceVino),var(--SgceVinoOscuro)); color:#fff; font-weight:800; }
     @media (max-width:991px) { .TopHeader { padding:20px; } .SgceBtnVolverInicio { width:100%; text-align:center; } }
     @media (max-width:576px) { .SgcePage { padding-left:12px !important; padding-right:12px !important; } table.table { table-layout:auto; } .EstadoSelect { width:160px; } .BtnGuardar { width:100%; min-width:0; } }
+
+/* SGCE 1.0.185 - Conducta en modal profesional morado institucional */
+:root{
+    --SgceConducta:#6D28D9;
+    --SgceConductaRGB:109,40,217;
+    --SgceConductaOscuro:#4C1D95;
+    --SgceConductaProfundo:#2E1065;
+    --SgceConductaClaro:#8B5CF6;
+    --SgceConductaSuave:#F3E8FF;
+    --SgceConductaLinea:#DDD6FE;
+    --SgceConductaTexto:#312E81;
+}
+.SgceConductaCol{width:290px;min-width:290px}.SgceConductaCell{width:290px;min-width:290px}.SgceConductaCell>.small{margin-left:.35rem}.SgceConductaModalBtn{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:40px;min-width:180px;padding:.56rem 1rem;border-radius:999px;border:1.5px solid rgba(var(--SgceConductaRGB),.22)!important;background:linear-gradient(135deg,#FFFFFF 0%,#F8F5FF 56%,#F3E8FF 100%)!important;color:var(--SgceConductaTexto)!important;font-weight:900;letter-spacing:.01em;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 10px 22px rgba(var(--SgceConductaRGB),.08)!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease,color .16s ease}.SgceConductaModalBtn::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.58),rgba(255,255,255,0) 52%,rgba(255,255,255,.34));opacity:.65;pointer-events:none;z-index:-1}.SgceConductaModalBtn:hover,.SgceConductaModalBtn:focus-visible{transform:translateY(-1px);border-color:rgba(var(--SgceConductaRGB),.42)!important;background:linear-gradient(135deg,#FFFFFF 0%,#F3E8FF 46%,#EDE9FE 100%)!important;color:var(--SgceConductaOscuro)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 16px 28px rgba(var(--SgceConductaRGB),.16)!important}.SgceConductaModalBtn.is-registered{border-color:rgba(217,119,6,.38)!important;background:linear-gradient(135deg,#FFFFFF 0%,#FFFBEB 46%,#FEF3C7 100%)!important;color:#92400E!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 12px 26px rgba(217,119,6,.12)!important}.SgceConductaModalBtn.is-registered:hover{border-color:rgba(217,119,6,.55)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 16px 30px rgba(217,119,6,.18)!important}.SgceConductaBtnIcon{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:9px;background:rgba(var(--SgceConductaRGB),.10);line-height:1;font-size:.92rem}.SgceConductaModalBtn.is-registered .SgceConductaBtnIcon{background:rgba(217,119,6,.13)}.SgceConductaAlumnoRow:has(.SgceConductaModalBtn.is-registered){background:linear-gradient(90deg,rgba(251,191,36,.08),rgba(255,255,255,.96))}.SgceConductaFilaEstado.text-success{color:#92400E!important}.SgceConductaModalContent{border:0!important;border-radius:26px!important;overflow:hidden;background:#FFFFFF;box-shadow:0 30px 90px rgba(15,23,42,.28),0 0 0 1px rgba(255,255,255,.55)!important}.SgceConductaModalContent .modal-header{position:relative;align-items:flex-start;gap:1rem;padding:1.15rem 1.3rem!important;border-bottom:0!important;background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,var(--SgceConductaProfundo) 0%,var(--SgceConductaOscuro) 42%,var(--SgceConducta) 100%)!important;color:#FFFFFF!important}.SgceConductaModalContent .modal-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.52),transparent)}.SgceConductaModalTitleWrap{display:flex;align-items:center;gap:1rem;min-width:0}.SgceConductaModalIcon{display:grid;place-items:center;width:54px;height:54px;min-width:54px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 14px 28px rgba(0,0,0,.12);font-size:1.35rem;color:#FFFFFF}.SgceConductaModalTitleText{min-width:0}.SgceConductaModalContent .modal-title{margin:0;color:#FFFFFF!important;font-weight:950!important;letter-spacing:.01em;line-height:1.1}.SgceConductaAlumnoLabel{display:inline-flex;align-items:center;gap:.45rem;margin-top:.28rem;color:rgba(255,255,255,.90)!important;font-weight:800;letter-spacing:.01em}.SgceConductaContextLabel{color:rgba(255,255,255,.78)!important;font-weight:700}.SgceConductaModalContent .modal-body{padding:1.25rem 1.3rem 1.15rem!important;background:linear-gradient(180deg,#FFFFFF 0%,#FBFAFF 100%)}.SgceConductaModalNotice{display:flex;align-items:flex-start;gap:.7rem;padding:.85rem 1rem!important;margin-bottom:1.05rem!important;border:1px solid rgba(var(--SgceConductaRGB),.18)!important;border-radius:18px!important;background:linear-gradient(135deg,#F5F3FF 0%,#EEF2FF 100%)!important;color:#3730A3!important;font-weight:700;line-height:1.35;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}.SgceConductaModalNotice i{margin-top:.12rem;color:var(--SgceConducta)!important}.SgceConductaModalContent .form-label{margin-bottom:.4rem;color:#1F2937!important;font-weight:900!important;font-size:.86rem;letter-spacing:.01em}.SgceConductaModalContent .form-control,.SgceConductaModalContent .form-select{min-height:43px;border-radius:14px!important;border:1.4px solid rgba(148,163,184,.34)!important;background:#FFFFFF!important;color:#111827!important;font-weight:700;box-shadow:0 8px 18px rgba(15,23,42,.035)!important;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}.SgceConductaModalContent textarea.form-control{min-height:98px;resize:vertical}.SgceConductaModalContent .form-control:focus,.SgceConductaModalContent .form-select:focus{border-color:rgba(var(--SgceConductaRGB),.58)!important;box-shadow:0 0 0 .2rem rgba(var(--SgceConductaRGB),.12),0 10px 20px rgba(15,23,42,.05)!important}.SgceConductaModalContent .is-invalid{border-color:#DC2626!important;box-shadow:0 0 0 .2rem rgba(220,38,38,.11)!important}.SgceConductaModalContent .modal-footer{position:relative;padding:1rem 1.3rem!important;border-top:1px solid rgba(148,163,184,.20)!important;background:rgba(248,250,252,.96)!important;backdrop-filter:blur(10px)}.SgceConductaFooterActions{display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;justify-content:flex-end}.SgceConductaSaveBtn,.SgceConductaCancelBtn,.SgceConductaRemoveBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:.5rem!important;min-height:43px!important;border-radius:15px!important;font-weight:950!important;letter-spacing:.01em!important;padding:.68rem 1.1rem!important}.SgceConductaSaveBtn{border:0!important;background:linear-gradient(135deg,var(--SgceConductaProfundo) 0%,var(--SgceConductaOscuro) 42%,var(--SgceConductaClaro) 100%)!important;color:#FFFFFF!important;box-shadow:0 14px 30px rgba(var(--SgceConductaRGB),.30)!important}.SgceConductaSaveBtn:hover,.SgceConductaSaveBtn:focus-visible{color:#FFFFFF!important;filter:saturate(1.06) brightness(1.03);transform:translateY(-1px);box-shadow:0 18px 34px rgba(var(--SgceConductaRGB),.36)!important}.SgceConductaCancelBtn{background:#FFFFFF!important;color:#475569!important;border:1.5px solid rgba(148,163,184,.40)!important;box-shadow:0 8px 18px rgba(15,23,42,.055)!important}.SgceConductaCancelBtn:hover{color:var(--SgceConductaOscuro)!important;border-color:rgba(var(--SgceConductaRGB),.38)!important}.SgceConductaRemoveBtn{background:linear-gradient(135deg,#FFF1F2 0%,#FFE4E6 100%)!important;color:#991B1B!important;border:1.5px solid rgba(220,38,38,.20)!important;box-shadow:0 8px 18px rgba(220,38,38,.07)!important}.SgceConductaRemoveBtn:hover{background:linear-gradient(135deg,#FFE4E6 0%,#FECDD3 100%)!important;color:#7F1D1D!important;border-color:rgba(220,38,38,.32)!important}.SgceConductaModalContent.is-readonly .modal-header{background:radial-gradient(circle at top right,rgba(255,255,255,.20),transparent 34%),linear-gradient(135deg,#1E3A8A 0%,#2563EB 58%,#38BDF8 100%)!important}.SgceConductaModalContent.is-readonly .SgceConductaModalIcon{background:rgba(255,255,255,.18)}.SgceConductaModalContent.is-readonly .SgceConductaModalNotice{background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%)!important;border-color:rgba(37,99,235,.20)!important;color:#1E3A8A!important}.SgceConductaModalContent.is-readonly .SgceConductaModalNotice i{color:#2563EB!important}@media(max-width:768px){.SgceConductaCol,.SgceConductaCell{width:auto;min-width:0}.SgceConductaTable thead{display:none}.SgceConductaTable tbody tr{display:block;border-bottom:1px solid rgba(148,163,184,.25);padding:.75rem}.SgceConductaTable tbody td{display:block;width:100%;padding:.5rem!important}.SgceConductaCell{background:rgba(248,250,252,.92);border-radius:18px;border:1px solid rgba(148,163,184,.16)}.SgceConductaModalBtn{width:100%;min-width:0}.SgceConductaModalTitleWrap{gap:.75rem}.SgceConductaModalIcon{width:46px;height:46px;min-width:46px;border-radius:16px}.SgceConductaModalContent .modal-header{padding:1rem!important}.SgceConductaModalContent .modal-body{padding:1rem!important}.SgceConductaModalContent .modal-footer{padding:.85rem 1rem!important}.SgceConductaFooterActions{width:100%;flex-direction:column-reverse}.SgceConductaModalContent .modal-footer .btn{width:100%;min-width:0}.SgceConductaRemoveBtn{width:100%}}@media(max-width:575.98px){.SgceConductaModalContent{border-radius:0!important;min-height:100vh}.SgceConductaModalContent .modal-header{position:sticky;top:0;z-index:3}.SgceConductaModalContent .modal-body{overflow-y:auto}.SgceConductaModalContent .modal-footer{position:sticky;bottom:0;z-index:3}.SgceConductaModalContent textarea.form-control{min-height:88px}.SgceConductaAlumnoLabel,.SgceConductaContextLabel{font-size:.78rem}.SgceConductaSaveBtn,.SgceConductaCancelBtn,.SgceConductaRemoveBtn{min-height:46px!important}}
+
+
+/* SGCE 1.0.185: Visibilidad para padres y escritura oficial en mayúsculas dentro de la modal de conducta. */
+.SgceConductaUppercase{ text-transform:uppercase!important; }
+.SgceConductaPadreBox{
+    display:flex;align-items:flex-start;gap:.85rem;width:100%;
+    padding:.9rem 1rem;border-radius:18px;
+    background:linear-gradient(135deg,rgba(124,58,237,.085),rgba(16,185,129,.075));
+    border:1px solid rgba(124,58,237,.18);
+    color:#312E81;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.04);
+}
+.SgceConductaPadreBox input{ margin-top:.35rem; accent-color:var(--SgceConductaOscuro,#5B21B6); }
+.SgceConductaPadreIcon{display:grid;place-items:center;width:36px;height:36px;min-width:36px;border-radius:14px;background:rgba(124,58,237,.12);color:#5B21B6;}
+.SgceConductaPadreText{display:flex;flex-direction:column;gap:.15rem;line-height:1.25;}
+.SgceConductaPadreText strong{font-weight:950;letter-spacing:.01em;color:#312E81;}
+.SgceConductaPadreText small{font-weight:700;color:#64748B;}
+.SgceConductaPadreBox:has(input:checked){background:linear-gradient(135deg,rgba(16,185,129,.13),rgba(124,58,237,.10));border-color:rgba(16,185,129,.32);}
+.SgceConductaPadreBox:has(input:checked) .SgceConductaPadreIcon{background:rgba(16,185,129,.14);color:#047857;}
+.SgceConductaModalContent.is-readonly .SgceConductaPadreBox{cursor:default;opacity:.88;}
+@media(max-width:575.98px){.SgceConductaPadreBox{padding:.8rem;border-radius:16px}.SgceConductaPadreIcon{width:32px;height:32px;min-width:32px}}
+
+
+/* SGCE 1.0.185 - Botones de conducta homologados: verde para registrar y azul para editar/ver. */
+html body .SgceModuleWrap .SgceConductaModalBtn{
+    width:190px!important;
+    min-width:190px!important;
+    max-width:190px!important;
+    min-height:40px!important;
+    padding:.56rem .95rem!important;
+    justify-content:center!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    border-color:rgba(5,150,105,.34)!important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 48%,#D1FAE5 100%)!important;
+    color:#065F46!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 12px 24px rgba(5,150,105,.12)!important;
+}
+html body .SgceModuleWrap .SgceConductaModalBtn:hover,
+html body .SgceModuleWrap .SgceConductaModalBtn:focus-visible{
+    border-color:rgba(5,150,105,.52)!important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#D1FAE5 48%,#A7F3D0 100%)!important;
+    color:#064E3B!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 16px 30px rgba(5,150,105,.18)!important;
+}
+html body .SgceModuleWrap .SgceConductaModalBtn .SgceConductaBtnIcon{
+    width:24px!important;
+    height:24px!important;
+    min-width:24px!important;
+    background:rgba(5,150,105,.12)!important;
+    color:#047857!important;
+}
+html body .SgceModuleWrap .SgceConductaModalBtn.is-registered{
+    width:190px!important;
+    min-width:190px!important;
+    max-width:190px!important;
+    border-color:rgba(37,99,235,.34)!important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#EFF6FF 48%,#DBEAFE 100%)!important;
+    color:#1E40AF!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 12px 24px rgba(37,99,235,.12)!important;
+}
+html body .SgceModuleWrap .SgceConductaModalBtn.is-registered:hover,
+html body .SgceModuleWrap .SgceConductaModalBtn.is-registered:focus-visible{
+    border-color:rgba(37,99,235,.54)!important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#DBEAFE 48%,#BFDBFE 100%)!important;
+    color:#1D4ED8!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 16px 30px rgba(37,99,235,.18)!important;
+}
+html body .SgceModuleWrap .SgceConductaModalBtn.is-registered .SgceConductaBtnIcon{
+    background:rgba(37,99,235,.12)!important;
+    color:#2563EB!important;
+}
+html body .SgceModuleWrap .SgceConductaAlumnoRow:has(.SgceConductaModalBtn.is-registered){
+    background:linear-gradient(90deg,rgba(37,99,235,.055),rgba(255,255,255,.96))!important;
+}
+html body .SgceModuleWrap .SgceConductaFilaEstado.text-success{
+    color:#1E40AF!important;
+}
+@media(max-width:768px){
+    html body .SgceModuleWrap .SgceConductaModalBtn,
+    html body .SgceModuleWrap .SgceConductaModalBtn.is-registered{
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+    }
+}
+
+
+/* SGCE 1.0.185 - Modal de conducta con color por accion: verde registrar, azul editar/ver. */
+html body .SgceConductaModalContent.is-create{
+    --SgceConductaActivo:#059669;
+    --SgceConductaActivoRGB:5,150,105;
+    --SgceConductaActivoOscuro:#065F46;
+    --SgceConductaActivoProfundo:#064E3B;
+    --SgceConductaActivoClaro:#10B981;
+    --SgceConductaActivoSuave:#ECFDF5;
+    --SgceConductaActivoLinea:#A7F3D0;
+    --SgceConductaActivoTexto:#065F46;
+}
+html body .SgceConductaModalContent.is-edit,
+html body .SgceConductaModalContent.is-readonly{
+    --SgceConductaActivo:#2563EB;
+    --SgceConductaActivoRGB:37,99,235;
+    --SgceConductaActivoOscuro:#1E40AF;
+    --SgceConductaActivoProfundo:#1E3A8A;
+    --SgceConductaActivoClaro:#38BDF8;
+    --SgceConductaActivoSuave:#EFF6FF;
+    --SgceConductaActivoLinea:#BFDBFE;
+    --SgceConductaActivoTexto:#1E3A8A;
+}
+html body .SgceConductaModalContent.is-create .modal-header,
+html body .SgceConductaModalContent.is-edit .modal-header,
+html body .SgceConductaModalContent.is-readonly .modal-header{
+    background:radial-gradient(circle at top right,rgba(255,255,255,.24),transparent 32%),linear-gradient(135deg,var(--SgceConductaActivoProfundo) 0%,var(--SgceConductaActivoOscuro) 48%,var(--SgceConductaActivo) 100%)!important;
+}
+html body .SgceConductaModalContent.is-create .modal-body,
+html body .SgceConductaModalContent.is-edit .modal-body,
+html body .SgceConductaModalContent.is-readonly .modal-body{
+    background:linear-gradient(180deg,#FFFFFF 0%,var(--SgceConductaActivoSuave) 165%)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaModalNotice,
+html body .SgceConductaModalContent.is-edit .SgceConductaModalNotice,
+html body .SgceConductaModalContent.is-readonly .SgceConductaModalNotice{
+    background:linear-gradient(135deg,#FFFFFF 0%,var(--SgceConductaActivoSuave) 100%)!important;
+    border-color:rgba(var(--SgceConductaActivoRGB),.20)!important;
+    color:var(--SgceConductaActivoTexto)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaModalNotice i,
+html body .SgceConductaModalContent.is-edit .SgceConductaModalNotice i,
+html body .SgceConductaModalContent.is-readonly .SgceConductaModalNotice i{
+    color:var(--SgceConductaActivo)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaModalIcon,
+html body .SgceConductaModalContent.is-edit .SgceConductaModalIcon,
+html body .SgceConductaModalContent.is-readonly .SgceConductaModalIcon{
+    background:rgba(255,255,255,.18)!important;
+    border-color:rgba(255,255,255,.30)!important;
+}
+html body .SgceConductaModalContent.is-create .form-control:focus,
+html body .SgceConductaModalContent.is-create .form-select:focus,
+html body .SgceConductaModalContent.is-edit .form-control:focus,
+html body .SgceConductaModalContent.is-edit .form-select:focus,
+html body .SgceConductaModalContent.is-readonly .form-control:focus,
+html body .SgceConductaModalContent.is-readonly .form-select:focus{
+    border-color:rgba(var(--SgceConductaActivoRGB),.58)!important;
+    box-shadow:0 0 0 .2rem rgba(var(--SgceConductaActivoRGB),.12),0 10px 20px rgba(15,23,42,.05)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn{
+    background:linear-gradient(135deg,var(--SgceConductaActivoProfundo) 0%,var(--SgceConductaActivoOscuro) 48%,var(--SgceConductaActivo) 100%)!important;
+    color:#FFFFFF!important;
+    box-shadow:0 14px 30px rgba(var(--SgceConductaActivoRGB),.30)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn:hover,
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn:focus-visible,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn:hover,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn:focus-visible{
+    color:#FFFFFF!important;
+    filter:saturate(1.07) brightness(1.03);
+    box-shadow:0 18px 34px rgba(var(--SgceConductaActivoRGB),.36)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaCancelBtn:hover,
+html body .SgceConductaModalContent.is-edit .SgceConductaCancelBtn:hover,
+html body .SgceConductaModalContent.is-readonly .SgceConductaCancelBtn:hover{
+    color:var(--SgceConductaActivoOscuro)!important;
+    border-color:rgba(var(--SgceConductaActivoRGB),.38)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaPadreBox{
+    background:linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)!important;
+    border-color:rgba(5,150,105,.24)!important;
+}
+html body .SgceConductaModalContent.is-edit .SgceConductaPadreBox,
+html body .SgceConductaModalContent.is-readonly .SgceConductaPadreBox{
+    background:linear-gradient(135deg,#FFFFFF 0%,#EFF6FF 100%)!important;
+    border-color:rgba(37,99,235,.24)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaPadreBox input{accent-color:#059669!important;}
+html body .SgceConductaModalContent.is-edit .SgceConductaPadreBox input,
+html body .SgceConductaModalContent.is-readonly .SgceConductaPadreBox input{accent-color:#2563EB!important;}
+
+/* SGCE 1.0.185 - Visibilidad para padres en rojo/verde segun seleccion. */
+html body .SgceConductaModalContent .SgceConductaPadreBox{
+    position:relative!important;
+    align-items:center!important;
+    background:linear-gradient(135deg,#FFFFFF 0%,#FFF1F2 100%)!important;
+    border:1.5px solid rgba(220,38,38,.34)!important;
+    color:#991B1B!important;
+    box-shadow:0 10px 22px rgba(220,38,38,.07)!important;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox:hover{
+    transform:translateY(-1px);
+    border-color:rgba(220,38,38,.48)!important;
+    box-shadow:0 14px 26px rgba(220,38,38,.10)!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox input{
+    width:18px!important;
+    height:18px!important;
+    min-height:18px!important;
+    margin-top:0!important;
+    accent-color:#16A34A!important;
+    flex:0 0 auto!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox .SgceConductaPadreIcon{
+    background:rgba(220,38,38,.12)!important;
+    color:#DC2626!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox .SgceConductaPadreText strong{
+    color:#991B1B!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox .SgceConductaPadreText small{
+    color:#7F1D1D!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox .SgceConductaPadreEstado{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:max-content!important;
+    margin-top:.35rem!important;
+    padding:.28rem .65rem!important;
+    border-radius:999px!important;
+    background:rgba(220,38,38,.12)!important;
+    color:#991B1B!important;
+    border:1px solid rgba(220,38,38,.20)!important;
+    font-size:.74rem!important;
+    font-weight:950!important;
+    letter-spacing:.02em!important;
+    text-transform:uppercase!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked){
+    background:linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)!important;
+    border-color:rgba(5,150,105,.36)!important;
+    color:#065F46!important;
+    box-shadow:0 10px 22px rgba(5,150,105,.08)!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible:hover,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked):hover{
+    border-color:rgba(5,150,105,.52)!important;
+    box-shadow:0 14px 26px rgba(5,150,105,.12)!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible .SgceConductaPadreIcon,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked) .SgceConductaPadreIcon{
+    background:rgba(5,150,105,.14)!important;
+    color:#047857!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible .SgceConductaPadreText strong,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked) .SgceConductaPadreText strong{
+    color:#065F46!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible .SgceConductaPadreText small,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked) .SgceConductaPadreText small{
+    color:#047857!important;
+}
+html body .SgceConductaModalContent .SgceConductaPadreBox.is-visible .SgceConductaPadreEstado,
+html body .SgceConductaModalContent .SgceConductaPadreBox:has(input:checked) .SgceConductaPadreEstado{
+    background:rgba(5,150,105,.13)!important;
+    color:#065F46!important;
+    border-color:rgba(5,150,105,.22)!important;
+}
+html body .SgceConductaModalContent.is-readonly .SgceConductaPadreBox{
+    transform:none!important;
+}
+@media(max-width:575.98px){
+    html body .SgceConductaModalContent .SgceConductaPadreBox{
+        gap:.7rem!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaPadreBox .SgceConductaPadreEstado{
+        width:100%!important;
+        margin-top:.45rem!important;
+    }
+}
+
+/* SGCE 1.0.185 - Modal de conducta compacta y degradado diagonal homologado. */
+html body .SgceConductaModalDialog{
+    max-width:640px!important;
+}
+html body .SgceConductaModalContent{
+    border-radius:24px!important;
+    box-shadow:0 26px 74px rgba(15,23,42,.28),0 0 0 1px rgba(255,255,255,.70)!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalHeader{
+    min-height:116px!important;
+    padding:1.05rem 1.2rem .95rem!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    overflow:hidden!important;
+    background:radial-gradient(circle at 12% 0%,rgba(255,255,255,.22),transparent 34%),linear-gradient(135deg,var(--SgceConductaActivoProfundo,var(--SgceConductaProfundo)) 0%,var(--SgceConductaActivoOscuro,var(--SgceConductaOscuro)) 52%,var(--SgceConductaActivo,var(--SgceConducta)) 100%)!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalHeader::before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    height:auto!important;
+    background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.08) 24%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.08) 74%,transparent 100%)!important;
+    opacity:.72!important;
+    pointer-events:none!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalHeader::after{
+    display:none!important;
+    content:none!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalTitleWrap{
+    width:100%!important;
+    max-width:520px!important;
+    margin:0 auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:.42rem!important;
+    min-width:0!important;
+    position:relative!important;
+    z-index:1!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalIcon{
+    width:56px!important;
+    height:56px!important;
+    min-width:56px!important;
+    border-radius:18px!important;
+    margin:0 auto!important;
+    font-size:1.34rem!important;
+    background:rgba(255,255,255,.17)!important;
+    border:1px solid rgba(255,255,255,.30)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 12px 24px rgba(0,0,0,.14)!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalTitleText{
+    width:100%!important;
+    min-width:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    gap:.18rem!important;
+}
+html body .SgceConductaModalContent .modal-title{
+    width:100%!important;
+    margin:0!important;
+    text-align:center!important;
+    text-transform:uppercase!important;
+    color:#FFFFFF!important;
+    font-size:1.06rem!important;
+    line-height:1.08!important;
+    font-weight:950!important;
+    letter-spacing:.04em!important;
+    text-shadow:0 1px 0 rgba(0,0,0,.10)!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalSubtitulo{
+    color:rgba(255,255,255,.86)!important;
+    font-size:.68rem!important;
+    line-height:1.05!important;
+    font-weight:900!important;
+    letter-spacing:.09em!important;
+    text-transform:uppercase!important;
+}
+html body .SgceConductaModalContent .SgceConductaAlumnoPill{
+    display:inline-flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:.04rem!important;
+    width:max-content!important;
+    max-width:min(100%,430px)!important;
+    margin:.18rem auto 0!important;
+    padding:.34rem .78rem!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.12)!important;
+    border:1px solid rgba(255,255,255,.22)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+html body .SgceConductaModalContent .SgceConductaAlumnoLabel{
+    display:block!important;
+    margin:0!important;
+    color:#FFFFFF!important;
+    text-align:center!important;
+    font-size:.72rem!important;
+    font-weight:950!important;
+    letter-spacing:.02em!important;
+    text-transform:uppercase!important;
+    line-height:1.1!important;
+}
+html body .SgceConductaModalContent .SgceConductaContextLabel{
+    display:block!important;
+    color:rgba(255,255,255,.82)!important;
+    text-align:center!important;
+    font-size:.70rem!important;
+    font-weight:800!important;
+    letter-spacing:.02em!important;
+    line-height:1.1!important;
+    text-transform:uppercase!important;
+}
+html body .SgceConductaModalContent .modal-body{
+    padding:1rem 1.12rem .95rem!important;
+}
+html body .SgceConductaModalContent .SgceConductaModalNotice,
+html body .SgceConductaModalContent .SgceConductaPadreBox{
+    border-radius:15px!important;
+    margin-bottom:.82rem!important;
+    padding:.68rem .82rem!important;
+}
+html body .SgceConductaModalContent .form-label{
+    margin-bottom:.30rem!important;
+    font-size:.78rem!important;
+}
+html body .SgceConductaModalContent .form-control,
+html body .SgceConductaModalContent .form-select{
+    min-height:38px!important;
+    border-radius:12px!important;
+    font-size:.88rem!important;
+}
+html body .SgceConductaModalContent textarea.form-control{
+    min-height:72px!important;
+}
+html body .SgceConductaModalContent .row.g-3{
+    --bs-gutter-y:.72rem!important;
+    --bs-gutter-x:.72rem!important;
+}
+html body .SgceConductaModalContent .modal-footer{
+    padding:.78rem 1.12rem!important;
+}
+html body .SgceConductaSaveBtn,
+html body .SgceConductaCancelBtn,
+html body .SgceConductaRemoveBtn{
+    min-height:40px!important;
+    border-radius:14px!important;
+    padding:.58rem .95rem!important;
+    font-size:.88rem!important;
+}
+@media(min-width:992px){
+    html body .SgceConductaModalDialog{
+        max-width:640px!important;
+    }
+}
+@media(max-width:768px){
+    html body .SgceConductaModalDialog{
+        max-width:94vw!important;
+        margin-left:auto!important;
+        margin-right:auto!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalHeader{
+        min-height:108px!important;
+        padding:.92rem .95rem .78rem!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalIcon{
+        width:48px!important;
+        height:48px!important;
+        min-width:48px!important;
+        border-radius:16px!important;
+        font-size:1.16rem!important;
+    }
+    html body .SgceConductaModalContent .modal-title{
+        font-size:.96rem!important;
+        letter-spacing:.032em!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalSubtitulo{
+        font-size:.62rem!important;
+        letter-spacing:.065em!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaAlumnoPill{
+        max-width:100%!important;
+        padding:.30rem .62rem!important;
+    }
+}
+@media(max-width:575.98px){
+    html body .SgceConductaModalDialog{
+        max-width:100%!important;
+        margin:0!important;
+    }
+    html body .SgceConductaModalContent{
+        border-radius:0!important;
+        min-height:100vh!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalHeader{
+        min-height:102px!important;
+        padding:.78rem .82rem .68rem!important;
+        position:sticky!important;
+        top:0!important;
+        z-index:3!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalTitleWrap{
+        gap:.34rem!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalIcon{
+        width:44px!important;
+        height:44px!important;
+        min-width:44px!important;
+        border-radius:15px!important;
+        font-size:1.04rem!important;
+    }
+    html body .SgceConductaModalContent .modal-title{
+        font-size:.88rem!important;
+        line-height:1.06!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaModalSubtitulo{
+        font-size:.58rem!important;
+        letter-spacing:.05em!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaAlumnoPill{
+        width:100%!important;
+        border-radius:14px!important;
+        padding:.28rem .52rem!important;
+    }
+    html body .SgceConductaModalContent .SgceConductaAlumnoLabel,
+    html body .SgceConductaModalContent .SgceConductaContextLabel{
+        font-size:.64rem!important;
+    }
+    html body .SgceConductaModalContent .modal-body{
+        padding:.82rem!important;
+    }
+    html body .SgceConductaModalContent textarea.form-control{
+        min-height:66px!important;
+    }
+}
+
+/* SGCE 1.0.185 - Textos de campos/select de conducta sin negrita pesada. */
+html body .SgceConductaModalContent .form-control,
+html body .SgceConductaModalContent .form-select{
+    font-weight:500!important;
+    text-transform:uppercase!important;
+    letter-spacing:.005em!important;
+}
+html body .SgceConductaModalContent textarea.form-control{
+    font-weight:500!important;
+}
+html body .SgceConductaModalContent .form-control::placeholder,
+html body .SgceConductaModalContent textarea.form-control::placeholder{
+    font-weight:500!important;
+    text-transform:uppercase!important;
+    color:#6B7280!important;
+    opacity:.78!important;
+}
+html body .SgceConductaModalContent .form-select option{
+    font-weight:500!important;
+    text-transform:uppercase!important;
+}
+
+/* SGCE 1.0.185 - Efecto metálico homologado en botones de modal de conducta. */
+html body .SgceConductaModalContent .SgceConductaSaveBtn,
+html body .SgceConductaModalContent .SgceConductaCancelBtn,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn{
+    position:relative!important;
+    overflow:hidden!important;
+    isolation:isolate!important;
+    box-shadow:0 14px 30px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.30)!important;
+    transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,background .18s ease,border-color .18s ease!important;
+}
+html body .SgceConductaModalContent .SgceConductaSaveBtn i,
+html body .SgceConductaModalContent .SgceConductaSaveBtn span,
+html body .SgceConductaModalContent .SgceConductaCancelBtn i,
+html body .SgceConductaModalContent .SgceConductaCancelBtn span,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn i,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn span{
+    position:relative!important;
+    z-index:3!important;
+}
+html body .SgceConductaModalContent .SgceConductaSaveBtn::before,
+html body .SgceConductaModalContent .SgceConductaCancelBtn::before,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn::before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    border-radius:inherit!important;
+    background:linear-gradient(135deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.14) 28%,rgba(255,255,255,0) 50%,rgba(255,255,255,.22) 74%,rgba(255,255,255,.10) 100%)!important;
+    opacity:.82!important;
+    pointer-events:none!important;
+    z-index:1!important;
+}
+html body .SgceConductaModalContent .SgceConductaSaveBtn::after,
+html body .SgceConductaModalContent .SgceConductaCancelBtn::after,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn::after{
+    content:""!important;
+    position:absolute!important;
+    top:-55%!important;
+    left:-85%!important;
+    width:56%!important;
+    height:210%!important;
+    border-radius:999px!important;
+    background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.10) 22%,rgba(255,255,255,.68) 50%,rgba(255,255,255,.12) 78%,transparent 100%)!important;
+    transform:rotate(18deg)!important;
+    transition:left .55s ease!important;
+    pointer-events:none!important;
+    z-index:2!important;
+}
+html body .SgceConductaModalContent .SgceConductaSaveBtn:hover::after,
+html body .SgceConductaModalContent .SgceConductaCancelBtn:hover::after,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:hover::after,
+html body .SgceConductaModalContent .SgceConductaSaveBtn:focus-visible::after,
+html body .SgceConductaModalContent .SgceConductaCancelBtn:focus-visible::after,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:focus-visible::after{
+    left:132%!important;
+}
+html body .SgceConductaModalContent .SgceConductaSaveBtn:hover,
+html body .SgceConductaModalContent .SgceConductaCancelBtn:hover,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:hover,
+html body .SgceConductaModalContent .SgceConductaSaveBtn:focus-visible,
+html body .SgceConductaModalContent .SgceConductaCancelBtn:focus-visible,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:focus-visible{
+    transform:translateY(-1px)!important;
+    filter:saturate(1.06) brightness(1.02)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn{
+    box-shadow:0 15px 32px rgba(var(--SgceConductaActivoRGB),.34),inset 0 1px 0 rgba(255,255,255,.32)!important;
+}
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn:hover,
+html body .SgceConductaModalContent.is-create .SgceConductaSaveBtn:focus-visible,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn:hover,
+html body .SgceConductaModalContent.is-edit .SgceConductaSaveBtn:focus-visible{
+    box-shadow:0 20px 38px rgba(var(--SgceConductaActivoRGB),.40),inset 0 1px 0 rgba(255,255,255,.36)!important;
+}
+html body .SgceConductaModalContent .SgceConductaCancelBtn{
+    background:linear-gradient(135deg,#FFFFFF 0%,#F8FAFC 56%,#E2E8F0 100%)!important;
+    box-shadow:0 10px 22px rgba(15,23,42,.08),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+html body .SgceConductaModalContent .SgceConductaCancelBtn:hover,
+html body .SgceConductaModalContent .SgceConductaCancelBtn:focus-visible{
+    box-shadow:0 14px 28px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html body .SgceConductaModalContent .SgceConductaRemoveBtn{
+    background:linear-gradient(135deg,#FFF1F2 0%,#FFE4E6 46%,#FECDD3 100%)!important;
+    box-shadow:0 12px 26px rgba(220,38,38,.13),inset 0 1px 0 rgba(255,255,255,.86)!important;
+}
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:hover,
+html body .SgceConductaModalContent .SgceConductaRemoveBtn:focus-visible{
+    box-shadow:0 16px 32px rgba(220,38,38,.18),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+@media(max-width:575.98px){
+    html body .SgceConductaModalContent .SgceConductaSaveBtn,
+    html body .SgceConductaModalContent .SgceConductaCancelBtn,
+    html body .SgceConductaModalContent .SgceConductaRemoveBtn{
+        box-shadow:0 10px 22px rgba(15,23,42,.12),inset 0 1px 0 rgba(255,255,255,.30)!important;
+    }
+}

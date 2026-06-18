@@ -86,7 +86,6 @@ function SgceLayoutAdminCssList(): array {
         'assets/css/components/pagination.css',
         'assets/css/components/filter-bars.css',
         'assets/css/components/searchable-selects.css',
-        'assets/css/components/admin-table-layout.css',
         'assets/css/modules/bitacora-layout.css',
         'assets/css/modules/config-users-layout.css',
         'assets/css/admin-paginacion-busqueda.css',
@@ -95,6 +94,7 @@ function SgceLayoutAdminCssList(): array {
         'assets/css/expedientes-botones-metalicos.css',
         'assets/css/dashboard-colores-suaves.css',
         'assets/css/modules/admin-motion.css',
+        'assets/css/components/admin-table-layout.css',
     ];
 }
 

@@ -1,29 +1,27 @@
-# Auditoría visual SGCE 1.0.140
+# Auditoría visual SGCE 1.0.185
 
-Checklist final para revisar antes de entregar.
+Validar escritorio, tablet y celular en módulos administrativos, docente, consulta pública, modales, tablas, reportes y formularios.
 
-| Módulo | Desktop | Tablet | Móvil | Botones | Filtros | Tablas | Paginador | Modal | Observaciones |
-|---|---|---|---|---|---|---|---|---|---|
-| Dashboard | [ ] | [ ] | [ ] | [ ] | N/A | N/A | N/A | N/A | |
-| Maestros | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Grupos | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Materias | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Alumnos | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Asignaciones | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Periodos | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Reportes | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | N/A | [ ] | |
-| Planeaciones | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Usuarios | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | |
-| Respaldos | [ ] | [ ] | [ ] | [ ] | N/A | [ ] | N/A | [ ] | |
-| Bitácora | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | N/A | |
-| Consulta pública | [ ] | [ ] | [ ] | [ ] | [ ] | N/A | N/A | N/A | |
-| Asistencia docente | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | N/A | N/A | |
-| Calificaciones docente | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | N/A | N/A | |
+## Checklist visual principal
 
-## Criterios de aceptación
+- Dashboard
+- Maestros
+- Grupos
+- Materias
+- Alumnos
+- Asignaciones
+- Periodos
+- Reportes
+- Usuarios
+- Respaldos
+- Bitácora
+- Consulta pública
 
-- No hay scroll horizontal en celular.
-- No hay botones miniatura.
-- Los botones de regresar en consultas públicas quedan debajo del texto.
-- Los paginadores permiten primera, anterior, número, siguiente y última.
-- Las páginas protegidas se capturan con sesión real cuando se proporcionan credenciales o token.
+## Criterios
+
+- Sin scroll horizontal inesperado.
+- Tablas legibles y encabezados alineados.
+- Botones táctiles en celular.
+- Modales sin recortes.
+- Selects buscables visibles sobre tarjetas y botones.
+- Línea superior guinda limpia en contenedores institucionales.

@@ -80,3 +80,20 @@ html body .SgcePeriodosWrap .SgcePeriodAutoHint {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* SGCE 1.0.185 - Periodos: encabezados de columnas centrados.
+   Alcance limitado a Ciclos escolares y periodos para no mover títulos de tarjetas. */
+html body .SgcePeriodosWrap .SgcePeriodTableBox table.SgcePeriodTable thead th,
+html body .SgcePeriodosWrap table.SgcePeriodTable thead th,
+html body .SgcePeriodosWrap .SgcePeriodTable thead th,
+html body .SgcePeriodosWrap .table-responsive .SgcePeriodTable thead th {
+    text-align: center !important;
+    vertical-align: middle !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+}
+
+html body .SgcePeriodosWrap .SgcePeriodTable thead th:first-child,
+html body .SgcePeriodosWrap .SgcePeriodTable thead th:last-child {
+    text-align: center !important;
+}

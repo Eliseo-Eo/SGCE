@@ -43,6 +43,8 @@ $TotalMaestrosActivos = 0;
 $TotalGruposActivos = 0;
 $AsistenciasHoy = 0;
 $FaltasHoy = 0;
+$ConductaHoy = 0;
+$ConductaPendientesHoy = 0;
 $PromedioGeneral = '0.0';
 $AlumnosRiesgo = [];
 $BitacoraReciente = [];
@@ -118,6 +120,9 @@ if ($TabActual === 'inicio') {
     $ResumenAsistenciaHoy = SgceAsistenciaResumenHoy($Pdo);
     $AsistenciasHoy = $ResumenAsistenciaHoy['Total'];
     $FaltasHoy = $ResumenAsistenciaHoy['Faltas'];
+    $ResumenConductaHoy = SgceConductaResumenHoy($Pdo, $CicloActivoId);
+    $ConductaHoy = $ResumenConductaHoy['Total'];
+    $ConductaPendientesHoy = $ResumenConductaHoy['Pendientes'];
     $PromedioGeneral = SgceCalificacionPromedioGeneralCiclo($Pdo, $CicloActivoId);
     $AlumnosRiesgo = SgceReporteAlumnosRiesgo($Pdo, $CicloActivoId, $CicloFechaInicio, $CicloFechaFin, 10);
 }

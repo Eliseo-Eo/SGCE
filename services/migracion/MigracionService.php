@@ -1,7 +1,7 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-// Servicio de migración escolar blindada SGCE 1.0.140.
+// Servicio de migración escolar blindada SGCE 1.0.185.
 // Diagnóstico, respaldo restaurable desde UI, bloqueo, bitácora formal y validaciones previas.
 
 function SgceMigracionAsegurarTabla(PDO $Pdo): void {

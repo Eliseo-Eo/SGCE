@@ -8,8 +8,6 @@ $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession || $UserSession['Rol'] !== 'maestro') { header('Location: index.php'); exit; }
 
 $AsignacionId = (int)($_GET['AsignacionId'] ?? ($_POST['AsignacionId'] ?? 0));
-$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? ($_POST['PeriodoId'] ?? 0));
-$PeriodosDisponibles = SgcePeriodosDisponibles($Pdo);
 $ConfigCalificacion = SgceCalificacionConfig($Pdo);
 $TextoRangoCalificacion = SgceCalificacionTextoRango($Pdo);
 
@@ -17,7 +15,10 @@ $InfoClase = SgceCalificarObtenerAsignacionDocente($Pdo, $AsignacionId, (int)$Us
 if (!$InfoClase) { SgceSalirConError('Acceso denegado o grupo no encontrado en el ciclo activo.', 404); }
 
 $CicloClaseId = (int)$InfoClase['CicloId'];
-$PeriodoInfoCalificar = SgcePeriodoInfo($Pdo, $PeriodoId);
+$OfertaClaseId = (int)($InfoClase['OfertaId'] ?? 0);
+$PeriodoId = SgcePeriodoActualId($Pdo, $_GET['PeriodoId'] ?? ($_POST['PeriodoId'] ?? 0), $OfertaClaseId);
+$PeriodosDisponibles = SgcePeriodosDisponibles($Pdo, $OfertaClaseId);
+$PeriodoInfoCalificar = SgcePeriodoInfo($Pdo, $PeriodoId, $OfertaClaseId);
 if (!$PeriodoInfoCalificar || (int)$PeriodoInfoCalificar['CicloId'] !== $CicloClaseId) { SgceSalirConError('El periodo seleccionado no pertenece al ciclo activo de esta asignación.', 400); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['GuardarNotes'])) {

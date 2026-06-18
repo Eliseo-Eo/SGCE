@@ -2,7 +2,7 @@
 if (php_sapi_name() !== 'cli') { http_response_code(403); exit('CLI only'); }
 $Root = dirname(__DIR__);
 $Project = dirname($Root);
-$Version = '1.0.140';
+$Version = '1.0.185';
 $Errores = [];
 $Extensiones = ['php','css','js','md','txt','sql','sh','html'];
 $Iterador = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($Project, FilesystemIterator::SKIP_DOTS));
@@ -13,7 +13,7 @@ foreach ($Iterador as $Archivo) {
     $Rel = str_replace($Project . DIRECTORY_SEPARATOR, '', $Archivo->getPathname());
     if (str_contains($Rel, 'RunFinalVersionTraceChecks.php')) { continue; }
     $Contenido = file_get_contents($Archivo->getPathname());
-    $PatronViejo = '/' . '1\\.0\\.(?:13[0-9]|12[0-9]|11[0-9])' . '|' . '136' . 'e' . '|' . '138' . 'c' . '|' . '138' . 'b' . '/';
+    $PatronViejo = '/' . '1\\.0\\.(?:14[01]|13[0-9]|12[0-9]|11[0-9])' . '|' . '136' . 'e' . '|' . '138' . 'c' . '|' . '138' . 'b' . '/';
     if (preg_match($PatronViejo, $Contenido, $M)) {
         $Errores[] = 'Rastro de versión previa ' . $M[0] . ' en ' . $Rel;
     }

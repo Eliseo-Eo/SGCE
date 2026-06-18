@@ -5,6 +5,7 @@
 <?= SgceLayoutHeadBase('SGCE | Avisos', $Pdo, [
     'assets/css/admin-paginacion-busqueda.css',
     'assets/css/avisos-botones-metalicos.css',
+    'assets/css/components/admin-table-layout.css',
 ]) ?>
 </head>
 <body class="AvisosBody">

@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Sistema único de botones */
+/* SGCE 1.0.185 - Sistema único de botones */
 .SgceBtn,.SgceUiBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:38px;padding:.55rem 1rem;border-radius:999px;border:1px solid rgba(15,23,42,.08);font-weight:500;text-decoration:none;line-height:1.15;overflow:hidden;transition:box-shadow var(--sgce-transition-normal),filter var(--sgce-transition-normal),border-color var(--sgce-transition-normal),background var(--sgce-transition-normal);}
 .SgceBtn:hover,.SgceUiBtn:hover{text-decoration:none;box-shadow:var(--sgce-shadow-hover);filter:saturate(1.03);}
 .SgceBtn::after,.SgceUiBtn::after{content:"";position:absolute;inset:-45% auto -45% -70%;width:40%;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);opacity:0;pointer-events:none;}

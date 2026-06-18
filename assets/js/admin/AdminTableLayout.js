@@ -1,7 +1,6 @@
 (function(){
     function AjustarContenedoresTablas(){
         var Config={
-            TableMaestros:{Height:452},
             TableGrupos:{Height:452},
             TableAlumnos:{Height:452},
             TableAsig:{Height:452},

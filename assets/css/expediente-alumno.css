@@ -71,3 +71,117 @@
         width:100%;
     }
 }
+
+
+/* SGCE 1.0.185 - Conducta en expediente */
+.MetricConducta .MetricIcon,.MetricConductaGrave .MetricIcon{background:rgba(151,5,30,.08)}.ExpedienteConductaPanel{grid-column:1/-1}.ExpedienteConductaPanel .badge{border-radius:999px;padding:.45rem .65rem}
+
+/* SGCE 1.0.185 - Contadores del expediente en una sola fila */
+@media (min-width: 1201px){
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricGrid{
+        grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+        gap:10px !important;
+        margin-bottom:16px !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard{
+        min-height:88px !important;
+        padding:10px 8px !important;
+        border-radius:18px !important;
+        gap:3px !important;
+        box-shadow:0 9px 22px rgba(15,23,42,.052) !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard .MetricIcon{
+        width:30px !important;
+        height:30px !important;
+        min-width:30px !important;
+        border-radius:11px !important;
+        font-size:.9rem !important;
+        margin-bottom:1px !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard small{
+        font-size:.61rem !important;
+        line-height:1.05 !important;
+        letter-spacing:.12px !important;
+        max-width:100% !important;
+        white-space:normal !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard strong{
+        font-size:1.38rem !important;
+        line-height:.98 !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px){
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricGrid{
+        grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+        gap:11px !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard{
+        min-height:96px !important;
+        padding:12px 10px !important;
+        border-radius:19px !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard .MetricIcon{
+        width:32px !important;
+        height:32px !important;
+        min-width:32px !important;
+        border-radius:12px !important;
+        font-size:.96rem !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard small{
+        font-size:.66rem !important;
+        line-height:1.08 !important;
+    }
+
+    body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard strong{
+        font-size:1.5rem !important;
+    }
+}
+
+/* SGCE 1.0.185 - Expediente con texto de tablas sin negrita pesada */
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable tbody td{
+    font-weight:500 !important;
+    letter-spacing:.01em !important;
+}
+
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable tbody td strong,
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable tbody td b{
+    font-weight:500 !important;
+}
+
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable tbody td small,
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteFootnote{
+    font-weight:500 !important;
+}
+
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteEmptyState,
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteEmptyState span{
+    font-weight:500 !important;
+}
+
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteGradeBadge,
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteEstadoBadge,
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteConductaPanel .badge{
+    font-weight:700 !important;
+}
+
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteMetricCard small{
+    font-weight:700 !important;
+}
+
+
+/* SGCE 1.0.185 - Expediente: encabezados de columnas centrados. */
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable thead th{
+    text-align:center!important;
+    vertical-align:middle!important;
+}
+body.ExpedienteAlumnoBody .ExpedienteAlumnoPage .ExpedienteAlumnoTable tbody td{
+    vertical-align:middle!important;
+}

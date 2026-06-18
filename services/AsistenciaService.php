@@ -41,6 +41,13 @@ function SgceAsistenciaObtenerAsignacionActiva(PDO $Pdo, int $AsignacionId): ?ar
         : null;
 }
 
+
+function SgceAsistenciaObtenerAsignacionContexto(PDO $Pdo, int $AsignacionId): ?array {
+    return function_exists('SgceAsistenciaRepoObtenerAsignacionContexto')
+        ? SgceAsistenciaRepoObtenerAsignacionContexto($Pdo, $AsignacionId)
+        : null;
+}
+
 function SgceAsistenciaObtenerAlumnos(PDO $Pdo, int $GrupoId, int $CicloId): array {
     return function_exists('SgceAsistenciaRepoObtenerAlumnos')
         ? SgceAsistenciaRepoObtenerAlumnos($Pdo, $GrupoId, $CicloId)

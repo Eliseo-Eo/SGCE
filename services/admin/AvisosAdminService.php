@@ -157,7 +157,7 @@ function SgceAvisosAdminPreparar(PDO $Pdo, array $UserSession): array {
 
 
     $PaginaAvisos = SgcePaginaActual('PagAvisos', 1);
-    $PorPaginaAvisos = 7;
+    $PorPaginaAvisos = 8;
     [$OffsetAvisos, $LimitAvisos] = SgceLimitOffset($PaginaAvisos, $PorPaginaAvisos);
 
     $TotalAvisos = (int)$Pdo->query("SELECT COUNT(*) FROM Avisos")->fetchColumn();

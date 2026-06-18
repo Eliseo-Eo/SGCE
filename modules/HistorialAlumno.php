@@ -92,6 +92,9 @@ $StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.F
 $StmtAsistencias->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Asistencias = $StmtAsistencias->fetchAll();
 
+$ResumenConductaAlumno = SgceConductaResumenAlumno($Pdo, $AlumnoId, $CicloConsultaId);
+$ConductaHistorial = SgceConductaHistorialAlumno($Pdo, $AlumnoId, $CicloConsultaId, 80, false);
+
 function TextoEstado($Estado) {
     switch ($Estado) {
         case 'A': return 'ASISTENCIA';
@@ -128,6 +131,10 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
             <a href="ExportarHistorialAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnExpedientePdf">
                 <i class="fa-solid fa-scroll"></i>
                 <span>Historial PDF</span>
+            </a>
+            <a href="ExportarConductaAlumno.php?AlumnoId=<?= (int)$AlumnoId ?>&CicloId=<?= (int)$CicloConsultaId ?>" target="_blank" rel="noopener noreferrer" class="BtnBack BtnExpedientePdf">
+                <i class="fa-solid fa-compass"></i>
+                <span>Conducta PDF</span>
             </a>
             <a href="Admin.php?Tab=inicio" class="SgceBtnVolverInicio" title="Volver al inicio" aria-label="Volver al inicio"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a>
         </div>
@@ -176,6 +183,16 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
             <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">📄</span></span>
             <small>Justificantes</small>
             <strong><?= $Conteos['J'] ?></strong>
+        </article>
+        <article class="ExpedienteMetricCard MetricConducta">
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">🧭</span></span>
+            <small>Reportes conducta</small>
+            <strong><?= (int)$ResumenConductaAlumno['Total'] ?></strong>
+        </article>
+        <article class="ExpedienteMetricCard MetricConductaGrave">
+            <span class="MetricIcon"><span class="SgceColorIcon" aria-hidden="true">🚨</span></span>
+            <small>Reportes graves</small>
+            <strong><?= (int)$ResumenConductaAlumno['Graves'] ?></strong>
         </article>
     </section>
 
@@ -263,6 +280,51 @@ RegistrarBitacora($Pdo, $UserSession, 'CONSULTAR_EXPEDIENTE', 'Alumnos', $Alumno
                 </table>
             </div>
             <p class="ExpedienteFootnote">Se muestran registros recientes del ciclo escolar seleccionado.</p>
+        </article>
+
+        <article class="Card ExpedienteAlumnoPanel ExpedienteConductaPanel">
+            <div class="ExpedientePanelHeader">
+                <div>
+                    <span class="PanelKicker"><i class="fa-solid fa-compass"></i> Conducta</span>
+                    <h3>Conducta y disciplina</h3>
+                </div>
+                <span class="PanelCount"><?= count($ConductaHistorial) ?> reportes</span>
+            </div>
+            <div class="table-responsive ExpedienteTableWrap">
+                <table class="table align-middle ExpedienteAlumnoTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Materia/Área</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($ConductaHistorial as $R): ?>
+                            <tr>
+                                <td><?= H($R['FechaTexto']) ?></td>
+                                <td><span class="badge bg-<?= H(SgceConductaClaseSeveridad((string)$R['Severidad'])) ?>"><?= H(SgceConductaTextoTipo((string)$R['Tipo'])) ?></span></td>
+                                <td><?= H($R['MateriaNombre'] ?: $R['Origen']) ?></td>
+                                <td><strong><?= H($R['MotivoCorto']) ?></strong><br><small class="text-muted"><?= H($R['AccionTomada'] ?? '') ?></small></td>
+                                <td><span class="badge bg-<?= H(SgceConductaClaseEstado((string)$R['Estado'])) ?>"><?= H(SgceConductaTextoEstado((string)$R['Estado'])) ?></span></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if(empty($ConductaHistorial)): ?>
+                            <tr>
+                                <td colspan="5">
+                                    <div class="ExpedienteEmptyState">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        <span>Sin reportes de conducta en el ciclo seleccionado.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            <p class="ExpedienteFootnote">Los reportes internos pueden requerir revisión antes de mostrarse al padre o tutor.</p>
         </article>
     </section>
 </div>

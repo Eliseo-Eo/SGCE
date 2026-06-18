@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Layout móvil de módulos especiales.
+/* SGCE 1.0.185 - Layout móvil de módulos especiales.
    Esta capa solo acomoda contenedores, tarjetas, filtros y columnas. Los botones móviles se centralizan en components/mobile-buttons.css. */
 
 @media (max-width: 768px) {

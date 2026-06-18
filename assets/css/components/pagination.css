@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Pagination */
+/* SGCE 1.0.185 - Pagination */
 .SgceClientPager,
 .SgcePartialPager,
 .SgcePagerServer{
@@ -206,7 +206,7 @@ html body .SgceModuleWrap .SgcePartialPager .page-item.disabled .page-link{
     transform:none!important;
 }
 
-/* SGCE 1.0.140 - Paginador servidor homologado con primera/anterior/siguiente/última. */
+/* SGCE 1.0.185 - Paginador servidor homologado con primera/anterior/siguiente/última. */
 .SgcePagerServer .SgcePagerDots .page-link,
 .SgceClientPager .SgcePagerDots .page-link,
 .SgcePartialPager .SgcePagerDots .page-link{

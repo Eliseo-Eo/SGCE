@@ -1,4 +1,4 @@
-/* SGCE 1.0.140 - Puente documentado de paginación y búsqueda.
+/* SGCE 1.0.185 - Puente documentado de paginación y búsqueda.
    El CSS real vive en assets/css/components/ y assets/css/modules/.
    Se conserva para módulos que aún cargan el nombre histórico. */
 @import url('components/pagination.css');

@@ -57,8 +57,8 @@ foreach (['Produccion', 'Desarrollo'] as $RaizNombre) {
 }
 
 if ($Errores) {
-    echo "SGCE MOBILE VISUAL 1.0.140 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n";
+    echo "SGCE MOBILE VISUAL 1.0.185 CHECKS: ERROR\n" . implode("\n", $Errores) . "\n";
     exit(1);
 }
 
-echo "SGCE MOBILE VISUAL 1.0.140 CHECKS: OK\nRevisiones ejecutadas: $Revisiones\n";
+echo "SGCE MOBILE VISUAL 1.0.185 CHECKS: OK\nRevisiones ejecutadas: $Revisiones\n";
