@@ -84,7 +84,7 @@ if ($UsaKardex) {
         ORDER BY Cc.FechaInicio ASC, CAST(G.Grado AS UNSIGNED), G.Grupo, Asg.MateriaNombre");
     $Stmt->execute([$AlumnoId]);
     foreach ($Stmt->fetchAll() as $R) {
-        if ($R['Promedio'] !== null) { $Suma += (float)$R['Promedio']; $Cuenta++; }
+        if ($R['Promedio'] !== null) { $PromediosHistoricos[] = $R['Promedio']; }
         $FilasPdf[] = [
             (string)$R['CicloNombre'],
             trim($R['Grado'].' '.$R['Grupo'].' '.$R['Turno']),
@@ -95,7 +95,7 @@ if ($UsaKardex) {
     }
 }
 
-$Promedio = $Cuenta > 0 ? number_format($Suma / $Cuenta, 2) : '-';
+$Promedio = SgceFormatoPromedioAcademico(SgcePromedioAcademico($PromediosHistoricos, 2), 2, '-');
 $Fuente = $UsaKardex ? 'KARDEX CONGELADO' : 'CÁLCULO DINÁMICO';
 $Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Promedio general histórico: ' . $Promedio . ' | Fuente: ' . $Fuente;
 RegistrarBitacora($Pdo, $UserSession, 'EXPORTAR_HISTORIAL_ALUMNO', 'Alumnos', $AlumnoId, 'HISTORIAL ACADÉMICO COMPLETO GENERADO');

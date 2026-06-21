@@ -11,25 +11,38 @@ function SgceNormalizarCicloActivoUnico(PDO $Pdo): void {
 
     $IdActivo = (int)$Ids[0];
     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 0 WHERE Activo = 1 AND Id <> ?')->execute([$IdActivo]);
+    $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
 }
 
 function SgceDbTablaExiste(PDO $Pdo, string $Tabla): bool {
+    static $Cache = [];
+    $Tabla = preg_replace('/[^A-Za-z0-9_]/', '', (string)$Tabla);
+    if ($Tabla === '') { return false; }
+    if (array_key_exists($Tabla, $Cache)) { return $Cache[$Tabla]; }
     try {
         $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?');
         $Stmt->execute([$Tabla]);
-        return (int)$Stmt->fetchColumn() > 0;
+        $Cache[$Tabla] = (int)$Stmt->fetchColumn() > 0;
     } catch (Exception $E) {
-        return false;
+        $Cache[$Tabla] = false;
     }
+    return $Cache[$Tabla];
 }
 
 function SgceDbColumnaExiste(PDO $Pdo, string $Tabla, string $Columna): bool {
+    static $Cache = [];
+    $Tabla = preg_replace('/[^A-Za-z0-9_]/', '', (string)$Tabla);
+    $Columna = preg_replace('/[^A-Za-z0-9_]/', '', (string)$Columna);
+    if ($Tabla === '' || $Columna === '') { return false; }
+    $Key = $Tabla . '.' . $Columna;
+    if (array_key_exists($Key, $Cache)) { return $Cache[$Key]; }
     try {
         $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
         $Stmt->execute([$Tabla, $Columna]);
-        return (int)$Stmt->fetchColumn() > 0;
+        $Cache[$Key] = (int)$Stmt->fetchColumn() > 0;
     } catch (Exception $E) {
-        return false;
+        $Cache[$Key] = false;
     }
+    return $Cache[$Key];
 }
 

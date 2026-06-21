@@ -58,7 +58,7 @@ function RedirectRestaurar($Mensaje, $Tipo = 'success') {
 function QTablaRest($Tabla) { return '`' . str_replace('`','``',$Tabla) . '`'; }
 
 function TablasSistemaRest($Pdo) {
-    $Preferidas = ['IntentosSeguridad','MigracionesCiclo','BitacoraMovimientos','Planeaciones','Avisos','Asistencias','Calificaciones','KardexDetalle','KardexAlumno','AsignacionDocenteHistorial','PeriodosEvaluacion','Asignaciones','MateriasGrupo','AlumnoInscripciones','Alumnos','Grupos','EtapasAcademicas','ProgramasEducativos','ConfiguracionesAcademicas','OfertasEducativas','MateriasCatalogo','CiclosEscolares','Usuarios','ConfiguracionSistema'];
+    $Preferidas = ['IntentosSeguridad','MigracionesCiclo','BitacoraMovimientosArchivo','BitacoraMovimientos','Planeaciones','Avisos','AsistenciasArchivo','Asistencias','Calificaciones','ConductaRegistros','KardexDetalle','KardexAlumno','AsignacionDocenteHistorial','PeriodosEvaluacion','Asignaciones','MateriasGrupo','AlumnoInscripciones','Alumnos','Grupos','EtapasAcademicas','ProgramasEducativos','ConfiguracionesAcademicas','OfertasEducativas','MateriasCatalogo','CiclosEscolares','Usuarios','ConfiguracionSistema'];
     $Existentes = array_map(function($R){ return $R[0]; }, $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM));
     $Tablas = [];
     foreach ($Preferidas as $Tabla) {
@@ -101,57 +101,12 @@ function GarantizarSesionDespuesRestaurar($Pdo, $UserSession) {
     }
 }
 
-function PartirSqlRest($Sql) {
-    $Sentencias = [];
-    $Actual = '';
-    $Len = strlen($Sql);
-    $Comilla = null;
-    $Escape = false;
-    for ($I = 0; $I < $Len; $I++) {
-        $Ch = $Sql[$I];
-        $Next = ($I + 1 < $Len) ? $Sql[$I + 1] : '';
-
-        if ($Comilla === null && $Ch === '-' && $Next === '-') {
-            while ($I < $Len && $Sql[$I] !== "\n") { $I++; }
-            continue;
-        }
-        if ($Comilla === null && $Ch === '#') {
-            while ($I < $Len && $Sql[$I] !== "\n") { $I++; }
-            continue;
-        }
-        if ($Comilla === null && $Ch === '/' && $Next === '*') {
-            $I += 2;
-            while ($I + 1 < $Len && !($Sql[$I] === '*' && $Sql[$I + 1] === '/')) { $I++; }
-            $I++;
-            continue;
-        }
-
-        if ($Comilla !== null) {
-            $Actual .= $Ch;
-            if ($Escape) { $Escape = false; continue; }
-            if ($Ch === '\\') { $Escape = true; continue; }
-            if ($Ch === $Comilla) { $Comilla = null; }
-            continue;
-        }
-
-        if ($Ch === "'" || $Ch === '"' || $Ch === '`') {
-            $Comilla = $Ch;
-            $Actual .= $Ch;
-            continue;
-        }
-
-        if ($Ch === ';') {
-            $Stmt = trim($Actual);
-            if ($Stmt !== '') { $Sentencias[] = $Stmt; }
-            $Actual = '';
-            continue;
-        }
-
-        $Actual .= $Ch;
+function SgceRestLeerSqlSinFirma($Handle): string {
+    $PrimeraLinea = fgets($Handle);
+    if (!is_string($PrimeraLinea) || !preg_match('/^-- SGCE_HMAC=[a-f0-9]{64}\R?$/i', $PrimeraLinea)) {
+        throw new Exception('El archivo no tiene encabezado de firma SGCE válido.');
     }
-    $Stmt = trim($Actual);
-    if ($Stmt !== '') { $Sentencias[] = $Stmt; }
-    return $Sentencias;
+    return '';
 }
 
 function SentenciaSetPermitidaRest($Sql): bool {
@@ -165,24 +120,132 @@ function SentenciaPermitidaRest($Sql) {
     $Limpia = ltrim($Sql);
     if (preg_match('/^SET\s+/i', $Limpia)) { return SentenciaSetPermitidaRest($Limpia); }
     if (preg_match('/^(INSERT|REPLACE)\s+INTO\s+`?([A-Za-z0-9_]+)`?/i', $Limpia, $M)) {
-        $TablasPermitidas = ['ConfiguracionSistema','Usuarios','CiclosEscolares','OfertasEducativas','ConfiguracionesAcademicas','ProgramasEducativos','EtapasAcademicas','Grupos','Alumnos','AlumnoInscripciones','MateriasCatalogo','MateriasGrupo','Asignaciones','AsignacionDocenteHistorial','PeriodosEvaluacion','MigracionesCiclo','Calificaciones','Asistencias','KardexAlumno','KardexDetalle','Avisos','Planeaciones','BitacoraMovimientos','IntentosSeguridad'];
+        $TablasPermitidas = ['ConfiguracionSistema','Usuarios','CiclosEscolares','OfertasEducativas','ConfiguracionesAcademicas','ProgramasEducativos','EtapasAcademicas','Grupos','Alumnos','AlumnoInscripciones','MateriasCatalogo','MateriasGrupo','Asignaciones','AsignacionDocenteHistorial','PeriodosEvaluacion','MigracionesCiclo','Calificaciones','Asistencias','AsistenciasArchivo','ConductaRegistros','KardexAlumno','KardexDetalle','Avisos','Planeaciones','BitacoraMovimientos','BitacoraMovimientosArchivo','IntentosSeguridad'];
         return in_array($M[2], $TablasPermitidas, true);
     }
     return false;
 }
 
-function ImportarSqlRest($Pdo, $Sql) {
-    $Sentencias = PartirSqlRest($Sql);
+function SgceRestAgregarChunkAParser(string $Chunk, array &$Estado, callable $AlCompletarSentencia): void {
+    $Len = strlen($Chunk);
+    for ($I = 0; $I < $Len; $I++) {
+        $Ch = $Chunk[$I];
+        $Next = ($I + 1 < $Len) ? $Chunk[$I + 1] : '';
+
+        if ($Estado['Comilla'] === null && $Ch === '-' && $Next === '-') {
+            while ($I < $Len && $Chunk[$I] !== "\n") { $I++; }
+            continue;
+        }
+        if ($Estado['Comilla'] === null && $Ch === '#') {
+            while ($I < $Len && $Chunk[$I] !== "\n") { $I++; }
+            continue;
+        }
+        if ($Estado['Comilla'] === null && $Ch === '/' && $Next === '*') {
+            $I += 2;
+            while ($I + 1 < $Len && !($Chunk[$I] === '*' && $Chunk[$I + 1] === '/')) { $I++; }
+            $I++;
+            continue;
+        }
+
+        if ($Estado['Comilla'] !== null) {
+            $Estado['Actual'] .= $Ch;
+            if (strlen($Estado['Actual']) > $Estado['MaxSentenciaBytes']) {
+                throw new Exception('Una sentencia SQL del respaldo supera el tamaño máximo permitido.');
+            }
+            if ($Estado['Escape']) { $Estado['Escape'] = false; continue; }
+            if ($Ch === '\\') { $Estado['Escape'] = true; continue; }
+            if ($Ch === $Estado['Comilla']) { $Estado['Comilla'] = null; }
+            continue;
+        }
+
+        if ($Ch === "'" || $Ch === '"' || $Ch === '`') {
+            $Estado['Comilla'] = $Ch;
+            $Estado['Actual'] .= $Ch;
+            continue;
+        }
+
+        if ($Ch === ';') {
+            $Sentencia = trim($Estado['Actual']);
+            $Estado['Actual'] = '';
+            if ($Sentencia !== '') { $AlCompletarSentencia($Sentencia); }
+            continue;
+        }
+
+        $Estado['Actual'] .= $Ch;
+        if (strlen($Estado['Actual']) > $Estado['MaxSentenciaBytes']) {
+            throw new Exception('Una sentencia SQL del respaldo supera el tamaño máximo permitido.');
+        }
+    }
+}
+
+function SgceRestValidarArchivoSqlSeguro(string $RutaArchivo, int $MaxSentencias = 250000): void {
+    if (!SgceFirmaArchivoRespaldoValida($RutaArchivo)) {
+        throw new Exception('El archivo no tiene una firma criptográfica SGCE válida para esta instalación.');
+    }
+
+    $Handle = fopen($RutaArchivo, 'rb');
+    if (!$Handle) { throw new Exception('No se pudo leer el respaldo SQL.'); }
+    SgceRestLeerSqlSinFirma($Handle);
+
+    $Estado = [
+        'Actual' => '',
+        'Comilla' => null,
+        'Escape' => false,
+        'MaxSentenciaBytes' => 4 * 1024 * 1024,
+    ];
+    $Contador = 0;
+    $Validador = static function (string $Sentencia) use (&$Contador, $MaxSentencias): void {
+        $Contador++;
+        if ($Contador > $MaxSentencias) { throw new Exception('El respaldo supera el límite seguro de sentencias.'); }
+        if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|DROP\s+TABLE|CREATE\s+TABLE|ALTER\s+TABLE|ALTER\s+DATABASE|GRANT\s+|REVOKE\s+|CREATE\s+USER|DROP\s+USER)\b/i', $Sentencia)) {
+            throw new Exception('El respaldo contiene instrucciones administrativas no permitidas.');
+        }
+        if (!SentenciaPermitidaRest($Sentencia)) {
+            throw new Exception('El archivo no parece ser un respaldo de SOLO DATOS generado por este sistema. Sentencia no permitida: ' . substr($Sentencia, 0, 60));
+        }
+    };
+
+    while (!feof($Handle)) {
+        $Chunk = fread($Handle, 1024 * 1024);
+        if ($Chunk === false) { fclose($Handle); throw new Exception('No se pudo leer el respaldo SQL.'); }
+        if ($Chunk !== '') { SgceRestAgregarChunkAParser($Chunk, $Estado, $Validador); }
+    }
+    fclose($Handle);
+    $Resto = trim($Estado['Actual']);
+    if ($Resto !== '') { $Validador($Resto); }
+}
+
+function ImportarSqlRestArchivo($Pdo, string $RutaArchivo): int {
+    $Handle = fopen($RutaArchivo, 'rb');
+    if (!$Handle) { throw new Exception('No se pudo abrir el respaldo SQL para importación.'); }
+    SgceRestLeerSqlSinFirma($Handle);
+
+    $Estado = [
+        'Actual' => '',
+        'Comilla' => null,
+        'Escape' => false,
+        'MaxSentenciaBytes' => 4 * 1024 * 1024,
+    ];
     $Ejecutadas = 0;
-    foreach ($Sentencias as $Sentencia) {
+    $Ejecutar = static function (string $Sentencia) use ($Pdo, &$Ejecutadas): void {
         if (!SentenciaPermitidaRest($Sentencia)) {
             throw new Exception('El archivo no parece ser un respaldo de SOLO DATOS generado por este sistema. Sentencia no permitida: ' . substr($Sentencia, 0, 60));
         }
         $Pdo->exec($Sentencia);
         $Ejecutadas++;
+    };
+
+    while (!feof($Handle)) {
+        $Chunk = fread($Handle, 1024 * 1024);
+        if ($Chunk === false) { fclose($Handle); throw new Exception('No se pudo leer el respaldo SQL durante la importación.'); }
+        if ($Chunk !== '') { SgceRestAgregarChunkAParser($Chunk, $Estado, $Ejecutar); }
     }
+    fclose($Handle);
+    $Resto = trim($Estado['Actual']);
+    if ($Resto !== '') { $Ejecutar($Resto); }
     return $Ejecutadas;
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     RequerirCsrfPost();
@@ -229,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (function_exists('finfo_open')) {
             $Finfo = finfo_open(FILEINFO_MIME_TYPE);
             $Mime = $Finfo ? (string)finfo_file($Finfo, $ArchivoSql['tmp_name']) : '';
-                $MimesSql = ['text/plain', 'text/x-sql', 'application/sql', 'application/octet-stream'];
+            $MimesSql = ['text/plain', 'text/x-sql', 'application/sql', 'application/octet-stream'];
             if ($Mime !== '' && !in_array($Mime, $MimesSql, true)) {
                 RedirectRestaurar('El archivo no parece ser un respaldo SQL válido.', 'danger');
             }
@@ -238,16 +301,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($Modo, ['fusionar','reemplazar_escolar','reemplazar_todo'], true)) {
             $Modo = 'fusionar';
         }
-        $Sql = file_get_contents($ArchivoSql['tmp_name']);
-        if ($Sql === false || trim($Sql) === '') {
-            RedirectRestaurar('No se pudo leer el archivo SQL.', 'danger');
-        }
-        $ValidacionSqlSegura = SgceValidarSqlRestauracionSegura($Sql);
-        if ($ValidacionSqlSegura !== true) {
-            RedirectRestaurar($ValidacionSqlSegura, 'danger');
-        }
-        if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|DROP\s+TABLE|CREATE\s+TABLE|ALTER\s+TABLE)\b/i', $Sql)) {
-            RedirectRestaurar('Este importador acepta únicamente respaldos de SOLO DATOS generados por “Exportar solo datos”. Si subiste un respaldo completo con estructura, usa install/SGCE.sql o el instalador de forma manual.', 'danger');
+        try {
+            SgceRestValidarArchivoSqlSeguro((string)$ArchivoSql['tmp_name']);
+        } catch (Exception $E) {
+            RedirectRestaurar($E->getMessage(), 'danger');
         }
 
         try {
@@ -260,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $Pdo->exec('SET FOREIGN_KEY_CHECKS=0');
-            $Ejecutadas = ImportarSqlRest($Pdo, $Sql);
+            $Ejecutadas = ImportarSqlRestArchivo($Pdo, (string)$ArchivoSql['tmp_name']);
             GarantizarSesionDespuesRestaurar($Pdo, $UserSession);
             $Pdo->exec('SET FOREIGN_KEY_CHECKS=1');
 
@@ -311,7 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="col-lg-6">
             <div class="Card SgceRestoreCard p-4 h-100">
-                <div class="SgceRestoreCardHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📥</span></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”.</p></div></div>
+                <div class="SgceRestoreCardHead"><div class="IconBox"><span class="SgceColorIcon" aria-hidden="true">📥</span></div><div><h4>Importar respaldo de datos</h4><p>Sube un .sql generado por “Exportar solo datos”. SGCE valida una firma criptográfica propia de esta instalación antes de importar.</p></div></div>
                 <form method="POST" enctype="multipart/form-data" data-sgce-confirm="import" data-sgce-confirm-title="CONFIRMAR IMPORTACIÓN" data-sgce-confirm-subtitle="IMPORTAR RESPALDO" data-sgce-confirm-message="¿REALMENTE DESEAS IMPORTAR ESTE RESPALDO?" data-sgce-confirm-detail="Esta acción puede fusionar, reemplazar datos escolares o reemplazar todo según el modo seleccionado. Revisa el archivo SQL y el modo antes de continuar." data-sgce-confirm-button="SÍ, IMPORTAR RESPALDO" data-sgce-confirm-loading="IMPORTANDO RESPALDO..." data-sgce-confirm-icon="fa-database">
                     <?= CampoCsrf() ?>
                     <div class="mb-3">

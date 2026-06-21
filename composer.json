@@ -1,0 +1,34 @@
+{
+  "name": "cheosoft/sgce",
+  "description": "SGCE - Sistema Gestor de Control Escolar. Hardening de producción, respaldos firmados y consistencia operativa.",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.1",
+    "ext-pdo": "*",
+    "ext-json": "*",
+    "ext-pdo_mysql": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sgce\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "allow-plugins": {}
+  },
+  "scripts": {
+    "sgce:autoload": "composer dump-autoload -o",
+    "sgce:version": "@php -r \"define('SGCE_APP', true); require 'app/bootstrap.php'; echo \\Sgce\\\\Foundation\\\\Version::label(), PHP_EOL;\""
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "suggest": {
+    "ext-zip": "Necesario para validar y leer archivos OOXML como XLSX, DOCX y PPTX.",
+    "ext-fileinfo": "Recomendado para validación MIME de archivos subidos.",
+    "ext-mbstring": "Recomendado para manejo robusto de texto UTF-8.",
+    "ext-openssl": "Recomendado para seguridad y generación de tokens."
+  }
+}

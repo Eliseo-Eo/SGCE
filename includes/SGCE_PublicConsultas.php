@@ -190,7 +190,7 @@ function SgcePublicoBuscarAlumno(PDO $Pdo, $NombreAlumno, $ProgramaId, $Grado, $
 
 function SgcePublicoNormalizarFecha($Valor, $Default = null) {
     $Valor = trim((string)$Valor);
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $Valor)) { return $Default ?: date('Y-m-d'); }
+    if (!SgceFechaYmdValida($Valor)) { return $Default ?: date('Y-m-d'); }
     $Dt = DateTime::createFromFormat('Y-m-d', $Valor);
     return $Dt && $Dt->format('Y-m-d') === $Valor ? $Valor : ($Default ?: date('Y-m-d'));
 }
@@ -388,19 +388,19 @@ function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
     }
 
     $Filas = [];
-    $SumaGeneral = 0.0;
+    $CalificacionesGenerales = [];
     $CuentaGeneral = 0;
     foreach ($Asignaciones as $A) {
         $Valores = [];
-        $SumaMateria = 0.0;
+        $CalificacionesMateria = [];
         $CuentaMateria = 0;
         foreach ($Periodos as $P) {
             $Valor = $Matriz[(int)$A['Id']][(int)$P['Id']] ?? null;
             $Valores[(int)$P['Id']] = $Valor;
             if ($Valor !== null && $Valor !== '') {
-                $SumaMateria += (float)$Valor;
+                $CalificacionesMateria[] = $Valor;
+                $CalificacionesGenerales[] = $Valor;
                 $CuentaMateria++;
-                $SumaGeneral += (float)$Valor;
                 $CuentaGeneral++;
             }
         }
@@ -409,7 +409,7 @@ function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
             'MateriaNombre' => $A['MateriaNombre'],
             'Maestro' => $A['Maestro'],
             'Valores' => $Valores,
-            'PromedioMateria' => $CuentaMateria > 0 ? round($SumaMateria / $CuentaMateria, 2) : null,
+            'PromedioMateria' => SgcePromedioAcademico($CalificacionesMateria, 2),
             'CapturadasMateria' => $CuentaMateria,
         ];
     }
@@ -418,7 +418,7 @@ function SgcePublicoCalificacionesCiclo(PDO $Pdo, $AlumnoId, $GrupoId) {
         'Ciclo' => $Ciclo,
         'Periodos' => $Periodos,
         'Filas' => $Filas,
-        'PromedioGeneral' => $CuentaGeneral > 0 ? round($SumaGeneral / $CuentaGeneral, 2) : null,
+        'PromedioGeneral' => SgcePromedioAcademico($CalificacionesGenerales, 2),
         'Capturadas' => $CuentaGeneral,
         'Materias' => count($Asignaciones),
     ];

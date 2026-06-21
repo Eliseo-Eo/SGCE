@@ -33,15 +33,14 @@ function SgceCalificacionesValidarPdfMasivo(int $Unidades, int $Limite = 5000): 
 }
 
 function SgceCalificacionesEmitirExcel($TituloArchivo) {
-    header('Content-Type: application/vnd.ms-excel; charset=utf-8');
-    header('Content-Disposition: attachment; filename=' . $TituloArchivo . '.xls');
+    SgceHeaderDescarga($TituloArchivo . '.xls', 'application/vnd.ms-excel; charset=utf-8');
     echo "\xEF\xBB\xBF";
 }
 
 $ConfigReporte = SgceObtenerConfiguracion($Pdo);
 $ColorReporte = SgceColorInstitucional($Pdo);
 function EstilosReporteCal($Landscape = false) { global $ColorReporte; ?>
-<style>
+<style nonce="<?= HExpCal(function_exists('SgceCspNonce') ? SgceCspNonce() : '') ?>">
 :root{--ReportColor:<?= HExpCal($ColorReporte ?? '#97051E') ?>;}
 @page{size:letter <?= $Landscape ? 'landscape' : '' ?>;margin:1.1cm}*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,'Segoe UI',sans-serif;color:#1f2937;font-size:12px}.ReportSheet{width:100%;max-width:<?= $Landscape ? '1180' : '950' ?>px;margin:22px auto;padding:24px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 18px 45px rgba(15,23,42,.10)}.Header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;border-bottom:4px solid var(--ReportColor);margin-bottom:16px;padding-bottom:12px}.Header h2{margin:0;color:var(--ReportColor);font-size:24px;font-weight:900}.SchoolName{margin:0 0 4px;color:#111827;font-size:13px;font-weight:900;text-transform:uppercase}.SchoolMeta{margin:0 0 5px;color:#6b7280;font-size:10.5px;font-weight:700;text-transform:uppercase}.Header p{margin:5px 0 0;color:#4b5563;font-weight:700}.HeaderTag{padding:7px 12px;border:1px solid #ead5da;background:#fff7f8;border-radius:999px;color:var(--ReportColor);font-weight:900;white-space:nowrap}.TablaWrap{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}table{width:100%;border-collapse:collapse}th{background:var(--ReportColor);color:#fff;padding:9px 8px;border:1px solid var(--ReportColor);text-transform:uppercase;font-size:11px;letter-spacing:.25px}td{padding:7px 8px;border:1px solid #e5e7eb}tbody tr:nth-child(even){background:#f9fafb}.Centro{text-align:center}.Negrita{font-weight:800}.Muted{color:#6b7280}.Firma{margin-top:55px;text-align:center}.FirmaLinea{width:290px;margin:auto;border-top:1px solid #374151;padding-top:7px;color:#374151}@media print{body{background:#fff}.ReportSheet{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}th{background:var(--ReportColor)!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tbody tr:nth-child(even),.HeaderTag{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
@@ -78,7 +77,6 @@ if ($Modo === 'General') {
     $Stmt = $Pdo->prepare($Sql);
     $Stmt->execute([$PeriodoId, (int)$Periodo['CicloId'], (int)$Periodo['OfertaId']]);
     $Rows = $Stmt->fetchAll();
-
     if ($Tipo === 'Excel') { SgceCalificacionesEmitirExcel($TituloArchivo); }
     if ($Tipo === 'Pdf') {
         $FilasPdf = [];
@@ -133,13 +131,13 @@ if ($Modo === 'Grupo') {
         $Npdf = 1;
         foreach ($Alumnos as $Al) {
             $FilaPdf = [(string)$Npdf++, $Al['NombreCompleto']];
-            $SumaPdf = 0; $CuentaPdf = 0;
+            $ValoresPromedio = [];
             foreach ($Asignaciones as $A) {
                 $Val = $Calificaciones[(int)$Al['Id']][(int)$A['Id']] ?? null;
-                if ($Val !== null) { $SumaPdf += (float)$Val; $CuentaPdf++; }
+                if ($Val !== null) { $ValoresPromedio[] = $Val; }
                 $FilaPdf[] = FormatoCal($Val);
             }
-            $FilaPdf[] = $CuentaPdf > 0 ? number_format($SumaPdf / $CuentaPdf, 2) : '-';
+            $FilaPdf[] = SgceFormatoPromedioAcademico(SgcePromedioAcademico($ValoresPromedio, 2), 2, '-');
             $FilasPdf[] = $FilaPdf;
         }
         SgceCalificacionesValidarPdfMasivo(count($Alumnos) * max(1, count($Asignaciones)), 6000);
@@ -157,7 +155,7 @@ if ($Modo === 'Grupo') {
 <div class="ReportSheet">
 <div class="Header"><div><div class="SchoolName"><?= HExpCal($ConfigReporte['NombreEscuela']) ?></div><div class="SchoolMeta"><?= HExpCal(trim(($ConfigReporte['ClaveCentroTrabajo'] ? 'CCT: '.$ConfigReporte['ClaveCentroTrabajo'].' · ' : '').($ConfigReporte['MunicipioEstado'] ?? ''))) ?></div><h2>Reporte de calificaciones por grupo</h2><p>Grupo: <?= HExpCal($Grupo['Grado'].' '.$Grupo['Grupo'].' '.$Grupo['Turno']) ?> · Periodo: <?= HExpCal($Periodo['Nombre'].' '.$Periodo['Ciclo']) ?></p></div><div class="HeaderTag"><?= HExpCal($Tipo) ?></div></div>
 <div class="TablaWrap"><table><thead><tr><th>#</th><th>Alumno</th><?php foreach($Asignaciones as $A): ?><th><?= HExpCal($A['MateriaNombre']) ?></th><?php endforeach; ?><th>Promedio</th></tr></thead><tbody>
-<?php $N=1; foreach($Alumnos as $Al): $Suma=0; $Cuenta=0; ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><?php foreach($Asignaciones as $A): $Val=$Calificaciones[(int)$Al['Id']][(int)$A['Id']] ?? null; if($Val!==null){$Suma+=(float)$Val;$Cuenta++;} ?><td class="Centro"><?= FormatoCal($Val) ?></td><?php endforeach; ?><td class="Centro Negrita"><?= $Cuenta>0 ? number_format($Suma/$Cuenta,2) : '-' ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="<?= count($Asignaciones)+3 ?>" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?>
+<?php $N=1; foreach($Alumnos as $Al): $ValoresPromedio=[]; ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><?php foreach($Asignaciones as $A): $Val=$Calificaciones[(int)$Al['Id']][(int)$A['Id']] ?? null; if($Val!==null){$ValoresPromedio[]=$Val;} ?><td class="Centro"><?= FormatoCal($Val) ?></td><?php endforeach; ?><td class="Centro Negrita"><?= SgceFormatoPromedioAcademico(SgcePromedioAcademico($ValoresPromedio,2),2,'-') ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="<?= count($Asignaciones)+3 ?>" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?>
 </tbody></table></div>
 </div>
 </body></html><?php
@@ -205,14 +203,13 @@ if ($TodosPeriodos) {
         $Npdf = 1;
         foreach ($Alumnos as $Al) {
             $FilaPdf = [(string)$Npdf++, $Al['NombreCompleto']];
-            $SumaPdf = 0;
-            $CuentaPdf = 0;
+            $ValoresPromedio = [];
             foreach ($PeriodosReporte as $PeriodoReporte) {
                 $Val = $CalificacionesPorAlumno[(int)$Al['AlumnoId']][(int)$PeriodoReporte['Id']] ?? null;
-                if ($Val !== null && $Val !== '') { $SumaPdf += (float)$Val; $CuentaPdf++; }
+                if ($Val !== null && $Val !== '') { $ValoresPromedio[] = $Val; }
                 $FilaPdf[] = $Val !== null && $Val !== '' ? FormatoCal($Val) : 'NC';
             }
-            $FilaPdf[] = $CuentaPdf > 0 ? number_format($SumaPdf / $CuentaPdf, 2) : 'NC';
+            $FilaPdf[] = SgceFormatoPromedioAcademico(SgcePromedioAcademico($ValoresPromedio, 2), 2, 'NC');
             $FilasPdf[] = $FilaPdf;
         }
         SgceCalificacionesValidarPdfMasivo(count($FilasPdf) * max(1, count($PeriodosReporte)), 6000);
@@ -232,7 +229,7 @@ if ($TodosPeriodos) {
 <div class="ReportSheet">
 <div class="Header"><div><div class="SchoolName"><?= HExpCal($ConfigReporte['NombreEscuela']) ?></div><div class="SchoolMeta"><?= HExpCal(trim(($ConfigReporte['ClaveCentroTrabajo'] ? 'CCT: '.$ConfigReporte['ClaveCentroTrabajo'].' · ' : '').($ConfigReporte['MunicipioEstado'] ?? ''))) ?></div><h2>Kardex de calificaciones</h2><p>Materia: <?= HExpCal($Info['MateriaNombre']) ?> · Grupo: <?= HExpCal($Info['Grado'].' '.$Info['Grupo'].' '.$Info['Turno']) ?> · Todos los periodos del ciclo</p></div><div class="HeaderTag"><?= HExpCal($Tipo) ?></div></div>
 <div class="TablaWrap"><table><thead><tr><th>#</th><th>Alumno</th><?php foreach($PeriodosReporte as $PeriodoReporte): ?><th><?= HExpCal($PeriodoReporte['Nombre']) ?></th><?php endforeach; ?><th>Promedio</th></tr></thead><tbody>
-<?php $N=1; foreach($Alumnos as $Al): $Suma=0; $Cuenta=0; ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><?php foreach($PeriodosReporte as $PeriodoReporte): $Val=$CalificacionesPorAlumno[(int)$Al['AlumnoId']][(int)$PeriodoReporte['Id']] ?? null; if($Val!==null && $Val!==''){$Suma+=(float)$Val;$Cuenta++;} ?><td class="Centro"><?= $Val !== null && $Val !== '' ? FormatoCal($Val) : 'NC' ?></td><?php endforeach; ?><td class="Centro Negrita"><?= $Cuenta>0 ? number_format($Suma/$Cuenta,2) : 'NC' ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="<?= count($PeriodosReporte)+3 ?>" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?>
+<?php $N=1; foreach($Alumnos as $Al): $ValoresPromedio=[]; ?><tr><td class="Centro"><?= $N++ ?></td><td><?= HExpCal($Al['NombreCompleto']) ?></td><?php foreach($PeriodosReporte as $PeriodoReporte): $Val=$CalificacionesPorAlumno[(int)$Al['AlumnoId']][(int)$PeriodoReporte['Id']] ?? null; if($Val!==null && $Val!==''){$ValoresPromedio[]=$Val;} ?><td class="Centro"><?= $Val !== null && $Val !== '' ? FormatoCal($Val) : 'NC' ?></td><?php endforeach; ?><td class="Centro Negrita"><?= SgceFormatoPromedioAcademico(SgcePromedioAcademico($ValoresPromedio,2),2,'NC') ?></td></tr><?php endforeach; if(!$Alumnos): ?><tr><td colspan="<?= count($PeriodosReporte)+3 ?>" class="Centro">Sin alumnos registrados.</td></tr><?php endif; ?>
 </tbody></table></div>
 </div>
 </body></html><?php

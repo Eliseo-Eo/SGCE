@@ -1,0 +1,187 @@
+--- sgce_original/install/installer/InstallerCore.php	2026-06-20 01:58:05.250357568 +0000
++++ sgce_work/install/installer/InstallerCore.php	2026-06-20 02:01:12.625194290 +0000
+@@ -43,8 +43,78 @@
+     return is_string($Token) && preg_match('/^[a-f0-9]{64}$/i', $Token) === 1;
+ }
+ 
++function InstalarCsrfStorageDir() {
++    return dirname(__DIR__, 2) . '/storage/locks';
++}
++
++function InstalarCsrfArchivoPath($Token) {
++    return InstalarCsrfStorageDir() . '/installer_csrf_' . hash('sha256', strtolower((string)$Token)) . '.token';
++}
++
++function InstalarAsegurarCsrfStorage() {
++    $Dir = InstalarCsrfStorageDir();
++    if (!is_dir($Dir)) { @mkdir($Dir, 0775, true); }
++    if (is_dir($Dir)) {
++        $Htaccess = $Dir . '/.htaccess';
++        if (!is_file($Htaccess)) {
++            @file_put_contents($Htaccess, "Require all denied\nDeny from all\n");
++        }
++        $Index = $Dir . '/index.html';
++        if (!is_file($Index)) { @file_put_contents($Index, ''); }
++    }
++    return is_dir($Dir) && is_writable($Dir);
++}
++
++function InstalarLimpiarCsrfArchivos() {
++    $Dir = InstalarCsrfStorageDir();
++    if (!is_dir($Dir)) { return; }
++    $Limite = time() - 7200;
++    foreach (glob($Dir . '/installer_csrf_*.token') ?: [] as $Archivo) {
++        if (is_file($Archivo) && (@filemtime($Archivo) ?: 0) < $Limite) { @unlink($Archivo); }
++    }
++}
++
++function InstalarPersistirCsrfArchivo($Token) {
++    if (!InstalarCsrfTokenValidoFormato($Token) || !InstalarAsegurarCsrfStorage()) { return; }
++    InstalarLimpiarCsrfArchivos();
++    $Ruta = InstalarCsrfArchivoPath($Token);
++    $Temporal = $Ruta . '.' . getmypid() . '.tmp';
++    $Contenido = json_encode([
++        'created_at' => time(),
++        'token_hash' => hash('sha256', strtolower((string)$Token)),
++    ], JSON_UNESCAPED_SLASHES);
++    if ($Contenido === false) { return; }
++    if (@file_put_contents($Temporal, $Contenido, LOCK_EX) !== false) {
++        @chmod($Temporal, 0600);
++        @rename($Temporal, $Ruta);
++        @chmod($Ruta, 0600);
++    } else {
++        @unlink($Temporal);
++    }
++}
++
++function InstalarValidarCsrfArchivo($Token) {
++    if (!InstalarCsrfTokenValidoFormato($Token)) { return false; }
++    $Ruta = InstalarCsrfArchivoPath($Token);
++    if (!is_file($Ruta) || !is_readable($Ruta)) { return false; }
++    if (((@filemtime($Ruta) ?: 0) + 7200) < time()) { @unlink($Ruta); return false; }
++
++    $Datos = json_decode((string)@file_get_contents($Ruta), true);
++    $HashEsperado = is_array($Datos) ? (string)($Datos['token_hash'] ?? '') : '';
++    $HashRecibido = hash('sha256', strtolower((string)$Token));
++    if ($HashEsperado !== '' && hash_equals($HashEsperado, $HashRecibido)) {
++        $_SESSION['InstalarCsrfToken'] = (string)$Token;
++        InstalarPersistirCsrfCookie((string)$Token);
++        @touch($Ruta);
++        return true;
++    }
++    return false;
++}
++
+ function InstalarPersistirCsrfCookie($Token) {
+-    if (!InstalarCsrfTokenValidoFormato($Token) || headers_sent()) { return; }
++    if (!InstalarCsrfTokenValidoFormato($Token)) { return; }
++    InstalarPersistirCsrfArchivo($Token);
++    if (headers_sent()) { return; }
+ 
+     setcookie('SGCE_INSTALL_CSRF', $Token, [
+         'expires' => 0,
+@@ -84,10 +154,10 @@
+     }
+ 
+     if (!empty($_COOKIE['SGCE_INSTALL_CSRF']) && InstalarCsrfTokenValidoFormato($_COOKIE['SGCE_INSTALL_CSRF'])) {
+-        return hash_equals((string)$_COOKIE['SGCE_INSTALL_CSRF'], (string)$Token);
++        if (hash_equals((string)$_COOKIE['SGCE_INSTALL_CSRF'], (string)$Token)) { return true; }
+     }
+ 
+-    return false;
++    return InstalarValidarCsrfArchivo((string)$Token);
+ }
+ 
+ function InstalarModoDebug() {
+--- sgce_original/reports/ExportarKardexAlumno.php	2026-06-20 01:58:05.262675034 +0000
++++ sgce_work/reports/ExportarKardexAlumno.php	2026-06-20 02:01:32.134768837 +0000
+@@ -36,25 +36,72 @@
+ 
+ $Filas = [];
+ $ResumenCiclos = [];
++
++$PeriodosPorCicloOferta = [];
++$AsignacionesPorCicloGrupo = [];
++$Calificaciones = [];
++$PeriodoIdsTodos = [];
++$AsignacionIdsTodos = [];
++
++$ClausulasPeriodos = [];
++$ParamsPeriodos = [];
++$ParesPeriodos = [];
++foreach ($Ciclos as $Ciclo) {
++    $ClavePeriodo = (int)$Ciclo['CicloId'] . ':' . (int)$Ciclo['OfertaId'];
++    if (isset($ParesPeriodos[$ClavePeriodo])) { continue; }
++    $ParesPeriodos[$ClavePeriodo] = true;
++    $ClausulasPeriodos[] = '(CicloId = ? AND OfertaId = ?)';
++    $ParamsPeriodos[] = (int)$Ciclo['CicloId'];
++    $ParamsPeriodos[] = (int)$Ciclo['OfertaId'];
++}
++if ($ClausulasPeriodos) {
++    $SqlPeriodos = 'SELECT Id, Nombre, Orden, CicloId, OfertaId FROM PeriodosEvaluacion WHERE (' . implode(' OR ', $ClausulasPeriodos) . ') AND Activo = 1 ORDER BY CicloId ASC, OfertaId ASC, Orden ASC, Id ASC';
++    $StmtPeriodos = $Pdo->prepare($SqlPeriodos);
++    $StmtPeriodos->execute($ParamsPeriodos);
++    foreach ($StmtPeriodos->fetchAll() as $Periodo) {
++        $ClavePeriodo = (int)$Periodo['CicloId'] . ':' . (int)$Periodo['OfertaId'];
++        $PeriodosPorCicloOferta[$ClavePeriodo][] = $Periodo;
++        $PeriodoIdsTodos[] = (int)$Periodo['Id'];
++    }
++}
++$PeriodoIdsTodos = array_values(array_unique($PeriodoIdsTodos));
++
++$ClausulasAsignaciones = [];
++$ParamsAsignaciones = [];
++$ParesAsignaciones = [];
+ foreach ($Ciclos as $Ciclo) {
+-    $StmtPeriodos = $Pdo->prepare('SELECT Id, Nombre, Orden FROM PeriodosEvaluacion WHERE CicloId = ? AND OfertaId = ? AND Activo = 1 ORDER BY Orden ASC, Id ASC');
+-    $StmtPeriodos->execute([(int)$Ciclo['CicloId'], (int)$Ciclo['OfertaId']]);
+-    $Periodos = $StmtPeriodos->fetchAll();
+-
+-    $StmtAsignaciones = $Pdo->prepare('SELECT A.Id, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A LEFT JOIN Usuarios U ON U.Id = A.MaestroId WHERE A.CicloId = ? AND A.GrupoId = ? ORDER BY A.MateriaNombre ASC');
+-    $StmtAsignaciones->execute([(int)$Ciclo['CicloId'], (int)$Ciclo['GrupoId']]);
+-    $Asignaciones = $StmtAsignaciones->fetchAll();
+-
+-    $PeriodoIds = array_map(static fn($P) => (int)$P['Id'], $Periodos);
+-    $Calificaciones = [];
+-    if ($PeriodoIds && $Asignaciones) {
+-        $MarcadoresPeriodos = implode(',', array_fill(0, count($PeriodoIds), '?'));
+-        $AsignacionIds = array_map(static fn($A) => (int)$A['Id'], $Asignaciones);
+-        $MarcadoresAsignaciones = implode(',', array_fill(0, count($AsignacionIds), '?'));
+-        $StmtCal = $Pdo->prepare("SELECT AsignacionId, PeriodoId, Calificacion FROM Calificaciones WHERE AlumnoId = ? AND AsignacionId IN ($MarcadoresAsignaciones) AND PeriodoId IN ($MarcadoresPeriodos)");
+-        $StmtCal->execute(array_merge([$AlumnoId], $AsignacionIds, $PeriodoIds));
+-        foreach ($StmtCal->fetchAll() as $Cal) { $Calificaciones[(int)$Cal['AsignacionId']][(int)$Cal['PeriodoId']] = $Cal['Calificacion']; }
++    $ClaveAsignacion = (int)$Ciclo['CicloId'] . ':' . (int)$Ciclo['GrupoId'];
++    if (isset($ParesAsignaciones[$ClaveAsignacion])) { continue; }
++    $ParesAsignaciones[$ClaveAsignacion] = true;
++    $ClausulasAsignaciones[] = '(A.CicloId = ? AND A.GrupoId = ?)';
++    $ParamsAsignaciones[] = (int)$Ciclo['CicloId'];
++    $ParamsAsignaciones[] = (int)$Ciclo['GrupoId'];
++}
++if ($ClausulasAsignaciones) {
++    $SqlAsignaciones = 'SELECT A.Id, A.CicloId, A.GrupoId, A.MateriaNombre, U.NombreCompleto AS Maestro FROM Asignaciones A LEFT JOIN Usuarios U ON U.Id = A.MaestroId WHERE ' . implode(' OR ', $ClausulasAsignaciones) . ' ORDER BY A.CicloId ASC, A.GrupoId ASC, A.MateriaNombre ASC';
++    $StmtAsignaciones = $Pdo->prepare($SqlAsignaciones);
++    $StmtAsignaciones->execute($ParamsAsignaciones);
++    foreach ($StmtAsignaciones->fetchAll() as $Asignacion) {
++        $ClaveAsignacion = (int)$Asignacion['CicloId'] . ':' . (int)$Asignacion['GrupoId'];
++        $AsignacionesPorCicloGrupo[$ClaveAsignacion][] = $Asignacion;
++        $AsignacionIdsTodos[] = (int)$Asignacion['Id'];
+     }
++}
++$AsignacionIdsTodos = array_values(array_unique($AsignacionIdsTodos));
++
++if ($PeriodoIdsTodos && $AsignacionIdsTodos) {
++    $MarcadoresPeriodos = implode(',', array_fill(0, count($PeriodoIdsTodos), '?'));
++    $MarcadoresAsignaciones = implode(',', array_fill(0, count($AsignacionIdsTodos), '?'));
++    $StmtCal = $Pdo->prepare("SELECT AsignacionId, PeriodoId, Calificacion FROM Calificaciones WHERE AlumnoId = ? AND AsignacionId IN ($MarcadoresAsignaciones) AND PeriodoId IN ($MarcadoresPeriodos)");
++    $StmtCal->execute(array_merge([$AlumnoId], $AsignacionIdsTodos, $PeriodoIdsTodos));
++    foreach ($StmtCal->fetchAll() as $Cal) { $Calificaciones[(int)$Cal['AsignacionId']][(int)$Cal['PeriodoId']] = $Cal['Calificacion']; }
++}
++
++foreach ($Ciclos as $Ciclo) {
++    $ClavePeriodo = (int)$Ciclo['CicloId'] . ':' . (int)$Ciclo['OfertaId'];
++    $ClaveAsignacion = (int)$Ciclo['CicloId'] . ':' . (int)$Ciclo['GrupoId'];
++    $Periodos = $PeriodosPorCicloOferta[$ClavePeriodo] ?? [];
++    $Asignaciones = $AsignacionesPorCicloGrupo[$ClaveAsignacion] ?? [];
+ 
+     $ValoresCiclo = []; $MateriasConCal = 0;
+     $GrupoTexto = trim($Ciclo['Grado'] . ' ' . $Ciclo['Grupo'] . ' ' . $Ciclo['Turno']);

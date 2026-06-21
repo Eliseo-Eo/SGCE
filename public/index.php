@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     RequerirCsrfPost();
 
     $Username = trim((string)($_POST['Username'] ?? ''));
-    $Password = trim((string)($_POST['Password'] ?? ''));
+    $Password = (string)($_POST['Password'] ?? '');
 
     if (!empty($Username) && !empty($Password)) {
 
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'path' => SgceCookiePath(),
                 'httponly' => true,
                 'samesite' => 'Strict',
-                'secure' => EsHttps()
+                'secure' => SgceCookieSecureObligatoria()
             ]);
 
             

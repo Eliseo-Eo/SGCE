@@ -26,8 +26,10 @@ if (!$CicloReporte && $Ciclos) {
 }
 if (!$CicloReporte) { $CicloReporte = ['Id'=>0,'Nombre'=>'','FechaInicio'=>date('Y-m-d'),'FechaFin'=>date('Y-m-d'),'Activo'=>0]; }
 
-$ReporteFechaFinDefault = min(date('Y-m-d'), (string)($CicloReporte['FechaFin'] ?: date('Y-m-d')));
-$ReporteFechaInicioDefault = max((string)($CicloReporte['FechaInicio'] ?: date('Y-m-d', strtotime('-30 days'))), date('Y-m-d', strtotime($ReporteFechaFinDefault . ' -30 days')));
+$ReporteFechaFinCiclo = SgceFechaYmdValida((string)($CicloReporte['FechaFin'] ?? '')) ? (string)$CicloReporte['FechaFin'] : date('Y-m-d');
+$ReporteFechaFinDefault = min(date('Y-m-d'), $ReporteFechaFinCiclo);
+$ReporteFechaInicioCiclo = SgceFechaYmdValida((string)($CicloReporte['FechaInicio'] ?? '')) ? (string)$CicloReporte['FechaInicio'] : SgceFechaYmdSumarDias($ReporteFechaFinDefault, -30);
+$ReporteFechaInicioDefault = max($ReporteFechaInicioCiclo, SgceFechaYmdSumarDias($ReporteFechaFinDefault, -30));
 $Grupos = [];
 $Asignaciones = [];
 $Periodos = [];
@@ -89,7 +91,7 @@ function RptOpcionAlumno(array $Al): string {
             <small>Los grupos, asignaciones, alumnos y periodos de abajo corresponden al ciclo seleccionado.</small>
         </div>
         <form method="GET" class="SgceReportCycleForm">
-            <select name="CicloReporteId" class="form-select SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar ciclo..." onchange="this.form.submit()">
+            <select name="CicloReporteId" class="form-select SgceSearchableSelect" data-sgce-searchable-select="1" data-sgce-search-placeholder="Buscar ciclo..." data-sgce-auto-submit="1">
                 <?php foreach($Ciclos as $C): ?>
                     <option value="<?= (int)$C['Id'] ?>" <?= (int)$C['Id'] === $CicloReporteId ? 'selected' : '' ?>><?= HRpt($C['Nombre'] . ((int)$C['Activo'] === 1 ? ' - ACTIVO' : '')) ?></option>
                 <?php endforeach; ?>

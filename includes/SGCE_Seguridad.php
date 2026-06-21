@@ -21,13 +21,26 @@ function SgceCookiePath(): string {
     return $Dir === '/' ? '/' : $Dir . '/';
 }
 
+function SgceEsEntornoLocal(): bool {
+    $Host = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '')));
+    $Host = preg_replace('/:\d+$/', '', $Host);
+    return in_array($Host, ['localhost', '127.0.0.1', '::1'], true);
+}
+
+function SgceCookieSecureObligatoria(): bool {
+    if (defined('SGCE_PRODUCTION') && SgceValorBooleano(SGCE_PRODUCTION) && !SgceEsEntornoLocal()) {
+        return true;
+    }
+    return EsHttps();
+}
+
 function IniciarSesionSegura() {
     if (session_status() === PHP_SESSION_NONE) {
         if (PHP_VERSION_ID >= 70300) {
             session_set_cookie_params([
                 'lifetime' => 0,
                 'path' => SgceCookiePath(),
-                'secure' => EsHttps(),
+                'secure' => SgceCookieSecureObligatoria(),
                 'httponly' => true,
                 'samesite' => 'Strict',
             ]);
@@ -69,9 +82,13 @@ function SgceProxyConfiable(): bool {
 }
 
 function EsHttps() {
-    if (defined('SGCE_FORCE_HTTPS') && SgceValorBooleano(SGCE_FORCE_HTTPS)) { return true; }
     $HttpsDirecto = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || ((int)($_SERVER['SERVER_PORT'] ?? 0) === 443);
     if ($HttpsDirecto) { return true; }
+
+    if (defined('SGCE_FORCE_HTTPS') && SgceValorBooleano(SGCE_FORCE_HTTPS)) {
+        return !SgceEsEntornoLocal();
+    }
+
     if (!SgceProxyConfiable()) { return false; }
     $ProtoProxy = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
     $SslProxy = strtolower((string)($_SERVER['HTTP_X_FORWARDED_SSL'] ?? ''));
@@ -98,6 +115,7 @@ function SgceUrlHttpsActual(): string {
 function SgceForzarHttpsRedirect(): void {
     if (php_sapi_name() === 'cli' || headers_sent()) { return; }
     if (!defined('SGCE_FORCE_HTTPS') || !SgceValorBooleano(SGCE_FORCE_HTTPS)) { return; }
+    if (SgceEsEntornoLocal()) { return; }
     $HttpsDirecto = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || ((int)($_SERVER['SERVER_PORT'] ?? 0) === 443);
     $HttpsProxy = false;
     if (SgceProxyConfiable()) {
@@ -112,13 +130,21 @@ function SgceForzarHttpsRedirect(): void {
     exit;
 }
 
+
+function SgceCspNonce(): string {
+    if (!defined('SGCE_CSP_NONCE')) {
+        define('SGCE_CSP_NONCE', base64_encode(random_bytes(16)));
+    }
+    return (string)SGCE_CSP_NONCE;
+}
+
 function EnviarHeadersSeguridad() {
     if (headers_sent()) { return; }
     header('X-Frame-Options: SAMEORIGIN');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
-    header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'");
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'nonce-" . SgceCspNonce() . "'; script-src 'self'; font-src 'self' data:; frame-ancestors 'self'; form-action 'self'; base-uri 'self'");
     if (EsHttps()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
     }
@@ -133,6 +159,42 @@ function SgceEnviarHeadersNoCacheDescarga() {
     header('X-Content-Type-Options: nosniff');
 }
 
+function SgceFechaYmdValida(string $Fecha): bool {
+    $Fecha = trim($Fecha);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $Fecha)) { return false; }
+    $Dt = DateTimeImmutable::createFromFormat('!Y-m-d', $Fecha);
+    return $Dt instanceof DateTimeImmutable && $Dt->format('Y-m-d') === $Fecha;
+}
+
+function SgceValidarRangoFechaYmd(string $Inicio, string $Fin, int $MaxDias = 370): bool {
+    if (!SgceFechaYmdValida($Inicio) || !SgceFechaYmdValida($Fin)) { return false; }
+    $D1 = new DateTimeImmutable($Inicio);
+    $D2 = new DateTimeImmutable($Fin);
+    if ($D2 < $D1) { return false; }
+    return ((int)$D1->diff($D2)->format('%a')) <= $MaxDias;
+}
+
+function SgceFechaYmdSumarDias(string $Fecha, int $Dias): string {
+    if (!SgceFechaYmdValida($Fecha)) { $Fecha = date('Y-m-d'); }
+    $Modificador = ($Dias >= 0 ? '+' : '') . $Dias . ' days';
+    return (new DateTimeImmutable($Fecha))->modify($Modificador)->format('Y-m-d');
+}
+
+function SgceFechaYmdFormato(string $Fecha, string $Formato = 'd/m/Y'): string {
+    if (!SgceFechaYmdValida($Fecha)) { return ''; }
+    return (new DateTimeImmutable($Fecha))->format($Formato);
+}
+
+function SgceHeaderDescarga(string $NombreArchivo, string $Mime): void {
+    if (headers_sent()) { return; }
+    $NombreSeguro = preg_replace('/[^A-Za-z0-9._-]+/', '_', $NombreArchivo);
+    $NombreSeguro = trim((string)$NombreSeguro, '._-');
+    if ($NombreSeguro === '') { $NombreSeguro = 'reporte'; }
+    header('Content-Type: ' . $Mime);
+    header('Content-Disposition: attachment; filename="' . $NombreSeguro . '"; filename*=UTF-8\'\'' . rawurlencode($NombreSeguro));
+    header('X-Content-Type-Options: nosniff');
+}
+
 function SgceCerrarSesionPhpCompleta() {
     if (session_status() === PHP_SESSION_NONE) { return; }
     $_SESSION = [];
@@ -142,7 +204,7 @@ function SgceCerrarSesionPhpCompleta() {
             'expires' => time() - 42000,
             'path' => $Params['path'] ?? '/',
             'domain' => $Params['domain'] ?? '',
-            'secure' => (bool)($Params['secure'] ?? EsHttps()),
+            'secure' => (bool)($Params['secure'] ?? SgceCookieSecureObligatoria()),
             'httponly' => true,
             'samesite' => $Params['samesite'] ?? 'Strict',
         ]);
@@ -264,11 +326,11 @@ function SgcePermisosPorRol() {
         'admin' => [
             'admin.panel', 'admin.dashboard', 'usuarios', 'catalogos', 'periodos', 'avisos', 'reportes',
             'respaldos', 'bitacora', 'configuracion', 'migracion', 'asistencia', 'asistencia_editar',
-            'asistencia_historica', 'calificaciones', 'importar', 'planeaciones', 'conducta'
+            'asistencia_historica', 'importar', 'planeaciones', 'conducta'
         ],
         'administrativo' => [
             'admin.panel', 'admin.dashboard', 'catalogos', 'avisos', 'reportes',
-            'asistencia', 'asistencia_editar', 'asistencia_historica', 'calificaciones', 'importar', 'planeaciones', 'conducta'
+            'asistencia', 'asistencia_editar', 'asistencia_historica', 'importar', 'planeaciones', 'conducta'
         ],
         'maestro' => ['docente', 'asistencia', 'calificaciones', 'planeaciones', 'conducta'],
     ];
@@ -282,7 +344,7 @@ function SgceTienePermiso($UserSession, $Permiso) {
 }
 
 function SgceSeguridadAssetUrl(string $Ruta): string {
-    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.185';
+    $Version = defined('SGCE_VERSION') ? (string)SGCE_VERSION : (class_exists('Sgce\\Foundation\\Version') ? \Sgce\Foundation\Version::current() : '0.0.0');
     $Separador = str_contains($Ruta, '?') ? '&' : '?';
     return $Ruta . $Separador . 'v=' . rawurlencode($Version);
 }
@@ -291,8 +353,8 @@ function SgceDenegarAcceso($Mensaje = 'No tienes permiso para entrar a esta secc
     http_response_code(403);
     $MensajeSeguro = HGlobal($Mensaje);
     $Inicio = 'index.php';
-    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-base.min.css')) . '">
-<link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-soft-motion.css')) . '"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto SgceAccessDeniedCard"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
+    echo '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acceso denegado | SGCE</title><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/vendor/bootstrap/5.3.3/css/bootstrap.min.css')) . '"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/vendor/fontawesome/6.5.2/css/all.min.css')) . '"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/vendor/poppins/5.0.8/poppins-local.css')) . '"><link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-bundle.min.css')) . '">
+<link rel="stylesheet" href="' . HGlobal(SgceSeguridadAssetUrl('assets/css/sgce-responsive-bundle.min.css')) . '"></head><body><main class="container py-5"><section class="card card-custom p-5 text-center mx-auto SgceAccessDeniedCard"><div class="display-5 text-danger mb-3"><i class="fa-solid fa-lock"></i></div><h1 class="fw-black mb-2">Acceso denegado</h1><p class="text-muted fw-semibold mb-4">' . $MensajeSeguro . '</p><a class="SgceBtnVolverInicio mx-auto" href="' . $Inicio . '"><i class="fa-solid fa-house"></i><span>Volver al inicio</span></a></section></main></body></html>';
     exit;
 }
 
@@ -305,6 +367,8 @@ function SgcePuedeGestionarUsuarios($UserSession) { return SgceTienePermiso($Use
 function SgcePuedeGestionarCatalogos($UserSession) { return SgceTienePermiso($UserSession, 'catalogos'); }
 
 function SgcePuedeAdministrarReportes($UserSession) { return SgceTienePermiso($UserSession, 'reportes'); }
+function SgcePuedeCapturarCalificaciones($UserSession): bool { return SgceTieneRol($UserSession, ['maestro']); }
+
 
 function SgcePuedeAdministrarPeriodos($UserSession) { return SgceTienePermiso($UserSession, 'periodos'); }
 

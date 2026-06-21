@@ -1,6 +1,5 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
-require_once __DIR__ . '/AdminAccionesServicios.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     RequerirCsrfPost();
@@ -110,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['AltaMaestro'])) {
         $User = trim($_POST['User'] ?? '');
-        $Pass = trim($_POST['Pass'] ?? '');
+        $Pass = (string)($_POST['Pass'] ?? '');
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
         if ($User === '' || $Pass === '' || $Nombre === '') { $_SESSION['Mensaje'] = "Completa Todos Los Campos Del Docente. (Nombre solo letras)"; SgceRedirectAdminTab($TabPost, $UserSession); }
         if (SgceLongitudTexto($Nombre) > 140) { $_SESSION['Mensaje'] = "El nombre del docente no debe superar 140 caracteres."; SgceRedirectAdminTab($TabPost, $UserSession); }
@@ -140,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['EditMaestro'])) {
         $Id = intval($_POST['Id'] ?? 0);
         $User = trim($_POST['User'] ?? '');
-        $Pass = trim($_POST['Pass'] ?? '');
+        $Pass = (string)($_POST['Pass'] ?? '');
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
         if ($Id <= 0 || $User === '' || $Nombre === '') { $_SESSION['Mensaje'] = "Datos Del Docente Inválidos. (Nombre solo letras)"; SgceRedirectAdminTab($TabPost, $UserSession); }
         if (SgceLongitudTexto($Nombre) > 140) { $_SESSION['Mensaje'] = "El nombre del docente no debe superar 140 caracteres."; SgceRedirectAdminTab($TabPost, $UserSession); }
@@ -226,7 +225,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['AltaAlumno'])) {
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
-        $MatriculaManual = ''; // SGCE 1.0.185: matrícula siempre automática.
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres, ciclo activo y grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
@@ -260,24 +258,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['EditAlumno'])) {
         $Id = intval($_POST['Id'] ?? 0);
         $Nombre = SgceNormalizarNombre($_POST['Nombre'] ?? '');
-        $MatriculaManual = ''; // SGCE 1.0.185: matrícula siempre automática.
         $GrupoId = intval($_POST['GrupoId'] ?? 0);
         if ($Id <= 0 || $Nombre === '' || SgceLongitudTexto($Nombre) > 160 || $GrupoId <= 0 || $CicloActivoAccionId <= 0) { $_SESSION['Mensaje'] = "Datos Del Alumno Inválidos. Nombre solo letras, máximo 160 caracteres y selecciona grupo."; SgceRedirectAdminTab($TabPost, $UserSession); }
         try {
             $GrupoMeta = SgceGrupoObtenerActivoPorId($Pdo, $GrupoId);
             if (!$GrupoMeta) { $_SESSION['Mensaje'] = "El grupo debe pertenecer al ciclo activo."; SgceRedirectAdminTab($TabPost, $UserSession); }
             $Pdo->beginTransaction();
+            $StmtIns = $Pdo->prepare("SELECT Id, GrupoId FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ? LIMIT 1 FOR UPDATE");
+            $StmtIns->execute([$Id, $CicloActivoAccionId]);
+            $InscripcionActual = $StmtIns->fetch();
+            $InsId = (int)($InscripcionActual['Id'] ?? 0);
+            $GrupoAnteriorId = (int)($InscripcionActual['GrupoId'] ?? 0);
+
+            if ($GrupoAnteriorId > 0 && $GrupoAnteriorId !== $GrupoId && SgceAlumnoTieneDatosAcademicosEnCiclo($Pdo, $Id, $CicloActivoAccionId)) {
+                throw new RuntimeException('Este alumno ya tiene historial académico o disciplinario en el ciclo activo. No se puede cambiar de grupo desde edición directa.');
+            }
+
             $Pdo->prepare("UPDATE Alumnos SET NombreCompleto = ?, NombreBusqueda = ?, GrupoId = ?, Activo = 1 WHERE Id = ?")->execute([$Nombre, SgceTextoBusquedaNormalizado($Nombre), $GrupoId, $Id]);
             SgceAsignarMatriculaSiAplica($Pdo, $Id, $CicloActivoAccionId);
-            $StmtIns = $Pdo->prepare("SELECT Id FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ? LIMIT 1");
-            $StmtIns->execute([$Id, $CicloActivoAccionId]);
-            $InsId = (int)$StmtIns->fetchColumn();
             if ($InsId > 0) { $Pdo->prepare("UPDATE AlumnoInscripciones SET GrupoId = ?, OfertaId = ?, ProgramaId = ?, EtapaId = ?, Estado = 'INSCRITO' WHERE Id = ?")->execute([$GrupoId, (int)$GrupoMeta['OfertaId'], (int)$GrupoMeta['ProgramaId'], (int)$GrupoMeta['EtapaId'], $InsId]); }
             else { if (!SgceAlumnoInscribirEnCiclo($Pdo, $Id, $CicloActivoAccionId, $GrupoId, 'INSCRITO')) { throw new RuntimeException('No se pudo crear la inscripción del alumno en el ciclo activo.'); } }
             RegistrarBitacora($Pdo, $UserSession, 'EDITAR_ALUMNO', 'Alumnos', $Id, 'ALUMNO ACTUALIZADO EN CICLO ACTIVO');
             $Pdo->commit();
             $_SESSION['Mensaje'] = "Alumno Actualizado";
-        } catch (Throwable $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = "Error al actualizar alumno."; }
+        } catch (Throwable $Ex) { if ($Pdo->inTransaction()) { $Pdo->rollBack(); } $_SESSION['Mensaje'] = $Ex instanceof RuntimeException ? $Ex->getMessage() : "Error al actualizar alumno."; }
         SgceRedirectAdminTab($TabPost, $UserSession);
     }
 

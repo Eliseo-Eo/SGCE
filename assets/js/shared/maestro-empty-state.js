@@ -1,4 +1,4 @@
-/* SGCE 1.0.185 - Módulo compartido: maestro-empty-state.js */
+/* SGCE - Módulo compartido: maestro-empty-state.js */
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('[data-maestro-empty-close="true"]').forEach(function(Boton){
         if (Boton.dataset.sgceMaestroCloseReady === '1') { return; }

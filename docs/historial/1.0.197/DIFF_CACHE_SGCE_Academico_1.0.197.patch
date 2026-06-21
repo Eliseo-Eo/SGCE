@@ -1,0 +1,48 @@
+--- /mnt/data/sgce196/Produccion/includes/SGCE_Academico.php	2026-06-20 15:51:30.508459006 +0000
++++ includes/SGCE_Academico.php	2026-06-20 16:15:57.909243626 +0000
+@@ -21,16 +21,17 @@
+ }
+ 
+ function SgceCicloActivoCacheLimpiar(): void {
+-    $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = microtime(true);
++    $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
+ }
+ 
+ function SgceOfertaActivaCacheLimpiar(): void {
+-    $GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] = microtime(true);
++    $GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] = ($GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] ?? 0) + 1;
+ }
+ 
+ function SgceActivarCicloUnico(PDO $Pdo, int $CicloId): void {
+     if ($CicloId <= 0 || !SgceDbTablaExiste($Pdo, 'CiclosEscolares')) { return; }
+     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 0 WHERE Id <> ?')->execute([$CicloId]);
++    SgceCicloActivoCacheLimpiar();
+     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 1 WHERE Id = ?')->execute([$CicloId]);
+     SgceCicloActivoCacheLimpiar();
+ }
+@@ -171,14 +172,17 @@
+     $NombreOferta = SgceNormalizarMayusculas($NombreOferta !== '' ? $NombreOferta : $Nivel . ' ' . $Tipo);
+     $EtiquetaEtapa = SgceNormalizarMayusculas($EtiquetaEtapa !== '' ? $EtiquetaEtapa : SgceEtiquetaEtapaPorTipo($Tipo));
+     $Pdo->prepare('UPDATE OfertasEducativas SET Activo = 0')->execute();
++    SgceOfertaActivaCacheLimpiar();
+     $StmtExiste = $Pdo->prepare('SELECT Id FROM OfertasEducativas WHERE Nombre = ? LIMIT 1');
+     $StmtExiste->execute([$NombreOferta]);
+     $OfertaId = (int)$StmtExiste->fetchColumn();
+     if ($OfertaId > 0) {
+         $Pdo->prepare('UPDATE OfertasEducativas SET NivelEducativo = ?, TipoPeriodizacion = ?, TotalEtapas = ?, EtiquetaEtapa = ?, UsaProgramas = ?, Activo = 1 WHERE Id = ?')->execute([$Nivel, $Tipo, $TotalEtapas, $EtiquetaEtapa, $UsaProgramas ? 1 : 0, $OfertaId]);
++        SgceOfertaActivaCacheLimpiar();
+     } else {
+         $Pdo->prepare('INSERT INTO OfertasEducativas (Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, EtiquetaEtapa, UsaProgramas, Activo) VALUES (?, ?, ?, ?, ?, ?, 1)')->execute([$NombreOferta, $Nivel, $Tipo, $TotalEtapas, $EtiquetaEtapa, $UsaProgramas ? 1 : 0]);
+         $OfertaId = (int)$Pdo->lastInsertId();
++        SgceOfertaActivaCacheLimpiar();
+     }
+     $Pdo->prepare('UPDATE EtapasAcademicas SET Activo = 0, EsTerminal = 0 WHERE OfertaId = ?')->execute([$OfertaId]);
+     $StmtBuscar = $Pdo->prepare('SELECT Id FROM EtapasAcademicas WHERE OfertaId = ? AND Orden = ? LIMIT 1');
+@@ -193,7 +197,6 @@
+         else { $StmtInsertar->execute([$OfertaId, $Nombre, $Orden, $Terminal]); }
+     }
+     SgceProgramaGeneralId($Pdo, $OfertaId);
+-    SgceOfertaActivaCacheLimpiar();
+     return $OfertaId;
+ }
+ 

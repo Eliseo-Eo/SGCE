@@ -1,5 +1,8 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
+require_once dirname(__DIR__) . '/repositories/MateriasRepository.php';
+require_once dirname(__DIR__) . '/repositories/AsignacionesRepository.php';
+require_once dirname(__DIR__) . '/repositories/BitacoraRepository.php';
 
 function SgceMateriaGrupoContarFiltradas(PDO $Pdo, array $Filtros = []): int { return SgceRepoMateriaContar($Pdo, $Filtros); }
 function SgceMateriaGrupoListarFiltradas(PDO $Pdo, array $Filtros, int $Limit, int $Offset): array { return SgceRepoMateriaListar($Pdo, $Filtros, $Limit, $Offset); }

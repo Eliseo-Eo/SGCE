@@ -2,6 +2,8 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/ConductaService.php';
+require_once dirname(__DIR__) . '/services/GrupoService.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }

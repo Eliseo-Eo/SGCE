@@ -27,36 +27,37 @@ function ColumnasInsertablesRespaldo($Pdo, $Tabla) {
 
 
 $NombreArchivo = 'Respaldo_SGCE_' . date('Ymd_His') . '.sql';
-header('Content-Type: application/sql; charset=utf-8');
-header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
-SgceEnviarHeadersNoCacheDescarga();
+$RutaTemporal = tempnam(sys_get_temp_dir(), 'sgce_sql_');
+if ($RutaTemporal === false) { http_response_code(500); exit('No se pudo preparar el respaldo temporal.'); }
+$HandleSql = fopen($RutaTemporal, 'wb');
+if (!$HandleSql) { @unlink($RutaTemporal); http_response_code(500); exit('No se pudo escribir el respaldo temporal.'); }
+function EscribirSqlExport($Texto) { global $HandleSql; fwrite($HandleSql, (string)$Texto); }
 
-echo "-- ============================================================\n";
-echo "-- RESPALDO SGCE\n";
-echo "-- GENERADO: " . date('Y-m-d H:i:s') . "\n";
-echo "-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n";
-echo "-- ============================================================\n\n";
-echo "-- SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION\n";
-echo "-- NOTA: LAS CONTRASEÑAS SE RESPALDAN COMO HASH SEGURO, NO EN TEXTO PLANO.\n";
-echo "SET FOREIGN_KEY_CHECKS=0;\n";
-echo "SET NAMES utf8mb4;\n\n";
+EscribirSqlExport("-- ============================================================\n");
+EscribirSqlExport("-- RESPALDO SGCE\n");
+EscribirSqlExport("-- GENERADO: " . date('Y-m-d H:i:s') . "\n");
+EscribirSqlExport("-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n");
+EscribirSqlExport("-- ============================================================\n\n");
+EscribirSqlExport("-- NOTA: LAS CONTRASEÑAS SE RESPALDAN COMO HASH SEGURO, NO EN TEXTO PLANO.\n");
+EscribirSqlExport("SET FOREIGN_KEY_CHECKS=0;\n");
+EscribirSqlExport("SET NAMES utf8mb4;\n\n");
 
 $Tablas = $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM);
 
 foreach ($Tablas as $TablaRow) {
     $Tabla = $TablaRow[0];
-    echo "-- ------------------------------------------------------------\n";
-    echo "-- TABLA: `$Tabla`\n";
-    echo "-- ------------------------------------------------------------\n\n";
-    echo "DROP TABLE IF EXISTS `$Tabla`;\n";
+    EscribirSqlExport("-- ------------------------------------------------------------\n");
+    EscribirSqlExport("-- TABLA: `$Tabla`\n");
+    EscribirSqlExport("-- ------------------------------------------------------------\n\n");
+    EscribirSqlExport("DROP TABLE IF EXISTS `$Tabla`;\n");
 
     $CreateStmt = $Pdo->query('SHOW CREATE TABLE `' . str_replace('`','``',$Tabla) . '`')->fetch(PDO::FETCH_ASSOC);
     $CreateSql = $CreateStmt['Create Table'] ?? array_values($CreateStmt)[1];
-    echo $CreateSql . ";\n\n";
+    EscribirSqlExport($CreateSql . ";\n\n");
 
     $ColumnasInsertables = ColumnasInsertablesRespaldo($Pdo, $Tabla);
     if (!$ColumnasInsertables) {
-        echo "\n";
+        EscribirSqlExport("\n");
         continue;
     }
     $ColumnasSql = array_map(function($Col){ return '`' . str_replace('`','``',$Col) . '`'; }, $ColumnasInsertables);
@@ -75,11 +76,13 @@ foreach ($Tablas as $TablaRow) {
                 $Valores[] = $Pdo->quote((string)$Valor);
             }
         }
-        echo 'INSERT INTO ' . QTablaRespaldo($Tabla) . ' (' . implode(',', $ColumnasSql) . ') VALUES (' . implode(',', $Valores) . ");\n";
+        EscribirSqlExport('INSERT INTO ' . QTablaRespaldo($Tabla) . ' (' . implode(',', $ColumnasSql) . ') VALUES (' . implode(',', $Valores) . ");\n");
     }
-    echo "\n";
+    EscribirSqlExport("\n");
 }
 
-echo "SET FOREIGN_KEY_CHECKS=1;\n";
+EscribirSqlExport("SET FOREIGN_KEY_CHECKS=1;\n");
+fclose($HandleSql);
+SgceEnviarArchivoSqlFirmado($RutaTemporal, $NombreArchivo);
+@unlink($RutaTemporal);
 exit;
-

@@ -1,6 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/migracion/MigracionService.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $FechaFin = trim((string)($_POST['FechaFin'] ?? ''));
         $Activo = isset($_POST['Activo']) ? 1 : 0;
 
-        if ($Nombre !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin)) {
+        if ($Nombre !== '' && SgceFechaYmdValida($FechaInicio) && SgceFechaYmdValida($FechaFin)) {
             try {
                 $CicloActivoAnterior = SgceCicloActivo($Pdo);
                 $CicloActivoAnteriorId = (int)($CicloActivoAnterior['Id'] ?? 0);

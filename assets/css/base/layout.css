@@ -1,5 +1,0 @@
-/* SGCE 1.0.185 - Capa base de layout */
-.SgcePage,.SgceModuleWrap{min-height:76.5vh;}
-.SgceSectionCard{background:#fff;border:1px solid rgba(15,23,42,.07);border-radius:var(--sgce-radius-lg);box-shadow:var(--sgce-shadow-soft);}
-.SgceStickyActions{position:sticky;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);padding:1rem;z-index:5;}
-.SgceScrollX{overflow-x:auto;}

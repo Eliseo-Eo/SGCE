@@ -4,9 +4,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 function SgceConductaRepoFechaSegura($Valor, string $Default): string {
     $Valor = trim((string)$Valor);
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $Valor)) { return $Default; }
-    $Dt = DateTime::createFromFormat('Y-m-d', $Valor);
-    return ($Dt && $Dt->format('Y-m-d') === $Valor) ? $Valor : $Default;
+    return SgceFechaYmdValida($Valor) ? $Valor : $Default;
 }
 
 function SgceConductaRepoAlumnosActivos(PDO $Pdo, int $CicloId = 0): array {
@@ -19,7 +17,7 @@ function SgceConductaRepoAlumnosActivos(PDO $Pdo, int $CicloId = 0): array {
 
 function SgceConductaRepoPaseListaPorFecha(PDO $Pdo, int $CicloId, int $AsignacionId, string $Fecha): array {
     $Registros = [];
-    if ($CicloId <= 0 || $AsignacionId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $Fecha) || !SgceDbTablaExiste($Pdo, 'ConductaRegistros')) { return $Registros; }
+    if ($CicloId <= 0 || $AsignacionId <= 0 || !SgceFechaYmdValida($Fecha) || !SgceDbTablaExiste($Pdo, 'ConductaRegistros')) { return $Registros; }
     $Stmt = $Pdo->prepare("\n        SELECT *\n        FROM ConductaRegistros\n        WHERE CicloId = ? AND AsignacionId = ? AND FechaDia = ? AND Origen = 'PASE_LISTA' AND Estado <> 'CANCELADO'\n        ORDER BY Id ASC\n    ");
     $Stmt->execute([$CicloId, $AsignacionId, $Fecha]);
     foreach ($Stmt->fetchAll(PDO::FETCH_ASSOC) as $Fila) { $Registros[(int)$Fila['AlumnoId']] = $Fila; }
@@ -56,7 +54,7 @@ function SgceConductaRepoHistorialAlumno(PDO $Pdo, int $AlumnoId, int $CicloId, 
 
 function SgceConductaRepoFiltros(array $Origen): array {
     return [
-        'FechaInicio' => SgceConductaRepoFechaSegura($Origen['FechaInicio'] ?? date('Y-m-d', strtotime('-30 days')), date('Y-m-d', strtotime('-30 days'))),
+        'FechaInicio' => SgceConductaRepoFechaSegura($Origen['FechaInicio'] ?? SgceFechaYmdSumarDias(date('Y-m-d'), -30), SgceFechaYmdSumarDias(date('Y-m-d'), -30)),
         'FechaFin' => SgceConductaRepoFechaSegura($Origen['FechaFin'] ?? date('Y-m-d'), date('Y-m-d')),
         'GrupoId' => max(0, (int)($Origen['GrupoId'] ?? 0)),
         'AlumnoId' => max(0, (int)($Origen['AlumnoId'] ?? 0)),

@@ -4,6 +4,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/ConductaService.php';
 require_once dirname(__DIR__) . '/includes/SGCE_PublicConsultas.php';
 SgcePublicoEnviarHeaders();
 

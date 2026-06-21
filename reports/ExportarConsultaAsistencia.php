@@ -2,6 +2,7 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/ConductaService.php';
 require_once dirname(__DIR__) . '/includes/SGCE_PublicConsultas.php';
 require_once dirname(__DIR__) . '/includes/SGCE_Pdf.php';
 
@@ -62,7 +63,7 @@ foreach (($ConductaResumen['Detalle'] ?? []) as $C) {
 }
 
 $GrupoTexto = trim((($InfoGrupo['ProgramaNombre'] ?? '') !== '' ? ($InfoGrupo['ProgramaNombre'] . ' / ') : '') . ($InfoGrupo['Grado'] ?? '') . ' ' . ($InfoGrupo['Grupo'] ?? '') . ' ' . ($InfoGrupo['Turno'] ?? ''));
-$Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Rango: ' . date('d/m/Y', strtotime($FechaInicio)) . ' al ' . date('d/m/Y', strtotime($FechaFin)) . ' | A ' . $Resumen['Conteos']['A'] . ' / F ' . $Resumen['Conteos']['F'] . ' / R ' . $Resumen['Conteos']['R'] . ' / J ' . $Resumen['Conteos']['J'];
+$Subtitulo = 'Alumno: ' . $Alumno['NombreCompleto'] . ' | Grupo: ' . $GrupoTexto . ' | Rango: ' . SgceFechaYmdFormato($FechaInicio) . ' al ' . SgceFechaYmdFormato($FechaFin) . ' | A ' . $Resumen['Conteos']['A'] . ' / F ' . $Resumen['Conteos']['F'] . ' / R ' . $Resumen['Conteos']['R'] . ' / J ' . $Resumen['Conteos']['J'];
 if (!empty($Resumen['RegistrosTruncados'])) {
     $Subtitulo .= ' | Detalle limitado a ' . (int)$Resumen['LimiteDetalle'] . ' registros más recientes';
 }

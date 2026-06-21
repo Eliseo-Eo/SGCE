@@ -14,6 +14,55 @@ function SgceBitacoraArchivarAntigua(PDO $Pdo, int $Dias = 365): int {
     return $Archivados;
 }
 
+function SgceAsistenciasAsegurarArchivo(PDO $Pdo): void {
+    $Pdo->exec("CREATE TABLE IF NOT EXISTS AsistenciasArchivo LIKE Asistencias");
+}
+
+function SgceAsistenciaTablaParaCiclo(PDO $Pdo, int $CicloId): string {
+    if ($CicloId <= 0) { return 'Asistencias'; }
+    static $Cache = [];
+    if (isset($Cache[$CicloId])) { return $Cache[$CicloId]; }
+    try {
+        if (!SgceDbTablaExiste($Pdo, 'AsistenciasArchivo')) { return $Cache[$CicloId] = 'Asistencias'; }
+        $Stmt = $Pdo->prepare('SELECT Activo FROM CiclosEscolares WHERE Id = ? LIMIT 1');
+        $Stmt->execute([$CicloId]);
+        $Activo = $Stmt->fetchColumn();
+        if ($Activo === false || (int)$Activo === 1) { return $Cache[$CicloId] = 'Asistencias'; }
+        $StmtArchivo = $Pdo->prepare('SELECT 1 FROM AsistenciasArchivo WHERE CicloId = ? LIMIT 1');
+        $StmtArchivo->execute([$CicloId]);
+        return $Cache[$CicloId] = ($StmtArchivo->fetchColumn() ? 'AsistenciasArchivo' : 'Asistencias');
+    } catch (Throwable $E) {
+        return $Cache[$CicloId] = 'Asistencias';
+    }
+}
+
+function SgceAsistenciasArchivarCiclosCerrados(PDO $Pdo, int $Lote = 5000): int {
+    $Lote = max(100, min(50000, $Lote));
+    if (!SgceDbTablaExiste($Pdo, 'Asistencias')) { return 0; }
+    SgceAsistenciasAsegurarArchivo($Pdo);
+    $Pdo->exec("INSERT IGNORE INTO AsistenciasArchivo
+        (Id, CicloId, AsignacionId, AlumnoId, Fecha, Estado, FechaRegistro)
+        SELECT Asi.Id, Asi.CicloId, Asi.AsignacionId, Asi.AlumnoId, Asi.Fecha, Asi.Estado, Asi.FechaRegistro
+        FROM Asistencias Asi
+        INNER JOIN CiclosEscolares C ON C.Id = Asi.CicloId AND C.Activo = 0
+        ORDER BY Asi.CicloId ASC, Asi.Id ASC
+        LIMIT {$Lote}");
+    $Copiados = (int)$Pdo->query('SELECT ROW_COUNT()')->fetchColumn();
+    $Pdo->exec("DELETE FROM Asistencias
+        WHERE Id IN (
+            SELECT Id FROM (
+                SELECT Asi.Id
+                FROM Asistencias Asi
+                INNER JOIN CiclosEscolares C ON C.Id = Asi.CicloId AND C.Activo = 0
+                INNER JOIN AsistenciasArchivo AA ON AA.Id = Asi.Id
+                ORDER BY Asi.CicloId ASC, Asi.Id ASC
+                LIMIT {$Lote}
+            ) SgceAsistenciasArchivadas
+        )");
+    return $Copiados;
+}
+
+
 function SgceMantenimientoLimpiarSesionesExpiradas(PDO $Pdo): int {
     $Stmt = $Pdo->prepare("UPDATE Usuarios SET SessionToken = NULL, SessionTokenExpira = NULL WHERE SessionToken IS NOT NULL AND SessionTokenExpira IS NOT NULL AND SessionTokenExpira < NOW()");
     $Stmt->execute();
@@ -60,6 +109,7 @@ function SgceMantenimientoDiario(PDO $Pdo, array $Opciones = []): array {
     $DiasRespaldosTemporales = (int)($Opciones['DiasRespaldosTemporales'] ?? 7);
     return [
         'BitacoraArchivada' => SgceBitacoraArchivarAntigua($Pdo, $DiasBitacora),
+        'AsistenciasArchivadas' => SgceAsistenciasArchivarCiclosCerrados($Pdo),
         'SesionesExpiradasLimpiadas' => SgceMantenimientoLimpiarSesionesExpiradas($Pdo),
         'IntentosSeguridadLimpiados' => SgceMantenimientoLimpiarIntentosSeguridad($Pdo, $DiasIntentos),
         'BloqueosExpiradosLimpiados' => SgceMantenimientoLimpiarBloqueosExpirados($Pdo),

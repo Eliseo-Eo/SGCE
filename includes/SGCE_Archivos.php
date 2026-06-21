@@ -31,27 +31,49 @@ function SgceAsegurarCarpetaProtegida($Dir) {
 
 
 function SgcePrepararDirectoriosSeguros() {
+    static $PreparadoEnRequest = false;
     $Raiz = dirname(__DIR__);
-    $Dirs = [
-        $Raiz . '/storage',
-        defined('SGCE_BACKUP_DIR') ? SGCE_BACKUP_DIR : $Raiz . '/storage/backups',
-        defined('SGCE_LOG_DIR') ? SGCE_LOG_DIR : $Raiz . '/storage/logs',
-        defined('SGCE_PLANEACIONES_DIR') ? SGCE_PLANEACIONES_DIR : $Raiz . '/storage/planeaciones',
-        $Raiz . '/config',
-        $Raiz . '/includes',
-        $Raiz . '/modules',
-        $Raiz . '/views',
-        $Raiz . '/reports',
-        $Raiz . '/repositories',
-        $Raiz . '/services',
-        $Raiz . '/public',
-        $Raiz . '/cron',
-    ];
-    $ToolsDir = $Raiz . '/tools';
-    if (is_dir($ToolsDir)) { $Dirs[] = $ToolsDir; }
-    foreach (array_unique($Dirs) as $Dir) { SgceAsegurarCarpetaProtegida($Dir); }
     if (defined('SGCE_LOG_DIR') && is_dir(SGCE_LOG_DIR) && is_writable(SGCE_LOG_DIR)) {
         @ini_set('error_log', rtrim(SGCE_LOG_DIR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'php-runtime.log');
+    }
+    if ($PreparadoEnRequest) { return; }
+    $PreparadoEnRequest = true;
+
+    $StorageDir = $Raiz . '/storage';
+    if (!is_dir($StorageDir)) { @mkdir($StorageDir, 0775, true); }
+    $VersionSegura = defined('SGCE_VERSION') ? preg_replace('/[^A-Za-z0-9._-]/', '_', SGCE_VERSION) : 'actual';
+    $Marcador = $StorageDir . '/.sgce_directorios_protegidos_' . $VersionSegura . '.ok';
+    if (is_file($Marcador)) { return; }
+
+    $LockDir = $StorageDir . '/locks';
+    if (!is_dir($LockDir)) { @mkdir($LockDir, 0775, true); }
+    $LockPath = $LockDir . '/directorios_seguros.lock';
+    $Lock = @fopen($LockPath, 'c');
+    if ($Lock) { @flock($Lock, LOCK_EX); }
+    try {
+        if (is_file($Marcador)) { return; }
+        $Dirs = [
+            $StorageDir,
+            defined('SGCE_BACKUP_DIR') ? SGCE_BACKUP_DIR : $Raiz . '/storage/backups',
+            defined('SGCE_LOG_DIR') ? SGCE_LOG_DIR : $Raiz . '/storage/logs',
+            defined('SGCE_PLANEACIONES_DIR') ? SGCE_PLANEACIONES_DIR : $Raiz . '/storage/planeaciones',
+            $Raiz . '/config',
+            $Raiz . '/includes',
+            $Raiz . '/modules',
+            $Raiz . '/views',
+            $Raiz . '/reports',
+            $Raiz . '/repositories',
+            $Raiz . '/services',
+            $Raiz . '/public',
+            $Raiz . '/cron',
+        ];
+        $ToolsDir = $Raiz . '/tools';
+        if (is_dir($ToolsDir)) { $Dirs[] = $ToolsDir; }
+        foreach (array_unique($Dirs) as $Dir) { SgceAsegurarCarpetaProtegida($Dir); }
+        @file_put_contents($Marcador, 'SGCE directorios protegidos ' . date('c') . PHP_EOL, LOCK_EX);
+        @chmod($Marcador, 0644);
+    } finally {
+        if ($Lock) { @flock($Lock, LOCK_UN); @fclose($Lock); }
     }
 }
 
@@ -108,24 +130,53 @@ function SgceArchivoOfficeBinarioValido($Ruta) {
 
 
 function SgceArchivoOoxmlValido($Ruta, $Extension) {
-    if (!class_exists('ZipArchive')) { return true; }
+    // Validación estricta: Un OOXML moderno es un ZIP real.
+    // Si el servidor no tiene ZipArchive, no se acepta por seguridad.
+    if (!class_exists('ZipArchive')) { return false; }
+
+    $Extension = strtolower((string)$Extension);
+    $ArchivoPrincipal = [
+        'docx' => 'word/document.xml',
+        'xlsx' => 'xl/workbook.xml',
+        'pptx' => 'ppt/presentation.xml',
+    ][$Extension] ?? '';
+    if ($ArchivoPrincipal === '') { return false; }
+
     $Zip = new ZipArchive();
     if ($Zip->open($Ruta) !== true) { return false; }
-    $TieneContentTypes = $Zip->locateName('[Content_Types].xml') !== false;
-    $DirectorioEsperado = [
-        'docx' => 'word/',
-        'xlsx' => 'xl/',
-        'pptx' => 'ppt/',
-    ][strtolower((string)$Extension)] ?? '';
-    $TieneDirectorio = false;
-    if ($DirectorioEsperado !== '') {
-        for ($I = 0; $I < $Zip->numFiles; $I++) {
-            $Nombre = (string)$Zip->getNameIndex($I);
-            if (str_starts_with($Nombre, $DirectorioEsperado)) { $TieneDirectorio = true; break; }
+
+    $Valido = $Zip->locateName('[Content_Types].xml') !== false
+        && $Zip->locateName('_rels/.rels') !== false
+        && $Zip->locateName($ArchivoPrincipal) !== false;
+
+    $MaxEntradas = 200;
+    $MaxEntradaDescomprimida = 80 * 1024 * 1024;
+    $MaxTotalDescomprimido = 160 * 1024 * 1024;
+    $TotalDescomprimido = 0;
+    if ($Zip->numFiles <= 0 || $Zip->numFiles > $MaxEntradas) { $Valido = false; }
+
+    for ($I = 0; $Valido && $I < $Zip->numFiles; $I++) {
+        $Nombre = (string)$Zip->getNameIndex($I);
+        $Stat = $Zip->statIndex($I);
+        $Size = is_array($Stat) ? (int)($Stat['size'] ?? 0) : 0;
+        $CompSize = is_array($Stat) ? (int)($Stat['comp_size'] ?? 0) : 0;
+        $TotalDescomprimido += max(0, $Size);
+        if ($Nombre === '' || strpos($Nombre, "\0") !== false || str_starts_with($Nombre, '/') || str_contains($Nombre, '../')) {
+            $Valido = false;
+            break;
+        }
+        if ($Size > $MaxEntradaDescomprimida || $TotalDescomprimido > $MaxTotalDescomprimido) {
+            $Valido = false;
+            break;
+        }
+        if ($CompSize > 0 && $Size > 0 && ($Size / max(1, $CompSize)) > 120) {
+            $Valido = false;
+            break;
         }
     }
+
     $Zip->close();
-    return $TieneContentTypes && ($DirectorioEsperado === '' || $TieneDirectorio);
+    return $Valido;
 }
 
 
@@ -204,9 +255,11 @@ function SgceColumnasInsertablesBackup($Pdo, $Tabla) {
 
 function SgceCrearRespaldoSql($Pdo, $RutaArchivo, $SoloDatos = false) {
     SgcePrepararDirectoriosSeguros();
-    $Handle = fopen($RutaArchivo, 'wb');
+    $Tmp = $RutaArchivo . '.tmp.' . bin2hex(random_bytes(4));
+    $Handle = fopen($Tmp, 'wb');
     if (!$Handle) { return false; }
-    fwrite($Handle, "-- SGCE respaldo automático\n-- SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION\n-- Fecha: " . date('Y-m-d H:i:s') . "\nSET FOREIGN_KEY_CHECKS=0;\nSET NAMES utf8mb4;\n\n");
+
+    fwrite($Handle, "-- SGCE respaldo automatico\n-- Fecha: " . date('Y-m-d H:i:s') . "\nSET FOREIGN_KEY_CHECKS=0;\nSET NAMES utf8mb4;\n\n");
     $Tablas = $Pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     foreach ($Tablas as $Tabla) {
         $TablaSql = '`' . str_replace('`', '``', $Tabla) . '`';
@@ -232,6 +285,10 @@ function SgceCrearRespaldoSql($Pdo, $RutaArchivo, $SoloDatos = false) {
     }
     fwrite($Handle, "SET FOREIGN_KEY_CHECKS=1;\n");
     fclose($Handle);
+
+    $Ok = SgceFirmarArchivoRespaldo($Tmp, $RutaArchivo);
+    @unlink($Tmp);
+    if (!$Ok) { return false; }
     @chmod($RutaArchivo, 0640);
     return true;
 }
@@ -260,22 +317,181 @@ function SgceGenerarBackupAutomatico($Pdo, $Frecuencia = 'diario', $Retener = 14
 }
 
 
-function SgceFirmaRespaldoValida($Sql) {
-    return is_string($Sql) && preg_match('/SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION/', $Sql) === 1;
+function SgceBackupSigningKeyEsPlaceholder(string $Key): bool {
+    $Key = strtolower(trim($Key));
+    return in_array($Key, [
+        'cambia_este_valor_por_64_bytes_hexadecimales_generados_con_random_bytes',
+        'change_me',
+        'changeme',
+    ], true);
 }
 
+function SgceBackupSigningKeyHexValida(string $Key): bool {
+    return preg_match('/^[a-f0-9]{128}$/i', trim($Key)) === 1 && hex2bin(trim($Key)) !== false;
+}
 
+function SgceLeerBackupSigningKeyPersistida(): string {
+    $Rutas = [
+        dirname(__DIR__) . '/config/backup_signing.local.php',
+        dirname(__DIR__) . '/storage/keys/backup_signing.key',
+    ];
 
-
-function SgceValidarSqlRestauracionSegura($Sql, $MaxSentencias = 250000) {
-    $Sql = (string)$Sql;
-    if (trim($Sql) === '') { return 'El respaldo SQL está vacío.'; }
-    if (!SgceFirmaRespaldoValida($Sql)) { return 'El archivo no tiene la firma oficial SGCE.'; }
-    if (preg_match('/\b(DROP\s+DATABASE|CREATE\s+DATABASE|ALTER\s+DATABASE|GRANT\s+|REVOKE\s+|CREATE\s+USER|DROP\s+USER)\b/i', $Sql)) {
-        return 'El respaldo contiene instrucciones administrativas no permitidas.';
+    foreach ($Rutas as $Ruta) {
+        if (!is_file($Ruta) || !is_readable($Ruta)) { continue; }
+        $Valor = '';
+        if (str_ends_with($Ruta, '.php')) {
+            $Leido = require $Ruta;
+            $Valor = is_string($Leido) ? trim($Leido) : '';
+        } else {
+            $Valor = trim((string)file_get_contents($Ruta));
+        }
+        if (SgceBackupSigningKeyHexValida($Valor)) { return $Valor; }
     }
-    $AproxSentencias = substr_count($Sql, ';');
-    if ($AproxSentencias > $MaxSentencias) { return 'El respaldo supera el límite seguro de sentencias.'; }
+
+    return '';
+}
+
+function SgcePersistirBackupSigningKeyGenerada(string $Key): void {
+    $Rutas = [
+        dirname(__DIR__) . '/config/backup_signing.local.php' => "<?php\nreturn '" . $Key . "';\n",
+        dirname(__DIR__) . '/storage/keys/backup_signing.key' => $Key . "\n",
+    ];
+
+    foreach ($Rutas as $Ruta => $Contenido) {
+        $Dir = dirname($Ruta);
+        if (!is_dir($Dir) && !@mkdir($Dir, 0775, true) && !is_dir($Dir)) { continue; }
+        if (!is_writable($Dir)) { continue; }
+        $Tmp = $Ruta . '.tmp.' . bin2hex(random_bytes(6));
+        if (@file_put_contents($Tmp, $Contenido, LOCK_EX) === false) { @unlink($Tmp); continue; }
+        @chmod($Tmp, 0600);
+        if (@rename($Tmp, $Ruta)) {
+            @chmod($Ruta, 0600);
+            error_log('SGCE: backup_signing_key ausente en una instalación existente; se generó una clave persistente para respaldos HMAC. Conserva este archivo junto con tus respaldos.');
+            return;
+        }
+        @unlink($Tmp);
+    }
+
+    throw new RuntimeException('No fue posible persistir la clave privada de respaldos. Revisa permisos en config/ o storage/keys/.');
+}
+
+function SgceObtenerOGenerarBackupSigningKeyHex(): string {
+    $Persistida = SgceLeerBackupSigningKeyPersistida();
+    if ($Persistida !== '') { return $Persistida; }
+
+    $LockPath = dirname(__DIR__) . '/storage/keys/.backup_signing.lock';
+    $LockDir = dirname($LockPath);
+    if (!is_dir($LockDir) && !@mkdir($LockDir, 0775, true) && !is_dir($LockDir)) {
+        throw new RuntimeException('No fue posible preparar el bloqueo de clave privada de respaldos.');
+    }
+
+    $Lock = @fopen($LockPath, 'c');
+    if (!$Lock) {
+        throw new RuntimeException('No fue posible abrir el bloqueo de clave privada de respaldos.');
+    }
+
+    if (!flock($Lock, LOCK_EX)) {
+        fclose($Lock);
+        throw new RuntimeException('No fue posible bloquear la generación de clave privada de respaldos.');
+    }
+
+    try {
+        $Persistida = SgceLeerBackupSigningKeyPersistida();
+        if ($Persistida !== '') { return $Persistida; }
+
+        $Nueva = bin2hex(random_bytes(64));
+        SgcePersistirBackupSigningKeyGenerada($Nueva);
+        return $Nueva;
+    } finally {
+        flock($Lock, LOCK_UN);
+        fclose($Lock);
+    }
+}
+
+function SgceBackupSigningKey(): string {
+    $Key = defined('SGCE_BACKUP_SIGNING_KEY') ? trim((string)SGCE_BACKUP_SIGNING_KEY) : '';
+    if ($Key === '') { $Key = trim((string)(getenv('SGCE_BACKUP_SIGNING_KEY') ?: '')); }
+
+    if ($Key === '') {
+        $Key = SgceObtenerOGenerarBackupSigningKeyHex();
+    }
+
+    if (SgceBackupSigningKeyEsPlaceholder($Key)) {
+        throw new RuntimeException('La clave backup_signing_key conserva un valor placeholder. Genérala con: bin2hex(random_bytes(64)).');
+    }
+
+    if (!SgceBackupSigningKeyHexValida($Key)) {
+        throw new RuntimeException('La clave backup_signing_key debe ser hexadecimal de 64 bytes. Genérala con: bin2hex(random_bytes(64)).');
+    }
+
+    $Binaria = hex2bin(trim($Key));
+    if ($Binaria === false || strlen($Binaria) !== 64) {
+        throw new RuntimeException('La clave backup_signing_key no se pudo interpretar como hexadecimal válido.');
+    }
+    return $Binaria;
+}
+
+function SgceFirmarArchivoRespaldo(string $RutaOrigen, string $RutaDestino): bool {
+    if (!is_file($RutaOrigen) || !is_readable($RutaOrigen)) { return false; }
+    $Firma = hash_hmac_file('sha256', $RutaOrigen, SgceBackupSigningKey());
+    $In = fopen($RutaOrigen, 'rb');
+    $Out = fopen($RutaDestino, 'wb');
+    if (!$In || !$Out) {
+        if ($In) { fclose($In); }
+        if ($Out) { fclose($Out); }
+        return false;
+    }
+    fwrite($Out, '-- SGCE_HMAC=' . $Firma . "\n");
+    while (!feof($In)) {
+        $Chunk = fread($In, 1024 * 1024);
+        if ($Chunk === false) { fclose($In); fclose($Out); return false; }
+        if ($Chunk !== '') { fwrite($Out, $Chunk); }
+    }
+    fclose($In);
+    fclose($Out);
     return true;
+}
+
+function SgceEnviarArchivoSqlFirmado(string $RutaSqlSinFirma, string $NombreArchivo): void {
+    if (!is_file($RutaSqlSinFirma) || !is_readable($RutaSqlSinFirma)) {
+        throw new RuntimeException('No se pudo leer el respaldo temporal.');
+    }
+    $Firma = hash_hmac_file('sha256', $RutaSqlSinFirma, SgceBackupSigningKey());
+    SgceHeaderDescarga($NombreArchivo, 'application/sql; charset=utf-8');
+    SgceEnviarHeadersNoCacheDescarga();
+    echo '-- SGCE_HMAC=' . $Firma . "\n";
+    $In = fopen($RutaSqlSinFirma, 'rb');
+    if (!$In) { return; }
+    while (!feof($In)) {
+        $Chunk = fread($In, 1024 * 1024);
+        if ($Chunk === false) { break; }
+        if ($Chunk !== '') { echo $Chunk; }
+        if (function_exists('flush')) { flush(); }
+    }
+    fclose($In);
+}
+
+function SgceFirmaArchivoRespaldoValida(string $RutaArchivo): bool {
+    if (!is_file($RutaArchivo) || !is_readable($RutaArchivo)) { return false; }
+    $Handle = fopen($RutaArchivo, 'rb');
+    if (!$Handle) { return false; }
+    $PrimeraLinea = fgets($Handle);
+    if (!is_string($PrimeraLinea) || !preg_match('/^-- SGCE_HMAC=([a-f0-9]{64})\R?$/i', $PrimeraLinea, $M)) {
+        fclose($Handle);
+        return false;
+    }
+    try {
+        $Ctx = hash_init('sha256', HASH_HMAC, SgceBackupSigningKey());
+        while (!feof($Handle)) {
+            $Chunk = fread($Handle, 1024 * 1024);
+            if ($Chunk === false) { fclose($Handle); return false; }
+            if ($Chunk !== '') { hash_update($Ctx, $Chunk); }
+        }
+        fclose($Handle);
+        return hash_equals(strtolower($M[1]), hash_final($Ctx));
+    } catch (Throwable $E) {
+        fclose($Handle);
+        return false;
+    }
 }
 

@@ -1,4 +1,4 @@
-/* SGCE 1.0.185 - Módulo compartido: confirm-modal.js */
+/* SGCE - Módulo compartido: confirm-modal.js */
 document.addEventListener('DOMContentLoaded', function(){
     var ModalActual = null;
     var FormularioPendiente = null;

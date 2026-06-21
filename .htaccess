@@ -22,12 +22,24 @@ DirectoryIndex index.php
 </FilesMatch>
 
 
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript text/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css application/javascript text/javascript application/json image/svg+xml
+</IfModule>
+
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
     Header always unset X-Powered-By
+    <FilesMatch "\.(css|js|woff2|woff|ttf|png|jpg|jpeg|gif|svg|ico)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
 </IfModule>
 
 <IfModule mod_expires.c>
@@ -36,4 +48,6 @@ DirectoryIndex index.php
     ExpiresByType application/javascript "access plus 30 days"
     ExpiresByType image/png "access plus 30 days"
     ExpiresByType image/x-icon "access plus 30 days"
+    ExpiresByType font/woff2 "access plus 180 days"
+    ExpiresByType application/font-woff2 "access plus 180 days"
 </IfModule>

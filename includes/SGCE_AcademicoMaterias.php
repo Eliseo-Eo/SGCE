@@ -1,6 +1,8 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
+require_once dirname(__DIR__) . '/services/GrupoService.php';
+
 // Funciones académicas de materias y cargas por grupo.
 
 function SgceMateriaIdPorNombre(PDO $Pdo, string $Nombre): int {

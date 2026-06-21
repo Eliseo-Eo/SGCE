@@ -22,6 +22,51 @@ function SgceXmlExcelSeguro($Xml) {
     return $Xml;
 }
 
+function SgceAbrirXlsxImportacionSeguro(string $RutaArchivo): ZipArchive {
+    if (!is_file($RutaArchivo) || !is_readable($RutaArchivo)) {
+        throw new RuntimeException('No se pudo leer el archivo XLSX.');
+    }
+
+    $Zip = new ZipArchive();
+    if ($Zip->open($RutaArchivo) !== true) {
+        throw new RuntimeException('No se pudo abrir el archivo Excel. Revisa que sea .xlsx real y no .xls renombrado.');
+    }
+
+    $MaxEntradas = 200;
+    $MaxTotalDescomprimido = 60 * 1024 * 1024;
+    $MaxEntradaDescomprimida = 15 * 1024 * 1024;
+    $TotalDescomprimido = 0;
+
+    try {
+        if ($Zip->numFiles <= 0 || $Zip->numFiles > $MaxEntradas) {
+            throw new RuntimeException('El XLSX contiene una cantidad inválida de archivos internos.');
+        }
+
+        for ($I = 0; $I < $Zip->numFiles; $I++) {
+            $Nombre = (string)$Zip->getNameIndex($I);
+            $Stat = $Zip->statIndex($I);
+            $Size = is_array($Stat) ? (int)($Stat['size'] ?? 0) : 0;
+            $CompSize = max(1, is_array($Stat) ? (int)($Stat['comp_size'] ?? 1) : 1);
+            $TotalDescomprimido += max(0, $Size);
+
+            if ($Nombre === '' || strpos($Nombre, "\0") !== false || str_starts_with($Nombre, '/') || str_contains($Nombre, '../')) {
+                throw new RuntimeException('El XLSX contiene rutas internas no permitidas.');
+            }
+            if ($Size > $MaxEntradaDescomprimida || $TotalDescomprimido > $MaxTotalDescomprimido) {
+                throw new RuntimeException('El XLSX excede el tamaño interno permitido.');
+            }
+            if ($Size > 0 && ($Size / $CompSize) > 120) {
+                throw new RuntimeException('El XLSX tiene una proporción de compresión sospechosa.');
+            }
+        }
+    } catch (Throwable $E) {
+        $Zip->close();
+        throw $E;
+    }
+
+    return $Zip;
+}
+
 function SgceExtraerAtributoXmlImportacion($Tag, $Atributo) {
     $Atributo = preg_quote((string)$Atributo, '/');
     if (preg_match('/(?:^|\s)' . $Atributo . '=["\']([^"\']*)["\']/i', (string)$Tag, $Match)) {
@@ -191,10 +236,7 @@ function LeerFilasXlsx($RutaArchivo, $NombresHojaPreferidos = []) {
         throw new RuntimeException('El servidor requiere la extensión PHP zip para leer archivos Excel .xlsx. También puedes usar CSV.');
     }
 
-    $Zip = new ZipArchive();
-    if ($Zip->open($RutaArchivo) !== true) {
-        throw new RuntimeException('No se pudo abrir el archivo Excel. Revisa que sea .xlsx real y no .xls renombrado.');
-    }
+    $Zip = SgceAbrirXlsxImportacionSeguro((string)$RutaArchivo);
 
     $SharedStrings = SharedStringsExcel($Zip);
     $HojasExcel = SgceHojasExcel($Zip);
@@ -215,6 +257,8 @@ function LeerFilasXlsx($RutaArchivo, $NombresHojaPreferidos = []) {
         throw new RuntimeException('La hoja de Excel no tiene formato válido. Hoja detectada: ' . $NombreHoja . '.');
     }
 
+    $MaxFilasImportacion = 10000;
+    $MaxColumnasImportacion = 80;
     $Filas = [];
     preg_match_all('/<(?:[A-Za-z0-9_]+:)?row\b[^>]*>(.*?)<\/(?:[A-Za-z0-9_]+:)?row>/is', $XmlHoja, $RowMatches);
     foreach ($RowMatches[1] ?? [] as $ContenidoFila) {
@@ -250,12 +294,18 @@ function LeerFilasXlsx($RutaArchivo, $NombresHojaPreferidos = []) {
         if ($Fila) {
             ksort($Fila);
             $Maximo = max(array_keys($Fila));
+            if ($Maximo >= $MaxColumnasImportacion) {
+                throw new RuntimeException('El XLSX supera el máximo de columnas permitido para importación.');
+            }
             $Normalizada = [];
             for ($I = 0; $I <= $Maximo; $I++) {
                 $Normalizada[] = $Fila[$I] ?? '';
             }
             if (count(array_filter($Normalizada, static fn($Valor) => trim((string)$Valor) !== '')) > 0) {
                 $Filas[] = $Normalizada;
+                if (count($Filas) > $MaxFilasImportacion) {
+                    throw new RuntimeException('El XLSX supera el máximo de filas permitido para importación.');
+                }
             }
         }
     }

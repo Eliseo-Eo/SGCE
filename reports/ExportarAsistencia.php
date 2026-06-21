@@ -21,10 +21,10 @@ if ($CicloId > 0 && ($FechaInicio === '' || $FechaFin === '')) {
     $CicloFiltro = $StmtCicloFiltro->fetch();
     if ($CicloFiltro) { $FechaInicio = $CicloFiltro['FechaInicio']; $FechaFin = $CicloFiltro['FechaFin']; }
 }
-$TieneRango = preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin);
+$TieneRango = SgceFechaYmdValida($FechaInicio) && SgceFechaYmdValida($FechaFin);
 if ($Rango !== 'Hoy' && !$TieneRango) { http_response_code(400); exit('Selecciona fecha de inicio y fecha fin válidas.'); }
 if ($TieneRango && $FechaInicio > $FechaFin) { http_response_code(400); exit('La fecha de inicio no puede ser mayor que la fecha fin.'); }
-if ($Rango !== 'Hoy' && $TieneRango && function_exists('SgceRepoValidarRangoReporte') && !SgceRepoValidarRangoReporte($FechaInicio, $FechaFin, 370)) {
+if ($Rango !== 'Hoy' && $TieneRango && !SgceValidarRangoFechaYmd($FechaInicio, $FechaFin, 370)) {
     http_response_code(400);
     exit('El rango del reporte de asistencia no puede superar 370 días. Divide el reporte por ciclo o por periodos más pequeños.');
 }
@@ -48,7 +48,7 @@ SgceAsistenciaPrepararSalidaMasiva();
 $ConfigReporte = SgceObtenerConfiguracion($Pdo);
 $ColorReporte = SgceColorInstitucional($Pdo);
 function EstilosAsis($Landscape=false){ global $ColorReporte; ?>
-<style>
+<style nonce="<?= HAsis(function_exists('SgceCspNonce') ? SgceCspNonce() : '') ?>">
 :root{--ReportColor:<?= HAsis($ColorReporte ?? '#97051E') ?>;}
 @page{size:letter <?= $Landscape?'landscape':'' ?>;margin:1.1cm}*{box-sizing:border-box}body{margin:0;background:#eef1f5;font-family:Arial,'Segoe UI',sans-serif;color:#1f2937;font-size:12px}.ReportSheet{width:100%;max-width:<?= $Landscape?'1180':'950' ?>px;margin:22px auto;padding:24px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 18px 45px rgba(15,23,42,.10)}.Header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;border-bottom:4px solid var(--ReportColor);margin-bottom:16px;padding-bottom:12px}.Header h2{margin:0;color:var(--ReportColor);font-size:24px;font-weight:900}.SchoolName{margin:0 0 4px;color:#111827;font-size:13px;font-weight:900;text-transform:uppercase}.SchoolMeta{margin:0 0 5px;color:#6b7280;font-size:10.5px;font-weight:700;text-transform:uppercase}.Header p{margin:5px 0 0;color:#4b5563;font-weight:700}.HeaderTag{padding:7px 12px;border:1px solid #ead5da;background:#fff7f8;border-radius:999px;color:var(--ReportColor);font-weight:900;white-space:nowrap}.TablaWrap{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}table{width:100%;border-collapse:collapse}th{background:var(--ReportColor);color:#fff;padding:9px 8px;border:1px solid var(--ReportColor);text-transform:uppercase;font-size:11px;letter-spacing:.25px}td{padding:7px 8px;border:1px solid #e5e7eb}tbody tr:nth-child(even){background:#f9fafb}.Centro{text-align:center}.Fecha{background:#f3f4f6;font-weight:900;color:var(--ReportColor)}.Badge{display:inline-block;min-width:100px;padding:4px 8px;border-radius:999px;font-weight:900;font-size:10px}.A{background:#dcfce7;color:#166534}.F{background:#fee2e2;color:#991b1b}.R{background:#fef3c7;color:#92400e}.J{background:#dbeafe;color:#1e40af}@media print{body{background:#fff}.ReportSheet{max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}th{background:var(--ReportColor)!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.Badge,.Fecha,tbody tr:nth-child(even),.HeaderTag{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
@@ -64,7 +64,8 @@ if ($Modo === 'Grupo') {
     $Stmt=$Pdo->prepare("SELECT Id, CicloId, Grado, Grupo, Turno FROM Grupos WHERE Id=? AND Activo=1 LIMIT 1");$Stmt->execute([$GrupoId]);$Info=$Stmt->fetch(); if(!$Info){ http_response_code(404); exit('Grupo no encontrado.'); }
     $CicloReporteId = (int)$Info['CicloId'];
     if ($CicloId > 0 && $CicloReporteId !== $CicloId) { http_response_code(400); exit('El grupo no pertenece al ciclo solicitado.'); }
-    $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado FROM Asistencias Asis JOIN AlumnoInscripciones AI ON AI.AlumnoId=Asis.AlumnoId AND AI.CicloId=Asis.CicloId JOIN Alumnos Al ON Asis.AlumnoId=Al.Id JOIN Asignaciones Asg ON Asis.AsignacionId=Asg.Id AND Asg.CicloId=Asis.CicloId JOIN Usuarios U ON Asg.MaestroId=U.Id WHERE Asis.CicloId=? AND Asg.GrupoId=? AND AI.GrupoId=Asg.GrupoId AND Al.Activo=1 AND Asg.Activo=1 AND U.Activo=1 $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC, Asg.MateriaNombre ASC";
+    $TablaAsistencia = SgceAsistenciaTablaParaCiclo($Pdo, $CicloReporteId);
+    $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado FROM {$TablaAsistencia} Asis JOIN AlumnoInscripciones AI ON AI.AlumnoId=Asis.AlumnoId AND AI.CicloId=Asis.CicloId JOIN Alumnos Al ON Asis.AlumnoId=Al.Id JOIN Asignaciones Asg ON Asis.AsignacionId=Asg.Id AND Asg.CicloId=Asis.CicloId JOIN Usuarios U ON Asg.MaestroId=U.Id WHERE Asis.CicloId=? AND Asg.GrupoId=? AND AI.GrupoId=Asg.GrupoId AND Al.Activo=1 AND Asg.Activo=1 AND U.Activo=1 $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC, Asg.MateriaNombre ASC";
     $TituloArchivo='Asistencia_Grupo_'.ArchivoSeguroAsis($Info['Grado'].$Info['Grupo'].'_'.$Info['Turno']);
     $Params=array_merge([$CicloReporteId,$GrupoId],$ParamsFecha); $Cols=6; $Landscape=true;
 } else {
@@ -73,11 +74,12 @@ if ($Modo === 'Grupo') {
     if ($CicloId > 0 && $CicloReporteId !== $CicloId) { http_response_code(400); exit('La asignación no pertenece al ciclo solicitado.'); }
     if(SgceTieneRol($UserSession, ['maestro'])){ if((int)$UserSession['Id'] !== (int)$Info['MaestroId']){ http_response_code(403); exit('No tienes permiso.'); } }
     elseif(!SgcePuedeAdministrarReportes($UserSession)){ http_response_code(403); exit('No tienes permiso.'); }
-    $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asis.Estado FROM Asistencias Asis JOIN AlumnoInscripciones AI ON AI.AlumnoId=Asis.AlumnoId AND AI.CicloId=Asis.CicloId AND AI.GrupoId=? JOIN Alumnos Al ON Asis.AlumnoId=Al.Id WHERE Asis.CicloId=? AND Asis.AsignacionId=? AND Al.Activo=1 $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC";
+    $TablaAsistencia = SgceAsistenciaTablaParaCiclo($Pdo, $CicloReporteId);
+    $Sql="SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Al.NombreCompleto, Asis.Estado FROM {$TablaAsistencia} Asis JOIN AlumnoInscripciones AI ON AI.AlumnoId=Asis.AlumnoId AND AI.CicloId=Asis.CicloId AND AI.GrupoId=? JOIN Alumnos Al ON Asis.AlumnoId=Al.Id WHERE Asis.CicloId=? AND Asis.AsignacionId=? AND Al.Activo=1 $FiltroSql ORDER BY Asis.FechaDia DESC, Al.NombreCompleto ASC";
     $TituloArchivo='Asistencia_'.ArchivoSeguroAsis($Info['MateriaNombre'].'_'.$Info['Grado'].$Info['Grupo']);
     $Params=array_merge([(int)$Info['GrupoId'],$CicloReporteId,$AsignacionId],$ParamsFecha); $Cols=4; $Landscape=false;
 }
-if($Tipo==='Excel'){header('Content-Type: application/vnd.ms-excel; charset=utf-8');header("Content-Disposition: attachment; filename={$TituloArchivo}.xls");echo "\xEF\xBB\xBF";}
+if($Tipo==='Excel'){SgceHeaderDescarga($TituloArchivo . '.xls', 'application/vnd.ms-excel; charset=utf-8');echo "\xEF\xBB\xBF";}
 $Stmt=$Pdo->prepare($Sql);$Stmt->execute($Params);
 if ($Tipo === 'Pdf') {
     $FilasPdf = [];

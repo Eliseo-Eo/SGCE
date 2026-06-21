@@ -2,20 +2,29 @@
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 function SgceRepoBitacoraFiltros(array $Entrada): array {
-    $Desde = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($Entrada['DesdeFiltro'] ?? '')) ? (string)$Entrada['DesdeFiltro'] : '';
-    $Hasta = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($Entrada['HastaFiltro'] ?? '')) ? (string)$Entrada['HastaFiltro'] : '';
+    $Desde = SgceFechaYmdValida((string)($Entrada['DesdeFiltro'] ?? '')) ? (string)$Entrada['DesdeFiltro'] : '';
+    $Hasta = SgceFechaYmdValida((string)($Entrada['HastaFiltro'] ?? '')) ? (string)$Entrada['HastaFiltro'] : '';
+
     if ($Desde === '' && $Hasta === '') {
         $Hasta = date('Y-m-d');
-        $Desde = date('Y-m-d', strtotime('-30 days'));
+        $Desde = SgceFechaYmdSumarDias($Hasta, -30);
     }
+
     if ($Desde !== '' && $Hasta !== '') {
         try {
-            $D1 = new DateTime($Desde);
-            $D2 = new DateTime($Hasta);
-            if ($D2 < $D1) { $Hasta = $Desde; }
-            elseif ((int)$D1->diff($D2)->format('%a') > 370) { $Desde = date('Y-m-d', strtotime($Hasta . ' -370 days')); }
-        } catch (Throwable $E) {}
+            $D1 = new DateTimeImmutable($Desde);
+            $D2 = new DateTimeImmutable($Hasta);
+            if ($D2 < $D1) {
+                $Hasta = $Desde;
+            } elseif ((int)$D1->diff($D2)->format('%a') > 370) {
+                $Desde = SgceFechaYmdSumarDias($Hasta, -370);
+            }
+        } catch (Throwable $E) {
+            $Hasta = date('Y-m-d');
+            $Desde = SgceFechaYmdSumarDias($Hasta, -30);
+        }
     }
+
     return [
         'buscar' => trim((string)($Entrada['BuscarBitacora'] ?? '')),
         'accion' => trim((string)($Entrada['AccionFiltro'] ?? '')),

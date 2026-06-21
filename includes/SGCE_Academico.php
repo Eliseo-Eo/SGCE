@@ -20,16 +20,32 @@ function SgcePeriodoActualId($Pdo, $PeriodoSolicitado = 0, int $OfertaId = 0) {
     return (int)$Stmt->fetchColumn();
 }
 
+function SgceCicloActivoCacheLimpiar(): void {
+    $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
+}
+
+function SgceOfertaActivaCacheLimpiar(): void {
+    $GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] = ($GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] ?? 0) + 1;
+}
+
 function SgceActivarCicloUnico(PDO $Pdo, int $CicloId): void {
     if ($CicloId <= 0 || !SgceDbTablaExiste($Pdo, 'CiclosEscolares')) { return; }
     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 0 WHERE Id <> ?')->execute([$CicloId]);
+    SgceCicloActivoCacheLimpiar();
     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 1 WHERE Id = ?')->execute([$CicloId]);
+    SgceCicloActivoCacheLimpiar();
 }
 
 function SgceCicloActivo($Pdo) {
+    static $Cache = null;
+    static $VersionCache = null;
+    $VersionActual = $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0;
+    if ($Cache !== null && $VersionCache === $VersionActual) { return $Cache; }
     SgceNormalizarCicloActivoUnico($Pdo);
     $Stmt = $Pdo->query("SELECT Id, Nombre, FechaInicio, FechaFin FROM CiclosEscolares WHERE Activo = 1 ORDER BY FechaInicio DESC, Id DESC LIMIT 1");
-    return $Stmt->fetch() ?: ['Id' => 0, 'Nombre' => '', 'FechaInicio' => null, 'FechaFin' => null];
+    $Cache = $Stmt->fetch() ?: ['Id' => 0, 'Nombre' => '', 'FechaInicio' => null, 'FechaFin' => null];
+    $VersionCache = $VersionActual;
+    return $Cache;
 }
 
 function SgcePeriodoInfo($Pdo, $PeriodoId, int $OfertaId = 0) {
@@ -44,6 +60,25 @@ function SgceValidarParcial($Orden) {
     return $Orden >= 1 && $Orden <= 12;
 }
 
+
+
+function SgcePromedioAcademico(array $Calificaciones, int $Precision = 2): ?float {
+    return \Sgce\Support\AcademicCalculator::average($Calificaciones, $Precision);
+}
+
+function SgcePromedioDesdeFilas(array $Filas, string $Campo = 'Calificacion', int $Precision = 2): ?float {
+    $Valores = [];
+    foreach ($Filas as $Fila) {
+        if (is_array($Fila) && array_key_exists($Campo, $Fila)) { $Valores[] = $Fila[$Campo]; }
+        elseif (is_object($Fila) && isset($Fila->{$Campo})) { $Valores[] = $Fila->{$Campo}; }
+    }
+    return SgcePromedioAcademico($Valores, $Precision);
+}
+
+function SgceFormatoPromedioAcademico(?float $Promedio, int $Precision = 2, string $Nc = '-'): string {
+    return $Promedio !== null ? number_format($Promedio, $Precision) : $Nc;
+}
+
 function SgcePeriodosDisponibles($Pdo, int $OfertaId = 0) {
     if ($OfertaId <= 0) { $Oferta = SgceOfertaActiva($Pdo); $OfertaId = (int)($Oferta['Id'] ?? 0); }
     if ($OfertaId <= 0) { return []; }
@@ -53,8 +88,16 @@ function SgcePeriodosDisponibles($Pdo, int $OfertaId = 0) {
 }
 
 function SgceOfertaActiva(PDO $Pdo) {
+    static $Cache = null;
+    static $CacheInicializado = false;
+    static $VersionCache = null;
+    $VersionActual = $GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] ?? 0;
+    if ($CacheInicializado && $VersionCache === $VersionActual) { return $Cache; }
     $Stmt = $Pdo->query("SELECT Id, Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, EtiquetaEtapa, UsaProgramas, Activo, FechaCreacion, FechaActualizacion FROM OfertasEducativas WHERE Activo = 1 ORDER BY Id ASC LIMIT 1");
-    return $Stmt->fetch() ?: null;
+    $Cache = $Stmt->fetch() ?: null;
+    $CacheInicializado = true;
+    $VersionCache = $VersionActual;
+    return $Cache;
 }
 
 function SgceEtapasAcademicasListar(PDO $Pdo, int $OfertaId = 0, bool $SoloActivas = true): array {
@@ -129,14 +172,17 @@ function SgceCrearOfertaAcademica(PDO $Pdo, string $Nivel, string $Tipo, int $To
     $NombreOferta = SgceNormalizarMayusculas($NombreOferta !== '' ? $NombreOferta : $Nivel . ' ' . $Tipo);
     $EtiquetaEtapa = SgceNormalizarMayusculas($EtiquetaEtapa !== '' ? $EtiquetaEtapa : SgceEtiquetaEtapaPorTipo($Tipo));
     $Pdo->prepare('UPDATE OfertasEducativas SET Activo = 0')->execute();
+    SgceOfertaActivaCacheLimpiar();
     $StmtExiste = $Pdo->prepare('SELECT Id FROM OfertasEducativas WHERE Nombre = ? LIMIT 1');
     $StmtExiste->execute([$NombreOferta]);
     $OfertaId = (int)$StmtExiste->fetchColumn();
     if ($OfertaId > 0) {
         $Pdo->prepare('UPDATE OfertasEducativas SET NivelEducativo = ?, TipoPeriodizacion = ?, TotalEtapas = ?, EtiquetaEtapa = ?, UsaProgramas = ?, Activo = 1 WHERE Id = ?')->execute([$Nivel, $Tipo, $TotalEtapas, $EtiquetaEtapa, $UsaProgramas ? 1 : 0, $OfertaId]);
+        SgceOfertaActivaCacheLimpiar();
     } else {
         $Pdo->prepare('INSERT INTO OfertasEducativas (Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, EtiquetaEtapa, UsaProgramas, Activo) VALUES (?, ?, ?, ?, ?, ?, 1)')->execute([$NombreOferta, $Nivel, $Tipo, $TotalEtapas, $EtiquetaEtapa, $UsaProgramas ? 1 : 0]);
         $OfertaId = (int)$Pdo->lastInsertId();
+        SgceOfertaActivaCacheLimpiar();
     }
     $Pdo->prepare('UPDATE EtapasAcademicas SET Activo = 0, EsTerminal = 0 WHERE OfertaId = ?')->execute([$OfertaId]);
     $StmtBuscar = $Pdo->prepare('SELECT Id FROM EtapasAcademicas WHERE OfertaId = ? AND Orden = ? LIMIT 1');
@@ -251,6 +297,29 @@ function SgceAlumnoTieneInscripcion(PDO $Pdo, int $AlumnoId, int $CicloId): bool
     $Stmt = $Pdo->prepare('SELECT COUNT(*) FROM AlumnoInscripciones WHERE AlumnoId = ? AND CicloId = ?');
     $Stmt->execute([$AlumnoId, $CicloId]);
     return (int)$Stmt->fetchColumn() > 0;
+}
+
+function SgceAlumnoTieneDatosAcademicosEnCiclo(PDO $Pdo, int $AlumnoId, int $CicloId): bool {
+    if ($AlumnoId <= 0 || $CicloId <= 0) { return false; }
+
+    $Consultas = [
+        'SELECT 1 FROM Asistencias WHERE AlumnoId = ? AND CicloId = ? LIMIT 1',
+        'SELECT 1 FROM Calificaciones C INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId WHERE C.AlumnoId = ? AND P.CicloId = ? LIMIT 1',
+        'SELECT 1 FROM KardexAlumno WHERE AlumnoId = ? AND CicloId = ? LIMIT 1',
+        'SELECT 1 FROM KardexDetalle KD INNER JOIN KardexAlumno KA ON KA.Id = KD.KardexId WHERE KA.AlumnoId = ? AND KA.CicloId = ? LIMIT 1',
+    ];
+
+    if (SgceDbTablaExiste($Pdo, 'ConductaRegistros')) {
+        $Consultas[] = 'SELECT 1 FROM ConductaRegistros WHERE AlumnoId = ? AND CicloId = ? LIMIT 1';
+    }
+
+    foreach ($Consultas as $Sql) {
+        $Stmt = $Pdo->prepare($Sql);
+        $Stmt->execute([$AlumnoId, $CicloId]);
+        if ($Stmt->fetchColumn()) { return true; }
+    }
+
+    return false;
 }
 
 function SgceAlumnoInscribirEnCiclo(PDO $Pdo, int $AlumnoId, int $CicloId, int $GrupoId, string $Estado = 'INSCRITO'): bool {

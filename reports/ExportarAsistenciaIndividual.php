@@ -13,9 +13,9 @@ $Tipo = (($_GET['Tipo'] ?? 'Pdf') === 'Excel') ? 'Excel' : 'Pdf';
 $FechaInicio = trim((string)($_GET['FechaInicio'] ?? ''));
 $FechaFin = trim((string)($_GET['FechaFin'] ?? ''));
 if ($AlumnoId <= 0 || $CicloId <= 0) { http_response_code(400); exit('Selecciona alumno y ciclo.'); }
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaInicio) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaFin)) { http_response_code(400); exit('Selecciona fechas válidas.'); }
+if (!SgceFechaYmdValida($FechaInicio) || !SgceFechaYmdValida($FechaFin)) { http_response_code(400); exit('Selecciona fechas válidas.'); }
 if ($FechaInicio > $FechaFin) { http_response_code(400); exit('La fecha de inicio no puede ser mayor que la fecha fin.'); }
-if (function_exists('SgceRepoValidarRangoReporte') && !SgceRepoValidarRangoReporte($FechaInicio, $FechaFin, 370)) { http_response_code(400); exit('El rango no puede superar 370 días.'); }
+if (!SgceValidarRangoFechaYmd($FechaInicio, $FechaFin, 370)) { http_response_code(400); exit('El rango no puede superar 370 días.'); }
 
 $StmtAlumno = $Pdo->prepare("SELECT Al.Id, Al.NombreCompleto, AI.GrupoId, AI.Estado, C.Nombre AS CicloNombre, G.Grado, G.Grupo, G.Turno
     FROM AlumnoInscripciones AI
@@ -27,8 +27,9 @@ $StmtAlumno->execute([$AlumnoId, $CicloId]);
 $Alumno = $StmtAlumno->fetch();
 if (!$Alumno) { http_response_code(404); exit('Alumno no encontrado en el ciclo seleccionado.'); }
 
+$TablaAsistencia = SgceAsistenciaTablaParaCiclo($Pdo, $CicloId);
 $Stmt = $Pdo->prepare("SELECT DATE_FORMAT(Asis.FechaDia,'%d/%m/%Y') AS FechaTexto, Asis.FechaDia, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado
-    FROM Asistencias Asis
+    FROM {$TablaAsistencia} Asis
     JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId
     JOIN Usuarios U ON U.Id = Asg.MaestroId
     WHERE Asis.AlumnoId = ? AND Asis.CicloId = ? AND Asis.FechaDia BETWEEN ? AND ?
@@ -51,8 +52,7 @@ if ($Tipo === 'Pdf') {
     SgcePdfRespuestaTabla($Pdo, 'Asistencia individual', $Subtitulo, ['Fecha','Materia','Docente','Estado'], $Filas, $TituloArchivo, 'L', [80,220,220,110]);
 }
 
-header('Content-Type: application/vnd.ms-excel; charset=utf-8');
-header('Content-Disposition: attachment; filename=' . $TituloArchivo . '.xls');
+SgceHeaderDescarga($TituloArchivo . '.xls', 'application/vnd.ms-excel; charset=utf-8');
 echo "\xEF\xBB\xBF";
 ?>
 <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title><?= HAsInd($TituloArchivo) ?></title></head><body>

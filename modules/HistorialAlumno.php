@@ -4,6 +4,7 @@ if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no per
 
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/ConductaService.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }
@@ -70,7 +71,8 @@ if (!$Alumno) {
     SgceSalirConError('El alumno no tiene inscripción registrada en el ciclo escolar seleccionado.', 404);
 }
 
-$StmtResumenAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM Asistencias Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
+$TablaAsistenciaHistorial = SgceAsistenciaTablaParaCiclo($Pdo, $CicloConsultaId);
+$StmtResumenAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM {$TablaAsistenciaHistorial} Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
 $StmtResumenAsis->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Conteos = ['A'=>0,'F'=>0,'R'=>0,'J'=>0];
 foreach ($StmtResumenAsis->fetchAll() as $Fila) {
@@ -79,16 +81,24 @@ foreach ($StmtResumenAsis->fetchAll() as $Fila) {
     }
 }
 
-$StmtPromedio = $Pdo->prepare("\n    SELECT ROUND(AVG(C.Calificacion), 1)\n    FROM Calificaciones C\n    INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.OfertaId = ?\n    INNER JOIN Asignaciones Asg ON Asg.Id = C.AsignacionId AND Asg.CicloId = P.CicloId\n    WHERE C.AlumnoId = ?\n      AND P.CicloId = ?\n      AND Asg.GrupoId = ?\n     \n");
+$StmtPromedio = $Pdo->prepare("
+    SELECT C.Calificacion
+    FROM Calificaciones C
+    INNER JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.OfertaId = ?
+    INNER JOIN Asignaciones Asg ON Asg.Id = C.AsignacionId AND Asg.CicloId = P.CicloId
+    WHERE C.AlumnoId = ?
+      AND P.CicloId = ?
+      AND Asg.GrupoId = ?
+");
 $StmtPromedio->execute([(int)($Alumno['OfertaId'] ?? 0), $AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
-$Promedio = $StmtPromedio->fetchColumn();
-$Promedio = $Promedio !== null ? $Promedio : '0.0';
+$PromedioValor = SgcePromedioAcademico($StmtPromedio->fetchAll(PDO::FETCH_COLUMN), 1);
+$Promedio = $PromedioValor !== null ? number_format($PromedioValor, 1) : '0.0';
 
 $StmtCalificaciones = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Maestro, P.Nombre AS PeriodoNombre, C.Calificacion, C.FechaActualizacion\n    FROM Calificaciones C\n    JOIN PeriodosEvaluacion P ON P.Id = C.PeriodoId AND P.OfertaId = ?\n    JOIN Asignaciones Asg ON C.AsignacionId = Asg.Id AND Asg.CicloId = P.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE C.AlumnoId = ? AND P.CicloId = ? AND Asg.GrupoId = ?\n    ORDER BY P.Orden ASC, Asg.MateriaNombre ASC\n");
 $StmtCalificaciones->execute([(int)($Alumno['OfertaId'] ?? 0), $AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId']]);
 $Calificaciones = $StmtCalificaciones->fetchAll();
 
-$StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado\n    FROM Asistencias Asis\n    JOIN Asignaciones Asg ON Asis.AsignacionId = Asg.Id AND Asg.CicloId = Asis.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n    LIMIT 300\n");
+$StmtAsistencias = $Pdo->prepare("\n    SELECT Asis.FechaDia, DATE_FORMAT(Asis.FechaDia, '%d/%m/%Y') AS FechaTexto, Asg.MateriaNombre, U.NombreCompleto AS Maestro, Asis.Estado\n    FROM {$TablaAsistenciaHistorial} Asis\n    JOIN Asignaciones Asg ON Asis.AsignacionId = Asg.Id AND Asg.CicloId = Asis.CicloId\n    JOIN Usuarios U ON Asg.MaestroId = U.Id\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    ORDER BY Asis.FechaDia DESC, Asg.MateriaNombre ASC\n    LIMIT 300\n");
 $StmtAsistencias->execute([$AlumnoId, $CicloConsultaId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Asistencias = $StmtAsistencias->fetchAll();
 

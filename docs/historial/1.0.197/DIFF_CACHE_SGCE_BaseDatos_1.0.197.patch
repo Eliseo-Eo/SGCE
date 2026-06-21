@@ -1,0 +1,10 @@
+--- /mnt/data/sgce196/Produccion/includes/SGCE_BaseDatos.php	2026-06-20 15:51:30.509364449 +0000
++++ includes/SGCE_BaseDatos.php	2026-06-20 16:15:57.909573563 +0000
+@@ -11,6 +11,7 @@
+ 
+     $IdActivo = (int)$Ids[0];
+     $Pdo->prepare('UPDATE CiclosEscolares SET Activo = 0 WHERE Activo = 1 AND Id <> ?')->execute([$IdActivo]);
++    $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
+ }
+ 
+ function SgceDbTablaExiste(PDO $Pdo, string $Tabla): bool {

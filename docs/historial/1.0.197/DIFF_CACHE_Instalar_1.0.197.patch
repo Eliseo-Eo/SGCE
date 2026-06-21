@@ -1,0 +1,21 @@
+--- /mnt/data/sgce196/Produccion/Instalar.php	2026-06-20 15:51:30.496253203 +0000
++++ Instalar.php	2026-06-20 16:15:57.910766289 +0000
+@@ -350,6 +350,7 @@
+         $EtiquetaEtapa = InstalarEtiquetaEtapaPorTipo($TipoPeriodizacion);
+         $StmtOferta = $PdoDb->prepare('INSERT INTO OfertasEducativas (Nombre, NivelEducativo, TipoPeriodizacion, TotalEtapas, EtiquetaEtapa, UsaProgramas, Activo) VALUES (?, ?, ?, ?, ?, ?, 1)');
+         $StmtOferta->execute([$NombreOfertaAcademica, $NivelEducativo, $TipoPeriodizacion, $TotalEtapas, $EtiquetaEtapa, $UsaProgramas ? 1 : 0]);
++        $GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] = ($GLOBALS['SGCE_OFERTA_ACTIVA_CACHE_RESET'] ?? 0) + 1;
+         $OfertaId = (int)$PdoDb->lastInsertId();
+         $StmtConfigAcademica = $PdoDb->prepare("INSERT INTO ConfiguracionesAcademicas (OfertaId, CantidadPeriodosEvaluacion, NombreBasePeriodo, ModoPeriodos, PeriodosPersonalizados, UsaPlaneaciones, TipoPlaneacion, PlaneacionesCantidad, Activo) VALUES (?, ?, ?, ?, NULLIF(?, ''), ?, ?, ?, 1)");
+         $StmtConfigAcademica->execute([$OfertaId, $PeriodosCantidad, $PeriodosNombreBase, $PeriodosModo, implode(PHP_EOL, $PeriodosFinales), $UsaPlaneaciones ? 1 : 0, $TipoPlaneacion, $PlaneacionesCantidad]);
+@@ -365,8 +366,10 @@
+         }
+ 
+         $PdoDb->prepare('UPDATE CiclosEscolares SET Activo = 0')->execute();
++        $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
+         $StmtCiclo = $PdoDb->prepare('INSERT INTO CiclosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES (?, ?, ?, 1)');
+         $StmtCiclo->execute([$CicloNombre, $FechaInicio, $FechaFin]);
++        $GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] = ($GLOBALS['SGCE_CICLO_ACTIVO_CACHE_RESET'] ?? 0) + 1;
+         $CicloId = (int)$PdoDb->lastInsertId();
+         $StmtPeriodo = $PdoDb->prepare('INSERT INTO PeriodosEvaluacion (CicloId, OfertaId, Nombre, Orden, Activo) VALUES (?, ?, ?, ?, 1)');
+         foreach ($PeriodosFinales as $OrdenPeriodo => $NombrePeriodoInstalar) {

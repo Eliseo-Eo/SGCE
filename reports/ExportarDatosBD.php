@@ -63,11 +63,13 @@ $TablasPreferidas = [
     'MigracionesCiclo',
     'Calificaciones',
     'Asistencias',
+    'ConductaRegistros',
     'KardexAlumno',
     'KardexDetalle',
     'Avisos',
     'Planeaciones',
     'BitacoraMovimientos',
+    'BitacoraMovimientosArchivo',
     'IntentosSeguridad'
 ];
 
@@ -85,21 +87,21 @@ foreach ($TablasExistentes as $Tabla) {
 }
 
 $NombreArchivo = 'Datos_SGCE_' . date('Ymd_His') . '.sql';
-header('Content-Type: application/sql; charset=utf-8');
-header('Content-Disposition: attachment; filename="' . $NombreArchivo . '"');
-SgceEnviarHeadersNoCacheDescarga();
-header('X-Content-Type-Options: nosniff');
+$RutaTemporal = tempnam(sys_get_temp_dir(), 'sgce_sql_');
+if ($RutaTemporal === false) { http_response_code(500); exit('No se pudo preparar el respaldo temporal.'); }
+$HandleSql = fopen($RutaTemporal, 'wb');
+if (!$HandleSql) { @unlink($RutaTemporal); http_response_code(500); exit('No se pudo escribir el respaldo temporal.'); }
+function EscribirSqlExport($Texto) { global $HandleSql; fwrite($HandleSql, (string)$Texto); }
 
-echo "-- ============================================================\n";
-echo "-- RESPALDO SGCE SOLO DATOS\n";
-echo "-- GENERADO: " . date('Y-m-d H:i:s') . "\n";
-echo "-- RestaurarBD.php permite fusionar o reemplazar datos con este archivo.\n";
-echo "-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n";
-echo "-- ============================================================\n\n";
-echo "-- SGCE_EXPORT_SIGNATURE=SGCE_PRODUCCION\n";
-echo "-- NOTA: LAS CONTRASEÑAS SE RESPALDAN COMO HASH SEGURO, NO EN TEXTO PLANO.\n";
-echo "SET FOREIGN_KEY_CHECKS=0;\n";
-echo "SET NAMES utf8mb4;\n\n";
+EscribirSqlExport("-- ============================================================\n");
+EscribirSqlExport("-- RESPALDO SGCE SOLO DATOS\n");
+EscribirSqlExport("-- GENERADO: " . date('Y-m-d H:i:s') . "\n");
+EscribirSqlExport("-- RestaurarBD.php permite fusionar o reemplazar datos con este archivo.\n");
+EscribirSqlExport("-- NOTA: NO SE RESPALDAN TOKENS DE SESIÓN ACTIVOS.\n");
+EscribirSqlExport("-- ============================================================\n\n");
+EscribirSqlExport("-- NOTA: LAS CONTRASEÑAS SE RESPALDAN COMO HASH SEGURO, NO EN TEXTO PLANO.\n");
+EscribirSqlExport("SET FOREIGN_KEY_CHECKS=0;\n");
+EscribirSqlExport("SET NAMES utf8mb4;\n\n");
 
 foreach ($Tablas as $Tabla) {
     $Columnas = ColumnasInsertablesDatos($Pdo, $Tabla);
@@ -109,9 +111,9 @@ foreach ($Tablas as $Tabla) {
     $ColumnasSql = array_map(function($Col){ return '`' . str_replace('`', '``', $Col) . '`'; }, $Columnas);
     $ColumnasSelect = implode(',', $ColumnasSql);
 
-    echo "-- ------------------------------------------------------------\n";
-    echo "-- DATOS: `" . str_replace('`','``',$Tabla) . "`\n";
-    echo "-- ------------------------------------------------------------\n";
+    EscribirSqlExport("-- ------------------------------------------------------------\n");
+    EscribirSqlExport("-- DATOS: `" . str_replace('`','``',$Tabla) . "`\n");
+    EscribirSqlExport("-- ------------------------------------------------------------\n");
 
     $StmtDatos = $Pdo->query('SELECT ' . $ColumnasSelect . ' FROM ' . QTablaDatos($Tabla));
     while ($Fila = $StmtDatos->fetch(PDO::FETCH_ASSOC)) {
@@ -132,17 +134,19 @@ foreach ($Tablas as $Tabla) {
             $UpdateParts[] = $ColSql . '=VALUES(' . $ColSql . ')';
         }
 
-        echo 'INSERT INTO ' . QTablaDatos($Tabla) . ' (' . implode(',', $ColumnasSql) . ') VALUES (' . implode(',', $Valores) . ')';
+        EscribirSqlExport('INSERT INTO ' . QTablaDatos($Tabla) . ' (' . implode(',', $ColumnasSql) . ') VALUES (' . implode(',', $Valores) . ')');
         if ($UpdateParts) {
-            echo ' ON DUPLICATE KEY UPDATE ' . implode(',', $UpdateParts);
+            EscribirSqlExport(' ON DUPLICATE KEY UPDATE ' . implode(',', $UpdateParts));
         }
-        echo ";\n";
+        EscribirSqlExport(";\n");
     }
-    echo "\n";
+    EscribirSqlExport("\n");
 
     if (function_exists('flush')) { flush(); }
 }
 
-echo "SET FOREIGN_KEY_CHECKS=1;\n";
+EscribirSqlExport("SET FOREIGN_KEY_CHECKS=1;\n");
+fclose($HandleSql);
+SgceEnviarArchivoSqlFirmado($RutaTemporal, $NombreArchivo);
+@unlink($RutaTemporal);
 exit;
-

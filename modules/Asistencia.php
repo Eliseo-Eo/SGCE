@@ -2,6 +2,7 @@
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/ConductaService.php';
 require_once dirname(__DIR__) . '/services/AsistenciaService.php';
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
@@ -12,7 +13,7 @@ if (!$UserSession || !SgceTienePermiso($UserSession, 'asistencia')) { header('Lo
 $Hoy = date('Y-m-d');
 $PuedeHistorico = SgcePuedeCorregirAsistenciaHistorica($UserSession);
 $FechaConsulta = trim((string)($_GET['Fecha'] ?? ($_POST['Fecha'] ?? $Hoy)));
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $FechaConsulta)) { $FechaConsulta = $Hoy; }
+if (!SgceFechaYmdValida($FechaConsulta)) { $FechaConsulta = $Hoy; }
 if (!$PuedeHistorico && $FechaConsulta !== $Hoy) { $FechaConsulta = $Hoy; }
 
 $AsignacionId = (int)($_GET['id'] ?? ($_GET['AsignacionId'] ?? ($_POST['asignacion_id'] ?? 0)));

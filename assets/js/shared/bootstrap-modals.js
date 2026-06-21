@@ -1,4 +1,4 @@
-/* SGCE 1.0.185 - Módulo compartido: bootstrap-modals.js */
+/* SGCE - Módulo compartido: bootstrap-modals.js */
 document.addEventListener('show.bs.modal', function(Evento){
     var Modal = Evento.target;
     if (Modal && Modal.classList && Modal.classList.contains('modal') && Modal.parentElement !== document.body) {

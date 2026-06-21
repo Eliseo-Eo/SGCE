@@ -1,32 +1,14 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
 
-function SgceTextoBusquedaNormalizado($Texto): string {
-    $Texto = SgceNormalizarMayusculas((string)$Texto);
-    $Texto = strtr($Texto, [
-        'Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U','Ü'=>'U','Ñ'=>'N',
-        'á'=>'A','é'=>'E','í'=>'I','ó'=>'O','ú'=>'U','ü'=>'U','ñ'=>'N'
-    ]);
-    $Texto = preg_replace('/[^A-Z0-9 ]/u', ' ', $Texto);
-    $Texto = preg_replace('/\s+/u', ' ', trim((string)$Texto));
-    return $Texto;
-}
+$SgceBootstrapLegacySearch = dirname(__DIR__) . '/app/bootstrap.php';
+if (is_file($SgceBootstrapLegacySearch)) { require_once $SgceBootstrapLegacySearch; }
 
-function SgceLikePrefijoBusqueda($Texto): string {
-    return SgceTextoBusquedaNormalizado($Texto) . '%';
-}
+function SgceTextoBusquedaNormalizado($Texto): string { return \Sgce\Support\Search::normalize($Texto); }
 
-function SgceFullTextBusqueda($Texto): string {
-    $Texto = SgceTextoBusquedaNormalizado($Texto);
-    $Partes = preg_split('/\s+/', $Texto) ?: [];
-    $Tokens = [];
-    foreach ($Partes as $Parte) {
-        $Parte = preg_replace('/[^A-Z0-9]/', '', (string)$Parte);
-        if ($Parte === '' || strlen($Parte) < 2) { continue; }
-        $Tokens[] = '+' . $Parte . '*';
-    }
-    return implode(' ', $Tokens);
-}
+function SgceLikePrefijoBusqueda($Texto): string { return \Sgce\Support\Search::likePrefix($Texto); }
+
+function SgceFullTextBusqueda($Texto): string { return \Sgce\Support\Search::booleanFullText($Texto); }
 
 function SgceBindLimitOffset(PDOStatement $Stmt, int $Inicio, int $Limit, int $Offset): void {
     $Stmt->bindValue($Inicio, max(1, min(200, $Limit)), PDO::PARAM_INT);

@@ -1,6 +1,7 @@
 <?php
 if (!defined('SGCE_APP')) { http_response_code(403); exit('Acceso directo no permitido.'); }
 require_once dirname(__DIR__) . '/config/Conexion.php';
+require_once dirname(__DIR__) . '/services/migracion/MigracionService.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
 if (!$UserSession) { header('Location: index.php'); exit; }
@@ -200,7 +201,7 @@ $DestinoSinPeriodos = is_array($DiagnosticoCiclo) ? ($DiagnosticoCiclo['DestinoS
             <form method="get" class="row g-3 align-items-end mb-4">
                 <div class="col-md-8">
                     <label class="SgceFieldLabel">Ciclo origen inactivo / cerrado</label>
-                    <select name="CicloOrigenId" class="form-select FormControl" onchange="this.form.submit()">
+                    <select name="CicloOrigenId" class="form-select FormControl" data-sgce-auto-submit="1">
                         <?php if(empty($CiclosInactivosMigracion)): ?>
                             <option value="">No hay ciclos inactivos con grupos para migrar</option>
                         <?php else: ?>

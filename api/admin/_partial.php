@@ -18,6 +18,7 @@ function SgceCapturarPartialAdmin(string $Ruta, array $Variables = []): string {
 
 function SgceAdminApiResponder(string $TabEsperada, string $VistaArchivo): void {
     require_once dirname(__DIR__, 2) . '/config/Conexion.php';
+    require_once dirname(__DIR__, 2) . '/services/SGCE_ServiceLoader.php';
 
     $UserSession = VerificarSesionCookie($Pdo);
     if (!$UserSession || !SgcePuedePanelAdmin($UserSession)) {

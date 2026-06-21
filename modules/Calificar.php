@@ -5,7 +5,7 @@ require_once dirname(__DIR__) . '/config/Conexion.php';
 require_once dirname(__DIR__) . '/services/CalificacionService.php';
 
 $UserSession = VerificarSesionCookie($Pdo);
-if (!$UserSession || $UserSession['Rol'] !== 'maestro') { header('Location: index.php'); exit; }
+if (!$UserSession || !SgcePuedeCapturarCalificaciones($UserSession)) { header('Location: index.php'); exit; }
 
 $AsignacionId = (int)($_GET['AsignacionId'] ?? ($_POST['AsignacionId'] ?? 0));
 $ConfigCalificacion = SgceCalificacionConfig($Pdo);

@@ -3,7 +3,7 @@ if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403)
 
 
 function SgceVersion(): string {
-    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : '1.0.185';
+    return defined('SGCE_VERSION') ? (string)SGCE_VERSION : (class_exists('Sgce\\Foundation\\Version') ? \Sgce\Foundation\Version::current() : '0.0.0');
 }
 
 
@@ -40,7 +40,7 @@ function SgceEstilosTema($Pdo) {
     $Suave = SgceColorAjustar($Base, 84);
     $Claro = SgceColorAjustar($Base, 32);
     [$R, $G, $B] = SgceColorRgb($Base);
-    return '<style id="SgceTemaInstitucional">:root{--SgceGuinda:' . $Base . ';--SgceGuindaRGB:' . $R . ',' . $G . ',' . $B . ';--SgceGuindaOscuro:' . $Oscuro . ';--SgceGuindaProfundo:' . $Profundo . ';--SgceGuindaSuave:' . $Suave . ';--SgceGuindaClaro:' . $Claro . ';--SgceSombraGuinda:0 12px 26px rgba(' . $R . ',' . $G . ',' . $B . ',.14);}</style>';
+    return '<style nonce="' . (function_exists('SgceCspNonce') ? HGlobal(SgceCspNonce()) : '') . '" id="SgceTemaInstitucional">:root{--SgceGuinda:' . $Base . ';--SgceGuindaRGB:' . $R . ',' . $G . ',' . $B . ';--SgceGuindaOscuro:' . $Oscuro . ';--SgceGuindaProfundo:' . $Profundo . ';--SgceGuindaSuave:' . $Suave . ';--SgceGuindaClaro:' . $Claro . ';--SgceSombraGuinda:0 12px 26px rgba(' . $R . ',' . $G . ',' . $B . ',.14);}</style>';
 }
 
 

@@ -1,4 +1,4 @@
-/* SGCE 1.0.185 - Módulo compartido: csrf.js */
+/* SGCE - Módulo compartido: csrf.js */
 document.addEventListener('DOMContentLoaded', function () {
     var Marcador = document.querySelector('[data-sgce-csrf-token]');
     if (!Marcador) { return; }

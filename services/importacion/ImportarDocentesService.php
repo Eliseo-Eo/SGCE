@@ -39,7 +39,7 @@ function SgceImportarDocentesService(PDO $Pdo, array $UserSession, int $CicloAct
 
             $Nombre = SgceNormalizarNombre($Data[0]);
             $User = trim((string)$Data[1]);
-            $Pass = trim((string)$Data[2]);
+            $Pass = (string)$Data[2];
 
             if ($Nombre === '' || $User === '' || $Pass === '' || SgceValidarPasswordFuerte($Pass) !== true) {
                 $Invalidos++;

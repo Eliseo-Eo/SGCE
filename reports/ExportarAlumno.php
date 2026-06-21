@@ -31,15 +31,10 @@ $StmtCal = $Pdo->prepare("\n    SELECT Asg.MateriaNombre, U.NombreCompleto AS Ma
 $StmtCal->execute([$AlumnoId, $PeriodoId, $CicloId, (int)$Alumno['GrupoId']]);
 $Calificaciones = $StmtCal->fetchAll();
 
-$Promedio = null;
-$Cuenta = 0;
-$Suma = 0;
-foreach ($Calificaciones as $Fila) {
-    if ($Fila['Calificacion'] !== null) { $Suma += (float)$Fila['Calificacion']; $Cuenta++; }
-}
-if ($Cuenta > 0) { $Promedio = round($Suma / $Cuenta, 2); }
+$Promedio = SgcePromedioDesdeFilas($Calificaciones, 'Calificacion', 2);
 
-$StmtAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM Asistencias Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
+$TablaAsistencia = SgceAsistenciaTablaParaCiclo($Pdo, $CicloId);
+$StmtAsis = $Pdo->prepare("\n    SELECT Asis.Estado, COUNT(*) AS Total\n    FROM {$TablaAsistencia} Asis\n    INNER JOIN Asignaciones Asg ON Asg.Id = Asis.AsignacionId AND Asg.CicloId = Asis.CicloId\n    WHERE Asis.AlumnoId = ?\n      AND Asis.CicloId = ?\n      AND Asg.GrupoId = ?\n      AND Asis.FechaDia BETWEEN ? AND ?\n    GROUP BY Asis.Estado\n");
 $StmtAsis->execute([$AlumnoId, $CicloId, (int)$Alumno['GrupoId'], $FechaInicioCiclo, $FechaFinCiclo]);
 $Conteos = ['A' => 0, 'F' => 0, 'R' => 0, 'J' => 0];
 foreach ($StmtAsis->fetchAll() as $Fila) {

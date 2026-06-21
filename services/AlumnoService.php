@@ -1,5 +1,6 @@
 <?php
 if (!defined('SGCE_APP') && php_sapi_name() !== 'cli') { http_response_code(403); exit('Acceso directo no permitido.'); }
+require_once dirname(__DIR__) . '/repositories/AlumnosRepository.php';
 
 function SgceAlumnoContarActivos(PDO $Pdo): int { return SgceAlumnoContarFiltrado($Pdo, []); }
 

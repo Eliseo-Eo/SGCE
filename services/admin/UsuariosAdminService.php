@@ -17,7 +17,7 @@ function SgceUsuariosAdminPreparar(PDO $Pdo, array $UserSession): array {
             if ($Accion === 'CrearUsuario') {
                 $NombreCompleto = SgceNormalizarTextoUsuarios($_POST['NombreCompleto'] ?? '');
                 $Username = trim((string)($_POST['Username'] ?? ''));
-                $Password = trim((string)($_POST['Password'] ?? ''));
+                $Password = (string)($_POST['Password'] ?? '');
                 $Rol = SgceNormalizarRolSistema($_POST['Rol'] ?? '');
 
                 if ($NombreCompleto === '' || SgceLongitudTexto($NombreCompleto) > 140 || $Username === '' || $Password === '' || !SgceValidarRolUsuario($Rol, $Roles)) {
@@ -72,7 +72,7 @@ function SgceUsuariosAdminPreparar(PDO $Pdo, array $UserSession): array {
                 $Id = (int)($_POST['Id'] ?? 0);
                 $NombreCompleto = SgceNormalizarTextoUsuarios($_POST['NombreCompleto'] ?? '');
                 $Username = trim((string)($_POST['Username'] ?? ''));
-                $Password = trim((string)($_POST['Password'] ?? ''));
+                $Password = (string)($_POST['Password'] ?? '');
                 $Rol = SgceNormalizarRolSistema($_POST['Rol'] ?? '');
                 $Activo = isset($_POST['Activo']) ? 1 : 0;
 
